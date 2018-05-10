@@ -4,7 +4,7 @@ require "webauthn/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "webauthn"
-  spec.version       = Webauthn::VERSION
+  spec.version       = WebAuthn::VERSION
   spec.authors       = ["Gonzalo Rodriguez"]
   spec.email         = ["gonzalo0@cedarcode.com"]
 

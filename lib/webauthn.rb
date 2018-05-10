@@ -1,5 +1,5 @@
 require "webauthn/version"
 
-module Webauthn
+module WebAuthn
   # Your code goes here...
 end
