@@ -43,7 +43,14 @@ module WebAuthn
     end
 
     def client_data
-      @client_data ||= JSON.parse(Base64.urlsafe_decode64(client_data_bin))
+      @client_data ||=
+        begin
+          if client_data_bin
+            JSON.parse(Base64.urlsafe_decode64(client_data_bin))
+          else
+            raise "Missing client_data_bin"
+          end
+        end
     end
 
     def authenticator_data
