@@ -20,15 +20,26 @@ Or install it yourself as:
 
 ## Usage
 
+### Registration
+
+#### Initiation phase
+
 ```ruby
-payload = WebAuthn.registration_payload
+credential_creation_options = WebAuthn.credential_creation_options
 
-# If you want to store your challenge, you can read it like this
-payload[:publicKey][:challenge]
+# Store the newly generated challenge somewhere so you can have it
+# for the validation phase.
+#
+# You can read it from the resulting options:
+credential_creation_options[:challenge]
 
-render json: payload
+# Send `credential_creation_options` to the browser, so that they can be used
+# when calling `navigator.credentials.create({ "publicKey": credentialCreationOptions })`
 ```
 
+#### Validation phase
+
+TBD
 
 ## Development
 
