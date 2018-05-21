@@ -14,7 +14,7 @@ module WebAuthn
         challenge: SecureRandom.random_bytes(16),
         pubKeyCredParams: [ES256_ALGORITHM],
         rp: { name: RP_NAME },
-        user: { name: USER_NAME, displayName: "web-user", id: Base64.encode64(USER_ID) }
+        user: { name: USER_NAME, displayName: USER_NAME, id: Base64.encode64(USER_ID) }
       }
     }
   end
