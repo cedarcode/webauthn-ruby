@@ -15,7 +15,7 @@ module WebAuthn
   def self.registration_payload
     {
       publicKey: {
-        challenge: SecureRandom.random_bytes(16),
+        challenge: Base64.urlsafe_encode64(SecureRandom.random_bytes(16)),
         pubKeyCredParams: [ES256_ALGORITHM],
         rp: { name: RP_NAME },
         user: { name: USER_NAME, displayName: USER_NAME, id: Base64.encode64(USER_ID) }
