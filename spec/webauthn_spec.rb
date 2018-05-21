@@ -26,7 +26,7 @@ RSpec.describe WebAuthn do
       user_info = @payload[:publicKey][:user]
       expect(user_info[:name]).to eq("web-user")
       expect(user_info[:displayName]).to eq("web-user")
-      expect(user_info[:id]).to eq("MQ==\n")
+      expect(user_info[:id]).to eq("MQ==")
     end
   end
 
