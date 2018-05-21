@@ -1,4 +1,6 @@
+require "webauthn/validator"
 require "webauthn/version"
+
 require "securerandom"
 require "base64"
 require "json"
@@ -21,10 +23,13 @@ module WebAuthn
     }
   end
 
-  def self.valid?(original_challenge:, client_data_bin:)
-    client_data_text = Base64.urlsafe_decode64(client_data_bin)
-    client_data = JSON.parse(client_data_text)
+  def self.valid?(attestation_object:, client_data_bin:, original_challenge:)
+    validator = WebAuthn::Validator.new(
+      original_challenge: original_challenge,
+      attestation_object: attestation_object,
+      client_data_bin: client_data_bin
+    )
 
-    client_data["type"] == CREATE_TYPE && Base64.urlsafe_decode64(client_data["challenge"]) == original_challenge
+    validator.valid?
   end
 end
