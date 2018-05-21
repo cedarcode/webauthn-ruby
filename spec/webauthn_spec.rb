@@ -31,9 +31,10 @@ RSpec.describe WebAuthn do
 
   describe "#valid?" do
     it "validates registration attestation" do
+      original_challenge = Base64.urlsafe_decode64('SJoqxXSZAlElBfSa11DtZQ==')
       client_data_bin = 'eyJjaGFsbGVuZ2UiOiJTSm9xeFhTWkFsRWxCZlNhMTFEdFpRIiwiY2xpZW50RXh0ZW5zaW9ucyI6e30sImhhc2hBbGdvcml0aG0iOiJTSEEtMjU2Iiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9'
 
-      valid = WebAuthn.valid?(client_data_bin: client_data_bin)
+      valid = WebAuthn.valid?(original_challenge: original_challenge, client_data_bin: client_data_bin)
 
       expect(valid).to eq(true)
     end

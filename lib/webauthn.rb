@@ -21,10 +21,10 @@ module WebAuthn
     }
   end
 
-  def self.valid?(client_data_bin:)
+  def self.valid?(original_challenge:, client_data_bin:)
     client_data_text = Base64.urlsafe_decode64(client_data_bin)
     client_data = JSON.parse(client_data_text)
 
-    client_data["type"] == CREATE_TYPE
+    client_data["type"] == CREATE_TYPE && Base64.urlsafe_decode64(client_data["challenge"]) == original_challenge
   end
 end
