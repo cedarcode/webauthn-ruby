@@ -27,7 +27,7 @@ module WebAuthn
     end
 
     def valid_challenge?
-      Base64.urlsafe_decode64(client_data["challenge"]) == original_challenge
+      Base64.urlsafe_decode64(client_data["challenge"]) == Base64.urlsafe_decode64(original_challenge)
     end
 
     def valid_authenticator_data?
