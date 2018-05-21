@@ -1,0 +1,18 @@
+AllCops:
+  TargetRubyVersion: 2.5
+  DisabledByDefault: true
+
+Bundler:
+  Enabled: true
+
+Gemspec:
+  Enabled: true
+
+Layout:
+  Enabled: true
+
+Performance:
+  Enabled: true
+
+Security:
+  Enabled: true
