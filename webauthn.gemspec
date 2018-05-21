@@ -6,11 +6,17 @@ Gem::Specification.new do |spec|
   spec.name          = "webauthn"
   spec.version       = WebAuthn::VERSION
   spec.authors       = ["Gonzalo Rodriguez"]
-  spec.email         = ["gonzalo0@cedarcode.com"]
+  spec.email         = ["gonzalo@cedarcode.com"]
 
   spec.summary       = %q{Web Authentication API Relying Party in ruby}
-  spec.homepage      = "https://github.com/cedarcode/webauthn"
+  spec.homepage      = "https://github.com/cedarcode/webauthn-ruby"
   spec.license       = "MIT"
+
+  spec.metadata = {
+    "bug_tracker_uri" => "https://github.com/cedarcode/webauthn-ruby/issues",
+    "changelog_uri" => "https://github.com/cedarcode/webauthn-ruby/blob/master/CHANGELOG.md",
+    "source_code_uri" => "https://github.com/cedarcode/webauthn-ruby"
+  }
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
