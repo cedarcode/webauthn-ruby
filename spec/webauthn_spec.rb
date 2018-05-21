@@ -9,7 +9,8 @@ RSpec.describe WebAuthn do
     end
 
     it "has a 16 byte length challenge" do
-      expect(@payload[:publicKey][:challenge].length).to eq(16)
+      original_challenge = Base64.urlsafe_decode64(@payload[:publicKey][:challenge])
+      expect(original_challenge.length).to eq(16)
     end
 
     it "has public key params" do
@@ -25,7 +26,7 @@ RSpec.describe WebAuthn do
       user_info = @payload[:publicKey][:user]
       expect(user_info[:name]).to eq("web-user")
       expect(user_info[:displayName]).to eq("web-user")
-      expect(user_info[:id]).to eq("MQ==\n")
+      expect(user_info[:id]).to eq("MQ==")
     end
   end
 
