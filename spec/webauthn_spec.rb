@@ -3,27 +3,27 @@ RSpec.describe WebAuthn do
     expect(WebAuthn::VERSION).not_to be nil
   end
 
-  describe "#registration_payload" do
+  describe "#credential_creation_options" do
     before do
-      @payload = WebAuthn.registration_payload
+      @credential_creation_options = WebAuthn.credential_creation_options
     end
 
     it "has a 16 byte length challenge" do
-      original_challenge = Base64.urlsafe_decode64(@payload[:publicKey][:challenge])
+      original_challenge = Base64.urlsafe_decode64(@credential_creation_options[:challenge])
       expect(original_challenge.length).to eq(16)
     end
 
     it "has public key params" do
-      expect(@payload[:publicKey][:pubKeyCredParams][0][:type]).to eq("public-key")
-      expect(@payload[:publicKey][:pubKeyCredParams][0][:alg]).to eq(-7)
+      expect(@credential_creation_options[:pubKeyCredParams][0][:type]).to eq("public-key")
+      expect(@credential_creation_options[:pubKeyCredParams][0][:alg]).to eq(-7)
     end
 
     it "has relying party info" do
-      expect(@payload[:publicKey][:rp][:name]).to eq("web-server")
+      expect(@credential_creation_options[:rp][:name]).to eq("web-server")
     end
 
     it "has user info" do
-      user_info = @payload[:publicKey][:user]
+      user_info = @credential_creation_options[:user]
       expect(user_info[:name]).to eq("web-user")
       expect(user_info[:displayName]).to eq("web-user")
       expect(user_info[:id]).to eq("MQ==")
