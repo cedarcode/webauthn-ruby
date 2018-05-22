@@ -4,8 +4,8 @@ require "cbor"
 
 module WebAuthn
   class Validator
-    AUTHENTICATOR_DATA_MIN_LENGTH = 37.freeze
-    USER_PRESENT_BIT_POSITION = 0.freeze
+    AUTHENTICATOR_DATA_MIN_LENGTH = 37
+    USER_PRESENT_BIT_POSITION = 0
 
     def initialize(attestation_object:, client_data_bin:, original_challenge:)
       @attestation_object = attestation_object
