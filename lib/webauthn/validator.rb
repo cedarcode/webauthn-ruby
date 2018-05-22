@@ -4,6 +4,7 @@ require "cbor"
 
 module WebAuthn
   class Validator
+    ATTESTATION_FORMAT_NONE = "none"
     AUTHENTICATOR_DATA_MIN_LENGTH = 37
     USER_PRESENT_BIT_POSITION = 0
 
@@ -17,7 +18,8 @@ module WebAuthn
       valid_type? &&
         valid_challenge? &&
         valid_authenticator_data? &&
-        user_present?
+        user_present? &&
+        valid_attestation_statement?
     end
 
     private
@@ -34,6 +36,14 @@ module WebAuthn
 
     def valid_authenticator_data?
       authenticator_data.length > AUTHENTICATOR_DATA_MIN_LENGTH
+    end
+
+    def valid_attestation_statement?
+      if attestation_format == ATTESTATION_FORMAT_NONE
+        true
+      else
+        raise "Unsupported attestation format '#{attestation_format}'"
+      end
     end
 
     def user_present?
@@ -57,6 +67,10 @@ module WebAuthn
 
     def authenticator_data
       @authenticator_data ||= attestation["authData"]
+    end
+
+    def attestation_format
+      attestation["fmt"]
     end
 
     def attestation
