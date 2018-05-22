@@ -34,13 +34,13 @@ RSpec.describe WebAuthn do
 
   describe "#valid?" do
     it "validates registration attestation" do
-      original_challenge = security_key_challenge
-      response = security_key_response
+      original_challenge = seeds[:security_key][:credential_creation_options][:challenge]
+      response = seeds[:security_key][:authenticator_attestation_response]
 
       valid = WebAuthn.valid?(
         original_challenge: original_challenge,
         attestation_object: response[:attestation_object],
-        client_data_bin: response[:client_data_bin]
+        client_data_bin: response[:client_data_json]
       )
 
       expect(valid).to eq(true)
