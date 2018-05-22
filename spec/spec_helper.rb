@@ -14,3 +14,26 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+
+def yubikey_4_challenge
+  'SJoqxXSZAlElBfSa11DtZQ=='
+end
+
+def yubikey_4_response
+  {
+    attestation_object: 'o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVjESZYN5YgOjGh0NBcPZHZgW4/krrmihjLHmVzzuoMdl2NBAAAAAAAAAAAAAAAAAAAAAAAAAAAAQPx8VO/e2RN8kYB4fx1r1JqiqxukuoebUJrb5LDjVhNX5qefpOiOsQ/GWvQDVnzF4AugvPs/WCUZ+tOp6hpmZp6lAQIDJiABIVggblr3cP0yKHKavNkN4R7AecQKZsRZriWO79Kgwzvon8MiWCBdEB+QtzhJj+HkkvQPbVxK+HUDNtkIIBmhqGquQrn6YQ==',
+    client_data_bin: 'eyJjaGFsbGVuZ2UiOiJTSm9xeFhTWkFsRWxCZlNhMTFEdFpRIiwiY2xpZW50RXh0ZW5zaW9ucyI6e30sImhhc2hBbGdvcml0aG0iOiJTSEEtMjU2Iiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9'
+  }
+end
+
+def security_key_challenge
+  'Aag9PJLQvC2ixwZCHzs2Yw=='
+end
+
+def security_key_response
+  {
+    attestation_object: 'o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVjESZYN5YgOjGh0NBcPZHZgW4/krrmihjLHmVzzuoMdl2NBAAAAAAAAAAAAAAAAAAAAAAAAAAAAQN+zoWcbFDyyOvchxWedAB6FwzMqB0Fmmr+VnWlMzR9lqhoPSb/1388CluAR/JDTSykFMwzxT+EASYD5w/djXNulAQIDJiABIVggxTGmnso/zNWSp7ZSOm7hQqfUtJZylvCj+7fYoi7UG54iWCCJi3gYqD9rYJEfiAlRKYVGqqtp1mmur1OCS2Tgno7Qxg==',
+    client_data_bin: 'eyJjaGFsbGVuZ2UiOiJBYWc5UEpMUXZDMml4d1pDSHpzMll3IiwiY2xpZW50RXh0ZW5zaW9ucyI6e30sImhhc2hBbGdvcml0aG0iOiJTSEEtMjU2Iiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9'
+  }
+end
