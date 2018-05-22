@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe WebAuthn do
   it "has a version number" do
     expect(WebAuthn::VERSION).not_to be nil
