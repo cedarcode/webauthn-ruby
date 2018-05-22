@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require "cbor"
+require "webauthn/statement_validator"
 
 module WebAuthn
   class Validator
     ATTESTATION_FORMAT_NONE = "none"
+    ATTESTATION_FORMAT_FIDO_U2F = "fido-u2f"
     AUTHENTICATOR_DATA_MIN_LENGTH = 37
     USER_PRESENT_BIT_POSITION = 0
 
@@ -39,8 +41,11 @@ module WebAuthn
     end
 
     def valid_attestation_statement?
-      if attestation_format == ATTESTATION_FORMAT_NONE
+      case attestation_format
+      when ATTESTATION_FORMAT_NONE
         true
+      when ATTESTATION_FORMAT_FIDO_U2F
+        WebAuthn::StatementValidator.new(attestation_statement).valid?
       else
         raise "Unsupported attestation format '#{attestation_format}'"
       end
@@ -71,6 +76,10 @@ module WebAuthn
 
     def attestation_format
       attestation["fmt"]
+    end
+
+    def attestation_statement
+      attestation["attStmt"]
     end
 
     def attestation
