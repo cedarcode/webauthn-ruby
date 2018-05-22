@@ -16,3 +16,9 @@ Performance:
 
 Security:
   Enabled: true
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+
+Style/RedundantFreeze:
+  Enabled: true

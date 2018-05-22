@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "webauthn/validator"
 require "webauthn/version"
 
@@ -7,9 +9,9 @@ require "json"
 
 module WebAuthn
   ES256_ALGORITHM = { type: "public-key", alg: -7 }.freeze
-  RP_NAME = "web-server".freeze
-  USER_ID = "1".freeze
-  USER_NAME = "web-user".freeze
+  RP_NAME = "web-server"
+  USER_ID = "1"
+  USER_NAME = "web-user"
   CREATE_TYPE = "webauthn.create"
 
   def self.credential_creation_options

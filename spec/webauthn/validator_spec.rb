@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe WebAuthn::Validator do
   it "return user-friendly error if no client data received" do
     validator = WebAuthn::Validator.new(
