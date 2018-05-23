@@ -2,6 +2,8 @@
 
 require "cbor"
 
+require "webauthn/client_data"
+
 module WebAuthn
   class AuthenticatorAttestationResponse
     ATTESTATION_FORMAT_NONE = "none"
@@ -26,11 +28,11 @@ module WebAuthn
     attr_reader :attestation_object, :client_data_json
 
     def valid_type?
-      client_data["type"] == CREATE_TYPE
+      client_data.type == CREATE_TYPE
     end
 
     def valid_challenge?(original_challenge)
-      Base64.urlsafe_decode64(client_data["challenge"]) == Base64.urlsafe_decode64(original_challenge)
+      Base64.urlsafe_decode64(client_data.challenge) == Base64.urlsafe_decode64(original_challenge)
     end
 
     def valid_authenticator_data?
@@ -54,14 +56,7 @@ module WebAuthn
     end
 
     def client_data
-      @client_data ||=
-        begin
-          if client_data_json
-            JSON.parse(Base64.urlsafe_decode64(client_data_json))
-          else
-            raise "Missing client_data_json"
-          end
-        end
+      @client_data ||= WebAuthn::ClientData.new(client_data_json)
     end
 
     def authenticator_data
