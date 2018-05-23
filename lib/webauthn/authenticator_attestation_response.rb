@@ -3,20 +3,19 @@
 require "cbor"
 
 module WebAuthn
-  class Validator
+  class AuthenticatorAttestationResponse
     ATTESTATION_FORMAT_NONE = "none"
     AUTHENTICATOR_DATA_MIN_LENGTH = 37
     USER_PRESENT_BIT_POSITION = 0
 
-    def initialize(attestation_object:, client_data_bin:, original_challenge:)
+    def initialize(attestation_object:, client_data_json:)
       @attestation_object = attestation_object
-      @client_data_bin = client_data_bin
-      @original_challenge = original_challenge
+      @client_data_json = client_data_json
     end
 
-    def valid?
+    def valid?(original_challenge)
       valid_type? &&
-        valid_challenge? &&
+        valid_challenge?(original_challenge) &&
         valid_authenticator_data? &&
         user_present? &&
         valid_attestation_statement?
@@ -24,13 +23,13 @@ module WebAuthn
 
     private
 
-    attr_reader :attestation_object, :client_data_bin, :original_challenge
+    attr_reader :attestation_object, :client_data_json
 
     def valid_type?
       client_data["type"] == CREATE_TYPE
     end
 
-    def valid_challenge?
+    def valid_challenge?(original_challenge)
       Base64.urlsafe_decode64(client_data["challenge"]) == Base64.urlsafe_decode64(original_challenge)
     end
 
@@ -57,10 +56,10 @@ module WebAuthn
     def client_data
       @client_data ||=
         begin
-          if client_data_bin
-            JSON.parse(Base64.urlsafe_decode64(client_data_bin))
+          if client_data_json
+            JSON.parse(Base64.urlsafe_decode64(client_data_json))
           else
-            raise "Missing client_data_bin"
+            raise "Missing client_data_json"
           end
         end
     end
