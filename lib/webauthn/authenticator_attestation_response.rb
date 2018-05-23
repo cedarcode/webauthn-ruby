@@ -2,13 +2,12 @@
 
 require "cbor"
 
+require "webauthn/authenticator_data"
 require "webauthn/client_data"
 
 module WebAuthn
   class AuthenticatorAttestationResponse
     ATTESTATION_FORMAT_NONE = "none"
-    AUTHENTICATOR_DATA_MIN_LENGTH = 37
-    USER_PRESENT_BIT_POSITION = 0
 
     def initialize(attestation_object:, client_data_json:)
       @attestation_object = attestation_object
@@ -18,7 +17,7 @@ module WebAuthn
     def valid?(original_challenge)
       valid_type? &&
         valid_challenge?(original_challenge) &&
-        valid_authenticator_data? &&
+        authenticator_data.valid? &&
         user_present? &&
         valid_attestation_statement?
     end
@@ -35,10 +34,6 @@ module WebAuthn
       Base64.urlsafe_decode64(client_data.challenge) == Base64.urlsafe_decode64(original_challenge)
     end
 
-    def valid_authenticator_data?
-      authenticator_data.length > AUTHENTICATOR_DATA_MIN_LENGTH
-    end
-
     def valid_attestation_statement?
       if attestation_format == ATTESTATION_FORMAT_NONE
         true
@@ -48,11 +43,7 @@ module WebAuthn
     end
 
     def user_present?
-      authenticator_data_flags[USER_PRESENT_BIT_POSITION] == "1"
-    end
-
-    def authenticator_data_flags
-      @authenticator_data_flags ||= authenticator_data[32].unpack("b*").first
+      authenticator_data.user_present?
     end
 
     def client_data
@@ -60,7 +51,7 @@ module WebAuthn
     end
 
     def authenticator_data
-      @authenticator_data ||= attestation["authData"]
+      @authenticator_data ||= WebAuthn::AuthenticatorData.new(attestation["authData"])
     end
 
     def attestation_format
