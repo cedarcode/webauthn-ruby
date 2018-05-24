@@ -14,6 +14,10 @@ module WebAuthn
       data["challenge"]
     end
 
+    def origin
+      data["origin"]
+    end
+
     def hash
       Digest::SHA256.digest(decoded_client_data_json)
     end
