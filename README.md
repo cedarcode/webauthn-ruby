@@ -37,12 +37,26 @@ credential_creation_options = WebAuthn.credential_creation_options
 credential_creation_options[:challenge]
 
 # Send `credential_creation_options` to the browser, so that they can be used
-# when calling `navigator.credentials.create({ "publicKey": credentialCreationOptions })`
+# to call `navigator.credentials.create({ "publicKey": credentialCreationOptions })`
 ```
 
 #### Validation phase
 
-TBD
+```ruby
+attestation_object = "..." # As came from the browser
+client_data_json = "..." # As came from the browser
+
+attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
+  attestation_object: attestation_object,
+  client_data_json: client_data_json
+)
+
+if attestation_response.valid?(original_challenge)
+  # Register the new user
+else
+  # Handle error
+end
+```
 
 ## Development
 
