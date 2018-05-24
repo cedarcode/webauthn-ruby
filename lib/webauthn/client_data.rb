@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "openssl"
+
 module WebAuthn
   class ClientData
     def initialize(client_data_json)
@@ -19,7 +21,7 @@ module WebAuthn
     end
 
     def hash
-      Digest::SHA256.digest(decoded_client_data_json)
+      OpenSSL::Digest::SHA256.digest(decoded_client_data_json)
     end
 
     private

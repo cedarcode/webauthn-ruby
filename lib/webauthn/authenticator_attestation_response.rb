@@ -3,15 +3,11 @@
 require "cbor"
 
 require "webauthn/authenticator_data"
-require "webauthn/fido_u2f_attestation_statement"
-require "webauthn/fido_u2f_attestation_statement_verification"
+require "webauthn/attestation_statement"
 require "webauthn/client_data"
 
 module WebAuthn
   class AuthenticatorAttestationResponse
-    ATTESTATION_FORMAT_NONE = "none"
-    ATTESTATION_FORMAT_FIDO_U2F = "fido-u2f"
-
     def initialize(attestation_object:, client_data_json:)
       @attestation_object = attestation_object
       @client_data_json = client_data_json
@@ -23,7 +19,7 @@ module WebAuthn
         valid_origin?(original_origin) &&
         authenticator_data.valid? &&
         user_present? &&
-        valid_attestation_statement?
+        attestation_statement.valid?(authenticator_data, client_data.hash)
     end
 
     private
@@ -42,21 +38,9 @@ module WebAuthn
       client_data.origin == original_origin
     end
 
-    def valid_attestation_statement?
-      case attestation_format
-      when ATTESTATION_FORMAT_NONE
-        true
-      when ATTESTATION_FORMAT_FIDO_U2F
-        verification = WebAuthn::FidoU2fAttestationStatementVerification.new(
-          attestation_statement: WebAuthn::FidoU2fAttestationStatement.new(attestation["attStmt"]),
-          authenticator_data: authenticator_data,
-          client_data_hash: client_data.hash
-        )
-
-        verification.successful?
-      else
-        raise "Unsupported attestation format '#{attestation_format}'"
-      end
+    def attestation_statement
+      @attestation_statement ||=
+        WebAuthn::AttestationStatement.from(attestation["fmt"], attestation["attStmt"])
     end
 
     def user_present?
