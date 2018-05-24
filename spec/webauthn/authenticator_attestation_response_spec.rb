@@ -28,18 +28,26 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   describe "origin validation" do
     let(:original_origin) { "http://localhost" }
-    let(:challenge) { Base64.urlsafe_encode64(SecureRandom.random_bytes(16)) }
-    let(:client_data_json) { hash_to_encoded_json(challenge: challenge,
-                                                  clientExtensions: {},
-                                                  hashAlgorithm: "SHA-256",
-                                                  origin: origin,
-                                                  type: "webauthn.create") }
-    let(:auth_data) { [73, 150, 13, 229, 136, 14, 140, 104, 116, 52, 23, 15, 100,
-                       118, 96, 91, 143, 228, 174, 185, 162, 134, 50, 199, 153,
-                       92, 243, 186, 131, 29, 151, 99, 65, 0, 0, 0, 0].pack('c*') }
-    let(:attestation_object) { hash_to_encoded_cbor(fmt: "none",
-                                                    attStmt: {},
-                                                    authData: auth_data) }
+    let(:challenge) {
+      Base64.urlsafe_encode64(SecureRandom.random_bytes(16))
+    }
+    let(:client_data_json) {
+      hash_to_encoded_json(challenge: challenge,
+                           clientExtensions: {},
+                           hashAlgorithm: "SHA-256",
+                           origin: origin,
+                           type: "webauthn.create")
+    }
+    let(:auth_data) {
+      [73, 150, 13, 229, 136, 14, 140, 104, 116, 52, 23, 15, 100,
+       118, 96, 91, 143, 228, 174, 185, 162, 134, 50, 199, 153,
+       92, 243, 186, 131, 29, 151, 99, 65, 0, 0, 0, 0].pack('c*')
+    }
+    let(:attestation_object) {
+      hash_to_encoded_cbor(fmt: "none",
+                           attStmt: {},
+                           authData: auth_data)
+    }
 
     context "matches the default one" do
       let(:origin) { "http://localhost" }
@@ -67,5 +75,4 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       end
     end
   end
-
 end
