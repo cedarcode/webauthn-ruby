@@ -31,19 +31,23 @@ module WebAuthn
     end
 
     def rp_id_hash
-      if valid?
-        data_at(RP_ID_HASH_POSITION, RP_ID_HASH_LENGTH)
-      end
+      @rp_id_hash ||=
+        if valid?
+          data_at(RP_ID_HASH_POSITION, RP_ID_HASH_LENGTH)
+        end
     end
 
     def credential_id
-      if attested_credential_data_included?
-        data_at(credential_id_position, credential_id_length)
-      end
+      @credential_id ||=
+        if attested_credential_data_included?
+          data_at(credential_id_position, credential_id_length)
+        end
     end
 
     def credential_public_key
-      PublicKeyU2f.new(data_at(credential_public_key_position, credential_public_key_length))
+      @credential_public_key ||= PublicKeyU2f.new(
+        data_at(credential_public_key_position, credential_public_key_length)
+      )
     end
 
     private
@@ -67,7 +71,8 @@ module WebAuthn
     end
 
     def credential_id_length
-      data_at(credential_id_length_position, CREDENTIAL_ID_LENGTH_LENGTH)
+      @credential_id_length ||=
+        data_at(credential_id_length_position, CREDENTIAL_ID_LENGTH_LENGTH)
         .unpack(UINT16_BIG_ENDIAN_FORMAT)
         .first
     end
