@@ -32,23 +32,7 @@ module WebAuthn
         authenticator_data.rp_id_hash +
         client_data_hash +
         authenticator_data.credential_id +
-        public_key_u2f
-    end
-
-    def public_key_u2f
-      "\x04" + x + y
-    end
-
-    def x
-      credential_public_key[-2]
-    end
-
-    def y
-      credential_public_key[-3]
-    end
-
-    def credential_public_key
-      authenticator_data.credential_public_key
+        authenticator_data.credential_public_key
     end
   end
 end

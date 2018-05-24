@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "webauthn/authenticator_data/public_key_u2f"
+
 module WebAuthn
   class AuthenticatorData
     RP_ID_HASH_POSITION = 0
@@ -41,7 +43,7 @@ module WebAuthn
     end
 
     def credential_public_key
-      CBOR.decode(data_at(credential_public_key_position, credential_public_key_length))
+      PublicKeyU2f.new(data_at(credential_public_key_position, credential_public_key_length))
     end
 
     private
