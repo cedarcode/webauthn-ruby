@@ -18,9 +18,9 @@ module WebAuthn
     attr_reader :attestation_statement, :authenticator_data, :client_data_hash
 
     def valid_signature?
-      attestation_statement.
-        certificate_public_key.
-        verify(
+      attestation_statement
+        .certificate_public_key
+        .verify(
           "SHA256",
           attestation_statement.signature,
           verification_data

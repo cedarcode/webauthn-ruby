@@ -65,9 +65,9 @@ module WebAuthn
     end
 
     def credential_id_length
-      data_at(credential_id_length_position, CREDENTIAL_ID_LENGTH_LENGTH).
-        unpack(UINT16_BIG_ENDIAN_FORMAT).
-        first
+      data_at(credential_id_length_position, CREDENTIAL_ID_LENGTH_LENGTH)
+        .unpack(UINT16_BIG_ENDIAN_FORMAT)
+        .first
     end
 
     def credential_id_length_position
