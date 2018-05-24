@@ -2,6 +2,7 @@
 
 require "bundler/setup"
 require "webauthn"
+require "cbor"
 
 require "byebug"
 
@@ -38,4 +39,12 @@ def seeds
       }
     }
   }
+end
+
+def hash_to_encoded_json(hash)
+  Base64.urlsafe_encode64(hash.to_json)
+end
+
+def hash_to_encoded_cbor(hash)
+  Base64.urlsafe_encode64(CBOR.encode(hash))
 end

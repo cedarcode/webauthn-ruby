@@ -14,9 +14,10 @@ module WebAuthn
       @client_data_json = client_data_json
     end
 
-    def valid?(original_challenge)
+    def valid?(original_challenge, original_origin)
       valid_type? &&
         valid_challenge?(original_challenge) &&
+        valid_origin?(original_origin) &&
         authenticator_data.valid? &&
         user_present? &&
         valid_attestation_statement?
@@ -32,6 +33,10 @@ module WebAuthn
 
     def valid_challenge?(original_challenge)
       Base64.urlsafe_decode64(client_data.challenge) == Base64.urlsafe_decode64(original_challenge)
+    end
+
+    def valid_origin?(original_origin)
+      client_data.origin == original_origin
     end
 
     def valid_attestation_statement?

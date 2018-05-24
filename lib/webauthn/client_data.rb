@@ -14,6 +14,10 @@ module WebAuthn
       data["challenge"]
     end
 
+    def origin
+      data["origin"]
+    end
+
     private
 
     attr_reader :client_data_json
