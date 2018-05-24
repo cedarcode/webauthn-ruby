@@ -2,6 +2,7 @@
 
 require "cbor"
 require "uri"
+require "openssl"
 
 require "webauthn/authenticator_data"
 require "webauthn/attestation_statement"
@@ -48,7 +49,7 @@ module WebAuthn
     def valid_rp_id?(original_origin)
       domain = URI.parse(original_origin).host
 
-      Digest::SHA256.digest(domain) == authenticator_data.rp_id_hash
+      OpenSSL::Digest::SHA256.digest(domain) == authenticator_data.rp_id_hash
     end
 
     def user_present?

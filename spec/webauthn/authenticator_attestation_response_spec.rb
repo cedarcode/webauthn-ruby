@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "webauthn/authenticator_attestation_response"
+require "openssl"
 
 RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   it "can validate none attestation" do
@@ -102,7 +103,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
                            type: "webauthn.create")
     }
 
-    let(:rp_id_hash) { Digest::SHA256.digest(rp_id) }
+    let(:rp_id_hash) { OpenSSL::Digest::SHA256.digest(rp_id) }
     let(:auth_data) {
       (rp_id_hash.bytes + [65, 0, 0, 0, 0]).pack('c*')
     }
