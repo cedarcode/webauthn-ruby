@@ -18,15 +18,23 @@ module WebAuthn
       data["origin"]
     end
 
+    def hash
+      Digest::SHA256.digest(decoded_client_data_json)
+    end
+
     private
 
     attr_reader :client_data_json
+
+    def decoded_client_data_json
+      @decoded_client_data_json ||= Base64.urlsafe_decode64(client_data_json)
+    end
 
     def data
       @data ||=
         begin
           if client_data_json
-            JSON.parse(Base64.urlsafe_decode64(client_data_json))
+            JSON.parse(decoded_client_data_json)
           else
             raise "Missing client_data_json"
           end
