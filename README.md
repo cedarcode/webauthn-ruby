@@ -2,7 +2,7 @@
 
 Easily implement WebAuthn in your ruby web server
 
-[![Gem](https://img.shields.io/gem/v/formatador.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
+[![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
 [![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
 
 ## Installation
