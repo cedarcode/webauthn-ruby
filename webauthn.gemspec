@@ -7,8 +7,8 @@ require "webauthn/version"
 Gem::Specification.new do |spec|
   spec.name          = "webauthn"
   spec.version       = WebAuthn::VERSION
-  spec.authors       = ["Gonzalo Rodriguez"]
-  spec.email         = ["gonzalo@cedarcode.com"]
+  spec.authors       = ["Gonzalo Rodriguez", "Braulio Martinez"]
+  spec.email         = ["gonzalo@cedarcode.com", "braulio@cedarcode.com"]
 
   spec.summary       = %q{Web Authentication API Relying Party in ruby}
   spec.homepage      = "https://github.com/cedarcode/webauthn-ruby"
