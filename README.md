@@ -5,6 +5,8 @@ Easily implement WebAuthn in your ruby web server
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
 [![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
 
+## WARNING: THIS IS AN EXPERIMENTAL GEM BASED ON A RECOMENDATION DRAFT AND CURRENTLY UNDER DEVELOPMENT. IT'S NOT ADVISED TO USE IT IN A PRODUCTION ENVIRONMENT.
+
 ## Useful documentation on WebAuthn
 
 - [WebAuthn article with Google IO 2018 talk](https://developers.google.com/web/updates/2018/05/webauthn)
