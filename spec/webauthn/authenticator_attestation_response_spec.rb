@@ -14,6 +14,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     )
 
     expect(response.valid?(original_challenge, "http://localhost:3000")).to eq(true)
+    expect(response.credential_id.length).to be >= 16
   end
 
   it "can validate fido-u2f attestation" do
@@ -27,6 +28,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     )
 
     expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    expect(response.credential_id.length).to be >= 16
   end
 
   it "returns user-friendly error if no client data received" do

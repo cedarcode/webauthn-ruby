@@ -52,7 +52,8 @@ attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
 )
 
 if attestation_response.valid?(original_challenge)
-  # Register the new user
+  # Register the new user along with it's new `credential_id` for future authentications
+  # Access the new user credential by invoking `attestation_response.credential_id`
 else
   # Handle error
 end
