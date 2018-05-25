@@ -53,9 +53,11 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
                            type: "webauthn.create")
     }
     let(:auth_data) {
+      # TODO Move this to a spec helper which receives options so
+      # that it can be configured for different test cases
       [73, 150, 13, 229, 136, 14, 140, 104, 116, 52, 23, 15, 100,
        118, 96, 91, 143, 228, 174, 185, 162, 134, 50, 199, 153,
-       92, 243, 186, 131, 29, 151, 99, 65, 0, 0, 0, 0].pack('c*')
+       92, 243, 186, 131, 29, 151, 99, 1, 0, 0, 0, 0].pack('c*')
     }
     let(:attestation_object) {
       hash_to_encoded_cbor(fmt: "none",
@@ -105,7 +107,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     let(:rp_id_hash) { OpenSSL::Digest::SHA256.digest(rp_id) }
     let(:auth_data) {
-      (rp_id_hash.bytes + [65, 0, 0, 0, 0]).pack('c*')
+      (rp_id_hash.bytes + [1, 0, 0, 0, 0]).pack('c*')
     }
     let(:attestation_object) {
       hash_to_encoded_cbor(fmt: "none",
