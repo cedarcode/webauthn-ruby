@@ -85,13 +85,13 @@ else
 end
 ```
 
-## Authentication
+### Authentication
 
-### Initiation phase
+#### Initiation phase
 
 *Currently under development*
 
-### Validation phase
+#### Validation phase
 
 *Currently under development*
 
