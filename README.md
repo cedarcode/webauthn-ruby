@@ -17,6 +17,10 @@ So far, the only browser that have web authentication support are:
   - Mozilla Firefox Quantum 60+ (Enabled by default).
   - Google Chrome 65+ (Disabled by default, go to chrome://flags to enable Web Authentication API feature). Note: it is enabled by default in 67+ as stated [here](https://www.chromestatus.com/feature/5669923372138496).
 
+## Authenticator devises compatibility
+
+The user agents mentioned in the previous section, only support USB FIDO2 or FIDO U2F enabled devises in their current implementations.
+
 ## Installation
 
 Add this line to your application's Gemfile:
