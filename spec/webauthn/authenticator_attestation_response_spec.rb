@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "webauthn/authenticator_attestation_response"
+require "openssl"
 
 RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   it "can validate none attestation" do
@@ -79,6 +80,56 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:origin) { "http://invalid" }
 
       it "isn't valid" do
+        response = WebAuthn::AuthenticatorAttestationResponse.new(
+          attestation_object: attestation_object,
+          client_data_json: client_data_json
+        )
+
+        expect(response.valid?(challenge, original_origin)).to be_falsy
+      end
+    end
+  end
+
+  describe "rp_id validation" do
+    let(:original_origin) { "http://localhost:3000" }
+    let(:challenge) {
+      Base64.urlsafe_encode64(SecureRandom.random_bytes(16))
+    }
+    let(:client_data_json) {
+      hash_to_encoded_json(challenge: challenge,
+                           clientExtensions: {},
+                           hashAlgorithm: "SHA-256",
+                           origin: original_origin,
+                           type: "webauthn.create")
+    }
+
+    let(:rp_id_hash) { OpenSSL::Digest::SHA256.digest(rp_id) }
+    let(:auth_data) {
+      (rp_id_hash.bytes + [65, 0, 0, 0, 0]).pack('c*')
+    }
+    let(:attestation_object) {
+      hash_to_encoded_cbor(fmt: "none",
+                           attStmt: {},
+                           authData: auth_data)
+    }
+
+    context "matches the default one" do
+      let(:rp_id) { "localhost" }
+
+      it "is valid" do
+        response = WebAuthn::AuthenticatorAttestationResponse.new(
+          attestation_object: attestation_object,
+          client_data_json: client_data_json
+        )
+
+        expect(response.valid?(challenge, original_origin)).to be_truthy
+      end
+    end
+
+    context "doesn't match the default one" do
+      let(:rp_id) { "invalid" }
+
+      it "is invalid" do
         response = WebAuthn::AuthenticatorAttestationResponse.new(
           attestation_object: attestation_object,
           client_data_json: client_data_json
