@@ -15,7 +15,7 @@ module WebAuthn
       end
 
       def valid?
-        data.length >= AAGUID_LENGTH + ID_LENGTH_LENGTH
+        data.length >= AAGUID_LENGTH + ID_LENGTH_LENGTH && public_key.valid?
       end
 
       def id

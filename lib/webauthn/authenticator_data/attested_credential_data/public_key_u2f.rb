@@ -4,11 +4,18 @@ module WebAuthn
   class AuthenticatorData
     class AttestedCredentialData
       class PublicKeyU2f
+        COORDINATE_LENGTH = 32
         X_COORDINATE_KEY = -2
         Y_COORDINATE_KEY = -3
 
         def initialize(data)
           @data = data
+        end
+
+        def valid?
+          data.size >= COORDINATE_LENGTH * 2 &&
+            x_coordinate.length == COORDINATE_LENGTH &&
+            y_coordinate.length == COORDINATE_LENGTH
         end
 
         def to_str
