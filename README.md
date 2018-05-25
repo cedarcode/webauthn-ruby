@@ -80,6 +80,16 @@ else
 end
 ```
 
+## Authentication
+
+### Initiation phase
+
+*Currently under development*
+
+### Validation phase
+
+*Currently under development*
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake` to run the tests and code-style checks. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
