@@ -51,7 +51,11 @@ attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
   client_data_json: client_data_json
 )
 
-if attestation_response.valid?(original_challenge)
+# This value needs to match `window.location.origin` evaludated by
+# the User Agent as part of the validation phase.
+original_origin = "https://www.example.com"
+
+if attestation_response.valid?(original_challenge, original_origin)
   # Register the new user
 else
   # Handle error
