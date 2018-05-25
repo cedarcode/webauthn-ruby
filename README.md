@@ -78,7 +78,8 @@ attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
 original_origin = "https://www.example.com"
 
 if attestation_response.valid?(original_challenge, original_origin)
-  # Register the new user
+  # Register the new user along with it's new `credential_id` for future authentications
+  # Access the new user credential by invoking `attestation_response.credential_id`
 else
   # Handle error
 end

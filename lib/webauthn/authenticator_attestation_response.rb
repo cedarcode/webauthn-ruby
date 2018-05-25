@@ -25,6 +25,10 @@ module WebAuthn
         attestation_statement.valid?(authenticator_data, client_data.hash)
     end
 
+    def credential_id
+      authenticator_data.credential_id
+    end
+
     private
 
     attr_reader :attestation_object, :client_data_json
