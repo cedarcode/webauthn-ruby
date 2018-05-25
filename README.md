@@ -1,4 +1,4 @@
-# WebAuthn
+# WebAuthn :key:
 
 Easily implement WebAuthn in your ruby web server
 
