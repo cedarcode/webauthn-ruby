@@ -14,6 +14,10 @@ module WebAuthn
         @data = data
       end
 
+      def valid?
+        data.length >= AAGUID_LENGTH + ID_LENGTH_LENGTH
+      end
+
       def id
         data_at(id_position, id_length)
       end

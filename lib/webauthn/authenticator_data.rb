@@ -18,7 +18,11 @@ module WebAuthn
     end
 
     def valid?
-      data.length >= base_length
+      if attested_credential_data_included?
+        data.length > base_length && attested_credential_data.valid?
+      else
+        data.length == base_length
+      end
     end
 
     def user_present?
