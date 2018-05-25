@@ -5,6 +5,28 @@ Easily implement WebAuthn in your ruby web server
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
 [![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
 
+## WARNING: This gem is in the early development phase. Use on production at your own risk.
+
+## What is WebAuthn?
+
+- [WebAuthn article with Google IO 2018 talk](https://developers.google.com/web/updates/2018/05/webauthn)
+- [Web Authentication API draft article by Mozilla](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API)
+- [W3C Draft Recommendation](https://w3c.github.io/webauthn/)
+
+## Prerequisites
+
+### User Agent compatibility
+
+So far, the only browser that have web authentication support are:
+  - Mozilla Firefox Quantum 60+ (Enabled by default).
+  - Google Chrome 65+ (Disabled by default, go to chrome://flags to enable Web Authentication API feature). Note: it is enabled by default in 67+ as stated [here](https://www.chromestatus.com/feature/5669923372138496).
+
+### Authenticator devices
+
+  These [USB keys from Yubico](https://www.yubico.com/product/security-key-by-yubico/) were used as authenticator devices during the development of this gem.
+  Firefox states ([Firefox 60 release notes](https://www.mozilla.org/en-US/firefox/60.0/releasenotes/)) they only support USB FIDO2 or FIDO U2F enabled devices in their current implementation (version 60).
+  It's up to the gem's user to verify user agent compatibility if any other devise wants to be used as the authenticator component.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -51,12 +73,26 @@ attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
   client_data_json: client_data_json
 )
 
-if attestation_response.valid?(original_challenge)
+# This value needs to match `window.location.origin` evaluated by
+# the User Agent as part of the validation phase.
+original_origin = "https://www.example.com"
+
+if attestation_response.valid?(original_challenge, original_origin)
   # Register the new user
 else
   # Handle error
 end
 ```
+
+## Authentication
+
+### Initiation phase
+
+*Currently under development*
+
+### Validation phase
+
+*Currently under development*
 
 ## Development
 
