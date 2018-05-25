@@ -22,6 +22,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
         WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
 
       expect(attested_credential_data.valid?).to be_falsy
+      expect(attested_credential_data.id).to eq(nil)
     end
 
     it "returns false if one of public key coordinate is not long enough" do
@@ -37,13 +38,15 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
         WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
 
       expect(attested_credential_data.valid?).to be_falsy
+      expect(attested_credential_data.id).to eq(nil)
     end
 
     it "returns true if all data is present" do
-      attested_credential_data =
-        WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_attested_credential_data)
+      raw_data = raw_attested_credential_data(id: "this-is-a-credential-id")
+      attested_credential_data = WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
 
       expect(attested_credential_data.valid?).to be_truthy
+      expect(attested_credential_data.id).to eq("this-is-a-credential-id")
     end
   end
 end

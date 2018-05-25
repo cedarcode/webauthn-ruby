@@ -19,7 +19,9 @@ module WebAuthn
       end
 
       def id
-        data_at(id_position, id_length)
+        if valid?
+          data_at(id_position, id_length)
+        end
       end
 
       def public_key
