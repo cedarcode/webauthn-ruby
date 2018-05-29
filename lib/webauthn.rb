@@ -12,7 +12,7 @@ module WebAuthn
   RP_NAME = "web-server"
   USER_ID = "1"
   USER_NAME = "web-user"
-  CREATE_TYPE = "webauthn.create"
+  TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
 
   def self.credential_creation_options
     {
