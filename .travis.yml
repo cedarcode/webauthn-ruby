@@ -2,5 +2,13 @@ sudo: false
 language: ruby
 cache: bundler
 rvm:
+  - 2.6.0-preview1
   - 2.5.1
+  - 2.4.4
+  - 2.3.7
 before_install: gem install bundler -v 1.16.1
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - rvm: 2.6.0-preview1
