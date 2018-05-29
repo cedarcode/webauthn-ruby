@@ -11,7 +11,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     expect(assertion_response.valid?).to be_falsy
   end
 
-  it "is valid if everythings in place" do
+  it "is valid if everything's in place" do
     assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
       client_data_json: hash_to_encoded_json(type: "webauthn.get")
     )
