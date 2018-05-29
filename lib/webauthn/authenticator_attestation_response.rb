@@ -11,9 +11,10 @@ require "webauthn/client_data"
 
 module WebAuthn
   class AuthenticatorAttestationResponse < AuthenticatorResponse
-    def initialize(attestation_object:, client_data_json:)
+    def initialize(attestation_object:, **options)
+      super(options)
+
       @attestation_object = attestation_object
-      @client_data_json = client_data_json
     end
 
     def valid?(original_challenge, original_origin)
@@ -32,7 +33,7 @@ module WebAuthn
 
     private
 
-    attr_reader :attestation_object, :client_data_json
+    attr_reader :attestation_object
 
     def valid_type?
       client_data.type == WebAuthn::TYPES[:create]
