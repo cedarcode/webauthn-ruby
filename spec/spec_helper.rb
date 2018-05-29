@@ -18,6 +18,24 @@ RSpec.configure do |config|
   end
 end
 
+def fake_authenticator_data(user_present: true)
+  rp_id = "localhost"
+  rp_id_hash = OpenSSL::Digest::SHA256.digest(rp_id)
+
+  if user_present
+    user_present_bit = "1"
+  else
+    user_present_bit = "0"
+  end
+
+  attested_credential_data_present_bit = "0"
+
+  raw_flags = ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
+  raw_sign_count = "0000"
+
+  rp_id_hash + raw_flags + raw_sign_count
+end
+
 def seeds
   {
     yubikey_4: {
