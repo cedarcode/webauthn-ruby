@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require "webauthn/authenticator_attestation_response"
+require "webauthn/utils"
 require "webauthn/version"
 
-require "securerandom"
 require "base64"
+require "securerandom"
 require "json"
 
 module WebAuthn
@@ -16,22 +17,15 @@ module WebAuthn
 
   def self.credential_creation_options
     {
-      challenge: ua_encode(SecureRandom.random_bytes(16)),
+      challenge: ua_encoded_challenge,
       pubKeyCredParams: [ES256_ALGORITHM],
       rp: { name: RP_NAME },
-      user: { name: USER_NAME, displayName: USER_NAME, id: ua_encode(USER_ID) }
+      user: { name: USER_NAME, displayName: USER_NAME, id: Utils.ua_encode(USER_ID) }
     }
   end
 
-  def self.ua_encode(bin)
-    Base64.strict_encode64(bin)
+  def self.ua_encoded_challenge
+    Utils.ua_encode(SecureRandom.random_bytes(16))
   end
-
-  def self.ua_decode(str)
-    Base64.strict_decode64(str)
-  end
-
-  def self.authenticator_decode(str)
-    Base64.urlsafe_decode64(str)
-  end
+  private_class_method :ua_encoded_challenge
 end

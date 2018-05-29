@@ -51,11 +51,11 @@ def seeds
 end
 
 def hash_to_encoded_json(hash)
-  WebAuthn.ua_encode(hash.to_json)
+  WebAuthn::Utils.ua_encode(hash.to_json)
 end
 
 def hash_to_encoded_cbor(hash)
-  WebAuthn.ua_encode(CBOR.encode(hash))
+  WebAuthn::Utils.ua_encode(CBOR.encode(hash))
 end
 
 def authenticator_encode(bin)
