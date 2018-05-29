@@ -5,11 +5,12 @@ require "uri"
 require "openssl"
 
 require "webauthn/authenticator_data"
+require "webauthn/authenticator_response"
 require "webauthn/attestation_statement"
 require "webauthn/client_data"
 
 module WebAuthn
-  class AuthenticatorAttestationResponse
+  class AuthenticatorAttestationResponse < AuthenticatorResponse
     def initialize(attestation_object:, client_data_json:)
       @attestation_object = attestation_object
       @client_data_json = client_data_json
@@ -34,7 +35,7 @@ module WebAuthn
     attr_reader :attestation_object, :client_data_json
 
     def valid_type?
-      client_data.type == CREATE_TYPE
+      client_data.type == WebAuthn::TYPES[:create]
     end
 
     def valid_challenge?(original_challenge)
@@ -58,10 +59,6 @@ module WebAuthn
 
     def user_present?
       authenticator_data.user_present?
-    end
-
-    def client_data
-      @client_data ||= WebAuthn::ClientData.new(client_data_json)
     end
 
     def authenticator_data
