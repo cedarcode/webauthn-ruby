@@ -24,6 +24,13 @@ module WebAuthn
     }
   end
 
+  def self.credential_request_options
+    {
+      challenge: ua_encoded_challenge,
+      allowCredentials: []
+    }
+  end
+
   def self.ua_encoded_challenge
     Utils.ua_encode(SecureRandom.random_bytes(16))
   end
