@@ -11,7 +11,7 @@ RSpec.describe WebAuthn do
     end
 
     it "has a 16 byte length challenge" do
-      original_challenge = Base64.urlsafe_decode64(@credential_creation_options[:challenge])
+      original_challenge = Base64.strict_decode64(@credential_creation_options[:challenge])
       expect(original_challenge.length).to eq(16)
     end
 

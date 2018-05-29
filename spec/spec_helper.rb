@@ -51,9 +51,13 @@ def seeds
 end
 
 def hash_to_encoded_json(hash)
-  Base64.urlsafe_encode64(hash.to_json)
+  WebAuthn.ua_encode(hash.to_json)
 end
 
 def hash_to_encoded_cbor(hash)
-  Base64.urlsafe_encode64(CBOR.encode(hash))
+  WebAuthn.ua_encode(CBOR.encode(hash))
+end
+
+def authenticator_encode(bin)
+  Base64.urlsafe_encode64(bin, padding: false)
 end
