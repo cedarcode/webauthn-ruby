@@ -40,7 +40,7 @@ module WebAuthn
     end
 
     def valid_challenge?(original_challenge)
-      WebAuthn.authenticator_decode(client_data.challenge) == WebAuthn.ua_decode(original_challenge)
+      WebAuthn::Utils.authenticator_decode(client_data.challenge) == WebAuthn::Utils.ua_decode(original_challenge)
     end
 
     def valid_origin?(original_origin)
@@ -71,7 +71,7 @@ module WebAuthn
     end
 
     def attestation
-      @attestation ||= CBOR.decode(WebAuthn.ua_decode(attestation_object))
+      @attestation ||= CBOR.decode(WebAuthn::Utils.ua_decode(attestation_object))
     end
   end
 end

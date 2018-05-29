@@ -45,7 +45,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   describe "origin validation" do
     let(:original_origin) { "http://localhost" }
     let(:challenge) { SecureRandom.random_bytes(16) }
-    let(:original_challenge) { WebAuthn.ua_encode(challenge) }
+    let(:original_challenge) { WebAuthn::Utils.ua_encode(challenge) }
     let(:client_data_json) {
       hash_to_encoded_json(challenge: authenticator_encode(challenge),
                            clientExtensions: {},
@@ -96,7 +96,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   describe "rp_id validation" do
     let(:original_origin) { "http://localhost:3000" }
     let(:challenge) { SecureRandom.random_bytes(16) }
-    let(:original_challenge) { WebAuthn.ua_encode(challenge) }
+    let(:original_challenge) { WebAuthn::Utils.ua_encode(challenge) }
     let(:client_data_json) {
       hash_to_encoded_json(challenge: authenticator_encode(challenge),
                            clientExtensions: {},

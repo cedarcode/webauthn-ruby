@@ -29,7 +29,7 @@ module WebAuthn
     attr_reader :client_data_json
 
     def decoded_client_data_json
-      @decoded_client_data_json ||= WebAuthn.ua_decode(client_data_json)
+      @decoded_client_data_json ||= WebAuthn::Utils.ua_decode(client_data_json)
     end
 
     def data
