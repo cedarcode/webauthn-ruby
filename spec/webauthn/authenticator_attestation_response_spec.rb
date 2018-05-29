@@ -44,11 +44,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   describe "origin validation" do
     let(:original_origin) { "http://localhost" }
-    let(:challenge) {
-      Base64.urlsafe_encode64(SecureRandom.random_bytes(16))
-    }
+    let(:challenge) { SecureRandom.random_bytes(16) }
+    let(:original_challenge) { WebAuthn.ua_encode(challenge) }
     let(:client_data_json) {
-      hash_to_encoded_json(challenge: challenge,
+      hash_to_encoded_json(challenge: authenticator_encode(challenge),
                            clientExtensions: {},
                            hashAlgorithm: "SHA-256",
                            origin: origin,
@@ -76,7 +75,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           client_data_json: client_data_json
         )
 
-        expect(response.valid?(challenge, original_origin)).to be_truthy
+        expect(response.valid?(original_challenge, original_origin)).to be_truthy
       end
     end
 
@@ -89,18 +88,17 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           client_data_json: client_data_json
         )
 
-        expect(response.valid?(challenge, original_origin)).to be_falsy
+        expect(response.valid?(original_challenge, original_origin)).to be_falsy
       end
     end
   end
 
   describe "rp_id validation" do
     let(:original_origin) { "http://localhost:3000" }
-    let(:challenge) {
-      Base64.urlsafe_encode64(SecureRandom.random_bytes(16))
-    }
+    let(:challenge) { SecureRandom.random_bytes(16) }
+    let(:original_challenge) { WebAuthn.ua_encode(challenge) }
     let(:client_data_json) {
-      hash_to_encoded_json(challenge: challenge,
+      hash_to_encoded_json(challenge: authenticator_encode(challenge),
                            clientExtensions: {},
                            hashAlgorithm: "SHA-256",
                            origin: original_origin,
@@ -126,7 +124,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           client_data_json: client_data_json
         )
 
-        expect(response.valid?(challenge, original_origin)).to be_truthy
+        expect(response.valid?(original_challenge, original_origin)).to be_truthy
       end
     end
 
@@ -139,7 +137,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           client_data_json: client_data_json
         )
 
-        expect(response.valid?(challenge, original_origin)).to be_falsy
+        expect(response.valid?(original_challenge, original_origin)).to be_falsy
       end
     end
   end

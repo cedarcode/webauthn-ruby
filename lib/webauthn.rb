@@ -16,10 +16,22 @@ module WebAuthn
 
   def self.credential_creation_options
     {
-      challenge: Base64.urlsafe_encode64(SecureRandom.random_bytes(16)),
+      challenge: ua_encode(SecureRandom.random_bytes(16)),
       pubKeyCredParams: [ES256_ALGORITHM],
       rp: { name: RP_NAME },
-      user: { name: USER_NAME, displayName: USER_NAME, id: Base64.urlsafe_encode64(USER_ID) }
+      user: { name: USER_NAME, displayName: USER_NAME, id: ua_encode(USER_ID) }
     }
+  end
+
+  def self.ua_encode(bin)
+    Base64.strict_encode64(bin)
+  end
+
+  def self.ua_decode(str)
+    Base64.strict_decode64(str)
+  end
+
+  def self.authenticator_decode(str)
+    Base64.urlsafe_decode64(str)
   end
 end

@@ -29,7 +29,7 @@ module WebAuthn
     attr_reader :client_data_json
 
     def decoded_client_data_json
-      @decoded_client_data_json ||= Base64.urlsafe_decode64(client_data_json)
+      @decoded_client_data_json ||= WebAuthn.ua_decode(client_data_json)
     end
 
     def data
