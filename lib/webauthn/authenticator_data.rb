@@ -36,12 +36,8 @@ module WebAuthn
         end
     end
 
-    def credential_id
-      @credential_id ||= attested_credential_data.id
-    end
-
-    def credential_public_key
-      @credential_public_key ||= attested_credential_data.public_key
+    def credential
+      attested_credential_data.credential
     end
 
     private

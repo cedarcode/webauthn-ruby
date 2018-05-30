@@ -28,12 +28,47 @@ def fake_authenticator_data(user_present: true)
     user_present_bit = "0"
   end
 
-  attested_credential_data_present_bit = "0"
+  attested_credential_data_present_bit = "1"
 
   raw_flags = ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
   raw_sign_count = "0000"
 
-  rp_id_hash + raw_flags + raw_sign_count
+  rp_id_hash + raw_flags + raw_sign_count + fake_attested_credential_data
+end
+
+def fake_attested_credential_data
+  aaguid = SecureRandom.random_bytes(16)
+  id = SecureRandom.random_bytes(16)
+  public_key = CBOR.encode(
+    -2 => SecureRandom.random_bytes(32),
+    -3 => SecureRandom.random_bytes(32)
+  )
+
+  aaguid + [id.length].pack("n*") + id + public_key
+end
+
+def fake_attestation_object
+  CBOR.encode(
+    "fmt" => "none",
+    "attStmt" => {},
+    "authData" => fake_authenticator_data
+  )
+end
+
+def fake_origin
+  "http://localhost"
+end
+
+def fake_challenge
+  SecureRandom.random_bytes(16)
+end
+
+def fake_client_data_json(challenge: nil, origin: nil, type: nil)
+  {
+    challenge: authenticator_encode(challenge || fake_challenge),
+    origin: origin || fake_origin,
+    type: type || "webauthn.create"
+  }.to_json
 end
 
 def seeds
