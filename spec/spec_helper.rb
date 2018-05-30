@@ -18,8 +18,8 @@ RSpec.configure do |config|
   end
 end
 
-def fake_authenticator_data(user_present: true)
-  rp_id = "localhost"
+def fake_authenticator_data(rp_id: nil, user_present: true)
+  rp_id ||= "localhost"
   rp_id_hash = OpenSSL::Digest::SHA256.digest(rp_id)
 
   if user_present
@@ -55,6 +55,10 @@ def fake_attestation_object
   )
 end
 
+def encoded_fake_attestation_object(*args)
+  WebAuthn::Utils.ua_encode(fake_attestation_object(*args))
+end
+
 def fake_origin
   "http://localhost"
 end
@@ -69,6 +73,10 @@ def fake_client_data_json(challenge: nil, origin: nil, type: nil)
     origin: origin || fake_origin,
     type: type || "webauthn.create"
   }.to_json
+end
+
+def encoded_fake_client_data_json(*args)
+  WebAuthn::Utils.ua_encode(fake_client_data_json(*args))
 end
 
 def seeds
