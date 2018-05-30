@@ -27,8 +27,8 @@ module WebAuthn
         attestation_statement.valid?(authenticator_data, client_data.hash)
     end
 
-    def credential_id
-      authenticator_data.credential_id
+    def credential
+      authenticator_data.credential
     end
 
     private

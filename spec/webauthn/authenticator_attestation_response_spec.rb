@@ -4,6 +4,27 @@ require "webauthn/authenticator_attestation_response"
 require "openssl"
 
 RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
+  it "is valid if everything's in place" do
+    challenge = fake_challenge
+    original_challenge = WebAuthn::Utils.ua_encode(challenge)
+    origin = fake_origin
+
+    attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
+      attestation_object: WebAuthn::Utils.ua_encode(fake_attestation_object),
+      client_data_json: WebAuthn::Utils.ua_encode(fake_client_data_json(challenge: challenge, origin: origin))
+    )
+
+    expect(attestation_response.valid?(original_challenge, origin)).to be_truthy
+
+    credential = attestation_response.credential
+    expect(credential.id.class).to eq(String)
+    expect(credential.id.encoding).to eq(Encoding::ASCII_8BIT)
+    expect(credential.public_key.class).to eq(String)
+    expect(credential.public_key.encoding).to be(Encoding::ASCII_8BIT)
+  end
+
+  # TODO Consider using fake_* spec helpers for examples below
+
   it "can validate none attestation" do
     original_challenge = seeds[:security_key][:credential_creation_options][:challenge]
     response = seeds[:security_key][:authenticator_attestation_response]
@@ -14,7 +35,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     )
 
     expect(response.valid?(original_challenge, "http://localhost:3000")).to eq(true)
-    expect(response.credential_id.length).to be >= 16
+    expect(response.credential.id.length).to be >= 16
   end
 
   it "can validate fido-u2f attestation" do
@@ -28,7 +49,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     )
 
     expect(response.valid?(original_challenge, original_origin)).to eq(true)
-    expect(response.credential_id.length).to be >= 16
+    expect(response.credential.id.length).to be >= 16
   end
 
   it "returns user-friendly error if no client data received" do

@@ -53,8 +53,8 @@ module WebAuthn
         "\x00" +
           authenticator_data.rp_id_hash +
           client_data_hash +
-          authenticator_data.credential_id +
-          authenticator_data.credential_public_key
+          authenticator_data.credential.id +
+          authenticator_data.credential.public_key
       end
     end
   end
