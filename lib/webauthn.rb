@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "webauthn/authenticator_attestation_response"
+require "webauthn/authenticator_assertion_response"
 require "webauthn/utils"
 require "webauthn/version"
 
