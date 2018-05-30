@@ -66,7 +66,7 @@ end
 def fake_client_data_json(challenge: nil, origin: nil, type: nil)
   {
     challenge: authenticator_encode(challenge || fake_challenge),
-    origin: fake_origin,
+    origin: origin || fake_origin,
     type: type || "webauthn.create"
   }.to_json
 end
