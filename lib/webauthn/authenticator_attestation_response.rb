@@ -35,10 +35,6 @@ module WebAuthn
 
     attr_reader :attestation_object
 
-    def valid_origin?(original_origin)
-      client_data.origin == original_origin
-    end
-
     def attestation_statement
       @attestation_statement ||=
         WebAuthn::AttestationStatement.from(attestation["fmt"], attestation["attStmt"])
