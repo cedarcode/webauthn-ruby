@@ -24,7 +24,9 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
       expect(assertion_response.valid?(encoded_challenge)).to be_falsy
     end
+  end
 
+  describe "user present validation" do
     it "is invalid if user-present flag is off" do
       assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
         client_data_json: encoded_fake_client_data_json(challenge: challenge, type: "webauthn.get"),

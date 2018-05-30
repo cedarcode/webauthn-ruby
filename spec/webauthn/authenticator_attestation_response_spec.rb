@@ -23,21 +23,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     expect(credential.public_key.encoding).to be(Encoding::ASCII_8BIT)
   end
 
-  # TODO Consider using fake_* spec helpers for examples below
-
-  it "can validate none attestation" do
-    original_challenge = fake_challenge
-    encoded_challenge = WebAuthn::Utils.ua_encode(original_challenge)
-
-    response = WebAuthn::AuthenticatorAttestationResponse.new(
-      attestation_object: encoded_fake_attestation_object,
-      client_data_json: encoded_fake_client_data_json(challenge: original_challenge)
-    )
-
-    expect(response.valid?(encoded_challenge, "http://localhost")).to eq(true)
-    expect(response.credential.id.length).to be >= 16
-  end
-
   it "can validate fido-u2f attestation" do
     original_origin = "http://localhost:3000"
     original_challenge = seeds[:security_key_direct][:credential_creation_options][:challenge]
@@ -72,11 +57,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
                                     origin: origin)
     }
 
-    let(:attestation_object) {
-      hash_to_encoded_cbor(fmt: "none",
-                           attStmt: {},
-                           authData: fake_authenticator_data)
-    }
+    let(:attestation_object) { encoded_fake_attestation_object }
 
     context "matches the default one" do
       let(:origin) { "http://localhost" }

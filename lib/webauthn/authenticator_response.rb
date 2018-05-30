@@ -22,5 +22,9 @@ module WebAuthn
       WebAuthn::Utils.authenticator_decode(client_data.challenge) ==
         WebAuthn::Utils.ua_decode(original_challenge)
     end
+
+    def type
+      raise NotImplementedError, "Please define #type method in subclass"
+    end
   end
 end
