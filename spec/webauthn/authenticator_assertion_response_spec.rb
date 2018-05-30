@@ -18,7 +18,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   describe "type validation" do
     it "is invalid if type is not get" do
       assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-        client_data_json: encoded_fake_client_data_json(challenge: challenge, type: "webauthn.create"),
+        client_data_json: encoded_fake_client_data_json(challenge: challenge,
+                                                        type: "webauthn.create"),
         authenticator_data: fake_authenticator_data
       )
 
@@ -29,7 +30,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   describe "user present validation" do
     it "is invalid if user-present flag is off" do
       assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-        client_data_json: encoded_fake_client_data_json(challenge: challenge, type: "webauthn.get"),
+        client_data_json: encoded_fake_client_data_json(challenge: challenge,
+                                                        type: "webauthn.get"),
         authenticator_data: fake_authenticator_data(user_present: false)
       )
 
