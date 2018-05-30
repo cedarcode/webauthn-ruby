@@ -35,14 +35,6 @@ module WebAuthn
 
     attr_reader :attestation_object
 
-    def valid_type?
-      client_data.type == WebAuthn::TYPES[:create]
-    end
-
-    def valid_challenge?(original_challenge)
-      WebAuthn::Utils.authenticator_decode(client_data.challenge) == WebAuthn::Utils.ua_decode(original_challenge)
-    end
-
     def valid_origin?(original_origin)
       client_data.origin == original_origin
     end
@@ -72,6 +64,10 @@ module WebAuthn
 
     def attestation
       @attestation ||= CBOR.decode(WebAuthn::Utils.ua_decode(attestation_object))
+    end
+
+    def type
+      WebAuthn::TYPES[:create]
     end
   end
 end

@@ -10,8 +10,9 @@ module WebAuthn
       @authenticator_data_bytes = authenticator_data
     end
 
-    def valid?
-      client_data.type == WebAuthn::TYPES[:get] &&
+    def valid?(original_challenge)
+      valid_type? &&
+        valid_challenge?(original_challenge) &&
         authenticator_data.user_present?
     end
 
@@ -21,6 +22,10 @@ module WebAuthn
 
     def authenticator_data
       @authenticator_data ||= WebAuthn::AuthenticatorData.new(authenticator_data_bytes)
+    end
+
+    def type
+      WebAuthn::TYPES[:get]
     end
   end
 end
