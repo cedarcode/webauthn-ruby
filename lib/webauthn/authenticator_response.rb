@@ -10,8 +10,17 @@ module WebAuthn
 
     attr_reader :client_data_json
 
+    def valid_type?
+      client_data.type == type
+    end
+
     def client_data
       @client_data ||= WebAuthn::ClientData.new(client_data_json)
+    end
+
+    def valid_challenge?(original_challenge)
+      WebAuthn::Utils.authenticator_decode(client_data.challenge) ==
+        WebAuthn::Utils.ua_decode(original_challenge)
     end
   end
 end
