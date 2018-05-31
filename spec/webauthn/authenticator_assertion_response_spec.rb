@@ -33,7 +33,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       assertion_response.valid?(
         encoded_challenge,
         original_origin,
-        credential_public_key: credential_key.public_key.to_octet_string(:uncompressed)
+        credential_public_key: key_bytes(credential_key.public_key)
       )
     ).to be_truthy
   end
@@ -45,7 +45,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       assertion_response.valid?(
         encoded_challenge,
         original_origin,
-        credential_public_key: different_key.public_key.to_octet_string(:uncompressed)
+        credential_public_key: key_bytes(different_key.public_key)
       )
     ).to be_falsy
   end
@@ -58,7 +58,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         is_valid = assertion_response.valid?(
           encoded_challenge,
           original_origin,
-          credential_public_key: credential_key.public_key.to_octet_string(:uncompressed)
+          credential_public_key: key_bytes(credential_key.public_key)
         )
       ).to be_falsy
     end
@@ -72,7 +72,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           encoded_challenge,
           original_origin,
-          credential_public_key: credential_key.public_key.to_octet_string(:uncompressed)
+          credential_public_key: key_bytes(credential_key.public_key)
         )
       ).to be_falsy
     end
@@ -84,7 +84,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           WebAuthn::Utils.ua_encode(fake_challenge),
           original_origin,
-          credential_public_key: credential_key.public_key.to_octet_string(:uncompressed)
+          credential_public_key: key_bytes(credential_key.public_key)
         )
       ).to be_falsy
     end
@@ -96,7 +96,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           encoded_challenge,
           "http://different-origin",
-          credential_public_key: credential_key.public_key.to_octet_string(:uncompressed)
+          credential_public_key: key_bytes(credential_key.public_key)
         )
       ).to be_falsy
     end

@@ -40,7 +40,7 @@ def fake_attested_credential_data(public_key: nil)
   aaguid = SecureRandom.random_bytes(16)
   id = SecureRandom.random_bytes(16)
   public_key ||= fake_credential_key.public_key
-  public_key_bytes = public_key.to_octet_string(:uncompressed)
+  public_key_bytes = key_bytes(public_key)
 
   public_key = CBOR.encode(
     -2 => public_key_bytes[1..32],
@@ -90,6 +90,10 @@ def fake_signature(key:, authenticator_data:, client_data_json:)
   message = authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json)
 
   key.dsa_sign_asn1(message)
+end
+
+def key_bytes(public_key)
+  public_key.to_bn.to_s(2)
 end
 
 def seeds
