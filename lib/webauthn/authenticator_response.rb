@@ -23,6 +23,10 @@ module WebAuthn
         WebAuthn::Utils.ua_decode(original_challenge)
     end
 
+    def valid_origin?(original_origin)
+      client_data.origin == original_origin
+    end
+
     def type
       raise NotImplementedError, "Please define #type method in subclass"
     end
