@@ -5,7 +5,7 @@ require "webauthn/attestation_statement/base"
 module WebAuthn
   module AttestationStatement
     class None < Base
-      def valid?(*args)
+      def valid?(*_args)
         true
       end
     end
