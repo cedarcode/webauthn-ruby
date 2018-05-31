@@ -7,7 +7,7 @@ module WebAuthn
         @statement = statement
       end
 
-      def valid?(*args)
+      def valid?(*_args)
         raise NotImpelementedError
       end
 

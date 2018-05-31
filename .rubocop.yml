@@ -11,6 +11,12 @@ Gemspec:
 Layout:
   Enabled: true
 
+Lint:
+  Enabled: true
+
+Naming:
+  Enabled: true
+
 Performance:
   Enabled: true
 
