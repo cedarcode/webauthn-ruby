@@ -83,7 +83,7 @@ def encoded_fake_client_data_json(*args)
 end
 
 def fake_credential_key
-  OpenSSL::PKey::EC.generate("prime256v1")
+  OpenSSL::PKey::EC.new("prime256v1").generate_key
 end
 
 def fake_signature(key:, authenticator_data:, client_data_json:)
