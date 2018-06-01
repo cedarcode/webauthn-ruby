@@ -18,6 +18,59 @@ RSpec.configure do |config|
   end
 end
 
+class FakeAuthenticator
+  def initialize(challenge: fake_challenge, origin: fake_origin, mode: :get)
+    @challenge = challenge
+    @mode = mode
+    @origin = origin
+  end
+
+  def authenticator_data(rp_id: nil, user_present: true, credential_public_key: nil)
+    @authenticator_data ||=
+      begin
+        rp_id ||= "localhost"
+        rp_id_hash = OpenSSL::Digest::SHA256.digest(rp_id)
+
+        if user_present
+          user_present_bit = "1"
+        else
+          user_present_bit = "0"
+        end
+
+        attested_credential_data_present_bit = "1"
+
+        raw_flags = ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
+        raw_sign_count = "0000"
+
+        rp_id_hash + raw_flags + raw_sign_count + fake_attested_credential_data(public_key: credential_public_key)
+      end
+  end
+
+  def client_data_json
+    @client_data_json ||= { challenge: encode(challenge), origin: origin, type: type }.to_json
+  end
+
+  def credential_key
+    @credential_key ||= OpenSSL::PKey::EC.new("prime256v1").generate_key
+  end
+
+  def signature
+    @signature ||= credential_key.sign("SHA256", authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json))
+  end
+
+  private
+
+  attr_reader :challenge, :mode, :origin
+
+  def type
+    "webauthn.#{mode}"
+  end
+
+  def encode(bytes)
+    Base64.urlsafe_encode64(bytes, padding: false)
+  end
+end
+
 def fake_authenticator_data(rp_id: nil, user_present: true, credential_public_key: nil)
   rp_id ||= "localhost"
   rp_id_hash = OpenSSL::Digest::SHA256.digest(rp_id)
@@ -84,12 +137,6 @@ end
 
 def fake_credential_key
   OpenSSL::PKey::EC.new("prime256v1").generate_key
-end
-
-def fake_signature(key:, authenticator_data:, client_data_json:)
-  message = authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json)
-
-  key.sign("SHA256", message)
 end
 
 def key_bytes(public_key)
