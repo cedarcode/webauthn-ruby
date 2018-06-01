@@ -19,31 +19,16 @@ RSpec.configure do |config|
 end
 
 class FakeAuthenticator
-  def initialize(challenge: fake_challenge, origin: fake_origin, mode: :get)
+  def initialize(challenge: fake_challenge, origin: fake_origin, mode: :get, rp_id: "localhost", user_present: true)
     @challenge = challenge
     @mode = mode
     @origin = origin
+    @rp_id = rp_id
+    @user_present = user_present
   end
 
-  def authenticator_data(rp_id: nil, user_present: true)
-    @authenticator_data ||=
-      begin
-        rp_id ||= "localhost"
-        rp_id_hash = OpenSSL::Digest::SHA256.digest(rp_id)
-
-        if user_present
-          user_present_bit = "1"
-        else
-          user_present_bit = "0"
-        end
-
-        attested_credential_data_present_bit = "0"
-
-        raw_flags = ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
-        raw_sign_count = "0000"
-
-        rp_id_hash + raw_flags + raw_sign_count
-      end
+  def authenticator_data
+    @authenticator_data ||= rp_id_hash + raw_flags + raw_sign_count
   end
 
   def client_data_json
@@ -60,7 +45,40 @@ class FakeAuthenticator
 
   private
 
-  attr_reader :challenge, :mode, :origin
+  attr_reader :challenge, :mode, :origin, :rp_id, :user_present
+
+  def rp_id_hash
+    OpenSSL::Digest::SHA256.digest(rp_id)
+  end
+
+  def raw_flags
+    ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
+  end
+
+  def attested_credential_data_present_bit
+    if attested_credential_data
+      "1"
+    else
+      "0"
+    end
+  end
+
+  def attested_credential_data
+    # TODO respond with credential data in case mode is :create
+    nil
+  end
+
+  def raw_sign_count
+    "0000"
+  end
+
+  def user_present_bit
+    if user_present
+      "1"
+    else
+      "0"
+    end
+  end
 
   def type
     "webauthn.#{mode}"

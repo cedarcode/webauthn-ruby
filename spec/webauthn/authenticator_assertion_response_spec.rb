@@ -59,7 +59,14 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "user present validation" do
-    let(:authenticator_data) { authenticator.authenticator_data(user_present: false) }
+    let(:authenticator) do
+      FakeAuthenticator.new(
+        challenge: challenge,
+        origin: original_origin,
+        mode: :get,
+        user_present: false
+      )
+    end
 
     it "is invalid if user-present flag is off" do
       expect(
@@ -97,7 +104,14 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "rp_id validation" do
-    let(:authenticator_data) { authenticator.authenticator_data(rp_id: "different-rp_id") }
+    let(:authenticator) do
+      FakeAuthenticator.new(
+        challenge: challenge,
+        origin: original_origin,
+        mode: :get,
+        rp_id: "different-rp_id"
+      )
+    end
 
     it "is invalid if rp_id_hash doesn't match" do
       expect(
