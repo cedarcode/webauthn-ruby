@@ -25,7 +25,7 @@ class FakeAuthenticator
     @origin = origin
   end
 
-  def authenticator_data(rp_id: nil, user_present: true, credential_public_key: nil)
+  def authenticator_data(rp_id: nil, user_present: true)
     @authenticator_data ||=
       begin
         rp_id ||= "localhost"
@@ -37,12 +37,12 @@ class FakeAuthenticator
           user_present_bit = "0"
         end
 
-        attested_credential_data_present_bit = "1"
+        attested_credential_data_present_bit = "0"
 
         raw_flags = ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
         raw_sign_count = "0000"
 
-        rp_id_hash + raw_flags + raw_sign_count + fake_attested_credential_data(public_key: credential_public_key)
+        rp_id_hash + raw_flags + raw_sign_count
       end
   end
 

@@ -12,7 +12,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   let(:client_data_json) { authenticator.client_data_json }
   let(:encoded_client_data_json) { WebAuthn::Utils.ua_encode(client_data_json) }
   let(:credential_key) { authenticator.credential_key }
-  let(:authenticator_data) { authenticator.authenticator_data(credential_public_key: credential_key.public_key) }
+  let(:authenticator_data) { authenticator.authenticator_data }
 
   let(:assertion_response) do
     WebAuthn::AuthenticatorAssertionResponse.new(
@@ -59,7 +59,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "user present validation" do
-    let(:authenticator_data) { authenticator.authenticator_data(credential_public_key: credential_key.public_key, user_present: false) }
+    let(:authenticator_data) { authenticator.authenticator_data(user_present: false) }
 
     it "is invalid if user-present flag is off" do
       expect(
@@ -97,12 +97,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "rp_id validation" do
-    let(:authenticator_data) {
-      authenticator.authenticator_data(
-        credential_public_key: credential_key.public_key,
-        rp_id: "different-rp_id"
-      )
-    }
+    let(:authenticator_data) { authenticator.authenticator_data(rp_id: "different-rp_id") }
 
     it "is invalid if rp_id_hash doesn't match" do
       expect(
