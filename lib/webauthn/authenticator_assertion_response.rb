@@ -12,10 +12,7 @@ module WebAuthn
     end
 
     def valid?(original_challenge, original_origin, credential_public_key:)
-      valid_type? &&
-        valid_challenge?(original_challenge) &&
-        valid_origin?(original_origin) &&
-        authenticator_data.user_present? &&
+      super(original_challenge, original_origin) &&
         valid_signature?(credential_public_key)
     end
 
