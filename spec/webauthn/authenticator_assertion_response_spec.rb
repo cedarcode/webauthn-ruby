@@ -55,7 +55,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
     it "is invalid if type is not get" do
       expect(
-        is_valid = assertion_response.valid?(
+        assertion_response.valid?(
           encoded_challenge,
           original_origin,
           credential_public_key: key_bytes(credential_key.public_key)
