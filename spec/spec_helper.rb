@@ -18,7 +18,7 @@ RSpec.configure do |config|
   end
 end
 
-def fake_authenticator_data(rp_id: nil, user_present: true)
+def fake_authenticator_data(rp_id: nil, user_present: true, credential_public_key: nil)
   rp_id ||= "localhost"
   rp_id_hash = OpenSSL::Digest::SHA256.digest(rp_id)
 
@@ -33,15 +33,18 @@ def fake_authenticator_data(rp_id: nil, user_present: true)
   raw_flags = ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
   raw_sign_count = "0000"
 
-  rp_id_hash + raw_flags + raw_sign_count + fake_attested_credential_data
+  rp_id_hash + raw_flags + raw_sign_count + fake_attested_credential_data(public_key: credential_public_key)
 end
 
-def fake_attested_credential_data
+def fake_attested_credential_data(public_key: nil)
   aaguid = SecureRandom.random_bytes(16)
   id = SecureRandom.random_bytes(16)
+  public_key ||= fake_credential_key.public_key
+  public_key_bytes = key_bytes(public_key)
+
   public_key = CBOR.encode(
-    -2 => SecureRandom.random_bytes(32),
-    -3 => SecureRandom.random_bytes(32)
+    -2 => public_key_bytes[1..32],
+    -3 => public_key_bytes[33..64]
   )
 
   aaguid + [id.length].pack("n*") + id + public_key
@@ -77,6 +80,20 @@ end
 
 def encoded_fake_client_data_json(*args)
   WebAuthn::Utils.ua_encode(fake_client_data_json(*args))
+end
+
+def fake_credential_key
+  OpenSSL::PKey::EC.new("prime256v1").generate_key
+end
+
+def fake_signature(key:, authenticator_data:, client_data_json:)
+  message = authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json)
+
+  key.dsa_sign_asn1(message)
+end
+
+def key_bytes(public_key)
+  public_key.to_bn.to_s(2)
 end
 
 def seeds
