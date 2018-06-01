@@ -16,14 +16,14 @@ module WebAuthn
         valid_challenge?(original_challenge) &&
         valid_origin?(original_origin) &&
         authenticator_data.user_present? &&
-        valid_signature?(public_key_bytes: credential_public_key)
+        valid_signature?(credential_public_key)
     end
 
     private
 
     attr_reader :authenticator_data_bytes, :signature
 
-    def valid_signature?(public_key_bytes:)
+    def valid_signature?(public_key_bytes)
       group = OpenSSL::PKey::EC::Group.new("prime256v1")
       key = OpenSSL::PKey::EC.new(group)
       public_key_bn = OpenSSL::BN.new(public_key_bytes, 2)
