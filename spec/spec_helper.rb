@@ -89,7 +89,7 @@ end
 def fake_signature(key:, authenticator_data:, client_data_json:)
   message = authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json)
 
-  key.dsa_sign_asn1(message)
+  key.sign("SHA256", message)
 end
 
 def key_bytes(public_key)

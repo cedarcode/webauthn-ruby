@@ -30,9 +30,10 @@ module WebAuthn
       public_key = OpenSSL::PKey::EC::Point.new(group, public_key_bn)
       key.public_key = public_key
 
-      key.dsa_verify_asn1(
-        authenticator_data_bytes + client_data.hash,
-        signature
+      key.verify(
+        "SHA256",
+        signature,
+        authenticator_data_bytes + client_data.hash
       )
     end
 
