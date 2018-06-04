@@ -12,10 +12,7 @@ module WebAuthn
     end
 
     def valid?(original_challenge, original_origin, credential_public_key:)
-      valid_type? &&
-        valid_challenge?(original_challenge) &&
-        valid_origin?(original_origin) &&
-        authenticator_data.user_present? &&
+      super(original_challenge, original_origin) &&
         valid_signature?(credential_public_key)
     end
 
@@ -30,9 +27,10 @@ module WebAuthn
       public_key = OpenSSL::PKey::EC::Point.new(group, public_key_bn)
       key.public_key = public_key
 
-      key.dsa_verify_asn1(
-        authenticator_data_bytes + client_data.hash,
-        signature
+      key.verify(
+        "SHA256",
+        signature,
+        authenticator_data_bytes + client_data.hash
       )
     end
 

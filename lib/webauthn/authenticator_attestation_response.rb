@@ -18,12 +18,7 @@ module WebAuthn
     end
 
     def valid?(original_challenge, original_origin)
-      valid_type? &&
-        valid_challenge?(original_challenge) &&
-        valid_origin?(original_origin) &&
-        valid_rp_id?(original_origin) &&
-        authenticator_data.valid? &&
-        user_present? &&
+      super &&
         attestation_statement.valid?(authenticator_data, client_data.hash)
     end
 
@@ -38,16 +33,6 @@ module WebAuthn
     def attestation_statement
       @attestation_statement ||=
         WebAuthn::AttestationStatement.from(attestation["fmt"], attestation["attStmt"])
-    end
-
-    def valid_rp_id?(original_origin)
-      domain = URI.parse(original_origin).host
-
-      OpenSSL::Digest::SHA256.digest(domain) == authenticator_data.rp_id_hash
-    end
-
-    def user_present?
-      authenticator_data.user_present?
     end
 
     def authenticator_data

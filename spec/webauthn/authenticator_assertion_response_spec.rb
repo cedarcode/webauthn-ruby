@@ -101,4 +101,23 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       ).to be_falsy
     end
   end
+
+  describe "rp_id validation" do
+    let(:authenticator_data) {
+      fake_authenticator_data(
+        credential_public_key: credential_key.public_key,
+        rp_id: "different-rp_id"
+      )
+    }
+
+    it "is invalid if rp_id_hash doesn't match" do
+      expect(
+        assertion_response.valid?(
+          encoded_challenge,
+          original_origin,
+          credential_public_key: key_bytes(credential_key.public_key)
+        )
+      ).to be_falsy
+    end
+  end
 end
