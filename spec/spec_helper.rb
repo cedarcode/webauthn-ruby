@@ -128,10 +128,6 @@ def seeds
   }
 end
 
-def hash_to_encoded_json(hash)
-  WebAuthn::Utils.ua_encode(hash.to_json)
-end
-
 def hash_to_encoded_cbor(hash)
   WebAuthn::Utils.ua_encode(CBOR.encode(hash))
 end
