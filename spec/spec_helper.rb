@@ -38,7 +38,12 @@ class FakeAuthenticator
   end
 
   def signature
-    @signature ||= credential_key.sign("SHA256", authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json))
+    @signature ||=
+      if create?
+        # TODO Implement signing for when creating credential
+      elsif get?
+        credential_key.sign("SHA256", authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json))
+      end
   end
 
   def attestation_object
