@@ -3,7 +3,7 @@
 require "webauthn/authenticator_assertion_response"
 
 RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
-  let(:authenticator) { FakeAuthenticator.new(challenge: challenge, origin: original_origin, mode: :get) }
+  let(:authenticator) { FakeAuthenticator.new(request_options: { challenge: challenge }, context: { origin: original_origin }) }
 
   let(:challenge) { fake_challenge }
   let(:encoded_challenge) { WebAuthn::Utils.ua_encode(challenge) }
@@ -45,9 +45,9 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "type validation" do
-    let(:authenticator) { FakeAuthenticator.new(challenge: challenge, origin: original_origin, mode: :create) }
+    let(:authenticator) { FakeAuthenticator.new(creation_options: { challenge: challenge }, context: { origin: original_origin }) }
 
-    it "is invalid if type is not get" do
+    it "is invalid if creating instead of requesting" do
       expect(
         assertion_response.valid?(
           encoded_challenge,
@@ -61,10 +61,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   describe "user present validation" do
     let(:authenticator) do
       FakeAuthenticator.new(
-        challenge: challenge,
-        origin: original_origin,
-        mode: :get,
-        user_present: false
+        request_options: { challenge: challenge },
+        context: { origin: original_origin, user_present: false }
       )
     end
 
@@ -106,10 +104,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   describe "rp_id validation" do
     let(:authenticator) do
       FakeAuthenticator.new(
-        challenge: challenge,
-        origin: original_origin,
-        mode: :get,
-        rp_id: "different-rp_id"
+        request_options: { challenge: challenge, rp_id: "different-rp_id" },
+        context: { origin: original_origin }
       )
     end
 

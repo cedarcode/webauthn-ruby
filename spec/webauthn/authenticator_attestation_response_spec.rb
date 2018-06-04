@@ -9,7 +9,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     original_challenge = WebAuthn::Utils.ua_encode(challenge)
     origin = fake_origin
 
-    authenticator = FakeAuthenticator.new(mode: :create, challenge: challenge, origin: origin)
+    authenticator = FakeAuthenticator.new(
+      creation_options: { challenge: challenge },
+      context: { origin: origin }
+    )
 
     attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
       attestation_object: WebAuthn::Utils.ua_encode(authenticator.attestation_object),
@@ -54,7 +57,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_origin) { "http://localhost" }
     let(:challenge) { fake_challenge }
     let(:encoded_challenge) { WebAuthn::Utils.ua_encode(challenge) }
-    let(:authenticator) { FakeAuthenticator.new(mode: :create, challenge: challenge, origin: origin) }
+    let(:authenticator) { FakeAuthenticator.new(creation_options: { challenge: challenge }, context: { origin: origin }) }
     let(:client_data_json) { WebAuthn::Utils.ua_encode(authenticator.client_data_json) }
     let(:attestation_object) { WebAuthn::Utils.ua_encode(authenticator.attestation_object) }
 
@@ -89,7 +92,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_origin) { fake_origin }
     let(:challenge) { fake_challenge }
     let(:encoded_challenge) { WebAuthn::Utils.ua_encode(challenge) }
-    let(:authenticator) { FakeAuthenticator.new(mode: :create, challenge: challenge, rp_id: rp_id) }
+    let(:authenticator) { FakeAuthenticator.new(creation_options: { challenge: challenge, rp_id: rp_id }) }
     let(:client_data_json) { WebAuthn::Utils.ua_encode(authenticator.client_data_json) }
     let(:attestation_object) { WebAuthn::Utils.ua_encode(authenticator.attestation_object) }
 

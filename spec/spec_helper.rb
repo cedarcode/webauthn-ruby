@@ -19,12 +19,10 @@ RSpec.configure do |config|
 end
 
 class FakeAuthenticator
-  def initialize(challenge: fake_challenge, origin: fake_origin, mode: :get, rp_id: "localhost", user_present: true)
-    @challenge = challenge
-    @mode = mode
-    @origin = origin
-    @rp_id = rp_id
-    @user_present = user_present
+  def initialize(creation_options: nil, request_options: nil, context: {})
+    @creation_options = creation_options
+    @request_options = request_options
+    @context = context
   end
 
   def authenticator_data
@@ -44,7 +42,7 @@ class FakeAuthenticator
   end
 
   def attestation_object
-    if mode == :create
+    if create?
       CBOR.encode(
         "fmt" => "none",
         "attStmt" => {},
@@ -55,7 +53,7 @@ class FakeAuthenticator
 
   private
 
-  attr_reader :challenge, :mode, :origin, :rp_id, :user_present
+  attr_reader :creation_options, :context, :request_options
 
   def rp_id_hash
     OpenSSL::Digest::SHA256.digest(rp_id)
@@ -74,7 +72,7 @@ class FakeAuthenticator
   end
 
   def attested_credential_data
-    if mode == :create
+    if create?
       aaguid + [credential_id.length].pack("n*") + credential_id + cose_credential_public_key
     else
       ""
@@ -101,7 +99,7 @@ class FakeAuthenticator
   end
 
   def user_present_bit
-    if user_present
+    if user_present?
       "1"
     else
       "0"
@@ -109,7 +107,49 @@ class FakeAuthenticator
   end
 
   def type
-    "webauthn.#{mode}"
+    if create?
+      "webauthn.create"
+    elsif get?
+      "webauthn.get"
+    end
+  end
+
+  def create?
+    !!creation_options
+  end
+
+  def get?
+    !create? && !!request_options
+  end
+
+  def user_present?
+    if context[:user_present].nil?
+      true
+    else
+      context[:user_present]
+    end
+  end
+
+  def rp_id
+    @rp_id ||=
+      if create?
+        creation_options[:rp_id] || "localhost"
+      elsif get?
+        request_options[:rp_id] || "localhost"
+      end
+  end
+
+  def challenge
+    @challenge ||=
+      if create?
+        creation_options[:challenge] || fake_challenge
+      elsif get?
+        request_options[:challenge] || fake_challenge
+      end
+  end
+
+  def origin
+    @origin ||= context[:origin] || fake_origin
   end
 
   def encode(bytes)
