@@ -28,8 +28,7 @@ module WebAuthn
     end
 
     def valid_challenge?(original_challenge)
-      WebAuthn::Utils.authenticator_decode(client_data.challenge) ==
-        WebAuthn::Utils.ua_decode(original_challenge)
+      WebAuthn::Utils.authenticator_decode(client_data.challenge) == original_challenge
     end
 
     def valid_origin?(original_origin)

@@ -21,22 +21,18 @@ module WebAuthn
     end
 
     def hash
-      OpenSSL::Digest::SHA256.digest(decoded_client_data_json)
+      OpenSSL::Digest::SHA256.digest(client_data_json)
     end
 
     private
 
     attr_reader :client_data_json
 
-    def decoded_client_data_json
-      @decoded_client_data_json ||= WebAuthn::Utils.ua_decode(client_data_json)
-    end
-
     def data
       @data ||=
         begin
           if client_data_json
-            JSON.parse(decoded_client_data_json)
+            JSON.parse(client_data_json)
           else
             raise "Missing client_data_json"
           end

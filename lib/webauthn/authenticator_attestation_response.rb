@@ -44,7 +44,7 @@ module WebAuthn
     end
 
     def attestation
-      @attestation ||= CBOR.decode(WebAuthn::Utils.ua_decode(attestation_object))
+      @attestation ||= CBOR.decode(attestation_object)
     end
 
     def type
