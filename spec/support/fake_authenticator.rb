@@ -20,6 +20,10 @@ class FakeAuthenticator
       @credential_key ||= OpenSSL::PKey::EC.new("prime256v1").generate_key
     end
 
+    def credential_id
+      @credential_id ||= SecureRandom.random_bytes(16)
+    end
+
     private
 
     attr_reader :challenge, :context, :rp_id
@@ -90,10 +94,6 @@ class FakeAuthenticator
 
     def aaguid
       @aaguid ||= SecureRandom.random_bytes(16)
-    end
-
-    def credential_id
-      @credential_id ||= SecureRandom.random_bytes(16)
     end
 
     def cose_credential_public_key

@@ -11,10 +11,13 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   let(:original_origin) { fake_origin }
 
   let(:credential_key) { authenticator.credential_key }
+  let(:credential_id) { authenticator.credential_id }
+  let(:allowed_credentials) { [credential_id] }
   let(:authenticator_data) { authenticator.authenticator_data }
 
   let(:assertion_response) do
     WebAuthn::AuthenticatorAssertionResponse.new(
+      credential_id: credential_id,
       client_data_json: authenticator.client_data_json,
       authenticator_data: authenticator_data,
       signature: authenticator.signature
@@ -26,7 +29,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       assertion_response.valid?(
         original_challenge,
         original_origin,
-        credential_public_key: key_bytes(credential_key.public_key)
+        credential_public_key: key_bytes(credential_key.public_key),
+        allowed_credentials: allowed_credentials
       )
     ).to be_truthy
   end
@@ -38,7 +42,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       assertion_response.valid?(
         original_challenge,
         original_origin,
-        credential_public_key: key_bytes(different_key.public_key)
+        credential_public_key: key_bytes(different_key.public_key),
+        allowed_credentials: allowed_credentials
       )
     ).to be_falsy
   end
@@ -55,7 +60,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           original_challenge,
           original_origin,
-          credential_public_key: key_bytes(credential_key.public_key)
+          credential_public_key: key_bytes(credential_key.public_key),
+          allowed_credentials: allowed_credentials
         )
       ).to be_falsy
     end
@@ -74,7 +80,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           original_challenge,
           original_origin,
-          credential_public_key: key_bytes(credential_key.public_key)
+          credential_public_key: key_bytes(credential_key.public_key),
+          allowed_credentials: allowed_credentials
         )
       ).to be_falsy
     end
@@ -86,7 +93,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           fake_challenge,
           original_origin,
-          credential_public_key: key_bytes(credential_key.public_key)
+          credential_public_key: key_bytes(credential_key.public_key),
+          allowed_credentials: allowed_credentials
         )
       ).to be_falsy
     end
@@ -98,7 +106,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           original_challenge,
           "http://different-origin",
-          credential_public_key: key_bytes(credential_key.public_key)
+          credential_public_key: key_bytes(credential_key.public_key),
+          allowed_credentials: allowed_credentials
         )
       ).to be_falsy
     end
@@ -118,7 +127,23 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           original_challenge,
           original_origin,
-          credential_public_key: key_bytes(credential_key.public_key)
+          credential_public_key: key_bytes(credential_key.public_key),
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_falsy
+    end
+  end
+
+  describe "allowed credentials validation" do
+    let(:allowed_credentials) { [SecureRandom.random_bytes(16)] }
+
+    it "is invalid if credential id is not among the allowed ones" do
+      expect(
+        assertion_response.valid?(
+          original_challenge,
+          original_origin,
+          credential_public_key: key_bytes(credential_key.public_key),
+          allowed_credentials: allowed_credentials
         )
       ).to be_falsy
     end
