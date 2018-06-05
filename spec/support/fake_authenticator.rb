@@ -110,7 +110,10 @@ class FakeAuthenticator
 
   class Get < Base
     def signature
-      @signature ||= credential_key.sign("SHA256", authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json))
+      @signature ||= credential_key.sign(
+        "SHA256",
+        authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json)
+      )
     end
 
     private
