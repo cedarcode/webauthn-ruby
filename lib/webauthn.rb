@@ -10,7 +10,8 @@ require "securerandom"
 require "json"
 
 module WebAuthn
-  ES256_ALGORITHM = { type: "public-key", alg: -7 }.freeze
+  COSE_ALG_ES256 = -7
+  CRED_PARAM_ES256 = { type: "public-key", alg: COSE_ALG_ES256 }.freeze
   RP_NAME = "web-server"
   USER_ID = "1"
   USER_NAME = "web-user"
@@ -19,7 +20,7 @@ module WebAuthn
   def self.credential_creation_options
     {
       challenge: challenge,
-      pubKeyCredParams: [ES256_ALGORITHM],
+      pubKeyCredParams: [CRED_PARAM_ES256],
       rp: { name: RP_NAME },
       user: { name: USER_NAME, displayName: USER_NAME, id: USER_ID }
     }
