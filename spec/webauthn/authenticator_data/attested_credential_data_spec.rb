@@ -6,6 +6,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
       aaguid: SecureRandom.random_bytes(16),
       id: SecureRandom.random_bytes(16),
       public_key: CBOR.encode(
+        3 => -7,
         -2 => SecureRandom.random_bytes(32),
         -3 => SecureRandom.random_bytes(32)
       )
@@ -29,6 +30,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
       raw_data =
         raw_attested_credential_data(
           public_key: CBOR.encode(
+            3 => -7,
             -2 => SecureRandom.random_bytes(32),
             -3 => SecureRandom.random_bytes(31)
           )
@@ -36,6 +38,21 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
 
       attested_credential_data =
         WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
+
+      expect(attested_credential_data.valid?).to be_falsy
+      expect(attested_credential_data.credential).to eq(nil)
+    end
+
+    it "returns false if public key alg is not ES256" do
+      raw_data = raw_attested_credential_data(
+        public_key: CBOR.encode(
+          3 => -257,
+          -2 => SecureRandom.random_bytes(32),
+          -3 => SecureRandom.random_bytes(31)
+        )
+      )
+
+      attested_credential_data = WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
 
       expect(attested_credential_data.valid?).to be_falsy
       expect(attested_credential_data.credential).to eq(nil)
