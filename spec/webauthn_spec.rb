@@ -11,8 +11,7 @@ RSpec.describe WebAuthn do
     end
 
     it "has a 16 byte length challenge" do
-      original_challenge = Base64.strict_decode64(@credential_creation_options[:challenge])
-      expect(original_challenge.length).to eq(16)
+      expect(@credential_creation_options[:challenge].length).to eq(16)
     end
 
     it "has public key params" do
@@ -28,7 +27,7 @@ RSpec.describe WebAuthn do
       user_info = @credential_creation_options[:user]
       expect(user_info[:name]).to eq("web-user")
       expect(user_info[:displayName]).to eq("web-user")
-      expect(user_info[:id]).to eq("MQ==")
+      expect(user_info[:id]).to eq("1")
     end
   end
 
@@ -36,8 +35,7 @@ RSpec.describe WebAuthn do
     let(:credential_request_options) { WebAuthn.credential_request_options }
 
     it "has a 16 byte length challenge" do
-      original_challenge = Base64.strict_decode64(credential_request_options[:challenge])
-      expect(original_challenge.length).to eq(16)
+      expect(credential_request_options[:challenge].length).to eq(16)
     end
 
     it "has allowCredentials param with an empty array" do

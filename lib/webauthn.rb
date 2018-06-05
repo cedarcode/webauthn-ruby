@@ -18,22 +18,22 @@ module WebAuthn
 
   def self.credential_creation_options
     {
-      challenge: ua_encoded_challenge,
+      challenge: challenge,
       pubKeyCredParams: [ES256_ALGORITHM],
       rp: { name: RP_NAME },
-      user: { name: USER_NAME, displayName: USER_NAME, id: Utils.ua_encode(USER_ID) }
+      user: { name: USER_NAME, displayName: USER_NAME, id: USER_ID }
     }
   end
 
   def self.credential_request_options
     {
-      challenge: ua_encoded_challenge,
+      challenge: challenge,
       allowCredentials: []
     }
   end
 
-  def self.ua_encoded_challenge
-    Utils.ua_encode(SecureRandom.random_bytes(16))
+  def self.challenge
+    SecureRandom.random_bytes(16)
   end
-  private_class_method :ua_encoded_challenge
+  private_class_method :challenge
 end
