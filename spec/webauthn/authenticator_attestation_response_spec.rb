@@ -2,6 +2,7 @@
 
 require "webauthn/authenticator_attestation_response"
 require "openssl"
+require "support/seeds"
 
 RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   it "is valid if everything's in place" do
