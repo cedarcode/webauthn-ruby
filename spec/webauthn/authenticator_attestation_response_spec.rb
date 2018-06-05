@@ -9,9 +9,14 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     original_challenge = WebAuthn::Utils.ua_encode(challenge)
     origin = fake_origin
 
+    authenticator = FakeAuthenticator::Create.new(
+      challenge: challenge,
+      context: { origin: origin }
+    )
+
     attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
-      attestation_object: encoded_fake_attestation_object,
-      client_data_json: encoded_fake_client_data_json(challenge: challenge, origin: origin)
+      attestation_object: WebAuthn::Utils.ua_encode(authenticator.attestation_object),
+      client_data_json: WebAuthn::Utils.ua_encode(authenticator.client_data_json)
     )
 
     expect(attestation_response.valid?(original_challenge, origin)).to be_truthy
@@ -52,12 +57,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_origin) { "http://localhost" }
     let(:challenge) { fake_challenge }
     let(:encoded_challenge) { WebAuthn::Utils.ua_encode(challenge) }
-    let(:client_data_json) {
-      encoded_fake_client_data_json(challenge: challenge,
-                                    origin: origin)
-    }
-
-    let(:attestation_object) { encoded_fake_attestation_object }
+    let(:authenticator) { FakeAuthenticator::Create.new(challenge: challenge, context: { origin: origin }) }
+    let(:client_data_json) { WebAuthn::Utils.ua_encode(authenticator.client_data_json) }
+    let(:attestation_object) { WebAuthn::Utils.ua_encode(authenticator.attestation_object) }
 
     context "matches the default one" do
       let(:origin) { "http://localhost" }
@@ -90,13 +92,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_origin) { fake_origin }
     let(:challenge) { fake_challenge }
     let(:encoded_challenge) { WebAuthn::Utils.ua_encode(challenge) }
-    let(:client_data_json) { encoded_fake_client_data_json(challenge: challenge) }
-
-    let(:attestation_object) {
-      hash_to_encoded_cbor(fmt: "none",
-                           attStmt: {},
-                           authData: fake_authenticator_data(rp_id: rp_id))
-    }
+    let(:authenticator) { FakeAuthenticator::Create.new(challenge: challenge, rp_id: rp_id) }
+    let(:client_data_json) { WebAuthn::Utils.ua_encode(authenticator.client_data_json) }
+    let(:attestation_object) { WebAuthn::Utils.ua_encode(authenticator.attestation_object) }
 
     context "matches the default one" do
       let(:rp_id) { "localhost" }

@@ -5,6 +5,7 @@ require "webauthn"
 require "cbor"
 
 require "byebug"
+require "support/fake_authenticator"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -18,78 +19,12 @@ RSpec.configure do |config|
   end
 end
 
-def fake_authenticator_data(rp_id: nil, user_present: true, credential_public_key: nil)
-  rp_id ||= "localhost"
-  rp_id_hash = OpenSSL::Digest::SHA256.digest(rp_id)
-
-  if user_present
-    user_present_bit = "1"
-  else
-    user_present_bit = "0"
-  end
-
-  attested_credential_data_present_bit = "1"
-
-  raw_flags = ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
-  raw_sign_count = "0000"
-
-  rp_id_hash + raw_flags + raw_sign_count + fake_attested_credential_data(public_key: credential_public_key)
-end
-
-def fake_attested_credential_data(public_key: nil)
-  aaguid = SecureRandom.random_bytes(16)
-  id = SecureRandom.random_bytes(16)
-  public_key ||= fake_credential_key.public_key
-  public_key_bytes = key_bytes(public_key)
-
-  public_key = CBOR.encode(
-    -2 => public_key_bytes[1..32],
-    -3 => public_key_bytes[33..64]
-  )
-
-  aaguid + [id.length].pack("n*") + id + public_key
-end
-
-def fake_attestation_object
-  CBOR.encode(
-    "fmt" => "none",
-    "attStmt" => {},
-    "authData" => fake_authenticator_data
-  )
-end
-
-def encoded_fake_attestation_object(*args)
-  WebAuthn::Utils.ua_encode(fake_attestation_object(*args))
-end
-
 def fake_origin
   "http://localhost"
 end
 
 def fake_challenge
   SecureRandom.random_bytes(16)
-end
-
-def fake_client_data_json(challenge: nil, origin: nil, type: nil)
-  {
-    challenge: authenticator_encode(challenge || fake_challenge),
-    origin: origin || fake_origin,
-    type: type || "webauthn.create"
-  }.to_json
-end
-
-def encoded_fake_client_data_json(*args)
-  WebAuthn::Utils.ua_encode(fake_client_data_json(*args))
-end
-
-def fake_credential_key
-  OpenSSL::PKey::EC.new("prime256v1").generate_key
-end
-
-def fake_signature(key:, authenticator_data:, client_data_json:)
-  message = authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json)
-
-  key.sign("SHA256", message)
 end
 
 def key_bytes(public_key)
@@ -126,12 +61,4 @@ def seeds
       }
     }
   }
-end
-
-def hash_to_encoded_cbor(hash)
-  WebAuthn::Utils.ua_encode(CBOR.encode(hash))
-end
-
-def authenticator_encode(bin)
-  Base64.urlsafe_encode64(bin, padding: false)
 end
