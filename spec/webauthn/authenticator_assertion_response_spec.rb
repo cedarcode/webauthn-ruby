@@ -3,7 +3,7 @@
 require "webauthn/authenticator_assertion_response"
 
 RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
-  let(:authenticator) { FakeAuthenticator.new(request_options: { challenge: challenge }, context: { origin: original_origin }) }
+  let(:authenticator) { FakeAuthenticator::Get.new(challenge: challenge, context: { origin: original_origin }) }
 
   let(:challenge) { fake_challenge }
   let(:encoded_challenge) { WebAuthn::Utils.ua_encode(challenge) }
@@ -33,7 +33,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   it "is invalid if signature was signed with a different key" do
-    different_key = FakeAuthenticator.new.credential_key
+    different_key = FakeAuthenticator::Create.new.credential_key
 
     expect(
       assertion_response.valid?(
@@ -45,9 +45,11 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "type validation" do
-    let(:authenticator) { FakeAuthenticator.new(creation_options: { challenge: challenge }, context: { origin: original_origin }) }
+    let(:authenticator) { FakeAuthenticator::Get.new(challenge: challenge, context: { origin: original_origin }) }
 
-    it "is invalid if creating instead of requesting" do
+    it "is invalid if type is create instead of get" do
+      allow(authenticator).to receive(:type).and_return("webauthn.create")
+
       expect(
         assertion_response.valid?(
           encoded_challenge,
@@ -60,8 +62,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   describe "user present validation" do
     let(:authenticator) do
-      FakeAuthenticator.new(
-        request_options: { challenge: challenge },
+      FakeAuthenticator::Get.new(
+        challenge: challenge,
         context: { origin: original_origin, user_present: false }
       )
     end
@@ -103,8 +105,9 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   describe "rp_id validation" do
     let(:authenticator) do
-      FakeAuthenticator.new(
-        request_options: { challenge: challenge, rp_id: "different-rp_id" },
+      FakeAuthenticator::Get.new(
+        challenge: challenge,
+        rp_id: "different-rp_id",
         context: { origin: original_origin }
       )
     end
