@@ -17,10 +17,18 @@ module WebAuthn
         attr_reader :algorithm, :curve, :x_coordinate, :y_coordinate
 
         def initialize(algorithm: nil, curve:, x_coordinate:, y_coordinate:)
-          @algorithm = algorithm
-          @curve = curve
-          @x_coordinate = x_coordinate
-          @y_coordinate = y_coordinate
+          if !curve
+            raise ArgumentError, "Required curve is missing"
+          elsif !x_coordinate
+            raise ArgumentError, "Required x-coordinate is missing"
+          elsif !y_coordinate
+            raise ArgumentError, "Required y-coordinate is missing"
+          else
+            @algorithm = algorithm
+            @curve = curve
+            @x_coordinate = x_coordinate
+            @y_coordinate = y_coordinate
+          end
         end
 
         def self.from_map(map)

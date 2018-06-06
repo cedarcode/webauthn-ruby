@@ -100,6 +100,7 @@ class FakeAuthenticator
       CBOR.encode(
         1 => 2,
         3 => WebAuthn::COSE::ECDSA::ALG_ES256,
+        -1 => 1,
         -2 => key_bytes(credential_key.public_key)[1..32],
         -3 => key_bytes(credential_key.public_key)[33..64]
       )

@@ -8,6 +8,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
       public_key: CBOR.encode(
         1 => 2,
         3 => -7,
+        -1 => 1,
         -2 => SecureRandom.random_bytes(32),
         -3 => SecureRandom.random_bytes(32)
       )
@@ -33,6 +34,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
           public_key: CBOR.encode(
             1 => 2,
             3 => -7,
+            -1 => 1,
             -2 => SecureRandom.random_bytes(32),
             -3 => SecureRandom.random_bytes(31)
           )
@@ -50,6 +52,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
         public_key: CBOR.encode(
           1 => 2,
           3 => -257,
+          -1 => 1,
           -2 => SecureRandom.random_bytes(32),
           -3 => SecureRandom.random_bytes(31)
         )
