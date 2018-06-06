@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
+require "webauthn/cose/ecdsa"
+require "webauthn/cose/key/ec2"
+
 module WebAuthn
   class AuthenticatorData
     class AttestedCredentialData
       class PublicKeyU2f
-        ALGORITHM_KEY = 3
         COORDINATE_LENGTH = 32
-        X_COORDINATE_KEY = -2
-        Y_COORDINATE_KEY = -3
 
         def initialize(data)
           @data = data
@@ -15,33 +15,21 @@ module WebAuthn
 
         def valid?
           data.size >= COORDINATE_LENGTH * 2 &&
-            x_coordinate.length == COORDINATE_LENGTH &&
-            y_coordinate.length == COORDINATE_LENGTH &&
-            algorithm == WebAuthn::COSE::ECDSA::ALG_ES256
+            cose_key.x_coordinate.length == COORDINATE_LENGTH &&
+            cose_key.y_coordinate.length == COORDINATE_LENGTH &&
+            cose_key.algorithm == WebAuthn::COSE::ECDSA::ALG_ES256
         end
 
         def to_str
-          "\x04" + x_coordinate + y_coordinate
+          "\x04" + cose_key.x_coordinate + cose_key.y_coordinate
         end
 
         private
 
         attr_reader :data
 
-        def x_coordinate
-          decoded_data[X_COORDINATE_KEY]
-        end
-
-        def y_coordinate
-          decoded_data[Y_COORDINATE_KEY]
-        end
-
-        def algorithm
-          decoded_data[ALGORITHM_KEY]
-        end
-
-        def decoded_data
-          @decoded_data ||= CBOR.decode(data)
+        def cose_key
+          @cose_key ||= COSE::Key::EC2.from_cbor(data)
         end
       end
     end
