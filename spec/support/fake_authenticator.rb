@@ -98,6 +98,7 @@ class FakeAuthenticator
 
     def cose_credential_public_key
       CBOR.encode(
+        3 => WebAuthn::COSE_ALG_ES256,
         -2 => key_bytes(credential_key.public_key)[1..32],
         -3 => key_bytes(credential_key.public_key)[33..64]
       )
