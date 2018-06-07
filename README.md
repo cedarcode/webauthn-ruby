@@ -16,14 +16,16 @@ Easily implement WebAuthn in your ruby web server
 
 ## Prerequisites
 
-### User Agent compatibility
+This gem will help your ruby server act as a conforming [_Relying-Party_](https://www.w3.org/TR/webauthn/#relying-party), in WebAuthn terminology. But for the [_Registration_](https://www.w3.org/TR/webauthn/#registration) and [_Authentiction_](https://www.w3.org/TR/webauthn/#authentication) ceremonies to work, you will also need
 
-Web browsers supporting [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API) currently are:
+### A conforming User Agent
+
+Currently supporting [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API):
   - [Mozilla Firefox](https://www.mozilla.org/firefox/) 60+
   - [Google Chrome](https://www.google.com/chrome/) 67+
   - Google Chrome 65 & 66 (Disabled by default, go to chrome://flags to enable Web Authentication API feature)
 
-### Authenticator devices
+### A conforming Authenticator
 
   These [USB keys from Yubico](https://www.yubico.com/product/security-key-by-yubico/) were used as authenticator devices during the development of this gem.
   Firefox states ([Firefox 60 release notes](https://www.mozilla.org/en-US/firefox/60.0/releasenotes/)) they only support USB FIDO2 or FIDO U2F enabled devices in their current implementation (version 60).
