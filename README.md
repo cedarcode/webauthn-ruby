@@ -19,8 +19,8 @@ Easily implement WebAuthn in your ruby web server
 ### User Agent compatibility
 
 Web browsers supporting [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API) currently are:
-  - Mozilla Firefox 60+
-  - Google Chrome 67+
+  - [Mozilla Firefox](https://www.mozilla.org/firefox/) 60+
+  - [Google Chrome](https://www.google.com/chrome/) 67+
   - Google Chrome 65 & 66 (Disabled by default, go to chrome://flags to enable Web Authentication API feature)
 
 ### Authenticator devices
