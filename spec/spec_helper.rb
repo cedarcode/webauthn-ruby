@@ -27,6 +27,26 @@ def fake_challenge
   SecureRandom.random_bytes(16)
 end
 
+def fake_cose_credential_key(algorithm: nil, x_coordinate: nil, y_coordinate: nil)
+  kty_label = 1
+  alg_label = 3
+  crv_label = -1
+  x_label = -2
+  y_label = -3
+
+  kty_ec2 = 2
+  alg_es256 = -7
+  crv_p256 = 1
+
+  CBOR.encode(
+    kty_label => kty_ec2,
+    alg_label => algorithm || alg_es256,
+    crv_label => crv_p256,
+    x_label => x_coordinate || SecureRandom.random_bytes(32),
+    y_label => y_coordinate || SecureRandom.random_bytes(32)
+  )
+end
+
 def key_bytes(public_key)
   public_key.to_bn.to_s(2)
 end
