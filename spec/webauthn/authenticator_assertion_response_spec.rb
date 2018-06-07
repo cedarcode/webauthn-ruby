@@ -12,7 +12,12 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   let(:credential_key) { authenticator.credential_key }
   let(:credential_id) { authenticator.credential_id }
-  let(:allowed_credentials) { [credential_id] }
+  let(:allowed_credential) {
+    WebAuthn::Credential.new(
+      id: credential_id,
+      public_key: key_bytes(credential_key.public_key)
+    )
+  }
   let(:authenticator_data) { authenticator.authenticator_data }
 
   let(:assertion_response) do
@@ -29,21 +34,37 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       assertion_response.valid?(
         original_challenge,
         original_origin,
-        credential_public_key: key_bytes(credential_key.public_key),
-        allowed_credentials: allowed_credentials
+        allowed_credential: allowed_credential
       )
     ).to be_truthy
   end
 
   it "is invalid if signature was signed with a different key" do
-    different_key = FakeAuthenticator::Create.new.credential_key
+    credential = WebAuthn::Credential.new(
+      id: credential_id,
+      public_key: key_bytes(FakeAuthenticator::Create.new.credential_key.public_key)
+    )
 
     expect(
       assertion_response.valid?(
         original_challenge,
         original_origin,
-        credential_public_key: key_bytes(different_key.public_key),
-        allowed_credentials: allowed_credentials
+        allowed_credential: credential
+      )
+    ).to be_falsy
+  end
+
+  it "is invalid if credential id is not among the allowed ones" do
+    credential = WebAuthn::Credential.new(
+      id: SecureRandom.random_bytes(16),
+      public_key: key_bytes(credential_key.public_key)
+    )
+
+    expect(
+      assertion_response.valid?(
+        original_challenge,
+        original_origin,
+        allowed_credential: credential
       )
     ).to be_falsy
   end
@@ -60,8 +81,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           original_challenge,
           original_origin,
-          credential_public_key: key_bytes(credential_key.public_key),
-          allowed_credentials: allowed_credentials
+          allowed_credential: allowed_credential
         )
       ).to be_falsy
     end
@@ -80,8 +100,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           original_challenge,
           original_origin,
-          credential_public_key: key_bytes(credential_key.public_key),
-          allowed_credentials: allowed_credentials
+          allowed_credential: allowed_credential
         )
       ).to be_falsy
     end
@@ -93,8 +112,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           fake_challenge,
           original_origin,
-          credential_public_key: key_bytes(credential_key.public_key),
-          allowed_credentials: allowed_credentials
+          allowed_credential: allowed_credential
         )
       ).to be_falsy
     end
@@ -106,8 +124,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           original_challenge,
           "http://different-origin",
-          credential_public_key: key_bytes(credential_key.public_key),
-          allowed_credentials: allowed_credentials
+          allowed_credential: allowed_credential
         )
       ).to be_falsy
     end
@@ -127,23 +144,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         assertion_response.valid?(
           original_challenge,
           original_origin,
-          credential_public_key: key_bytes(credential_key.public_key),
-          allowed_credentials: allowed_credentials
-        )
-      ).to be_falsy
-    end
-  end
-
-  describe "allowed credentials validation" do
-    let(:allowed_credentials) { [SecureRandom.random_bytes(16)] }
-
-    it "is invalid if credential id is not among the allowed ones" do
-      expect(
-        assertion_response.valid?(
-          original_challenge,
-          original_origin,
-          credential_public_key: key_bytes(credential_key.public_key),
-          allowed_credentials: allowed_credentials
+          allowed_credential: allowed_credential
         )
       ).to be_falsy
     end

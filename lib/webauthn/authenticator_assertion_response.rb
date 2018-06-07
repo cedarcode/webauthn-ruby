@@ -12,10 +12,10 @@ module WebAuthn
       @signature = signature
     end
 
-    def valid?(original_challenge, original_origin, credential_public_key:, allowed_credentials:)
+    def valid?(original_challenge, original_origin, allowed_credential:)
       super(original_challenge, original_origin) &&
-        valid_signature?(credential_public_key) &&
-        valid_credentials?(allowed_credentials)
+        valid_credentials?(allowed_credential.id) &&
+        valid_signature?(allowed_credential.public_key)
     end
 
     private
@@ -36,8 +36,8 @@ module WebAuthn
       )
     end
 
-    def valid_credentials?(allowed_credentials)
-      allowed_credentials.include?(credential_id)
+    def valid_credentials?(allowed_credential_id)
+      allowed_credential_id == credential_id
     end
 
     def authenticator_data
