@@ -27,8 +27,9 @@ Currently supporting [Web Authentication API](https://developer.mozilla.org/en-U
 
 ### A conforming Authenticator
 
-  These [USB keys from Yubico](https://www.yubico.com/product/security-key-by-yubico/) were used as authenticator devices during the development of this gem.
-  Firefox states ([Firefox 60 release notes](https://www.mozilla.org/en-US/firefox/60.0/releasenotes/)) they only support USB FIDO2 or FIDO U2F enabled devices in their current implementation (version 60).
+- [Security Key by Yubico](https://www.yubico.com/product/security-key-by-yubico/) (used to test/develop this gem)
+
+NOTE: Firefox states ([Firefox 60 release notes](https://www.mozilla.org/en-US/firefox/60.0/releasenotes/)) they only support USB FIDO2 or FIDO U2F enabled devices in their current implementation (version 60).
   It's up to the gem's user to verify user agent compatibility if any other device wants to be used as the authenticator component.
 
 ## Installation
