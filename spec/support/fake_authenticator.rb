@@ -97,9 +97,9 @@ class FakeAuthenticator
     end
 
     def cose_credential_public_key
-      CBOR.encode(
-        -2 => key_bytes(credential_key.public_key)[1..32],
-        -3 => key_bytes(credential_key.public_key)[33..64]
+      fake_cose_credential_key(
+        x_coordinate: key_bytes(credential_key.public_key)[1..32],
+        y_coordinate: key_bytes(credential_key.public_key)[33..64]
       )
     end
 
