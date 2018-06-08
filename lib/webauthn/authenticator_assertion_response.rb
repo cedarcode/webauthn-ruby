@@ -14,7 +14,7 @@ module WebAuthn
 
     def valid?(original_challenge, original_origin, allowed_credential:)
       super(original_challenge, original_origin) &&
-        valid_credentials?(allowed_credential.id) &&
+        valid_credential?(allowed_credential.id) &&
         valid_signature?(allowed_credential.public_key)
     end
 
@@ -36,7 +36,7 @@ module WebAuthn
       )
     end
 
-    def valid_credentials?(allowed_credential_id)
+    def valid_credential?(allowed_credential_id)
       allowed_credential_id == credential_id
     end
 
