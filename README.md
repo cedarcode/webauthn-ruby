@@ -133,7 +133,14 @@ assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
 # the User Agent as part of the validation phase.
 original_origin = "https://www.example.com"
 
-if assertion_response.valid?(original_challenge, original_origin, credential_public_key: credential_public_key)
+# This hash must have the id and its corresponding public key of the
+# previously stored credential for the user that is attempting to sign in.
+allowed_credential = {
+  id: credential_id,
+  publick_key: credential_public_key
+}
+
+if assertion_response.valid?(original_challenge, original_origin, allowed_credential: allowed_credential)
   # Sign in the user
 else
   # Handle error
