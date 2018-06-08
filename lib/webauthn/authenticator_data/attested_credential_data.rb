@@ -7,6 +7,7 @@ module WebAuthn
   class AuthenticatorData
     class AttestedCredentialData
       AAGUID_LENGTH = 16
+
       ID_LENGTH_LENGTH = 2
 
       UINT16_BIG_ENDIAN_FORMAT = "n*"

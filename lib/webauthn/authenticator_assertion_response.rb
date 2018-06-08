@@ -4,21 +4,23 @@ require "webauthn/authenticator_response"
 
 module WebAuthn
   class AuthenticatorAssertionResponse < AuthenticatorResponse
-    def initialize(authenticator_data:, signature:, **options)
+    def initialize(credential_id:, authenticator_data:, signature:, **options)
       super(options)
 
+      @credential_id = credential_id
       @authenticator_data_bytes = authenticator_data
       @signature = signature
     end
 
-    def valid?(original_challenge, original_origin, credential_public_key:)
+    def valid?(original_challenge, original_origin, allowed_credential:)
       super(original_challenge, original_origin) &&
-        valid_signature?(credential_public_key)
+        valid_credential?(allowed_credential[:id]) &&
+        valid_signature?(allowed_credential[:public_key])
     end
 
     private
 
-    attr_reader :authenticator_data_bytes, :signature
+    attr_reader :credential_id, :authenticator_data_bytes, :signature
 
     def valid_signature?(public_key_bytes)
       group = OpenSSL::PKey::EC::Group.new("prime256v1")
@@ -32,6 +34,10 @@ module WebAuthn
         signature,
         authenticator_data_bytes + client_data.hash
       )
+    end
+
+    def valid_credential?(allowed_credential_id)
+      allowed_credential_id == credential_id
     end
 
     def authenticator_data
