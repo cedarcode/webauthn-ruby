@@ -70,8 +70,8 @@ credential_creation_options[:challenge]
 #### Validation phase
 
 ```ruby
-attestation_object = "..." # As came from the browser
-client_data_json = "..." # As came from the browser
+attestation_object = "..." # As returned by `navigator.credentials.create`
+client_data_json = "..." # As returned by `navigator.credentials.create`
 
 attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
   attestation_object: attestation_object,
@@ -98,11 +98,47 @@ end
 
 #### Initiation phase
 
-*Currently under development*
+Assuming you have the previously stored Credential ID, now in variable `credential_id`
+
+```ruby
+credential_request_options = WebAuthn.credential_request_options
+credential_request_options[:allowCredentials] << { id: credential_id, type: "public-key" }
+
+# Store the newly generated challenge somewhere so you can have it
+# for the validation phase.
+#
+# You can read it from the resulting options:
+credential_request_options[:challenge]
+
+# Send `credential_request_options` to the browser, so that they can be used
+# to call `navigator.credentials.get({ "publicKey": credentialRequestOptions })`
+```
 
 #### Validation phase
 
-*Currently under development*
+Assuming you have the previously stored Credential Public Key, now in variable `credential_public_key`
+
+```ruby
+authenticator_data = "..." # As returned by `navigator.credentials.get`
+client_data_json = "..." # As returned by `navigator.credentials.get`
+signature = "..." # As returned by `navigator.credentials.get`
+
+assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
+  authenticator_data: authenticator_data,
+  client_data_json: client_data_json,
+  signature: signature
+)
+
+# This value needs to match `window.location.origin` evaluated by
+# the User Agent as part of the validation phase.
+original_origin = "https://www.example.com"
+
+if assertion_response.valid?(original_challenge, original_origin, credential_public_key: credential_public_key)
+  # Sign in the user
+else
+  # Handle error
+end
+```
 
 ## Development
 
