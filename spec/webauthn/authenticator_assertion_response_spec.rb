@@ -13,10 +13,10 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   let(:credential_key) { authenticator.credential_key }
   let(:credential_id) { authenticator.credential_id }
   let(:allowed_credential) {
-    WebAuthn::Credential.new(
+    {
       id: credential_id,
       public_key: key_bytes(credential_key.public_key)
-    )
+    }
   }
   let(:authenticator_data) { authenticator.authenticator_data }
 
@@ -40,10 +40,10 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   it "is invalid if signature was signed with a different key" do
-    credential = WebAuthn::Credential.new(
+    credential = {
       id: credential_id,
       public_key: key_bytes(FakeAuthenticator::Create.new.credential_key.public_key)
-    )
+    }
 
     expect(
       assertion_response.valid?(
@@ -55,10 +55,10 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   it "is invalid if credential id is not among the allowed ones" do
-    credential = WebAuthn::Credential.new(
+    credential = {
       id: SecureRandom.random_bytes(16),
       public_key: key_bytes(credential_key.public_key)
-    )
+    }
 
     expect(
       assertion_response.valid?(

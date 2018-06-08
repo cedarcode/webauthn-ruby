@@ -2,15 +2,17 @@
 
 require "ostruct"
 require "webauthn/authenticator_data/attested_credential_data/public_key_u2f"
-require "webauthn/credential"
 
 module WebAuthn
   class AuthenticatorData
     class AttestedCredentialData
       AAGUID_LENGTH = 16
+
       ID_LENGTH_LENGTH = 2
 
       UINT16_BIG_ENDIAN_FORMAT = "n*"
+
+      class Credential < OpenStruct; end
 
       def initialize(data)
         @data = data
@@ -23,7 +25,7 @@ module WebAuthn
       def credential
         @credential ||=
           if id
-            WebAuthn::Credential.new(id: id, public_key: public_key.to_str)
+            Credential.new(id: id, public_key: public_key.to_str)
           end
       end
 
