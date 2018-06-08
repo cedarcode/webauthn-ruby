@@ -67,8 +67,8 @@ credential_creation_options[:challenge]
 #### Validation phase
 
 ```ruby
-attestation_object = "..." # As came from the browser
-client_data_json = "..." # As came from the browser
+attestation_object = "..." # As returned by `navigator.credentials.create`
+client_data_json = "..." # As returned by `navigator.credentials.create`
 
 attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
   attestation_object: attestation_object,
