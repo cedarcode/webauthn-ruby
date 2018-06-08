@@ -15,6 +15,7 @@
     - User presence
     - Ceremony Type
     - Relying-Party ID
+    - Allowed Credential
 - Works with ruby 2.4
 
 ### Changed
