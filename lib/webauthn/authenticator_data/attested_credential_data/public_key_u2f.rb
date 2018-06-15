@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "webauthn/cose/ecdsa"
-require "webauthn/cose/key/ec2"
+require "cose/ecdsa"
+require "cose/key/ec2"
 
 module WebAuthn
   class AuthenticatorData
@@ -17,7 +17,7 @@ module WebAuthn
           data.size >= COORDINATE_LENGTH * 2 &&
             cose_key.x_coordinate.length == COORDINATE_LENGTH &&
             cose_key.y_coordinate.length == COORDINATE_LENGTH &&
-            cose_key.algorithm == WebAuthn::COSE::ECDSA::ALG_ES256
+            cose_key.algorithm == COSE::ECDSA::ALG_ES256
         end
 
         def to_str

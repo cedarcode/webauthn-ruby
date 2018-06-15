@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
+require "cose/ecdsa"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/authenticator_assertion_response"
-require "webauthn/cose/ecdsa"
 require "webauthn/utils"
 require "webauthn/version"
 
