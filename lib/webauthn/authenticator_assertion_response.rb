@@ -14,7 +14,7 @@ module WebAuthn
 
     def valid?(original_challenge, original_origin, allowed_credentials:)
       super(original_challenge, original_origin) &&
-        valid_credentials?(allowed_credentials) &&
+        valid_credential?(allowed_credentials) &&
         valid_signature?(credential_public_key(allowed_credentials))
     end
 
@@ -36,7 +36,7 @@ module WebAuthn
       )
     end
 
-    def valid_credentials?(allowed_credentials)
+    def valid_credential?(allowed_credentials)
       allowed_credential_ids = allowed_credentials.map { |credential| credential[:id] }
 
       allowed_credential_ids.include?(credential_id)
