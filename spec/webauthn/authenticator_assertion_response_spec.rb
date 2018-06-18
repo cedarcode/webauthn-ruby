@@ -40,9 +40,10 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   it "is valid with more than one allowed credential" do
+    other_credential_key = OpenSSL::PKey::EC.new("prime256v1").generate_key
     allowed_credentials << {
       id: SecureRandom.random_bytes(16),
-      public_key: OpenSSL::PKey::EC.new("prime256v1").generate_key
+      public_key: key_bytes(other_credential_key.public_key)
     }
 
     expect(
