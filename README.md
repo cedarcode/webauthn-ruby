@@ -1,6 +1,6 @@
 # WebAuthn :key:
 
-Easily implement WebAuthn in your ruby web server
+Easily implement WebAuthn in your ruby/rails app
 
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
 [![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
