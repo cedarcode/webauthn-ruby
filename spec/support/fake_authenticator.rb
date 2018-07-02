@@ -37,10 +37,10 @@ class FakeAuthenticator
     end
 
     def attested_credential_data_present_bit
-      if attested_credential_data.length > 0
-        "1"
-      else
+      if attested_credential_data.empty?
         "0"
+      else
+        "1"
       end
     end
 
