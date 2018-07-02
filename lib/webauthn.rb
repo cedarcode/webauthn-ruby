@@ -34,7 +34,7 @@ module WebAuthn
   end
 
   def self.challenge
-    SecureRandom.random_bytes(16)
+    SecureRandom.random_bytes(32)
   end
   private_class_method :challenge
 end
