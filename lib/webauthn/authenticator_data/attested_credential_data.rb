@@ -48,10 +48,7 @@ module WebAuthn
       end
 
       def id_length
-        @id_length ||=
-          data_at(id_length_position, ID_LENGTH_LENGTH)
-          .unpack(UINT16_BIG_ENDIAN_FORMAT)
-          .first
+        @id_length ||= data_at(id_length_position, ID_LENGTH_LENGTH).unpack1(UINT16_BIG_ENDIAN_FORMAT)
       end
 
       def id_length_position

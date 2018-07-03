@@ -58,7 +58,7 @@ module WebAuthn
     end
 
     def flags
-      @flags ||= data_at(flags_position, FLAGS_LENGTH).unpack("b*").first
+      @flags ||= data_at(flags_position, FLAGS_LENGTH).unpack1("b*")
     end
 
     def flags_position

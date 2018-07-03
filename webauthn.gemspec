@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-lib = File.expand_path("../lib", __FILE__)
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "webauthn/version"
 
@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Gonzalo Rodriguez", "Braulio Martinez"]
   spec.email         = ["gonzalo@cedarcode.com", "braulio@cedarcode.com"]
 
-  spec.summary       = %q{Web Authentication API Relying Party in ruby}
+  spec.summary       = "Web Authentication API Relying Party in ruby"
   spec.homepage      = "https://github.com/cedarcode/webauthn-ruby"
   spec.license       = "MIT"
 
