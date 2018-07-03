@@ -24,7 +24,7 @@ def fake_origin
 end
 
 def fake_challenge
-  SecureRandom.random_bytes(16)
+  SecureRandom.random_bytes(32)
 end
 
 def fake_cose_credential_key(algorithm: nil, x_coordinate: nil, y_coordinate: nil)

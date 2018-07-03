@@ -10,8 +10,8 @@ RSpec.describe WebAuthn do
       @credential_creation_options = WebAuthn.credential_creation_options
     end
 
-    it "has a 16 byte length challenge" do
-      expect(@credential_creation_options[:challenge].length).to eq(16)
+    it "has a 32 byte length challenge" do
+      expect(@credential_creation_options[:challenge].length).to eq(32)
     end
 
     it "has public key params" do
@@ -34,8 +34,8 @@ RSpec.describe WebAuthn do
   describe "#credential_request_options" do
     let(:credential_request_options) { WebAuthn.credential_request_options }
 
-    it "has a 16 byte length challenge" do
-      expect(credential_request_options[:challenge].length).to eq(16)
+    it "has a 32 byte length challenge" do
+      expect(credential_request_options[:challenge].length).to eq(32)
     end
 
     it "has allowCredentials param with an empty array" do
