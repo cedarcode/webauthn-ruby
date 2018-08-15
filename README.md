@@ -16,7 +16,7 @@ Easily implement WebAuthn in your ruby/rails app
 
 ## Prerequisites
 
-This gem will help your ruby server act as a conforming [_Relying-Party_](https://www.w3.org/TR/webauthn/#relying-party), in WebAuthn terminology. But for the [_Registration_](https://www.w3.org/TR/webauthn/#registration) and [_Authentiction_](https://www.w3.org/TR/webauthn/#authentication) ceremonies to work, you will also need
+This gem will help your ruby server act as a conforming [_Relying-Party_](https://www.w3.org/TR/webauthn/#relying-party), in WebAuthn terminology. But for the [_Registration_](https://www.w3.org/TR/webauthn/#registration) and [_Authentication_](https://www.w3.org/TR/webauthn/#authentication) ceremonies to work, you will also need
 
 ### A conforming User Agent
 
