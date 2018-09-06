@@ -153,6 +153,24 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
+### Commit message format
+
+Each commit message follows the `<type>: <message>` format.
+
+The "message" starts with lowercase and the "type" is one of:
+
+* __build__: Changes that affect the build system or external dependencies
+* __ci__: Changes to the CI configuration files and scripts
+* __docs__: Documentation only changes
+* __feat__: A new feature
+* __fix__: A bug fix
+* __perf__: A code change that improves performance
+* __refactor__: A code change that neither fixes a bug nor adds a feature
+* __style__: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+* __test__: Adding missing tests or correcting existing tests
+
+Inspired in a subset of [Angular's Commit Message Guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-guidelines).
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/cedarcode/webauthn-ruby.
