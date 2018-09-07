@@ -1,6 +1,18 @@
 # Changelog
 
-## [Unreleased]
+## [v1.0.0] - 2018-09-07
+
+### Added
+
+- _Authentication_ ceremony
+  - Support multiple credentials per user by letting `WebAuthn::AuthenticatorAssertionResponse.valid?` receive multiple allowed credentials
+
+### Changed
+
+- _Registration_ ceremony
+  - Use 32-byte challenge instead of 16-byte
+- _Authentication_ ceremony
+  - Use 32-byte challenge instead of 16-byte
 
 ## [v0.2.0] - 2018-06-08
 
@@ -39,6 +51,6 @@
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
-[Unreleased]: https://github.com/cedarcode/webauthn-ruby/compare/v0.2.0...HEAD/
+[v1.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.2.0...v1.0.0/
 [v0.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.1.0...v0.2.0/
 [v0.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.0.0...v0.1.0/

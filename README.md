@@ -5,8 +5,6 @@ Easily implement WebAuthn in your ruby/rails app
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
 [![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
 
-## WARNING: This gem is in the early development phase. Use on production at your own risk.
-
 ## What is WebAuthn?
 
 - [WebAuthn article with Google IO 2018 talk](https://developers.google.com/web/updates/2018/05/webauthn)

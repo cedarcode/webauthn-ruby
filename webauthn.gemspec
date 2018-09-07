@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Gonzalo Rodriguez", "Braulio Martinez"]
   spec.email         = ["gonzalo@cedarcode.com", "braulio@cedarcode.com"]
 
-  spec.summary       = "Web Authentication API Relying Party in ruby"
+  spec.summary       = "WebAuthn in ruby ― Ruby implementation of a WebAuthn Relying Party"
   spec.homepage      = "https://github.com/cedarcode/webauthn-ruby"
   spec.license       = "MIT"
 
