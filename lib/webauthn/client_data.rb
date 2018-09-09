@@ -34,7 +34,7 @@ module WebAuthn
           if client_data_json
             JSON.parse(client_data_json)
           else
-            raise "Missing client_data_json"
+            raise ClientDataMissing
           end
         end
     end

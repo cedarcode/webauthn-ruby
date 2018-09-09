@@ -14,7 +14,7 @@ module WebAuthn
         require "webauthn/attestation_statement/fido_u2f"
         WebAuthn::AttestationStatement::FidoU2f.new(statement)
       else
-        raise "Unsupported attestation format '#{attestation_format}'"
+        raise AttestationFormatNotSupported, format
       end
     end
   end
