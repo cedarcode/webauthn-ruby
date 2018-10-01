@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "ostruct"
 require "webauthn/authenticator_data/attested_credential_data/public_key_u2f"
 
 module WebAuthn
@@ -12,7 +11,8 @@ module WebAuthn
 
       UINT16_BIG_ENDIAN_FORMAT = "n*"
 
-      class Credential < OpenStruct; end
+      # FIXME: use keyword_init when we dropped Ruby 2.4 support
+      Credential = Struct.new(:id, :public_key)
 
       def initialize(data)
         @data = data
@@ -25,7 +25,7 @@ module WebAuthn
       def credential
         @credential ||=
           if id
-            Credential.new(id: id, public_key: public_key.to_str)
+            Credential.new(id, public_key.to_str)
           end
       end
 
