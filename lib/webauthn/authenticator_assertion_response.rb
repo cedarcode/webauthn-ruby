@@ -18,6 +18,10 @@ module WebAuthn
         valid_signature?(credential_public_key(allowed_credentials))
     end
 
+    def authenticator_data
+      @authenticator_data ||= WebAuthn::AuthenticatorData.new(authenticator_data_bytes)
+    end
+
     private
 
     attr_reader :credential_id, :authenticator_data_bytes, :signature
@@ -40,10 +44,6 @@ module WebAuthn
       allowed_credential_ids = allowed_credentials.map { |credential| credential[:id] }
 
       allowed_credential_ids.include?(credential_id)
-    end
-
-    def authenticator_data
-      @authenticator_data ||= WebAuthn::AuthenticatorData.new(authenticator_data_bytes)
     end
 
     def credential_public_key(allowed_credentials)
