@@ -168,5 +168,18 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         )
       ).to be_falsy
     end
+
+    context "when rp_id is explicitly given" do
+      it "is valid if correct rp_id is given" do
+        expect(
+          assertion_response.valid?(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials,
+            rp_id: "different-rp_id",
+          )
+        ).to be_truthy
+      end
+    end
   end
 end

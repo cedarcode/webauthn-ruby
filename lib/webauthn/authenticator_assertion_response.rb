@@ -12,8 +12,8 @@ module WebAuthn
       @signature = signature
     end
 
-    def valid?(original_challenge, original_origin, allowed_credentials:)
-      super(original_challenge, original_origin) &&
+    def valid?(original_challenge, original_origin, allowed_credentials:, rp_id: nil)
+      super(original_challenge, original_origin, rp_id: rp_id) &&
         valid_credential?(allowed_credentials) &&
         valid_signature?(credential_public_key(allowed_credentials))
     end
