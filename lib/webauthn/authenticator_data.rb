@@ -11,6 +11,7 @@ module WebAuthn
     SIGN_COUNT_LENGTH = 4
 
     USER_PRESENT_FLAG_POSITION = 0
+    USER_VERIFIED_FLAG_POSITION = 2
     ATTESTED_CREDENTIAL_DATA_INCLUDED_FLAG_POSITION = 6
 
     def initialize(data)
@@ -26,7 +27,11 @@ module WebAuthn
     end
 
     def user_present?
-      flags[USER_PRESENT_FLAG_POSITION] == "1"
+      flags[USER_PRESENT_FLAG_POSITION] == "1" || user_verified?
+    end
+
+    def user_verified?
+      flags[USER_VERIFIED_FLAG_POSITION] == "1"
     end
 
     def rp_id_hash
