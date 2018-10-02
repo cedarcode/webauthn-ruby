@@ -42,6 +42,22 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     expect(response.credential.id.length).to be >= 16
   end
 
+  it "can validate packed attestation (self attestation)" do
+    original_origin = "https://localhost:13010"
+    original_challenge = Base64.strict_decode64(
+      seeds[:security_key_packed_self][:credential_creation_options][:challenge]
+    )
+    response = seeds[:security_key_packed_self][:authenticator_attestation_response]
+
+    response = WebAuthn::AuthenticatorAttestationResponse.new(
+      attestation_object: Base64.strict_decode64(response[:attestation_object]),
+      client_data_json: Base64.strict_decode64(response[:client_data_json])
+    )
+
+    expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    expect(response.credential.id.length).to be >= 16
+  end
+
   it "returns user-friendly error if no client data received" do
     response = WebAuthn::AuthenticatorAttestationResponse.new(
       attestation_object: "",

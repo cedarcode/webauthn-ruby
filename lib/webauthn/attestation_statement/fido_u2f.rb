@@ -8,7 +8,7 @@ module WebAuthn
     class FidoU2f < Base
       VALID_ATTESTATION_CERTIFICATE_COUNT = 1
 
-      def valid?(authenticator_data, client_data_hash)
+      def valid?(authenticator_data, client_data_hash, _credential = nil)
         valid_format? &&
           valid_certificate_public_key? &&
           valid_signature?(authenticator_data, client_data_hash)
