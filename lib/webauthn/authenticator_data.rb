@@ -10,6 +10,8 @@ module WebAuthn
     FLAGS_LENGTH = 1
     SIGN_COUNT_LENGTH = 4
 
+    SIGN_COUNT_POSITION = RP_ID_HASH_LENGTH + FLAGS_LENGTH
+
     USER_PRESENT_FLAG_POSITION = 0
     ATTESTED_CREDENTIAL_DATA_INCLUDED_FLAG_POSITION = 6
 
@@ -44,6 +46,10 @@ module WebAuthn
 
     def credential
       attested_credential_data.credential
+    end
+
+    def sign_count
+      @sign_count ||= data_at(SIGN_COUNT_POSITION, SIGN_COUNT_LENGTH).unpack1('L>')
     end
 
     def attested_credential_data

@@ -2,9 +2,10 @@
 
 class FakeAuthenticator
   class Base
-    def initialize(challenge: fake_challenge, rp_id: "localhost", context: {})
+    def initialize(challenge: fake_challenge, rp_id: "localhost", sign_count: 0, context: {})
       @challenge = challenge
       @rp_id = rp_id
+      @sign_count = sign_count
       @context = context
     end
 
@@ -24,13 +25,13 @@ class FakeAuthenticator
       @credential_id ||= SecureRandom.random_bytes(16)
     end
 
-    private
-
-    attr_reader :challenge, :context, :rp_id
-
     def rp_id_hash
       OpenSSL::Digest::SHA256.digest(rp_id)
     end
+
+    private
+
+    attr_reader :challenge, :context, :rp_id
 
     def raw_flags
       ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
@@ -49,7 +50,7 @@ class FakeAuthenticator
     end
 
     def raw_sign_count
-      "0000"
+      [@sign_count].pack('L>')
     end
 
     def user_present_bit
