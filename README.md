@@ -135,7 +135,7 @@ original_origin = "https://www.example.com"
 # previously stored credential for the user that is attempting to sign in.
 allowed_credential = {
   id: credential_id,
-  publick_key: credential_public_key
+  public_key: credential_public_key
 }
 
 if assertion_response.valid?(original_challenge, original_origin, allowed_credential: allowed_credential)
