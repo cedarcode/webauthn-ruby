@@ -15,16 +15,16 @@ module WebAuthn
         authenticator_data.user_present?
     end
 
+    def client_data
+      @client_data ||= WebAuthn::ClientData.new(client_data_json)
+    end
+
     private
 
     attr_reader :client_data_json
 
     def valid_type?
       client_data.type == type
-    end
-
-    def client_data
-      @client_data ||= WebAuthn::ClientData.new(client_data_json)
     end
 
     def valid_challenge?(original_challenge)

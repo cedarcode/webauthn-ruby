@@ -19,6 +19,8 @@ module WebAuthn
       @data = data
     end
 
+    attr_reader :data
+
     def valid?
       if attested_credential_data_included?
         data.length > base_length && attested_credential_data.valid?
@@ -29,6 +31,10 @@ module WebAuthn
 
     def user_present?
       flags[USER_PRESENT_FLAG_POSITION] == "1"
+    end
+
+    def attested_credential_data_included?
+      flags[ATTESTED_CREDENTIAL_DATA_INCLUDED_FLAG_POSITION] == "1"
     end
 
     def rp_id_hash
@@ -46,14 +52,16 @@ module WebAuthn
       @sign_count ||= data_at(SIGN_COUNT_POSITION, SIGN_COUNT_LENGTH).unpack1('L>')
     end
 
-    private
-
-    attr_reader :data
-
     def attested_credential_data
       @attested_credential_data ||=
         AttestedCredentialData.new(data_at(attested_credential_data_position))
     end
+
+    def flags
+      @flags ||= data_at(flags_position, FLAGS_LENGTH).unpack1("b*")
+    end
+
+    private
 
     def attested_credential_data_position
       base_length
@@ -63,16 +71,8 @@ module WebAuthn
       RP_ID_HASH_LENGTH + FLAGS_LENGTH + SIGN_COUNT_LENGTH
     end
 
-    def flags
-      @flags ||= data_at(flags_position, FLAGS_LENGTH).unpack1("b*")
-    end
-
     def flags_position
       RP_ID_HASH_LENGTH
-    end
-
-    def attested_credential_data_included?
-      flags[ATTESTED_CREDENTIAL_DATA_INCLUDED_FLAG_POSITION] == "1"
     end
 
     def data_at(position, length = nil)
