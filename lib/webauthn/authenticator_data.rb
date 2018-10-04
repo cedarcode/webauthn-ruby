@@ -30,8 +30,12 @@ module WebAuthn
       end
     end
 
+    def user_flagged?
+      user_present? || user_verified?
+    end
+
     def user_present?
-      flags[USER_PRESENT_FLAG_POSITION] == "1" || user_verified?
+      flags[USER_PRESENT_FLAG_POSITION] == "1"
     end
 
     def user_verified?

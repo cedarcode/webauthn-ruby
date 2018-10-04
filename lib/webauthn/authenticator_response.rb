@@ -12,7 +12,7 @@ module WebAuthn
         valid_origin?(original_origin) &&
         valid_rp_id?(original_origin) &&
         authenticator_data.valid? &&
-        authenticator_data.user_present?
+        authenticator_data.user_flagged?
     end
 
     def client_data

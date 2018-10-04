@@ -111,11 +111,11 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     let(:authenticator) do
       FakeAuthenticator::Get.new(
         challenge: original_challenge,
-        context: { origin: original_origin, user_present: false }
+        context: { origin: original_origin, user_present: false, user_verified: false }
       )
     end
 
-    it "is invalid if user-present flag is off" do
+    it "is invalid if user flags are off" do
       expect(
         assertion_response.valid?(
           original_challenge,
