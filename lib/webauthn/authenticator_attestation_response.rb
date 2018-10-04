@@ -26,10 +26,6 @@ module WebAuthn
       authenticator_data.credential
     end
 
-    private
-
-    attr_reader :attestation_object
-
     def attestation_statement
       @attestation_statement ||=
         WebAuthn::AttestationStatement.from(attestation["fmt"], attestation["attStmt"])
@@ -46,6 +42,10 @@ module WebAuthn
     def attestation
       @attestation ||= CBOR.decode(attestation_object)
     end
+
+    private
+
+    attr_reader :attestation_object
 
     def type
       WebAuthn::TYPES[:create]
