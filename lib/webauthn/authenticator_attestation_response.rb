@@ -17,7 +17,7 @@ module WebAuthn
       @attestation_object = attestation_object
     end
 
-    def valid?(original_challenge, original_origin)
+    def valid?(original_challenge, original_origin, rp_id: nil)
       super &&
         attestation_statement.valid?(authenticator_data, client_data.hash)
     end

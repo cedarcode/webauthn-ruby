@@ -115,5 +115,18 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         expect(response.valid?(original_challenge, original_origin)).to be_falsy
       end
     end
+
+    context "matches the one explicitly given" do
+      let(:rp_id) { "custom" }
+
+      it "is invalid" do
+        response = WebAuthn::AuthenticatorAttestationResponse.new(
+          attestation_object: authenticator.attestation_object,
+          client_data_json: authenticator.client_data_json
+        )
+
+        expect(response.valid?(original_challenge, original_origin, rp_id: "custom")).to be_truthy
+      end
+    end
   end
 end
