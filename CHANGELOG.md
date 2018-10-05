@@ -2,12 +2,12 @@
 
 ## [v1.1.0] - 2018-10-04
 
-## Added
+### Added
 
 - _Registration_ ceremony
-  - `WebAuthn::AuthenticatorAttestationResponse.valid?` optionaly accepts rp_id. Thank you @sorah!
+  - `WebAuthn::AuthenticatorAttestationResponse.valid?` optionally accepts rp_id. Thank you @sorah!
 - _Authentication_ ceremony
-  - `WebAuthn::AuthenticatorAssertionResponse.valid?` optionaly accepts rp_id.
+  - `WebAuthn::AuthenticatorAssertionResponse.valid?` optionally accepts rp_id.
 
 ## [v1.0.0] - 2018-09-07
 
