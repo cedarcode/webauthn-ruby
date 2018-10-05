@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.1.0] - 2018-10-04
+
+## Added
+
+- _Registration_ ceremony
+  - `WebAuthn::AuthenticatorAttestationResponse.valid?` optionaly accepts rp_id. Thank you @sorah!
+- _Authentication_ ceremony
+  - `WebAuthn::AuthenticatorAssertionResponse.valid?` optionaly accepts rp_id.
+
 ## [v1.0.0] - 2018-09-07
 
 ### Added
@@ -51,6 +60,7 @@
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.0.0...v1.1.0/
 [v1.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.2.0...v1.0.0/
 [v0.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.1.0...v0.2.0/
 [v0.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.0.0...v0.1.0/
