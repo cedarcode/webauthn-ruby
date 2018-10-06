@@ -68,8 +68,17 @@ credential_creation_options[:challenge]
 #### Validation phase
 
 ```ruby
-attestation_object = "..." # As returned by `navigator.credentials.create`
-client_data_json = "..." # As returned by `navigator.credentials.create`
+# These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
+#
+# If the user-agent is a web browser, you would use some encoding algorithm to send what
+# `navigator.credentials.create` returned through the wire.
+#
+# Then you need to decode that data before passing it to the `#valid?` method.
+#
+# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
+# on the user-agent encoded data before calling `#valid`
+attestation_object = "..."
+client_data_json = "..."
 
 attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
   attestation_object: attestation_object,
@@ -117,9 +126,18 @@ credential_request_options[:challenge]
 Assuming you have the previously stored Credential Public Key, now in variable `credential_public_key`
 
 ```ruby
-authenticator_data = "..." # As returned by `navigator.credentials.get`
-client_data_json = "..." # As returned by `navigator.credentials.get`
-signature = "..." # As returned by `navigator.credentials.get`
+# These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
+#
+# If the user-agent is a web browser, you would use some encoding algorithm to send what
+# `navigator.credentials.get` returned through the wire.
+#
+# Then you need to decode that data before passing it to the `#valid?` method.
+#
+# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
+# on the user-agent encoded data before calling `#valid`
+authenticator_data = "..."
+client_data_json = "..."
+signature = "..."
 
 assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
   authenticator_data: authenticator_data,
