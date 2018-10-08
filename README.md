@@ -21,7 +21,7 @@ This gem will help your ruby server act as a conforming [_Relying-Party_](https:
 Currently supporting [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API):
   - [Mozilla Firefox](https://www.mozilla.org/firefox/) 60+
   - [Google Chrome](https://www.google.com/chrome/) 67+
-  - Google Chrome 65 & 66 (Disabled by default, go to chrome://flags to enable Web Authentication API feature)
+  - [Google Chrome for Android Beta](https://play.google.com/store/apps/details?id=com.chrome.beta) 70+
 
 ### A conforming Authenticator
 
