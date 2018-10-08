@@ -34,7 +34,7 @@ class FakeAuthenticator
     attr_reader :challenge, :context, :rp_id
 
     def raw_flags
-      ["#{user_present_bit}00000#{attested_credential_data_present_bit}0"].pack("b*")
+      ["#{bit(:user_present)}0#{bit(:user_verified)}000#{attested_credential_data_present_bit}0"].pack("b*")
     end
 
     def attested_credential_data_present_bit
@@ -53,19 +53,11 @@ class FakeAuthenticator
       [@sign_count].pack('L>')
     end
 
-    def user_present_bit
-      if user_present?
+    def bit(flag)
+      if context[flag].nil? || context[flag]
         "1"
       else
         "0"
-      end
-    end
-
-    def user_present?
-      if context[:user_present].nil?
-        true
-      else
-        context[:user_present]
       end
     end
 
