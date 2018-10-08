@@ -1,5 +1,16 @@
 # Changelog
 
+## [v1.2.0] - 2018-10-08
+
+### Added
+
+- _Registration_ ceremony
+  - `WebAuthn::AuthenticatorAttestationResponse.valid?` returns `true` if either UP or UV authenticator flags are present.
+- _Authentication_ ceremony
+  - `WebAuthn::AuthenticatorAssertionResponse.valid?` returns `true` if either UP or UV authenticator flags are present.
+
+Note: Both additions should help making it compatible with Chrome for Android 70+/Android Fingerprint pair.
+
 ## [v1.1.0] - 2018-10-04
 
 ### Added
@@ -60,6 +71,7 @@
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.1.0...v1.2.0/
 [v1.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.0.0...v1.1.0/
 [v1.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.2.0...v1.0.0/
 [v0.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.1.0...v0.2.0/
