@@ -2,7 +2,7 @@
 
 require "bundler/setup"
 require "webauthn"
-require "cbor"
+require "libcbor/all"
 
 require "byebug"
 require "webauthn/fake_authenticator"
