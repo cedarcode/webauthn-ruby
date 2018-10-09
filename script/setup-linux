@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -x
+
+if ! apt-cache show libcbor-dev >> /dev/null; then
+  add-apt-repository ppa:yubico/stable -y
+  apt-get update -q
+fi
+
+apt-get install libcbor-dev -y
