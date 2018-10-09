@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -x
+
+brew tap pjk/libcbor
+brew install libcbor

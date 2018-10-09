@@ -2,6 +2,11 @@ dist: xenial
 sudo: false
 language: ruby
 cache: bundler
+
+os:
+  - linux
+  - osx
+
 rvm:
   - ruby-head
   - 2.6.0
@@ -16,4 +21,4 @@ matrix:
 
 before_install:
   - gem install bundler -v "~> 2.0"
-  - sudo ./script/setup-linux
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./script/setup-osx; else sudo ./script/setup-linux; fi
