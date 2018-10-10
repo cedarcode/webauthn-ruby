@@ -12,7 +12,18 @@ module WebAuthn
       UINT16_BIG_ENDIAN_FORMAT = "n*"
 
       # FIXME: use keyword_init when we dropped Ruby 2.4 support
-      Credential = Struct.new(:id, :public_key)
+      Credential = Struct.new(:id, :public_key) do
+        def public_key_object
+          group = OpenSSL::PKey::EC::Group.new("prime256v1")
+          key = OpenSSL::PKey::EC.new(group)
+
+          bn = OpenSSL::BN.new(public_key, 2)
+          point = OpenSSL::PKey::EC::Point.new(group, bn)
+          key.public_key = point
+
+          key
+        end
+      end
 
       def initialize(data)
         @data = data
