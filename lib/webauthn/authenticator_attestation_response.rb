@@ -19,7 +19,7 @@ module WebAuthn
 
     def valid?(original_challenge, original_origin, rp_id: nil)
       super &&
-        attestation_statement.valid?(authenticator_data, client_data.hash, credential)
+        attestation_statement.valid?(authenticator_data, client_data.hash)
     end
 
     def credential

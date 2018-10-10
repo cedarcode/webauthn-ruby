@@ -9,7 +9,7 @@ module WebAuthn
         @statement = statement
       end
 
-      def valid?(_authenticator_data, _client_data_hash, _credential)
+      def valid?(_authenticator_data, _client_data_hash)
         raise NotImpelementedError
       end
 

@@ -9,13 +9,13 @@ module WebAuthn
   module AttestationStatement
     class Packed < Base
       # Follows "Verification procedure"
-      def valid?(authenticator_data, client_data_hash, credential)
+      def valid?(authenticator_data, client_data_hash)
         check_unsupported_feature
 
         valid_format? &&
-          valid_certificate_chain?(credential) &&
+          valid_certificate_chain?(authenticator_data.credential) &&
           meet_certificate_requirement? &&
-          valid_signature?(authenticator_data, client_data_hash, credential)
+          valid_signature?(authenticator_data, client_data_hash)
       end
 
       private
@@ -75,8 +75,8 @@ module WebAuthn
           attestation_certificate.extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == 'CA:FALSE'
       end
 
-      def valid_signature?(authenticator_data, client_data_hash, credential)
-        (attestation_certificate&.public_key || credential.public_key_object).verify(
+      def valid_signature?(authenticator_data, client_data_hash)
+        (attestation_certificate&.public_key || authenticator_data.credential.public_key_object).verify(
           "SHA256",
           signature,
           verification_data(authenticator_data, client_data_hash)

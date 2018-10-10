@@ -17,7 +17,7 @@ RSpec.describe WebAuthn::AttestationStatement::Packed do
     )
   }
   let(:statement) { attestation_object['attStmt'] }
-  let(:authenticator_data) { double('authData', data: attestation_object['authData']) }
+  let(:authenticator_data) { double('authData', data: attestation_object['authData'], credential: nil) }
 
   subject do
     described_class.new(statement)
@@ -27,8 +27,7 @@ RSpec.describe WebAuthn::AttestationStatement::Packed do
     expect(
       subject.valid?(
         authenticator_data,
-        client_data_hash,
-        nil,
+        client_data_hash
       )
     )
   end
