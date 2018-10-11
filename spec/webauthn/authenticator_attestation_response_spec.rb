@@ -58,6 +58,22 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     expect(response.credential.id.length).to be >= 16
   end
 
+  it "can validate android-safetynet attestation" do
+    original_origin = "http://localhost:3000"
+    original_challenge = Base64.strict_decode64(
+      seeds[:android_safetynet_direct][:credential_creation_options][:challenge]
+    )
+    response = seeds[:android_safetynet_direct][:authenticator_attestation_response]
+
+    response = WebAuthn::AuthenticatorAttestationResponse.new(
+      attestation_object: Base64.strict_decode64(response[:attestation_object]),
+      client_data_json: Base64.strict_decode64(response[:client_data_json])
+    )
+
+    expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    expect(response.credential.id.length).to be >= 16
+  end
+
   it "returns user-friendly error if no client data received" do
     response = WebAuthn::AuthenticatorAttestationResponse.new(
       attestation_object: "",
