@@ -1,5 +1,12 @@
 # Changelog
 
+## [v1.3.0] - 2018-10-11
+
+### Added
+
+- _Registration_ ceremony
+  - `WebAuthn::AuthenticatorAttestationResponse.valid?` supports `packed` attestation statements. Thank you @sorah!
+
 ## [v1.2.0] - 2018-10-08
 
 ### Added
@@ -71,6 +78,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.3.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.2.0...v1.3.0/
 [v1.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.1.0...v1.2.0/
 [v1.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.0.0...v1.1.0/
 [v1.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.2.0...v1.0.0/
