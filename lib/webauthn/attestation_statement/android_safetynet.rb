@@ -18,7 +18,8 @@ module WebAuthn
           valid_attestation_domain? &&
           valid_version? &&
           valid_nonce?(authenticator_data, client_data_hash) &&
-          cts_profile_match?
+          cts_profile_match? &&
+          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_certificate]
       end
 
       private

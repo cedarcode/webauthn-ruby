@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "webauthn/attestation_statement/types"
+
 module WebAuthn
   module AttestationStatement
     class Base
