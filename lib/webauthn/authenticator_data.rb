@@ -58,7 +58,7 @@ module WebAuthn
     end
 
     def sign_count
-      @sign_count ||= data_at(SIGN_COUNT_POSITION, SIGN_COUNT_LENGTH).unpack1('L>')
+      @sign_count ||= data_at(SIGN_COUNT_POSITION, SIGN_COUNT_LENGTH).unpack('L>')[0]
     end
 
     def attested_credential_data
@@ -67,7 +67,7 @@ module WebAuthn
     end
 
     def flags
-      @flags ||= data_at(flags_position, FLAGS_LENGTH).unpack1("b*")
+      @flags ||= data_at(flags_position, FLAGS_LENGTH).unpack("b*")[0]
     end
 
     private
