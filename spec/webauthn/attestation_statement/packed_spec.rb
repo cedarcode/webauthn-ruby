@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "spec_helper"
+require "support/seeds"
+
 require 'base64'
 require 'webauthn/attestation_statement/packed'
 

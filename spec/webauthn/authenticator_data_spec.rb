@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "spec_helper"
+
 RSpec.describe WebAuthn::AuthenticatorData do
   let(:authenticator) do
     FakeAuthenticator::Base.new(
