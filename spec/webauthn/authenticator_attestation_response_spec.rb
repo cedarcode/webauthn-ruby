@@ -11,7 +11,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     original_challenge = fake_challenge
     origin = fake_origin
 
-    authenticator = FakeAuthenticator::Create.new(
+    authenticator = WebAuthn::FakeAuthenticator::Create.new(
       challenge: original_challenge,
       context: { origin: origin }
     )
@@ -90,7 +90,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   describe "origin validation" do
     let(:original_origin) { "http://localhost" }
     let(:original_challenge) { fake_challenge }
-    let(:authenticator) { FakeAuthenticator::Create.new(challenge: original_challenge, context: { origin: origin }) }
+    let(:authenticator) {
+      WebAuthn::FakeAuthenticator::Create.new(challenge: original_challenge, context: { origin: origin })
+    }
 
     context "matches the default one" do
       let(:origin) { "http://localhost" }
@@ -122,7 +124,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   describe "rp_id validation" do
     let(:original_origin) { fake_origin }
     let(:original_challenge) { fake_challenge }
-    let(:authenticator) { FakeAuthenticator::Create.new(challenge: original_challenge, rp_id: rp_id) }
+    let(:authenticator) { WebAuthn::FakeAuthenticator::Create.new(challenge: original_challenge, rp_id: rp_id) }
 
     context "matches the default one" do
       let(:rp_id) { "localhost" }

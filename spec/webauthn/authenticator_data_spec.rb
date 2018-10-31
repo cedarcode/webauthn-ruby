@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe WebAuthn::AuthenticatorData do
   let(:authenticator) do
-    FakeAuthenticator::Base.new(
+    WebAuthn::FakeAuthenticator::Base.new(
       rp_id: rp_id,
       sign_count: sign_count,
       context: { user_present: user_present, user_verified: user_verified }

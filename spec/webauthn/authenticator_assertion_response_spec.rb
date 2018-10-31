@@ -5,7 +5,7 @@ require "webauthn/authenticator_assertion_response"
 
 RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   let(:authenticator) do
-    FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
+    WebAuthn::FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
   end
 
   let(:original_challenge) { fake_challenge }
@@ -60,7 +60,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     credentials = [
       {
         id: credential_id,
-        public_key: key_bytes(FakeAuthenticator::Create.new.credential_key.public_key)
+        public_key: key_bytes(WebAuthn::FakeAuthenticator::Create.new.credential_key.public_key)
       }
     ]
 
@@ -92,7 +92,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   describe "type validation" do
     let(:authenticator) do
-      FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
+      WebAuthn::FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
     end
 
     it "is invalid if type is create instead of get" do
@@ -110,7 +110,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   describe "user present validation" do
     let(:authenticator) do
-      FakeAuthenticator::Get.new(
+      WebAuthn::FakeAuthenticator::Get.new(
         challenge: original_challenge,
         context: { origin: original_origin, user_present: false, user_verified: false }
       )
@@ -153,7 +153,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   describe "rp_id validation" do
     let(:authenticator) do
-      FakeAuthenticator::Get.new(
+      WebAuthn::FakeAuthenticator::Get.new(
         challenge: original_challenge,
         rp_id: "different-rp_id",
         context: { origin: original_origin }
