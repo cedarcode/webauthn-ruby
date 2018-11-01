@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.6.0] - 2018-11-01
+
+### Added
+
+- `FakeAuthenticator` object is now exposed to help you test your WebAuthn implementation
+
 ## [v1.5.0] - 2018-10-23
 
 ### Added
@@ -91,6 +97,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.6.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.5.0...v1.6.0/
 [v1.5.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.4.0...v1.5.0/
 [v1.4.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.3.0...v1.4.0/
 [v1.3.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.2.0...v1.3.0/
