@@ -25,14 +25,12 @@ Currently supporting [Web Authentication API](https://developer.mozilla.org/en-U
 
 ### A conforming Authenticator
 
-#### Roaming authenticator
-
-- [Security Key by Yubico](https://www.yubico.com/product/security-key-by-yubico/)
-
-#### Platform authenticator
-
-- Android's Fingerprint Scanner
-- MacBook [Touch ID](https://en.wikipedia.org/wiki/Touch_ID)
+* Roaming authenticators
+  * [Security Key by Yubico](https://www.yubico.com/product/security-key-by-yubico/)
+  * [YubiKey 5 Series](https://www.yubico.com/products/yubikey-5-overview/) key
+* Platform authenticators
+  * Android's Fingerprint Scanner
+  * MacBook [Touch ID](https://en.wikipedia.org/wiki/Touch_ID)
 
 NOTE: Firefox states ([Firefox 60 release notes](https://www.mozilla.org/en-US/firefox/60.0/releasenotes/)) they only support USB FIDO2 or FIDO U2F enabled devices in their current implementation (version 60).
   It's up to the gem's user to verify user agent compatibility if any other device wants to be used as the authenticator component.
