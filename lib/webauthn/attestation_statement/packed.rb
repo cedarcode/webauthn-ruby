@@ -68,12 +68,15 @@ module WebAuthn
 
       # Check https://www.w3.org/TR/2018/CR-webauthn-20180807/#packed-attestation-cert-requirements
       def meet_certificate_requirement?
-        return true unless attestation_certificate
-        subject = attestation_certificate.subject.to_a
+        if attestation_certificate
+          subject = attestation_certificate.subject.to_a
 
-        attestation_certificate.version == 2 &&
-          subject.assoc('OU')&.at(1) == "Authenticator Attestation" &&
-          attestation_certificate.extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == 'CA:FALSE'
+          attestation_certificate.version == 2 &&
+            subject.assoc('OU')&.at(1) == "Authenticator Attestation" &&
+            attestation_certificate.extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == 'CA:FALSE'
+        else
+          true
+        end
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
