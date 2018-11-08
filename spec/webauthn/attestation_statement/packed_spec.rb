@@ -27,11 +27,8 @@ RSpec.describe WebAuthn::AttestationStatement::Packed do
   end
 
   it "is valid if everything's in place" do
-    expect(
-      subject.valid?(
-        authenticator_data,
-        client_data_hash
-      )
-    )
+    attestation_type, attestation_trust_path = subject.valid?(authenticator_data, client_data_hash)
+    expect(attestation_type).to eq("Basic_or_AttCA")
+    expect(attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
   end
 end

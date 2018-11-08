@@ -41,6 +41,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     )
 
     expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    expect(response.attestation_type).to eq("Basic_or_AttCA")
+    expect(response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
     expect(response.credential.id.length).to be >= 16
   end
 
@@ -57,6 +59,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     )
 
     expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    expect(response.attestation_type).to eq("Self")
+    expect(response.attestation_trust_path).to eq(nil)
     expect(response.credential.id.length).to be >= 16
   end
 
@@ -73,6 +77,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     )
 
     expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    expect(response.attestation_type).to eq("Basic")
+    expect(response.attestation_trust_path).to be_kind_of(OpenSSL::X509::Certificate)
     expect(response.credential.id.length).to be >= 16
   end
 

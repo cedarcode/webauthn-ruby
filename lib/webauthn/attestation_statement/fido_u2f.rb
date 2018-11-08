@@ -11,7 +11,8 @@ module WebAuthn
       def valid?(authenticator_data, client_data_hash)
         valid_format? &&
           valid_certificate_public_key? &&
-          valid_signature?(authenticator_data, client_data_hash)
+          valid_signature?(authenticator_data, client_data_hash) &&
+          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, [attestation_certificate]]
       end
 
       private

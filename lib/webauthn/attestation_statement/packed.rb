@@ -15,7 +15,8 @@ module WebAuthn
         valid_format? &&
           valid_certificate_chain?(authenticator_data.credential) &&
           meet_certificate_requirement? &&
-          valid_signature?(authenticator_data, client_data_hash)
+          valid_signature?(authenticator_data, client_data_hash) &&
+          attestation_type_and_trust_path
       end
 
       private
@@ -85,6 +86,14 @@ module WebAuthn
 
       def verification_data(authenticator_data, client_data_hash)
         authenticator_data.data + client_data_hash
+      end
+
+      def attestation_type_and_trust_path
+        if raw_attestation_certificates&.any?
+          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, attestation_certificate_chain]
+        else
+          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF, nil]
+        end
       end
     end
   end
