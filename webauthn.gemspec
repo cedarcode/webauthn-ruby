@@ -34,9 +34,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency "jwt", [">= 1.5", "< 3.0"]
   spec.add_dependency "openssl", "~> 2.0"
 
-  spec.add_development_dependency "bundler", "~> 1.16"
+  spec.add_development_dependency "bundler", "~> 1.17"
   spec.add_development_dependency "byebug", "~> 10.0"
-  spec.add_development_dependency "rake", "~> 12.0"
-  spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "rake", "~> 12.3"
+  spec.add_development_dependency "rspec", "~> 3.8"
   spec.add_development_dependency "rubocop", "0.60.0"
 end
