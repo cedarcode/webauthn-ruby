@@ -65,6 +65,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   it "can validate android-safetynet attestation" do
+    # FIXME: Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105
+    pending
+
     original_origin = "http://localhost:3000"
     original_challenge = Base64.strict_decode64(
       seeds[:android_safetynet_direct][:credential_creation_options][:challenge]
