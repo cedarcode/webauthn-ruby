@@ -51,7 +51,7 @@ module WebAuthn
       end
 
       def public_key
-        @public_key ||= PublicKeyU2f.new(data_at(public_key_position, public_key_length))
+        @public_key ||= PublicKeyU2f.new(data_at(public_key_position))
       end
 
       def id_position
@@ -68,10 +68,6 @@ module WebAuthn
 
       def public_key_position
         id_position + id_length
-      end
-
-      def public_key_length
-        data.size - (AAGUID_LENGTH + ID_LENGTH_LENGTH + id_length)
       end
 
       def data_at(position, length = nil)
