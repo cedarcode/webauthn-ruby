@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require "webauthn/errors"
+require "webauthn/error"
 
 module WebAuthn
   module AttestationStatement
-    class FormatNotSupportedError < WebAuthnError; end
+    class FormatNotSupportedError < Error; end
 
     ATTESTATION_FORMAT_NONE = "none"
     ATTESTATION_FORMAT_FIDO_U2F = "fido-u2f"
