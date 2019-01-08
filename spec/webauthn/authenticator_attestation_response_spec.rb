@@ -7,82 +7,141 @@ require "webauthn/authenticator_attestation_response"
 require "openssl"
 
 RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
-  it "is valid if everything's in place" do
-    original_challenge = fake_challenge
-    origin = fake_origin
+  context "when everything's in place" do
+    let(:original_challenge) { fake_challenge }
+    let(:origin) { fake_origin }
 
-    authenticator = WebAuthn::FakeAuthenticator::Create.new(
-      challenge: original_challenge,
-      context: { origin: origin }
-    )
+    let(:attestation_response) do
+      authenticator = WebAuthn::FakeAuthenticator::Create.new(
+        challenge: original_challenge,
+        context: { origin: origin }
+      )
 
-    attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
-      attestation_object: authenticator.attestation_object,
-      client_data_json: authenticator.client_data_json
-    )
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: authenticator.attestation_object,
+        client_data_json: authenticator.client_data_json
+      )
+    end
 
-    expect(attestation_response.valid?(original_challenge, origin)).to be_truthy
+    it "is valid" do
+      expect(attestation_response.valid?(original_challenge, origin)).to be_truthy
+    end
 
-    credential = attestation_response.credential
-    expect(credential.id.class).to eq(String)
-    expect(credential.id.encoding).to eq(Encoding::ASCII_8BIT)
-    expect(credential.public_key.class).to eq(String)
-    expect(credential.public_key.encoding).to be(Encoding::ASCII_8BIT)
+    it "returns the credential" do
+      credential = attestation_response.credential
+
+      expect(credential.id.class).to eq(String)
+      expect(credential.id.encoding).to eq(Encoding::ASCII_8BIT)
+      expect(credential.public_key.class).to eq(String)
+      expect(credential.public_key.encoding).to be(Encoding::ASCII_8BIT)
+    end
   end
 
-  it "can validate fido-u2f attestation" do
-    original_origin = "http://localhost:3000"
-    original_challenge = Base64.strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
-    response = seeds[:security_key_direct][:authenticator_attestation_response]
+  context "when fido-u2f attestation" do
+    let(:original_challenge) do
+      Base64.strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
+    end
 
-    response = WebAuthn::AuthenticatorAttestationResponse.new(
-      attestation_object: Base64.strict_decode64(response[:attestation_object]),
-      client_data_json: Base64.strict_decode64(response[:client_data_json])
-    )
+    let(:original_origin) { "http://localhost:3000" }
 
-    expect(response.valid?(original_challenge, original_origin)).to eq(true)
-    expect(response.attestation_type).to eq("Basic_or_AttCA")
-    expect(response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
-    expect(response.credential.id.length).to be >= 16
+    let(:response) do
+      response = seeds[:security_key_direct][:authenticator_attestation_response]
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.strict_decode64(response[:attestation_object]),
+        client_data_json: Base64.strict_decode64(response[:client_data_json])
+      )
+    end
+
+    it "is valid" do
+      expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    end
+
+    it "returns attestation info" do
+      # TODO: Remove the need for #valid? to be called first
+      response.valid?(original_challenge, original_origin)
+
+      expect(response.attestation_type).to eq("Basic_or_AttCA")
+      expect(response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+    end
+
+    it "returns the credential" do
+      expect(response.credential.id.length).to be >= 16
+    end
   end
 
-  it "can validate packed attestation (self attestation)" do
-    original_origin = "https://localhost:13010"
-    original_challenge = Base64.strict_decode64(
-      seeds[:security_key_packed_self][:credential_creation_options][:challenge]
-    )
-    response = seeds[:security_key_packed_self][:authenticator_attestation_response]
+  context "when packed attestation (self attestation)" do
+    let(:original_origin) { "https://localhost:13010" }
 
-    response = WebAuthn::AuthenticatorAttestationResponse.new(
-      attestation_object: Base64.strict_decode64(response[:attestation_object]),
-      client_data_json: Base64.strict_decode64(response[:client_data_json])
-    )
+    let(:original_challenge) do
+      Base64.strict_decode64(
+        seeds[:security_key_packed_self][:credential_creation_options][:challenge]
+      )
+    end
 
-    expect(response.valid?(original_challenge, original_origin)).to eq(true)
-    expect(response.attestation_type).to eq("Self")
-    expect(response.attestation_trust_path).to eq(nil)
-    expect(response.credential.id.length).to be >= 16
+    let(:response) do
+      response = seeds[:security_key_packed_self][:authenticator_attestation_response]
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.strict_decode64(response[:attestation_object]),
+        client_data_json: Base64.strict_decode64(response[:client_data_json])
+      )
+    end
+
+    it "is valid" do
+      expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    end
+
+    it "returns attestation info" do
+      # TODO: Remove the need for #valid? to be called first
+      response.valid?(original_challenge, original_origin)
+
+      expect(response.attestation_type).to eq("Self")
+      expect(response.attestation_trust_path).to eq(nil)
+    end
+
+    it "returns credential" do
+      expect(response.credential.id.length).to be >= 16
+    end
   end
 
-  it "can validate android-safetynet attestation" do
-    # FIXME: Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105
-    pending
+  context "when android-safetynet attestation" do
+    let(:original_origin) { "http://localhost:3000" }
 
-    original_origin = "http://localhost:3000"
-    original_challenge = Base64.strict_decode64(
-      seeds[:android_safetynet_direct][:credential_creation_options][:challenge]
-    )
-    response = seeds[:android_safetynet_direct][:authenticator_attestation_response]
+    let(:original_challenge) do
+      Base64.strict_decode64(seeds[:android_safetynet_direct][:credential_creation_options][:challenge])
+    end
 
-    response = WebAuthn::AuthenticatorAttestationResponse.new(
-      attestation_object: Base64.strict_decode64(response[:attestation_object]),
-      client_data_json: Base64.strict_decode64(response[:client_data_json])
-    )
+    let(:response) do
+      response = seeds[:android_safetynet_direct][:authenticator_attestation_response]
 
-    expect(response.valid?(original_challenge, original_origin)).to eq(true)
-    expect(response.attestation_type).to eq("Basic")
-    expect(response.attestation_trust_path).to be_kind_of(OpenSSL::X509::Certificate)
-    expect(response.credential.id.length).to be >= 16
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.strict_decode64(response[:attestation_object]),
+        client_data_json: Base64.strict_decode64(response[:client_data_json])
+      )
+    end
+
+    it "is valid" do
+      # FIXME
+      pending "Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105"
+
+      expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    end
+
+    it "returns attestation info" do
+      # FIXME
+      pending "Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105"
+
+      # TODO: Remove the need for #valid? to be called first
+      response.valid?(original_challenge, original_origin)
+
+      expect(response.attestation_type).to eq("Basic")
+      expect(response.attestation_trust_path).to be_kind_of(OpenSSL::X509::Certificate)
+    end
+
+    it "returns the credential" do
+      expect(response.credential.id.length).to be >= 16
+    end
   end
 
   it "returns user-friendly error if no client data received" do
