@@ -93,7 +93,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     expect {
       response.valid?("", "")
-    }.to raise_exception(RuntimeError, "Missing client_data_json")
+    }.to raise_exception(WebAuthn::ClientDataMissingError)
   end
 
   describe "origin validation" do

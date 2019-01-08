@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require "openssl"
+require "webauthn/error"
 
 module WebAuthn
+  class ClientDataMissingError < Error; end
+
   class ClientData
     def initialize(client_data_json)
       @client_data_json = client_data_json
@@ -34,7 +37,7 @@ module WebAuthn
           if client_data_json
             JSON.parse(client_data_json)
           else
-            raise "Missing client_data_json"
+            raise ClientDataMissingError, "Client Data JSON is missing"
           end
         end
     end

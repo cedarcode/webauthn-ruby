@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require "webauthn/error"
+
 module WebAuthn
   module AttestationStatement
     class Base
-      class NotSupportedError < StandardError; end
+      class NotSupportedError < Error; end
 
       def initialize(statement)
         @statement = statement
