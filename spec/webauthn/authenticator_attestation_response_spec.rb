@@ -164,7 +164,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     context "matches the one explicitly given" do
       let(:rp_id) { "custom" }
 
-      it "is invalid" do
+      it "is valid" do
         response = WebAuthn::AuthenticatorAttestationResponse.new(
           attestation_object: authenticator.attestation_object,
           client_data_json: authenticator.client_data_json
