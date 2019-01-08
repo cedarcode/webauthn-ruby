@@ -5,7 +5,7 @@ require "webauthn"
 require "cbor"
 
 require "byebug"
-require "support/fake_authenticator"
+require "webauthn/fake_authenticator"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "spec_helper"
+
 RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
   def raw_attested_credential_data(options = {})
     options = {

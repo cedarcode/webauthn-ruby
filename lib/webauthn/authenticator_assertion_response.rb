@@ -12,10 +12,14 @@ module WebAuthn
       @signature = signature
     end
 
-    def valid?(original_challenge, original_origin, allowed_credentials:)
-      super(original_challenge, original_origin) &&
+    def valid?(original_challenge, original_origin, allowed_credentials:, rp_id: nil)
+      super(original_challenge, original_origin, rp_id: rp_id) &&
         valid_credential?(allowed_credentials) &&
         valid_signature?(credential_public_key(allowed_credentials))
+    end
+
+    def authenticator_data
+      @authenticator_data ||= WebAuthn::AuthenticatorData.new(authenticator_data_bytes)
     end
 
     private
@@ -40,10 +44,6 @@ module WebAuthn
       allowed_credential_ids = allowed_credentials.map { |credential| credential[:id] }
 
       allowed_credential_ids.include?(credential_id)
-    end
-
-    def authenticator_data
-      @authenticator_data ||= WebAuthn::AuthenticatorData.new(authenticator_data_bytes)
     end
 
     def credential_public_key(allowed_credentials)

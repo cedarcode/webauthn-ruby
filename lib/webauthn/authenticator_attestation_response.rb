@@ -11,24 +11,28 @@ require "webauthn/client_data"
 
 module WebAuthn
   class AuthenticatorAttestationResponse < AuthenticatorResponse
+    attr_reader :attestation_type, :attestation_trust_path
+
     def initialize(attestation_object:, **options)
       super(options)
 
       @attestation_object = attestation_object
     end
 
-    def valid?(original_challenge, original_origin)
-      super &&
-        attestation_statement.valid?(authenticator_data, client_data.hash)
+    def valid?(original_challenge, original_origin, rp_id: nil)
+      valid_response = super
+      return false unless valid_response
+
+      valid_attestation = attestation_statement.valid?(authenticator_data, client_data.hash)
+      return false unless valid_attestation
+
+      @attestation_type, @attestation_trust_path = valid_attestation
+      true
     end
 
     def credential
       authenticator_data.credential
     end
-
-    private
-
-    attr_reader :attestation_object
 
     def attestation_statement
       @attestation_statement ||=
@@ -46,6 +50,10 @@ module WebAuthn
     def attestation
       @attestation ||= CBOR.decode(attestation_object)
     end
+
+    private
+
+    attr_reader :attestation_object
 
     def type
       WebAuthn::TYPES[:create]

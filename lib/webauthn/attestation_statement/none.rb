@@ -6,7 +6,7 @@ module WebAuthn
   module AttestationStatement
     class None < Base
       def valid?(*_args)
-        true
+        [WebAuthn::AttestationStatement::ATTESTATION_TYPE_NONE, nil]
       end
     end
   end

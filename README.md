@@ -3,7 +3,7 @@
 Easily implement WebAuthn in your ruby/rails app
 
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
-[![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
+[![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
 
 ## What is WebAuthn?
 
@@ -21,11 +21,16 @@ This gem will help your ruby server act as a conforming [_Relying-Party_](https:
 Currently supporting [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API):
   - [Mozilla Firefox](https://www.mozilla.org/firefox/) 60+
   - [Google Chrome](https://www.google.com/chrome/) 67+
-  - Google Chrome 65 & 66 (Disabled by default, go to chrome://flags to enable Web Authentication API feature)
+  - [Google Chrome for Android](https://play.google.com/store/apps/details?id=com.android.chrome) 70+
 
 ### A conforming Authenticator
 
-- [Security Key by Yubico](https://www.yubico.com/product/security-key-by-yubico/) (used to test/develop this gem)
+* Roaming authenticators
+  * [Security Key by Yubico](https://www.yubico.com/product/security-key-by-yubico/)
+  * [YubiKey 5 Series](https://www.yubico.com/products/yubikey-5-overview/) key
+* Platform authenticators
+  * Android's Fingerprint Scanner
+  * MacBook [Touch ID](https://en.wikipedia.org/wiki/Touch_ID)
 
 NOTE: Firefox states ([Firefox 60 release notes](https://www.mozilla.org/en-US/firefox/60.0/releasenotes/)) they only support USB FIDO2 or FIDO U2F enabled devices in their current implementation (version 60).
   It's up to the gem's user to verify user agent compatibility if any other device wants to be used as the authenticator component.
@@ -48,6 +53,8 @@ Or install it yourself as:
 
 ## Usage
 
+NOTE: You can find a working example on how to use this gem in a __Rails__ app in [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app).
+
 ### Registration
 
 #### Initiation phase
@@ -68,8 +75,17 @@ credential_creation_options[:challenge]
 #### Validation phase
 
 ```ruby
-attestation_object = "..." # As returned by `navigator.credentials.create`
-client_data_json = "..." # As returned by `navigator.credentials.create`
+# These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
+#
+# If the user-agent is a web browser, you would use some encoding algorithm to send what
+# `navigator.credentials.create` returned through the wire.
+#
+# Then you need to decode that data before passing it to the `#valid?` method.
+#
+# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
+# on the user-agent encoded data before calling `#valid`
+attestation_object = "..."
+client_data_json = "..."
 
 attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
   attestation_object: attestation_object,
@@ -117,9 +133,18 @@ credential_request_options[:challenge]
 Assuming you have the previously stored Credential Public Key, now in variable `credential_public_key`
 
 ```ruby
-authenticator_data = "..." # As returned by `navigator.credentials.get`
-client_data_json = "..." # As returned by `navigator.credentials.get`
-signature = "..." # As returned by `navigator.credentials.get`
+# These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
+#
+# If the user-agent is a web browser, you would use some encoding algorithm to send what
+# `navigator.credentials.get` returned through the wire.
+#
+# Then you need to decode that data before passing it to the `#valid?` method.
+#
+# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
+# on the user-agent encoded data before calling `#valid`
+authenticator_data = "..."
+client_data_json = "..."
+signature = "..."
 
 assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
   authenticator_data: authenticator_data,
@@ -135,7 +160,7 @@ original_origin = "https://www.example.com"
 # previously stored credential for the user that is attempting to sign in.
 allowed_credential = {
   id: credential_id,
-  publick_key: credential_public_key
+  public_key: credential_public_key
 }
 
 if assertion_response.valid?(original_challenge, original_origin, allowed_credential: allowed_credential)

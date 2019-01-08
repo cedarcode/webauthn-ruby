@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require "spec_helper"
 require "webauthn/authenticator_assertion_response"
 
 RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   let(:authenticator) do
-    FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
+    WebAuthn::FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
   end
 
   let(:original_challenge) { fake_challenge }
@@ -59,7 +60,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     credentials = [
       {
         id: credential_id,
-        public_key: key_bytes(FakeAuthenticator::Create.new.credential_key.public_key)
+        public_key: key_bytes(WebAuthn::FakeAuthenticator::Create.new.credential_key.public_key)
       }
     ]
 
@@ -91,7 +92,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   describe "type validation" do
     let(:authenticator) do
-      FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
+      WebAuthn::FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
     end
 
     it "is invalid if type is create instead of get" do
@@ -109,13 +110,13 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   describe "user present validation" do
     let(:authenticator) do
-      FakeAuthenticator::Get.new(
+      WebAuthn::FakeAuthenticator::Get.new(
         challenge: original_challenge,
-        context: { origin: original_origin, user_present: false }
+        context: { origin: original_origin, user_present: false, user_verified: false }
       )
     end
 
-    it "is invalid if user-present flag is off" do
+    it "is invalid if user flags are off" do
       expect(
         assertion_response.valid?(
           original_challenge,
@@ -152,7 +153,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   describe "rp_id validation" do
     let(:authenticator) do
-      FakeAuthenticator::Get.new(
+      WebAuthn::FakeAuthenticator::Get.new(
         challenge: original_challenge,
         rp_id: "different-rp_id",
         context: { origin: original_origin }
@@ -167,6 +168,19 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           allowed_credentials: allowed_credentials
         )
       ).to be_falsy
+    end
+
+    context "when rp_id is explicitly given" do
+      it "is valid if correct rp_id is given" do
+        expect(
+          assertion_response.valid?(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials,
+            rp_id: "different-rp_id",
+          )
+        ).to be_truthy
+      end
     end
   end
 end

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module WebAuthn
-  VERSION = "1.0.0"
+  VERSION = "1.7.0"
 end

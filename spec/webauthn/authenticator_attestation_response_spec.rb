@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
+require "spec_helper"
+require "support/seeds"
+
 require "webauthn/authenticator_attestation_response"
 require "openssl"
-require "support/seeds"
 
 RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   it "is valid if everything's in place" do
     original_challenge = fake_challenge
     origin = fake_origin
 
-    authenticator = FakeAuthenticator::Create.new(
+    authenticator = WebAuthn::FakeAuthenticator::Create.new(
       challenge: original_challenge,
       context: { origin: origin }
     )
@@ -39,6 +41,47 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     )
 
     expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    expect(response.attestation_type).to eq("Basic_or_AttCA")
+    expect(response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+    expect(response.credential.id.length).to be >= 16
+  end
+
+  it "can validate packed attestation (self attestation)" do
+    original_origin = "https://localhost:13010"
+    original_challenge = Base64.strict_decode64(
+      seeds[:security_key_packed_self][:credential_creation_options][:challenge]
+    )
+    response = seeds[:security_key_packed_self][:authenticator_attestation_response]
+
+    response = WebAuthn::AuthenticatorAttestationResponse.new(
+      attestation_object: Base64.strict_decode64(response[:attestation_object]),
+      client_data_json: Base64.strict_decode64(response[:client_data_json])
+    )
+
+    expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    expect(response.attestation_type).to eq("Self")
+    expect(response.attestation_trust_path).to eq(nil)
+    expect(response.credential.id.length).to be >= 16
+  end
+
+  it "can validate android-safetynet attestation" do
+    # FIXME: Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105
+    pending
+
+    original_origin = "http://localhost:3000"
+    original_challenge = Base64.strict_decode64(
+      seeds[:android_safetynet_direct][:credential_creation_options][:challenge]
+    )
+    response = seeds[:android_safetynet_direct][:authenticator_attestation_response]
+
+    response = WebAuthn::AuthenticatorAttestationResponse.new(
+      attestation_object: Base64.strict_decode64(response[:attestation_object]),
+      client_data_json: Base64.strict_decode64(response[:client_data_json])
+    )
+
+    expect(response.valid?(original_challenge, original_origin)).to eq(true)
+    expect(response.attestation_type).to eq("Basic")
+    expect(response.attestation_trust_path).to be_kind_of(OpenSSL::X509::Certificate)
     expect(response.credential.id.length).to be >= 16
   end
 
@@ -56,7 +99,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   describe "origin validation" do
     let(:original_origin) { "http://localhost" }
     let(:original_challenge) { fake_challenge }
-    let(:authenticator) { FakeAuthenticator::Create.new(challenge: original_challenge, context: { origin: origin }) }
+    let(:authenticator) {
+      WebAuthn::FakeAuthenticator::Create.new(challenge: original_challenge, context: { origin: origin })
+    }
 
     context "matches the default one" do
       let(:origin) { "http://localhost" }
@@ -88,7 +133,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   describe "rp_id validation" do
     let(:original_origin) { fake_origin }
     let(:original_challenge) { fake_challenge }
-    let(:authenticator) { FakeAuthenticator::Create.new(challenge: original_challenge, rp_id: rp_id) }
+    let(:authenticator) { WebAuthn::FakeAuthenticator::Create.new(challenge: original_challenge, rp_id: rp_id) }
 
     context "matches the default one" do
       let(:rp_id) { "localhost" }
@@ -113,6 +158,19 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         )
 
         expect(response.valid?(original_challenge, original_origin)).to be_falsy
+      end
+    end
+
+    context "matches the one explicitly given" do
+      let(:rp_id) { "custom" }
+
+      it "is invalid" do
+        response = WebAuthn::AuthenticatorAttestationResponse.new(
+          attestation_object: authenticator.attestation_object,
+          client_data_json: authenticator.client_data_json
+        )
+
+        expect(response.valid?(original_challenge, original_origin, rp_id: "custom")).to be_truthy
       end
     end
   end
