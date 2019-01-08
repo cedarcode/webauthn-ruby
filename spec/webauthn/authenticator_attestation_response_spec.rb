@@ -44,7 +44,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     let(:original_origin) { "http://localhost:3000" }
 
-    let(:response) do
+    let(:attestation_response) do
       response = seeds[:security_key_direct][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
@@ -54,19 +54,19 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "is valid" do
-      expect(response.valid?(original_challenge, original_origin)).to eq(true)
+      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
     end
 
     it "returns attestation info" do
       # TODO: Remove the need for #valid? to be called first
-      response.valid?(original_challenge, original_origin)
+      attestation_response.valid?(original_challenge, original_origin)
 
-      expect(response.attestation_type).to eq("Basic_or_AttCA")
-      expect(response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+      expect(attestation_response.attestation_type).to eq("Basic_or_AttCA")
+      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
     end
 
     it "returns the credential" do
-      expect(response.credential.id.length).to be >= 16
+      expect(attestation_response.credential.id.length).to be >= 16
     end
   end
 
@@ -79,7 +79,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    let(:response) do
+    let(:attestation_response) do
       response = seeds[:security_key_packed_self][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
@@ -89,19 +89,19 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "is valid" do
-      expect(response.valid?(original_challenge, original_origin)).to eq(true)
+      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
     end
 
     it "returns attestation info" do
       # TODO: Remove the need for #valid? to be called first
-      response.valid?(original_challenge, original_origin)
+      attestation_response.valid?(original_challenge, original_origin)
 
-      expect(response.attestation_type).to eq("Self")
-      expect(response.attestation_trust_path).to eq(nil)
+      expect(attestation_response.attestation_type).to eq("Self")
+      expect(attestation_response.attestation_trust_path).to eq(nil)
     end
 
     it "returns credential" do
-      expect(response.credential.id.length).to be >= 16
+      expect(attestation_response.credential.id.length).to be >= 16
     end
   end
 
@@ -112,7 +112,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       Base64.strict_decode64(seeds[:android_safetynet_direct][:credential_creation_options][:challenge])
     end
 
-    let(:response) do
+    let(:attestation_response) do
       response = seeds[:android_safetynet_direct][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
@@ -125,7 +125,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       # FIXME
       pending "Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105"
 
-      expect(response.valid?(original_challenge, original_origin)).to eq(true)
+      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
     end
 
     it "returns attestation info" do
@@ -133,25 +133,25 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       pending "Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105"
 
       # TODO: Remove the need for #valid? to be called first
-      response.valid?(original_challenge, original_origin)
+      attestation_response.valid?(original_challenge, original_origin)
 
-      expect(response.attestation_type).to eq("Basic")
-      expect(response.attestation_trust_path).to be_kind_of(OpenSSL::X509::Certificate)
+      expect(attestation_response.attestation_type).to eq("Basic")
+      expect(attestation_response.attestation_trust_path).to be_kind_of(OpenSSL::X509::Certificate)
     end
 
     it "returns the credential" do
-      expect(response.credential.id.length).to be >= 16
+      expect(attestation_response.credential.id.length).to be >= 16
     end
   end
 
   it "returns user-friendly error if no client data received" do
-    response = WebAuthn::AuthenticatorAttestationResponse.new(
+    attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
       attestation_object: "",
       client_data_json: nil
     )
 
     expect {
-      response.valid?("", "")
+      attestation_response.valid?("", "")
     }.to raise_exception(WebAuthn::ClientDataMissingError)
   end
 
@@ -159,7 +159,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_origin) { "http://localhost" }
     let(:original_challenge) { fake_challenge }
 
-    let(:response) do
+    let(:attestation_response) do
       authenticator = WebAuthn::FakeAuthenticator::Create.new(
         challenge: original_challenge,
         context: { origin: origin }
@@ -175,7 +175,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:origin) { "http://localhost" }
 
       it "is valid" do
-        expect(response.valid?(original_challenge, original_origin)).to be_truthy
+        expect(attestation_response.valid?(original_challenge, original_origin)).to be_truthy
       end
     end
 
@@ -183,7 +183,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:origin) { "http://invalid" }
 
       it "isn't valid" do
-        expect(response.valid?(original_challenge, original_origin)).to be_falsy
+        expect(attestation_response.valid?(original_challenge, original_origin)).to be_falsy
       end
     end
   end
@@ -192,7 +192,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_origin) { fake_origin }
     let(:original_challenge) { fake_challenge }
 
-    let(:response) do
+    let(:attestation_response) do
       authenticator = WebAuthn::FakeAuthenticator::Create.new(challenge: original_challenge, rp_id: rp_id)
 
       WebAuthn::AuthenticatorAttestationResponse.new(
@@ -205,7 +205,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:rp_id) { "localhost" }
 
       it "is valid" do
-        expect(response.valid?(original_challenge, original_origin)).to be_truthy
+        expect(attestation_response.valid?(original_challenge, original_origin)).to be_truthy
       end
     end
 
@@ -213,7 +213,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:rp_id) { "invalid" }
 
       it "is invalid" do
-        expect(response.valid?(original_challenge, original_origin)).to be_falsy
+        expect(attestation_response.valid?(original_challenge, original_origin)).to be_falsy
       end
     end
 
@@ -221,7 +221,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:rp_id) { "custom" }
 
       it "is valid" do
-        expect(response.valid?(original_challenge, original_origin, rp_id: "custom")).to be_truthy
+        expect(attestation_response.valid?(original_challenge, original_origin, rp_id: "custom")).to be_truthy
       end
     end
   end
