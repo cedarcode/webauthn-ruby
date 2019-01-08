@@ -4,7 +4,7 @@ module WebAuthn
   # Generic WebAuthn exception class
   class Error < StandardError; end
 
-  class ClientDataMissing < Error
+  class ClientDataMissingError < Error
     def initialize
       super("Client Data JSON is missing")
     end
