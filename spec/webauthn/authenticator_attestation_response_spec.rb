@@ -158,19 +158,23 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   describe "origin validation" do
     let(:original_origin) { "http://localhost" }
     let(:original_challenge) { fake_challenge }
-    let(:authenticator) {
-      WebAuthn::FakeAuthenticator::Create.new(challenge: original_challenge, context: { origin: origin })
-    }
+
+    let(:response) do
+      authenticator = WebAuthn::FakeAuthenticator::Create.new(
+        challenge: original_challenge,
+        context: { origin: origin }
+      )
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: authenticator.attestation_object,
+        client_data_json: authenticator.client_data_json
+      )
+    end
 
     context "matches the default one" do
       let(:origin) { "http://localhost" }
 
       it "is valid" do
-        response = WebAuthn::AuthenticatorAttestationResponse.new(
-          attestation_object: authenticator.attestation_object,
-          client_data_json: authenticator.client_data_json
-        )
-
         expect(response.valid?(original_challenge, original_origin)).to be_truthy
       end
     end
@@ -179,11 +183,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:origin) { "http://invalid" }
 
       it "isn't valid" do
-        response = WebAuthn::AuthenticatorAttestationResponse.new(
-          attestation_object: authenticator.attestation_object,
-          client_data_json: authenticator.client_data_json
-        )
-
         expect(response.valid?(original_challenge, original_origin)).to be_falsy
       end
     end
@@ -192,17 +191,20 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   describe "rp_id validation" do
     let(:original_origin) { fake_origin }
     let(:original_challenge) { fake_challenge }
-    let(:authenticator) { WebAuthn::FakeAuthenticator::Create.new(challenge: original_challenge, rp_id: rp_id) }
+
+    let(:response) do
+      authenticator = WebAuthn::FakeAuthenticator::Create.new(challenge: original_challenge, rp_id: rp_id)
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: authenticator.attestation_object,
+        client_data_json: authenticator.client_data_json
+      )
+    end
 
     context "matches the default one" do
       let(:rp_id) { "localhost" }
 
       it "is valid" do
-        response = WebAuthn::AuthenticatorAttestationResponse.new(
-          attestation_object: authenticator.attestation_object,
-          client_data_json: authenticator.client_data_json
-        )
-
         expect(response.valid?(original_challenge, original_origin)).to be_truthy
       end
     end
@@ -211,11 +213,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:rp_id) { "invalid" }
 
       it "is invalid" do
-        response = WebAuthn::AuthenticatorAttestationResponse.new(
-          attestation_object: authenticator.attestation_object,
-          client_data_json: authenticator.client_data_json
-        )
-
         expect(response.valid?(original_challenge, original_origin)).to be_falsy
       end
     end
@@ -224,11 +221,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:rp_id) { "custom" }
 
       it "is valid" do
-        response = WebAuthn::AuthenticatorAttestationResponse.new(
-          attestation_object: authenticator.attestation_object,
-          client_data_json: authenticator.client_data_json
-        )
-
         expect(response.valid?(original_challenge, original_origin, rp_id: "custom")).to be_truthy
       end
     end
