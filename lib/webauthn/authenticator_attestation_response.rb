@@ -19,7 +19,7 @@ module WebAuthn
       @attestation_object = attestation_object
     end
 
-    def valid?(original_challenge, original_origin, rp_id: nil)
+    def verify(original_challenge, original_origin, rp_id: nil)
       valid_response = super
       return false unless valid_response
 
