@@ -198,6 +198,10 @@ Inspired in a subset of [Angular's Commit Message Guidelines](https://github.com
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/cedarcode/webauthn-ruby.
 
+### Security
+
+If you have discovered a security bug, please send an email to security@cedarcode.com instead of posting to the GitHub issue tracker.
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
