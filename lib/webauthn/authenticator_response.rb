@@ -28,7 +28,7 @@ module WebAuthn
     end
 
     def valid_challenge?(original_challenge)
-      Base64.urlsafe_decode64(client_data.challenge) == original_challenge
+      WebAuthn::SecurityUtils.secure_compare(Base64.urlsafe_decode64(client_data.challenge), original_challenge)
     end
 
     def valid_origin?(original_origin)
