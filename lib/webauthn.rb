@@ -3,6 +3,7 @@
 require "cose/ecdsa"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/authenticator_assertion_response"
+require "webauthn/security_utils"
 require "webauthn/version"
 
 require "base64"
