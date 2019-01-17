@@ -1,5 +1,16 @@
 # Changelog
 
+## [v1.8.0] - 2019-01-17
+
+### Added
+
+- Make challenge validation inside `#valid?` method resistant to timing attacks. Thank you @tomek-bt!
+- Support for ruby 2.6
+
+### Changed
+
+- Make current raised exception errors a bit more meaningful to aid debugging
+
 ## [v1.7.0] - 2018-11-08
 
 ### Added
@@ -104,6 +115,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.8.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.7.0...v1.8.0/
 [v1.7.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.6.0...v1.7.0/
 [v1.6.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.5.0...v1.6.0/
 [v1.5.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.4.0...v1.5.0/
