@@ -21,8 +21,8 @@ module WebAuthn
       valid_type? &&
         valid_challenge?(original_challenge) &&
         valid_origin?(original_origin) &&
-        valid_rp_id?(rp_id || rp_id_from_origin(original_origin)) &&
         verify_authenticator_data &&
+        valid_rp_id?(rp_id || rp_id_from_origin(original_origin)) &&
         verify_user_flagged
     end
 

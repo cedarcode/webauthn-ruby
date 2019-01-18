@@ -315,4 +315,28 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       end
     end
   end
+
+  context "when Authenticator Data is invalid" do
+    let(:authenticator_data) { authenticator.authenticator_data[0..-2] }
+
+    it "doesn't verify" do
+      expect {
+        assertion_response.verify(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      }.to raise_exception(WebAuthn::AuthenticatorDataVerificationError)
+    end
+
+    it "is invalid" do
+      expect(
+        assertion_response.valid?(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_falsy
+    end
+  end
 end
