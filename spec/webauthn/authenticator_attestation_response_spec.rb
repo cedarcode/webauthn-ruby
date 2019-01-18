@@ -197,7 +197,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       it "doesn't verify" do
         expect {
           attestation_response.verify(original_challenge, original_origin)
-        }.to raise_exception(WebAuthn::InvalidOriginError)
+        }.to raise_exception(WebAuthn::OriginVerificationError)
       end
 
       it "isn't valid" do
@@ -237,7 +237,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       it "doesn't verify" do
         expect {
           attestation_response.verify(original_challenge, original_origin)
-        }.to raise_exception(WebAuthn::InvalidRPIdError)
+        }.to raise_exception(WebAuthn::RPIdVerificationError)
       end
 
       it "is invalid" do

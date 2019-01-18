@@ -114,7 +114,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           original_origin,
           allowed_credentials: credentials
         )
-      }.to raise_exception(WebAuthn::InvalidSignatureError)
+      }.to raise_exception(WebAuthn::SignatureVerificationError)
     end
   end
 
@@ -135,7 +135,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           original_origin,
           allowed_credentials: credentials
         )
-      }.to raise_exception(WebAuthn::InvalidCredentialError)
+      }.to raise_exception(WebAuthn::CredentialVerificationError)
     end
 
     it "is invalid" do
@@ -166,7 +166,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             original_origin,
             allowed_credentials: allowed_credentials
           )
-        }.to raise_exception(WebAuthn::InvalidTypeError)
+        }.to raise_exception(WebAuthn::TypeVerificationError)
       end
 
       it "is invalid" do
@@ -197,7 +197,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             original_origin,
             allowed_credentials: allowed_credentials
           )
-        }.to raise_exception(WebAuthn::UserNotPresentError)
+        }.to raise_exception(WebAuthn::UserPresenceVerificationError)
       end
 
       it "is invalid" do
@@ -221,7 +221,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             original_origin,
             allowed_credentials: allowed_credentials
           )
-        }.to raise_exception(WebAuthn::InvalidChallengeError)
+        }.to raise_exception(WebAuthn::ChallengeVerificationError)
       end
 
       it "is invalid" do
@@ -245,7 +245,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             "http://different-origin",
             allowed_credentials: allowed_credentials
           )
-        }.to raise_exception(WebAuthn::InvalidOriginError)
+        }.to raise_exception(WebAuthn::OriginVerificationError)
       end
 
       it "is invalid" do
@@ -277,7 +277,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             original_origin,
             allowed_credentials: allowed_credentials
           )
-        }.to raise_exception(WebAuthn::InvalidRPIdError)
+        }.to raise_exception(WebAuthn::RPIdVerificationError)
       end
 
       it "is invalid" do

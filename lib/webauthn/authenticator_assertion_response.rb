@@ -3,8 +3,8 @@
 require "webauthn/authenticator_response"
 
 module WebAuthn
-  class InvalidCredentialError < VerificationError; end
-  class InvalidSignatureError < VerificationError; end
+  class CredentialVerificationError < VerificationError; end
+  class SignatureVerificationError < VerificationError; end
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
     def initialize(credential_id:, authenticator_data:, signature:, **options)
@@ -46,13 +46,13 @@ module WebAuthn
         "SHA256",
         signature,
         authenticator_data_bytes + client_data.hash
-      ) or raise WebAuthn::InvalidSignatureError
+      ) or raise WebAuthn::SignatureVerificationError
     end
 
     def valid_credential?(allowed_credentials)
       allowed_credential_ids = allowed_credentials.map { |credential| credential[:id] }
 
-      allowed_credential_ids.include?(credential_id) or raise WebAuthn::InvalidCredentialError
+      allowed_credential_ids.include?(credential_id) or raise WebAuthn::CredentialVerificationError
     end
 
     def credential_public_key(allowed_credentials)
