@@ -72,7 +72,7 @@ module WebAuthn
       end
 
       def extension_data
-        ""
+        CBOR.encode("fakeExtension" => "fakeValue")
       end
 
       def raw_sign_count
