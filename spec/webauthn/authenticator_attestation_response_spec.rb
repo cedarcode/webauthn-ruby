@@ -96,6 +96,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
+    it "verifies" do
+      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+    end
+
     it "is valid" do
       expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
     end
@@ -127,6 +131,13 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         attestation_object: Base64.strict_decode64(response[:attestation_object]),
         client_data_json: Base64.strict_decode64(response[:client_data_json])
       )
+    end
+
+    it "verifies" do
+      # FIXME
+      pending "Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105"
+
+      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
     end
 
     it "is valid" do
