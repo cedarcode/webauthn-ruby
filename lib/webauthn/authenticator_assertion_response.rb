@@ -24,12 +24,6 @@ module WebAuthn
       true
     end
 
-    def valid?(*args)
-      super
-    rescue WebAuthn::VerificationError
-      false
-    end
-
     def authenticator_data
       @authenticator_data ||= WebAuthn::AuthenticatorData.new(authenticator_data_bytes)
     end
