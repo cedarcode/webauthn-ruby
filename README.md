@@ -166,7 +166,7 @@ allowed_credential = {
 }
 
 begin
-  assertion_response.verify(original_challenge, original_origin, allowed_credential: allowed_credential)
+  assertion_response.verify(original_challenge, original_origin, allowed_credentials: [allowed_credential])
 
   # Sign in the user
 rescue WebAuthn::VerificationError => e
