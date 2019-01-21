@@ -10,6 +10,8 @@ require "webauthn/attestation_statement"
 require "webauthn/client_data"
 
 module WebAuthn
+  class AttestationStatementVerificationError < VerificationError; end
+
   class AuthenticatorAttestationResponse < AuthenticatorResponse
     attr_reader :attestation_type, :attestation_trust_path
 
@@ -20,14 +22,7 @@ module WebAuthn
     end
 
     def verify(original_challenge, original_origin, rp_id: nil)
-      valid_response = super
-      return false unless valid_response
-
-      valid_attestation = attestation_statement.valid?(authenticator_data, client_data.hash)
-      return false unless valid_attestation
-
-      @attestation_type, @attestation_trust_path = valid_attestation
-      true
+      super && verify_item(:attestation_statement)
     end
 
     def credential
@@ -57,6 +52,10 @@ module WebAuthn
 
     def type
       WebAuthn::TYPES[:create]
+    end
+
+    def valid_attestation_statement?
+      @attestation_type, @attestation_trust_path = attestation_statement.valid?(authenticator_data, client_data.hash)
     end
   end
 end
