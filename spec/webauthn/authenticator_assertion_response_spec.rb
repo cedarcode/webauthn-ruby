@@ -277,7 +277,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             original_origin,
             allowed_credentials: allowed_credentials
           )
-        }.to raise_exception(WebAuthn::RPIdVerificationError)
+        }.to raise_exception(WebAuthn::RpIdVerificationError)
       end
 
       it "is invalid" do

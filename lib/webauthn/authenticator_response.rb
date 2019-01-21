@@ -8,7 +8,7 @@ module WebAuthn
   class AuthenticatorDataVerificationError < VerificationError; end
   class ChallengeVerificationError < VerificationError; end
   class OriginVerificationError < VerificationError; end
-  class RPIdVerificationError < VerificationError; end
+  class RpIdVerificationError < VerificationError; end
   class TypeVerificationError < VerificationError; end
   class UserPresenceVerificationError < VerificationError; end
 
@@ -18,12 +18,12 @@ module WebAuthn
     end
 
     def verify(original_challenge, original_origin, rp_id: nil)
-      valid_type? &&
-        valid_challenge?(original_challenge) &&
-        valid_origin?(original_origin) &&
-        verify_authenticator_data &&
-        valid_rp_id?(rp_id || rp_id_from_origin(original_origin)) &&
-        verify_user_flagged
+      verify_item(:type) &&
+        verify_item(:challenge, original_challenge) &&
+        verify_item(:origin, original_origin) &&
+        verify_item(:authenticator_data) &&
+        verify_item(:rp_id, rp_id || rp_id_from_origin(original_origin)) &&
+        verify_item(:user_presence)
     end
 
     def valid?(*args)
@@ -40,29 +40,38 @@ module WebAuthn
 
     attr_reader :client_data_json
 
+    def verify_item(item, *args)
+      if send("valid_#{item}?", *args)
+        true
+      else
+        camelized_item = item.to_s.split('_').map { |w| w.capitalize }.join
+        error_const_name = "WebAuthn::#{camelized_item}VerificationError"
+        raise Object.const_get(error_const_name)
+      end
+    end
+
     def valid_type?
-      client_data.type == type or raise WebAuthn::TypeVerificationError
+      client_data.type == type
     end
 
     def valid_challenge?(original_challenge)
-      WebAuthn::SecurityUtils.secure_compare(Base64.urlsafe_decode64(client_data.challenge), original_challenge) or
-        raise WebAuthn::ChallengeVerificationError
+      WebAuthn::SecurityUtils.secure_compare(Base64.urlsafe_decode64(client_data.challenge), original_challenge)
     end
 
     def valid_origin?(original_origin)
-      client_data.origin == original_origin or raise WebAuthn::OriginVerificationError
+      client_data.origin == original_origin
     end
 
     def valid_rp_id?(rp_id)
-      OpenSSL::Digest::SHA256.digest(rp_id) == authenticator_data.rp_id_hash or raise WebAuthn::RPIdVerificationError
+      OpenSSL::Digest::SHA256.digest(rp_id) == authenticator_data.rp_id_hash
     end
 
-    def verify_authenticator_data
-      authenticator_data.valid? or raise WebAuthn::AuthenticatorDataVerificationError
+    def valid_authenticator_data?
+      authenticator_data.valid?
     end
 
-    def verify_user_flagged
-      authenticator_data.user_flagged? or raise WebAuthn::UserPresenceVerificationError
+    def valid_user_presence?
+      authenticator_data.user_flagged?
     end
 
     def rp_id_from_origin(original_origin)
