@@ -22,7 +22,11 @@ module WebAuthn
     end
 
     def verify(original_challenge, original_origin, rp_id: nil)
-      super && verify_item(:attestation_statement)
+      super
+
+      verify_item(:attestation_statement)
+
+      true
     end
 
     def credential

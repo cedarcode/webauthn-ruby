@@ -18,12 +18,14 @@ module WebAuthn
     end
 
     def verify(original_challenge, original_origin, rp_id: nil)
-      verify_item(:type) &&
-        verify_item(:challenge, original_challenge) &&
-        verify_item(:origin, original_origin) &&
-        verify_item(:authenticator_data) &&
-        verify_item(:rp_id, rp_id || rp_id_from_origin(original_origin)) &&
-        verify_item(:user_presence)
+      verify_item(:type)
+      verify_item(:challenge, original_challenge)
+      verify_item(:origin, original_origin)
+      verify_item(:authenticator_data)
+      verify_item(:rp_id, rp_id || rp_id_from_origin(original_origin))
+      verify_item(:user_presence)
+
+      true
     end
 
     def valid?(*args)

@@ -16,9 +16,12 @@ module WebAuthn
     end
 
     def verify(original_challenge, original_origin, allowed_credentials:, rp_id: nil)
-      super(original_challenge, original_origin, rp_id: rp_id) &&
-        verify_item(:credential, allowed_credentials) &&
-        verify_item(:signature, credential_public_key(allowed_credentials))
+      super(original_challenge, original_origin, rp_id: rp_id)
+
+      verify_item(:credential, allowed_credentials)
+      verify_item(:signature, credential_public_key(allowed_credentials))
+
+      true
     end
 
     def valid?(*args)
