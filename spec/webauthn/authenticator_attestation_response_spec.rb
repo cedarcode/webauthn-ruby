@@ -58,7 +58,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "verifies" do
-      expect(attestation_response.verify(original_challenge, original_origin)).to eq(true)
+      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
     end
 
     it "is valid" do
