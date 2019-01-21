@@ -23,6 +23,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
+    it "verifies" do
+      expect(attestation_response.verify(original_challenge, origin)).to be_truthy
+    end
+
     it "is valid" do
       expect(attestation_response.valid?(original_challenge, origin)).to be_truthy
     end
@@ -51,6 +55,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         attestation_object: Base64.strict_decode64(response[:attestation_object]),
         client_data_json: Base64.strict_decode64(response[:client_data_json])
       )
+    end
+
+    it "verifies" do
+      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
     end
 
     it "is valid" do
@@ -88,6 +96,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
+    it "verifies" do
+      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+    end
+
     it "is valid" do
       expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
     end
@@ -119,6 +131,13 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         attestation_object: Base64.strict_decode64(response[:attestation_object]),
         client_data_json: Base64.strict_decode64(response[:client_data_json])
       )
+    end
+
+    it "verifies" do
+      # FIXME
+      pending "Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105"
+
+      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
     end
 
     it "is valid" do
@@ -174,6 +193,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     context "matches the default one" do
       let(:origin) { "http://localhost" }
 
+      it "verifies" do
+        expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+      end
+
       it "is valid" do
         expect(attestation_response.valid?(original_challenge, original_origin)).to be_truthy
       end
@@ -181,6 +204,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     context "doesn't match the default one" do
       let(:origin) { "http://invalid" }
+
+      it "doesn't verify" do
+        expect {
+          attestation_response.verify(original_challenge, original_origin)
+        }.to raise_exception(WebAuthn::OriginVerificationError)
+      end
 
       it "isn't valid" do
         expect(attestation_response.valid?(original_challenge, original_origin)).to be_falsy
@@ -204,6 +233,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     context "matches the default one" do
       let(:rp_id) { "localhost" }
 
+      it "verifies" do
+        expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+      end
+
       it "is valid" do
         expect(attestation_response.valid?(original_challenge, original_origin)).to be_truthy
       end
@@ -212,6 +245,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     context "doesn't match the default one" do
       let(:rp_id) { "invalid" }
 
+      it "doesn't verify" do
+        expect {
+          attestation_response.verify(original_challenge, original_origin)
+        }.to raise_exception(WebAuthn::RpIdVerificationError)
+      end
+
       it "is invalid" do
         expect(attestation_response.valid?(original_challenge, original_origin)).to be_falsy
       end
@@ -219,6 +258,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     context "matches the one explicitly given" do
       let(:rp_id) { "custom" }
+
+      it "verifies" do
+        expect(attestation_response.verify(original_challenge, original_origin, rp_id: "custom")).to be_truthy
+      end
 
       it "is valid" do
         expect(attestation_response.valid?(original_challenge, original_origin, rp_id: "custom")).to be_truthy

@@ -63,7 +63,7 @@ NOTE: You can find a working example on how to use this gem in a __Rails__ app i
 credential_creation_options = WebAuthn.credential_creation_options
 
 # Store the newly generated challenge somewhere so you can have it
-# for the validation phase.
+# for the verification phase.
 #
 # You can read it from the resulting options:
 credential_creation_options[:challenge]
@@ -72,7 +72,7 @@ credential_creation_options[:challenge]
 # to call `navigator.credentials.create({ "publicKey": credentialCreationOptions })`
 ```
 
-#### Validation phase
+#### Verification phase
 
 ```ruby
 # These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
@@ -80,10 +80,10 @@ credential_creation_options[:challenge]
 # If the user-agent is a web browser, you would use some encoding algorithm to send what
 # `navigator.credentials.create` returned through the wire.
 #
-# Then you need to decode that data before passing it to the `#valid?` method.
+# Then you need to decode that data before passing it to the `#verify` method.
 #
 # E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
-# on the user-agent encoded data before calling `#valid`
+# on the user-agent encoded data before calling `#verify`
 attestation_object = "..."
 client_data_json = "..."
 
@@ -93,17 +93,19 @@ attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
 )
 
 # This value needs to match `window.location.origin` evaluated by
-# the User Agent as part of the validation phase.
+# the User Agent as part of the verification phase.
 original_origin = "https://www.example.com"
 
-if attestation_response.valid?(original_challenge, original_origin)
+begin
+  attestation_response.verify(original_challenge, original_origin)
+
   # 1. Register the new user and
   # 2. Keep Credential ID and Credential Public Key under storage
   #    for future authentications
   #    Access by invoking:
   #      `attestation_response.credential.id`
   #      `attestation_response.credential.public_key`
-else
+rescue WebAuthn::VerificationError => e
   # Handle error
 end
 ```
@@ -119,7 +121,7 @@ credential_request_options = WebAuthn.credential_request_options
 credential_request_options[:allowCredentials] << { id: credential_id, type: "public-key" }
 
 # Store the newly generated challenge somewhere so you can have it
-# for the validation phase.
+# for the verification phase.
 #
 # You can read it from the resulting options:
 credential_request_options[:challenge]
@@ -128,7 +130,7 @@ credential_request_options[:challenge]
 # to call `navigator.credentials.get({ "publicKey": credentialRequestOptions })`
 ```
 
-#### Validation phase
+#### Verification phase
 
 Assuming you have the previously stored Credential Public Key, now in variable `credential_public_key`
 
@@ -138,10 +140,10 @@ Assuming you have the previously stored Credential Public Key, now in variable `
 # If the user-agent is a web browser, you would use some encoding algorithm to send what
 # `navigator.credentials.get` returned through the wire.
 #
-# Then you need to decode that data before passing it to the `#valid?` method.
+# Then you need to decode that data before passing it to the `#verify` method.
 #
 # E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
-# on the user-agent encoded data before calling `#valid`
+# on the user-agent encoded data before calling `#verify`
 authenticator_data = "..."
 client_data_json = "..."
 signature = "..."
@@ -153,7 +155,7 @@ assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
 )
 
 # This value needs to match `window.location.origin` evaluated by
-# the User Agent as part of the validation phase.
+# the User Agent as part of the verification phase.
 original_origin = "https://www.example.com"
 
 # This hash must have the id and its corresponding public key of the
@@ -163,9 +165,11 @@ allowed_credential = {
   public_key: credential_public_key
 }
 
-if assertion_response.valid?(original_challenge, original_origin, allowed_credential: allowed_credential)
+begin
+  assertion_response.verify(original_challenge, original_origin, allowed_credential: allowed_credential)
+
   # Sign in the user
-else
+rescue WebAuthn::VerificationError => e
   # Handle error
 end
 ```

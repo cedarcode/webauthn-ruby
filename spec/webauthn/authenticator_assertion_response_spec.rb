@@ -30,64 +30,123 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     )
   end
 
-  it "is valid if everything's in place" do
-    expect(
-      assertion_response.valid?(
-        original_challenge,
-        original_origin,
-        allowed_credentials: allowed_credentials
-      )
-    ).to be_truthy
+  context "when everything's in place" do
+    it "verifies" do
+      expect(
+        assertion_response.verify(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_truthy
+    end
+
+    it "is valid" do
+      expect(
+        assertion_response.valid?(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_truthy
+    end
   end
 
-  it "is valid with more than one allowed credential" do
-    other_credential_key = OpenSSL::PKey::EC.new("prime256v1").generate_key
-    allowed_credentials << {
-      id: SecureRandom.random_bytes(16),
-      public_key: key_bytes(other_credential_key.public_key)
-    }
+  context "with more than one allowed credential" do
+    let(:allowed_credentials) do
+      [
+        {
+          id: credential_id,
+          public_key: key_bytes(credential_key.public_key)
+        },
+        {
+          id: SecureRandom.random_bytes(16),
+          public_key: key_bytes(OpenSSL::PKey::EC.new("prime256v1").generate_key.public_key)
+        }
+      ]
+    end
 
-    expect(
-      assertion_response.valid?(
-        original_challenge,
-        original_origin,
-        allowed_credentials: allowed_credentials
-      )
-    ).to be_truthy
+    it "verifies" do
+      expect(
+        assertion_response.verify(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_truthy
+    end
+
+    it "is valid" do
+      expect(
+        assertion_response.valid?(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_truthy
+    end
   end
 
-  it "is invalid if signature was signed with a different key" do
-    credentials = [
-      {
-        id: credential_id,
-        public_key: key_bytes(WebAuthn::FakeAuthenticator::Create.new.credential_key.public_key)
-      }
-    ]
+  context "if signature was signed with a different key" do
+    let(:credentials) do
+      [
+        {
+          id: credential_id,
+          public_key: key_bytes(WebAuthn::FakeAuthenticator::Create.new.credential_key.public_key)
+        }
+      ]
+    end
 
-    expect(
-      assertion_response.valid?(
-        original_challenge,
-        original_origin,
-        allowed_credentials: credentials
-      )
-    ).to be_falsy
+    it "is invalid" do
+      expect(
+        assertion_response.valid?(
+          original_challenge,
+          original_origin,
+          allowed_credentials: credentials
+        )
+      ).to be_falsy
+    end
+
+    it "doesn't verify" do
+      expect {
+        assertion_response.verify(
+          original_challenge,
+          original_origin,
+          allowed_credentials: credentials
+        )
+      }.to raise_exception(WebAuthn::SignatureVerificationError)
+    end
   end
 
-  it "is invalid if credential id is not among the allowed ones" do
-    credentials = [
-      {
-        id: SecureRandom.random_bytes(16),
-        public_key: key_bytes(credential_key.public_key)
-      }
-    ]
+  context "if credential id is not among the allowed ones" do
+    let(:credentials) do
+      [
+        {
+          id: SecureRandom.random_bytes(16),
+          public_key: key_bytes(credential_key.public_key)
+        }
+      ]
+    end
 
-    expect(
-      assertion_response.valid?(
-        original_challenge,
-        original_origin,
-        allowed_credentials: credentials
-      )
-    ).to be_falsy
+    it "doesn't verify" do
+      expect {
+        assertion_response.verify(
+          original_challenge,
+          original_origin,
+          allowed_credentials: credentials
+        )
+      }.to raise_exception(WebAuthn::CredentialVerificationError)
+    end
+
+    it "is invalid" do
+      expect(
+        assertion_response.valid?(
+          original_challenge,
+          original_origin,
+          allowed_credentials: credentials
+        )
+      ).to be_falsy
+    end
   end
 
   describe "type validation" do
@@ -95,16 +154,30 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       WebAuthn::FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
     end
 
-    it "is invalid if type is create instead of get" do
-      allow(authenticator).to receive(:type).and_return("webauthn.create")
+    context "if type is create instead of get" do
+      before do
+        allow(authenticator).to receive(:type).and_return("webauthn.create")
+      end
 
-      expect(
-        assertion_response.valid?(
-          original_challenge,
-          original_origin,
-          allowed_credentials: allowed_credentials
-        )
-      ).to be_falsy
+      it "doesn't verify" do
+        expect {
+          assertion_response.verify(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        }.to raise_exception(WebAuthn::TypeVerificationError)
+      end
+
+      it "is invalid" do
+        expect(
+          assertion_response.valid?(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        ).to be_falsy
+      end
     end
   end
 
@@ -116,38 +189,74 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       )
     end
 
-    it "is invalid if user flags are off" do
-      expect(
-        assertion_response.valid?(
-          original_challenge,
-          original_origin,
-          allowed_credentials: allowed_credentials
-        )
-      ).to be_falsy
+    context "if user flags are off" do
+      it "doesn't verify" do
+        expect {
+          assertion_response.verify(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+      end
+
+      it "is invalid" do
+        expect(
+          assertion_response.valid?(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        ).to be_falsy
+      end
     end
   end
 
   describe "challenge validation" do
-    it "is invalid if challenge doesn't match" do
-      expect(
-        assertion_response.valid?(
-          fake_challenge,
-          original_origin,
-          allowed_credentials: allowed_credentials
-        )
-      ).to be_falsy
+    context "if challenge doesn't match" do
+      it "doesn't verify" do
+        expect {
+          assertion_response.verify(
+            fake_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        }.to raise_exception(WebAuthn::ChallengeVerificationError)
+      end
+
+      it "is invalid" do
+        expect(
+          assertion_response.valid?(
+            fake_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        ).to be_falsy
+      end
     end
   end
 
   describe "origin validation" do
-    it "is invalid if origin doesn't match" do
-      expect(
-        assertion_response.valid?(
-          original_challenge,
-          "http://different-origin",
-          allowed_credentials: allowed_credentials
-        )
-      ).to be_falsy
+    context "if origin doesn't match" do
+      it "doesn't verify" do
+        expect {
+          assertion_response.verify(
+            original_challenge,
+            "http://different-origin",
+            allowed_credentials: allowed_credentials
+          )
+        }.to raise_exception(WebAuthn::OriginVerificationError)
+      end
+
+      it "is invalid" do
+        expect(
+          assertion_response.valid?(
+            original_challenge,
+            "http://different-origin",
+            allowed_credentials: allowed_credentials
+          )
+        ).to be_falsy
+      end
     end
   end
 
@@ -160,18 +269,41 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       )
     end
 
-    it "is invalid if rp_id_hash doesn't match" do
-      expect(
-        assertion_response.valid?(
-          original_challenge,
-          original_origin,
-          allowed_credentials: allowed_credentials
-        )
-      ).to be_falsy
+    context "if rp_id_hash doesn't match" do
+      it "doesn't verify" do
+        expect {
+          assertion_response.verify(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        }.to raise_exception(WebAuthn::RpIdVerificationError)
+      end
+
+      it "is invalid" do
+        expect(
+          assertion_response.valid?(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        ).to be_falsy
+      end
     end
 
-    context "when rp_id is explicitly given" do
-      it "is valid if correct rp_id is given" do
+    context "when correct rp_id is explicitly given" do
+      it "verifies" do
+        expect(
+          assertion_response.verify(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials,
+            rp_id: "different-rp_id",
+          )
+        ).to be_truthy
+      end
+
+      it "is valid" do
         expect(
           assertion_response.valid?(
             original_challenge,
@@ -181,6 +313,30 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           )
         ).to be_truthy
       end
+    end
+  end
+
+  context "when Authenticator Data is invalid" do
+    let(:authenticator_data) { authenticator.authenticator_data[0..-2] }
+
+    it "doesn't verify" do
+      expect {
+        assertion_response.verify(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      }.to raise_exception(WebAuthn::AuthenticatorDataVerificationError)
+    end
+
+    it "is invalid" do
+      expect(
+        assertion_response.valid?(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_falsy
     end
   end
 end
