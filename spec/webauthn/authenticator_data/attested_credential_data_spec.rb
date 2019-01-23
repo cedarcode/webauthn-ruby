@@ -15,7 +15,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
 
   describe "#valid?" do
     it "returns false if public key is missing" do
-      raw_data = raw_attested_credential_data(public_key: "")
+      raw_data = raw_attested_credential_data(public_key: CBOR.encode(""))
 
       attested_credential_data =
         WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)

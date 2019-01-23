@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "cborb"
 require "webauthn/authenticator_data/attested_credential_data/public_key_u2f"
 
 module WebAuthn
@@ -40,6 +41,12 @@ module WebAuthn
           end
       end
 
+      def length
+        if valid?
+          public_key_position + public_key_length
+        end
+      end
+
       private
 
       attr_reader :data
@@ -51,7 +58,7 @@ module WebAuthn
       end
 
       def public_key
-        @public_key ||= PublicKeyU2f.new(data_at(public_key_position))
+        @public_key ||= PublicKeyU2f.new(data_at(public_key_position, public_key_length))
       end
 
       def id_position
@@ -68,6 +75,10 @@ module WebAuthn
 
       def public_key_position
         id_position + id_length
+      end
+
+      def public_key_length
+        @public_key_length ||= CBOR.encode(Cborb.decode(data_at(public_key_position), concatenated: true).first).length
       end
 
       def data_at(position, length = nil)

@@ -317,7 +317,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   context "when Authenticator Data is invalid" do
-    let(:authenticator_data) { authenticator.authenticator_data[0..-2] }
+    let(:authenticator_data) { authenticator.authenticator_data[0..31] }
 
     it "doesn't verify" do
       expect {
