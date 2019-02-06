@@ -118,6 +118,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-safetynet attestation" do
+    around(:each) { |example| fake_time(Time.new(2018, 10, 6), &example) }
+
     let(:original_origin) { "http://localhost:3000" }
 
     let(:original_challenge) do
@@ -134,23 +136,14 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "verifies" do
-      # FIXME
-      pending "Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105"
-
       expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
     end
 
     it "is valid" do
-      # FIXME
-      pending "Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105"
-
       expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
     end
 
     it "returns attestation info" do
-      # FIXME
-      pending "Test seed certificate expired, see https://github.com/cedarcode/webauthn-ruby/issues/105"
-
       # TODO: Remove the need for #valid? to be called first
       attestation_response.valid?(original_challenge, original_origin)
 
