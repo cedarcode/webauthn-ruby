@@ -174,6 +174,10 @@ rescue WebAuthn::VerificationError => e
 end
 ```
 
+## Testing Your Integration
+
+The Webauthn spec requires for data that is signed and authenticated. As a result, it can be difficult to create valid test authenticator data when testing your integration. Webauthn-ruby exposes [WebAuthn::FakeAuthenticator](https://github.com/cedarcode/webauthn-ruby/blob/master/lib/webauthn/fake_authenticator.rb) for you to use in your tests. Example usage can be found in [webauthn-ruby/spec/webauthn/authenticator_assertion_response_spec.rb](https://github.com/cedarcode/webauthn-ruby/blob/master/spec/webauthn/authenticator_assertion_response_spec.rb).
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake` to run the tests and code-style checks. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
