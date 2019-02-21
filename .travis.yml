@@ -1,5 +1,4 @@
 dist: xenial
-sudo: false
 language: ruby
 cache: bundler
 rvm:
@@ -14,4 +13,11 @@ matrix:
     - rvm: ruby-head
 
 before_install:
+  - wget http://archive.ubuntu.com/ubuntu/pool/universe/f/faketime/libfaketime_0.9.7-3_amd64.deb
+  - sudo dpkg -i libfaketime_0.9.7-3_amd64.deb
   - gem install bundler -v "~> 2.0"
+
+before_script:
+  - export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1
+  - export DONT_FAKE_MONOTONIC=1
+  - export FAKETIME_NO_CACHE=1
