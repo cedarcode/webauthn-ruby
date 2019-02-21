@@ -66,7 +66,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns attestation info" do
-      # TODO: Remove the need for #valid? to be called first
       attestation_response.valid?(original_challenge, original_origin)
 
       expect(attestation_response.attestation_type).to eq("Basic_or_AttCA")
@@ -105,7 +104,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns attestation info" do
-      # TODO: Remove the need for #valid? to be called first
       attestation_response.valid?(original_challenge, original_origin)
 
       expect(attestation_response.attestation_type).to eq("Self")
@@ -144,7 +142,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns attestation info" do
-      # TODO: Remove the need for #valid? to be called first
       attestation_response.valid?(original_challenge, original_origin)
 
       expect(attestation_response.attestation_type).to eq("Basic")
