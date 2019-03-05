@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "cborb"
 require "webauthn/authenticator_data/attested_credential_data/public_key_u2f"
 
 module WebAuthn
@@ -78,7 +77,8 @@ module WebAuthn
       end
 
       def public_key_length
-        @public_key_length ||= CBOR.encode(Cborb.decode(data_at(public_key_position), concatenated: true).first).length
+        @public_key_length ||=
+          CBOR.encode(CBOR::Unpacker.new(StringIO.new(data_at(public_key_position))).each.first).length
       end
 
       def data_at(position, length = nil)
