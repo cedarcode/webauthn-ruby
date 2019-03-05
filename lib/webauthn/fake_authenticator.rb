@@ -15,7 +15,7 @@ module WebAuthn
       end
 
       def authenticator_data
-        @authenticator_data ||= rp_id_hash + raw_flags + raw_sign_count + attested_credential_data
+        @authenticator_data ||= rp_id_hash + raw_flags + raw_sign_count + attested_credential_data + extension_data
       end
 
       def client_data_json
@@ -39,7 +39,16 @@ module WebAuthn
       attr_reader :challenge, :context, :rp_id
 
       def raw_flags
-        ["#{bit(:user_present)}0#{bit(:user_verified)}000#{attested_credential_data_present_bit}0"].pack("b*")
+        [
+          [
+            bit(:user_present),
+            "0",
+            bit(:user_verified),
+            "000",
+            attested_credential_data_present_bit,
+            extension_data_present_bit
+          ].join
+        ].pack("b*")
       end
 
       def attested_credential_data_present_bit
@@ -50,8 +59,20 @@ module WebAuthn
         end
       end
 
+      def extension_data_present_bit
+        if extension_data.empty?
+          "0"
+        else
+          "1"
+        end
+      end
+
       def attested_credential_data
         ""
+      end
+
+      def extension_data
+        CBOR.encode("fakeExtension" => "fakeValue")
       end
 
       def raw_sign_count

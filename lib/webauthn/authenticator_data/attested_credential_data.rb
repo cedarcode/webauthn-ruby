@@ -40,6 +40,12 @@ module WebAuthn
           end
       end
 
+      def length
+        if valid?
+          public_key_position + public_key_length
+        end
+      end
+
       private
 
       attr_reader :data
@@ -51,7 +57,7 @@ module WebAuthn
       end
 
       def public_key
-        @public_key ||= PublicKeyU2f.new(data_at(public_key_position))
+        @public_key ||= PublicKeyU2f.new(data_at(public_key_position, public_key_length))
       end
 
       def id_position
@@ -68,6 +74,11 @@ module WebAuthn
 
       def public_key_position
         id_position + id_length
+      end
+
+      def public_key_length
+        @public_key_length ||=
+          CBOR.encode(CBOR::Unpacker.new(StringIO.new(data_at(public_key_position))).each.first).length
       end
 
       def data_at(position, length = nil)
