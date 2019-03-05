@@ -18,6 +18,22 @@ module WebAuthn
       private
 
       attr_reader :statement
+
+      def algorithm
+        statement["alg"]
+      end
+
+      def raw_attestation_certificates
+        statement["x5c"]
+      end
+
+      def raw_ecdaa_key_id
+        statement["ecdaaKeyId"]
+      end
+
+      def signature
+        statement["sig"]
+      end
     end
   end
 end

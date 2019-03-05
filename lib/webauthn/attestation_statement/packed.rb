@@ -21,22 +21,6 @@ module WebAuthn
 
       private
 
-      def algorithm
-        statement["alg"]
-      end
-
-      def signature
-        statement["sig"]
-      end
-
-      def raw_attestation_certificates
-        statement["x5c"]
-      end
-
-      def raw_ecdaa_key_id
-        statement["ecdaaKeyId"]
-      end
-
       def valid_format?
         algorithm && signature && (
           [raw_attestation_certificates, raw_ecdaa_key_id].compact.size < 2
