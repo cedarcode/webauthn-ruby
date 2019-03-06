@@ -7,10 +7,11 @@ Easily implement WebAuthn in your ruby/rails app
 
 ## What is WebAuthn?
 
-- [WebAuthn article with Google IO 2018 talk](https://developers.google.com/web/updates/2018/05/webauthn)
-- [Web Authentication API draft article by Mozilla](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API)
 - [WebAuthn W3C Recommendation](https://www.w3.org/TR/webauthn/)
-- [WebAuthn W3C Editor's Draft](https://w3c.github.io/webauthn/)
+- [WebAuthn intro by Yubico](https://www.yubico.com/webauthn/)
+- [WebAuthn in Wikipedia](https://en.wikipedia.org/wiki/WebAuthn)
+- [Web Authentication API in MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API)
+- [WebAuthn article with Google IO 2018 talk](https://developers.google.com/web/updates/2018/05/webauthn)
 
 ## Prerequisites
 
