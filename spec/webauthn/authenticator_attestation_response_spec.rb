@@ -115,6 +115,44 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
+  context "when packed attestation (basic attestation)" do
+    let(:original_origin) { "http://localhost:3000" }
+
+    let(:original_challenge) do
+      Base64.strict_decode64(
+        seeds[:security_key_packed_x5c][:credential_creation_options][:challenge]
+      )
+    end
+
+    let(:attestation_response) do
+      response = seeds[:security_key_packed_x5c][:authenticator_attestation_response]
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.strict_decode64(response[:attestation_object]),
+        client_data_json: Base64.strict_decode64(response[:client_data_json])
+      )
+    end
+
+    it "verifies" do
+      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+    end
+
+    it "is valid" do
+      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
+    end
+
+    it "returns attestation info" do
+      attestation_response.valid?(original_challenge, original_origin)
+
+      expect(attestation_response.attestation_type).to eq("Basic_or_AttCA")
+      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+    end
+
+    it "returns credential" do
+      expect(attestation_response.credential.id.length).to be >= 16
+    end
+  end
+
   context "when android-safetynet attestation" do
     around(:each) { |example| fake_time(Time.new(2018, 10, 6), &example) }
 
