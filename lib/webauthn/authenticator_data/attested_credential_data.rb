@@ -33,6 +33,10 @@ module WebAuthn
         data.length >= AAGUID_LENGTH + ID_LENGTH_LENGTH && public_key.valid?
       end
 
+      def aaguid
+        data_at(0, AAGUID_LENGTH)
+      end
+
       def credential
         @credential ||=
           if id

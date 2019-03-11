@@ -75,6 +75,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     it "returns the credential" do
       expect(attestation_response.credential.id.length).to be >= 16
     end
+
+    it "returns the AAGUID" do
+      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to eq("\x00" * 16)
+    end
   end
 
   context "when packed attestation (self attestation)" do
@@ -112,6 +116,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     it "returns credential" do
       expect(attestation_response.credential.id.length).to be >= 16
+    end
+
+    it "returns the AAGUID" do
+      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to eq("\x00" * 16)
     end
   end
 
@@ -151,6 +159,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     it "returns credential" do
       expect(attestation_response.credential.id.length).to be >= 16
     end
+
+    it "returns the AAGUID" do
+      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
+        eq(["f8a011f38c0a4d15800617111f9edc7d"].pack("H*"))
+      )
+    end
   end
 
   context "when android-safetynet attestation" do
@@ -188,6 +202,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     it "returns the credential" do
       expect(attestation_response.credential.id.length).to be >= 16
+    end
+
+    it "returns the AAGUID" do
+      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to eq("\x00" * 16)
     end
   end
 
