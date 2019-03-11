@@ -6,7 +6,7 @@ require "cose/key/ec2"
 module WebAuthn
   class AuthenticatorData
     class AttestedCredentialData
-      class PublicKeyU2f
+      class PublicKey
         COORDINATE_LENGTH = 32
 
         def initialize(data)

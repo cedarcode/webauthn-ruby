@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "webauthn/authenticator_data/attested_credential_data/public_key_u2f"
+require "webauthn/authenticator_data/attested_credential_data/public_key"
 
 module WebAuthn
   class AuthenticatorData
@@ -57,7 +57,7 @@ module WebAuthn
       end
 
       def public_key
-        @public_key ||= PublicKeyU2f.new(data_at(public_key_position, public_key_length))
+        @public_key ||= PublicKey.new(data_at(public_key_position, public_key_length))
       end
 
       def id_position
