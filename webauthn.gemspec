@@ -29,8 +29,8 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 2.3"
 
-  spec.add_dependency "cbor", "~> 0.5.9.2"
-  spec.add_dependency "cose", "~> 0.1.0"
+  spec.add_dependency "cbor", "~> 0.5"
+  spec.add_dependency "cose", "~> 0.1"
   spec.add_dependency "jwt", [">= 1.5", "< 3.0"]
   spec.add_dependency "openssl", "~> 2.0"
   spec.add_dependency "securecompare", "~> 1.0"
