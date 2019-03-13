@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "cose/ecdsa"
-require "cose/key/ec2"
+require "cose/key"
 
 module WebAuthn
   class AuthenticatorData
@@ -14,10 +14,13 @@ module WebAuthn
         end
 
         def valid?
-          data.size >= COORDINATE_LENGTH * 2 &&
+          cose_key.is_a?(COSE::Key::EC2) &&
+            data.size >= COORDINATE_LENGTH * 2 &&
             cose_key.x_coordinate.length == COORDINATE_LENGTH &&
             cose_key.y_coordinate.length == COORDINATE_LENGTH &&
             cose_key.algorithm == COSE::ECDSA::ALG_ES256
+        rescue COSE::UnknownKeyType
+          false
         end
 
         def to_str
@@ -29,7 +32,7 @@ module WebAuthn
         attr_reader :data
 
         def cose_key
-          @cose_key ||= COSE::Key::EC2.deserialize(data)
+          @cose_key ||= COSE::Key.deserialize(data)
         end
       end
     end
