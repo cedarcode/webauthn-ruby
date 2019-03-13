@@ -29,7 +29,7 @@ module WebAuthn
         attr_reader :data
 
         def cose_key
-          @cose_key ||= COSE::Key::EC2.from_cbor(data)
+          @cose_key ||= COSE::Key::EC2.deserialize(data)
         end
       end
     end
