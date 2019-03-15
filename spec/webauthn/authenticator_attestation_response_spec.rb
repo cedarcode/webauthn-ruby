@@ -209,6 +209,48 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
+  context "when android-key attestation" do
+    let(:original_origin) { "http://localhost:8080" }
+
+    let(:original_challenge) do
+      Base64.urlsafe_decode64(seeds[:android_key_direct][:credential_creation_options][:challenge])
+    end
+
+    let(:attestation_response) do
+      response = seeds[:android_key_direct][:authenticator_attestation_response]
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.urlsafe_decode64(response[:attestation_object]),
+        client_data_json: Base64.urlsafe_decode64(response[:client_data_json])
+      )
+    end
+
+    it "verifies" do
+      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+    end
+
+    it "is valid" do
+      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
+    end
+
+    it "returns attestation info" do
+      attestation_response.valid?(original_challenge, original_origin)
+
+      expect(attestation_response.attestation_type).to eq("Basic")
+      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+    end
+
+    it "returns the credential" do
+      expect(attestation_response.credential.id.length).to be >= 16
+    end
+
+    it "returns the AAGUID" do
+      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
+        eq(["550e4b54aa47409f9a951ab76c130131"].pack("H*"))
+      )
+    end
+  end
+
   it "returns user-friendly error if no client data received" do
     attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
       attestation_object: "",
