@@ -8,7 +8,7 @@ require "webauthn/fake_authenticator/authenticator_data"
 
 module WebAuthn
   class FakeAuthenticator
-    AAGUID = SecureRandom.bytes(16)
+    AAGUID = SecureRandom.random_bytes(16)
 
     def initialize
       @credentials = {}
@@ -61,7 +61,7 @@ module WebAuthn
     attr_reader :credentials
 
     def new_credential
-      [SecureRandom.bytes(16), OpenSSL::PKey::EC.new("prime256v1").generate_key]
+      [SecureRandom.random_bytes(16), OpenSSL::PKey::EC.new("prime256v1").generate_key]
     end
 
     def hashed(target)
