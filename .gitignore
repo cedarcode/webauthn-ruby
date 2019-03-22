@@ -11,4 +11,5 @@
 .rspec_status
 
 /Gemfile.lock
+/gemfiles/*.gemfile.lock
 /.byebug_history
