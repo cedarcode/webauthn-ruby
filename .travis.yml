@@ -1,12 +1,18 @@
 dist: xenial
 language: ruby
 cache: bundler
+
 rvm:
   - ruby-head
   - 2.6.2
   - 2.5.4
   - 2.4.5
   - 2.3.8
+
+gemfile:
+  - gemfiles/openssl_2_1.gemfile
+  - gemfiles/openssl_2_0.gemfile
+
 matrix:
   fast_finish: true
   allow_failures:
