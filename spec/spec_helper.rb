@@ -5,7 +5,7 @@ require "webauthn"
 require "cbor"
 
 require "byebug"
-require "webauthn/fake_authenticator"
+require "webauthn/fake_client"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -17,6 +17,20 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+end
+
+def create_credential(client: WebAuthn::FakeClient.new, rp_id: nil)
+  rp_id ||= URI.parse(client.origin).host
+
+  create_result = client.create(rp_id: rp_id)
+
+  credential_public_key =
+    WebAuthn::AuthenticatorAttestationResponse
+    .new(create_result[:response])
+    .credential
+    .public_key
+
+  [create_result[:id], credential_public_key]
 end
 
 def fake_origin
