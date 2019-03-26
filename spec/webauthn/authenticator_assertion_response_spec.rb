@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_assertion_response"
 
 RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
@@ -40,6 +41,24 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     it "is valid" do
       expect(
         assertion_response.valid?(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_truthy
+    end
+  end
+
+  # Backwards compatibility with v1.10.0 or lower
+  context "when everything's in place with the old public key format" do
+    it "verifies" do
+      allowed_credentials[0][:public_key] =
+        WebAuthn::AttestationStatement::FidoU2f::PublicKey
+        .new(allowed_credentials[0][:public_key])
+        .to_uncompressed_point
+
+      expect(
+        assertion_response.verify(
           original_challenge,
           original_origin,
           allowed_credentials: allowed_credentials

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "cose/key"
+require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_response"
 
 module WebAuthn
@@ -33,11 +35,19 @@ module WebAuthn
     attr_reader :credential_id, :authenticator_data_bytes, :signature
 
     def valid_signature?(public_key_bytes)
-      group = OpenSSL::PKey::EC::Group.new("prime256v1")
-      key = OpenSSL::PKey::EC.new(group)
-      public_key_bn = OpenSSL::BN.new(public_key_bytes, 2)
-      public_key = OpenSSL::PKey::EC::Point.new(group, public_key_bn)
-      key.public_key = public_key
+      key =
+        if WebAuthn::AttestationStatement::FidoU2f::PublicKey.uncompressed_point?(public_key_bytes)
+          # For backwards compatibility with stored public keys with format returned by v1.10.0 or lower
+          group = OpenSSL::PKey::EC::Group.new("prime256v1")
+          key = OpenSSL::PKey::EC.new(group)
+          public_key_bn = OpenSSL::BN.new(public_key_bytes, 2)
+          public_key = OpenSSL::PKey::EC::Point.new(group, public_key_bn)
+          key.public_key = public_key
+
+          key
+        else
+          COSE::Key.deserialize(public_key_bytes).to_pkey
+        end
 
       key.verify(
         "SHA256",
