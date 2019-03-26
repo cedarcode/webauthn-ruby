@@ -1,40 +1,35 @@
-# WebAuthn :key:
+# WebAuthn ruby library :key:
 
-Easily implement WebAuthn in your ruby/rails app
+Make your Ruby/Rails web server become a conformant WebAuthn Relying Party.
 
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
-[![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby) [![Join the chat at https://gitter.im/cedarcode/webauthn-ruby](https://badges.gitter.im/cedarcode/webauthn-ruby.svg)](https://gitter.im/cedarcode/webauthn-ruby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
+[![Join the chat at https://gitter.im/cedarcode/webauthn-ruby](https://badges.gitter.im/cedarcode/webauthn-ruby.svg)](https://gitter.im/cedarcode/webauthn-ruby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## What is WebAuthn?
 
-- [WebAuthn W3C Recommendation](https://www.w3.org/TR/webauthn/)
-- [WebAuthn intro by Yubico](https://www.yubico.com/webauthn/)
-- [WebAuthn in Wikipedia](https://en.wikipedia.org/wiki/WebAuthn)
-- [Web Authentication API in MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API)
-- [WebAuthn article with Google IO 2018 talk](https://developers.google.com/web/updates/2018/05/webauthn)
+WebAuthn (Web Authentication) is a W3C standard for secure public-key authentication on the Web supported by all leading browsers and platforms.
+
+For more:
+
+- WebAuthn [W3C Recommendation](https://www.w3.org/TR/webauthn/) (i.e. "The Standard")
+- WebAuthn [intro](https://www.yubico.com/webauthn/) by Yubico
+- WebAuthn [article](https://en.wikipedia.org/wiki/WebAuthn) in Wikipedia
+- [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API) in MDN
+- WebAuthn [article with talk](https://developers.google.com/web/updates/2018/05/webauthn) in Google Developers
 
 ## Prerequisites
 
-This gem will help your ruby server act as a conforming [_Relying-Party_](https://www.w3.org/TR/webauthn/#relying-party), in WebAuthn terminology. But for the [_Registration_](https://www.w3.org/TR/webauthn/#registration) and [_Authentication_](https://www.w3.org/TR/webauthn/#authentication) ceremonies to work, you will also need
+This ruby library will help your Ruby/Rails server act as a conforming [_Relying-Party_](https://www.w3.org/TR/webauthn/#relying-party), in WebAuthn terminology. But for the [_Registration_](https://www.w3.org/TR/webauthn/#registration) and [_Authentication_](https://www.w3.org/TR/webauthn/#authentication) ceremonies to fully work, you will also need to add two more pieces to the puzzle, a conforming [User Agent](https://www.w3.org/TR/webauthn/#conforming-user-agents) + [Authenticator](https://www.w3.org/TR/webauthn/#conforming-authenticators) pair.
 
-### A conforming User Agent
+Examples of known conformant pairs are for example:
 
-Currently supporting [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API):
-  - [Mozilla Firefox](https://www.mozilla.org/firefox/) 60+
-  - [Google Chrome](https://www.google.com/chrome/) 67+
-  - [Google Chrome for Android](https://play.google.com/store/apps/details?id=com.android.chrome) 70+
+- Google Chrome for Android 70+ and Android's Fingerprint-based platform authenticator
+- Microsoft Edge and Windows 10 platform authenticator
+- Mozilla Firefox for Desktop and [Yubico's Security Key](https://www.yubico.com/product/security-key-by-yubico/) roaming authenticator via USB
 
-### A conforming Authenticator
+For a detailed picture about this we recommend referring to [apowers313/fido2-webauthn-status](https://github.com/apowers313/fido2-webauthn-status).
 
-* Roaming authenticators
-  * [Security Key by Yubico](https://www.yubico.com/product/security-key-by-yubico/)
-  * [YubiKey 5 Series](https://www.yubico.com/products/yubikey-5-overview/) key
-* Platform authenticators
-  * Android's Fingerprint Scanner
-  * MacBook [Touch ID](https://en.wikipedia.org/wiki/Touch_ID)
-
-NOTE: Firefox states ([Firefox 60 release notes](https://www.mozilla.org/en-US/firefox/60.0/releasenotes/)) they only support USB FIDO2 or FIDO U2F enabled devices in their current implementation (version 60).
-  It's up to the gem's user to verify user agent compatibility if any other device wants to be used as the authenticator component.
 
 ## Installation
 
@@ -174,6 +169,20 @@ rescue WebAuthn::VerificationError => e
   # Handle error
 end
 ```
+
+## Attestation Statement Formats
+
+| Attestation Statement Format | Supported? |
+| -------- | :--------: |
+| packed (self attestation) | Yes |
+| packed (x5c attestation) | Yes |
+| packed (ECDAA attestation) | No |
+| tpm (x5c attestation) | No |
+| tpm (ECDAA attestation) | No |
+| android-key | Yes |
+| android-safetynet | Yes |
+| fido-u2f | Yes |
+| none | Yes |
 
 ## Testing Your Integration
 
