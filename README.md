@@ -22,13 +22,16 @@ For more:
 
 This ruby library will help your Ruby/Rails server act as a conforming [_Relying-Party_](https://www.w3.org/TR/webauthn/#relying-party), in WebAuthn terminology. But for the [_Registration_](https://www.w3.org/TR/webauthn/#registration) and [_Authentication_](https://www.w3.org/TR/webauthn/#authentication) ceremonies to fully work, you will also need to add two more pieces to the puzzle, a conforming [User Agent](https://www.w3.org/TR/webauthn/#conforming-user-agents) + [Authenticator](https://www.w3.org/TR/webauthn/#conforming-authenticators) pair.
 
-Examples of known conformant pairs are for example:
+A very small set of known conformant pairs are for example:
 
 - Google Chrome for Android 70+ and Android's Fingerprint-based platform authenticator
 - Microsoft Edge and Windows 10 platform authenticator
-- Mozilla Firefox for Desktop and [Yubico's Security Key](https://www.yubico.com/product/security-key-by-yubico/) roaming authenticator via USB
+- Mozilla Firefox for Desktop and Yubico's Security Key roaming authenticator via USB
 
-For a detailed picture about this we recommend referring to [apowers313/fido2-webauthn-status](https://github.com/apowers313/fido2-webauthn-status).
+For a detailed picture about what is conformant and what not, you can refer to:
+
+- [apowers313/fido2-webauthn-status](https://github.com/apowers313/fido2-webauthn-status)
+- [FIDO certified products](https://fidoalliance.org/certification/fido-certified-products)
 
 
 ## Installation
