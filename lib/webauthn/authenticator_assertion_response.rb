@@ -34,31 +34,8 @@ module WebAuthn
 
     attr_reader :credential_id, :authenticator_data_bytes, :signature
 
-    def valid_signature?(public_key_bytes)
-      key =
-        if WebAuthn::AttestationStatement::FidoU2f::PublicKey.uncompressed_point?(public_key_bytes)
-          # Gem version v1.11.0 and lower, used to behave so that Credential#public_key
-          # returned an EC P-256 uncompressed point.
-          #
-          # Because of https://github.com/cedarcode/webauthn-ruby/issues/137 this was changed
-          # and Credential#public_key started returning the unchanged COSE_Key formatted
-          # credentialPublicKey (as in https://www.w3.org/TR/webauthn/#credentialpublickey).
-          #
-          # Given that the credential public key is expected to be stored long-term by the gem
-          # user and later be passed as one of the allowed_credentials arguments in the
-          # AuthenticatorAssertionResponse.verify call, we then need to support the two formats.
-          group = OpenSSL::PKey::EC::Group.new("prime256v1")
-          key = OpenSSL::PKey::EC.new(group)
-          public_key_bn = OpenSSL::BN.new(public_key_bytes, 2)
-          public_key = OpenSSL::PKey::EC::Point.new(group, public_key_bn)
-          key.public_key = public_key
-
-          key
-        else
-          COSE::Key.deserialize(public_key_bytes).to_pkey
-        end
-
-      key.verify(
+    def valid_signature?(credential_public_key)
+      credential_public_key.verify(
         "SHA256",
         signature,
         authenticator_data_bytes + client_data.hash
@@ -76,7 +53,27 @@ module WebAuthn
         credential[:id] == credential_id
       end
 
-      matched_credential[:public_key]
+      if WebAuthn::AttestationStatement::FidoU2f::PublicKey.uncompressed_point?(matched_credential[:public_key])
+        # Gem version v1.11.0 and lower, used to behave so that Credential#public_key
+        # returned an EC P-256 uncompressed point.
+        #
+        # Because of https://github.com/cedarcode/webauthn-ruby/issues/137 this was changed
+        # and Credential#public_key started returning the unchanged COSE_Key formatted
+        # credentialPublicKey (as in https://www.w3.org/TR/webauthn/#credentialpublickey).
+        #
+        # Given that the credential public key is expected to be stored long-term by the gem
+        # user and later be passed as one of the allowed_credentials arguments in the
+        # AuthenticatorAssertionResponse.verify call, we then need to support the two formats.
+        group = OpenSSL::PKey::EC::Group.new("prime256v1")
+        key = OpenSSL::PKey::EC.new(group)
+        public_key_bn = OpenSSL::BN.new(matched_credential[:public_key], 2)
+        public_key = OpenSSL::PKey::EC::Point.new(group, public_key_bn)
+        key.public_key = public_key
+
+        key
+      else
+        COSE::Key.deserialize(matched_credential[:public_key]).to_pkey
+      end
     end
 
     def type
