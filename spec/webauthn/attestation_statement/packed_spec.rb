@@ -7,14 +7,22 @@ require "webauthn/attestation_statement/packed"
 
 RSpec.describe "Packed attestation" do
   describe "#valid?" do
-    let(:authenticator) { WebAuthn::FakeAuthenticator::Create.new }
-    let(:client_data_hash) { OpenSSL::Digest::SHA256.digest(authenticator.client_data_json) }
-    let(:authenticator_data) { WebAuthn::AuthenticatorData.new(authenticator.authenticator_data) }
+    let(:credential_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
+
+    let(:authenticator_data_bytes) do
+      WebAuthn::FakeAuthenticator::AuthenticatorData.new(
+        rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
+        credential: { id: "0".b * 16, public_key: credential_key.public_key },
+      ).serialize
+    end
+
+    let(:authenticator_data) { WebAuthn::AuthenticatorData.new(authenticator_data_bytes) }
     let(:to_be_signed) { authenticator_data.data + client_data_hash }
 
     context "self attestation" do
       let(:algorithm) { -7 }
-      let(:signature) { authenticator.credential_key.sign("SHA256", to_be_signed) }
+      let(:signature) { credential_key.sign("SHA256", to_be_signed) }
       let(:statement) { WebAuthn::AttestationStatement::Packed.new("alg" => algorithm, "sig" => signature) }
 
       it "works if everything's fine" do
@@ -43,7 +51,7 @@ RSpec.describe "Packed attestation" do
         end
 
         context "because it was signed with a different signing key" do
-          let(:signature) { WebAuthn::FakeAuthenticator::Create.new.credential_key.sign("SHA256", to_be_signed) }
+          let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
@@ -122,7 +130,7 @@ RSpec.describe "Packed attestation" do
         end
 
         context "because it was signed with a different signing key (self attested)" do
-          let(:signature) { authenticator.credential_key.sign("SHA256", to_be_signed) }
+          let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
