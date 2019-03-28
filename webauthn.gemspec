@@ -10,7 +10,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Gonzalo Rodriguez", "Braulio Martinez"]
   spec.email         = ["gonzalo@cedarcode.com", "braulio@cedarcode.com"]
 
-  spec.summary       = "WebAuthn in ruby ― Ruby implementation of a WebAuthn Relying Party"
+  spec.summary       = "WebAuthn ruby library"
+  spec.description   = "Make your Ruby/Rails web server become a conformant WebAuthn Relying Party"
   spec.homepage      = "https://github.com/cedarcode/webauthn-ruby"
   spec.license       = "MIT"
 
@@ -30,11 +31,12 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.3"
 
   spec.add_dependency "cbor", "~> 0.5.9"
-  spec.add_dependency "cose", "~> 0.4.1"
+  spec.add_dependency "cose", "~> 0.5.0"
   spec.add_dependency "jwt", [">= 1.5", "< 3.0"]
   spec.add_dependency "openssl", "~> 2.0"
   spec.add_dependency "securecompare", "~> 1.0"
 
+  spec.add_development_dependency "appraisal", "~> 2.2.0"
   spec.add_development_dependency "bundler", ">= 1.17", "< 3.0"
   spec.add_development_dependency "byebug", "~> 11.0"
   spec.add_development_dependency "rake", "~> 12.3"

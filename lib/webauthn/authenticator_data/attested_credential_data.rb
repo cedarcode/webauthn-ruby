@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "webauthn/authenticator_data/attested_credential_data/public_key"
+require "cose/key"
 
 module WebAuthn
   class AuthenticatorData
@@ -14,14 +14,7 @@ module WebAuthn
       # FIXME: use keyword_init when we dropped Ruby 2.4 support
       Credential = Struct.new(:id, :public_key) do
         def public_key_object
-          group = OpenSSL::PKey::EC::Group.new("prime256v1")
-          key = OpenSSL::PKey::EC.new(group)
-
-          bn = OpenSSL::BN.new(public_key, 2)
-          point = OpenSSL::PKey::EC::Point.new(group, bn)
-          key.public_key = point
-
-          key
+          COSE::Key.deserialize(public_key).to_pkey
         end
       end
 
@@ -30,7 +23,7 @@ module WebAuthn
       end
 
       def valid?
-        data.length >= AAGUID_LENGTH + ID_LENGTH_LENGTH && public_key.valid?
+        data.length >= AAGUID_LENGTH + ID_LENGTH_LENGTH && valid_credential_public_key?
       end
 
       def aaguid
@@ -40,7 +33,7 @@ module WebAuthn
       def credential
         @credential ||=
           if id
-            Credential.new(id, public_key.to_str)
+            Credential.new(id, public_key)
           end
       end
 
@@ -54,6 +47,12 @@ module WebAuthn
 
       attr_reader :data
 
+      def valid_credential_public_key?
+        cose_key = COSE::Key.deserialize(public_key)
+
+        !!cose_key.algorithm
+      end
+
       def id
         if valid?
           data_at(id_position, id_length)
@@ -61,7 +60,7 @@ module WebAuthn
       end
 
       def public_key
-        @public_key ||= PublicKey.new(data_at(public_key_position, public_key_length))
+        @public_key ||= data_at(public_key_position, public_key_length)
       end
 
       def id_position

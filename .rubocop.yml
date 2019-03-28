@@ -1,6 +1,8 @@
 AllCops:
   TargetRubyVersion: 2.3
   DisabledByDefault: true
+  Exclude:
+    - "gemfiles/**/*"
 
 Bundler:
   Enabled: true

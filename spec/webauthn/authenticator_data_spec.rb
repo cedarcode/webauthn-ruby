@@ -3,24 +3,25 @@
 require "spec_helper"
 
 RSpec.describe WebAuthn::AuthenticatorData do
-  let(:authenticator) do
-    WebAuthn::FakeAuthenticator::Base.new(
-      rp_id: rp_id,
+  let(:serialized_authenticator_data) do
+    WebAuthn::FakeAuthenticator::AuthenticatorData.new(
+      rp_id_hash: rp_id_hash,
       sign_count: sign_count,
-      context: { user_present: user_present, user_verified: user_verified }
-    )
+      user_present: user_present,
+      user_verified: user_verified
+    ).serialize
   end
 
-  let(:rp_id) { "localhost" }
+  let(:rp_id_hash) { OpenSSL::Digest::SHA256.digest("localhost") }
   let(:sign_count) { 42 }
   let(:user_present) { true }
   let(:user_verified) { false }
 
-  let(:authenticator_data) { described_class.new(authenticator.authenticator_data) }
+  let(:authenticator_data) { described_class.new(serialized_authenticator_data) }
 
   describe "#rp_id_hash" do
     subject { authenticator_data.rp_id_hash }
-    it { is_expected.to eq(authenticator.rp_id_hash) }
+    it { is_expected.to eq(rp_id_hash) }
   end
 
   describe "#sign_count" do

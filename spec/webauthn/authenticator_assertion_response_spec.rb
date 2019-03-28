@@ -1,32 +1,29 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_assertion_response"
 
 RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
-  let(:authenticator) do
-    WebAuthn::FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
-  end
+  let(:client) { WebAuthn::FakeClient.new(original_origin) }
 
-  let(:original_challenge) { fake_challenge }
+  let!(:credential) { create_credential(client: client) }
+  let(:credential_id) { credential[0] }
+  let(:credential_public_key) { credential[1] }
+
+  let(:allowed_credentials) { [{ id: credential_id, public_key: credential_public_key }] }
+
   let(:original_origin) { fake_origin }
-
-  let(:credential_key) { authenticator.credential_key }
-  let(:credential_id) { authenticator.credential_id }
-  let(:allowed_credentials) {
-    [{
-      id: credential_id,
-      public_key: key_bytes(credential_key.public_key)
-    }]
-  }
-  let(:authenticator_data) { authenticator.authenticator_data }
+  let(:original_challenge) { fake_challenge }
+  let(:assertion) { client.get(challenge: original_challenge) }
+  let(:authenticator_data) { assertion[:response][:authenticator_data] }
 
   let(:assertion_response) do
     WebAuthn::AuthenticatorAssertionResponse.new(
-      credential_id: credential_id,
-      client_data_json: authenticator.client_data_json,
+      credential_id: assertion[:id],
+      client_data_json: assertion[:response][:client_data_json],
       authenticator_data: authenticator_data,
-      signature: authenticator.signature
+      signature: assertion[:response][:signature]
     )
   end
 
@@ -52,12 +49,39 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
   end
 
+  # Gem version v1.11.0 and lower, used to behave so that Credential#public_key
+  # returned an EC P-256 uncompressed point.
+  #
+  # Because of https://github.com/cedarcode/webauthn-ruby/issues/137 this was changed
+  # and Credential#public_key started returning the unchanged COSE_Key formatted
+  # credentialPublicKey (as in https://www.w3.org/TR/webauthn/#credentialpublickey).
+  #
+  # Given that the credential public key is expected to be stored long-term by the gem
+  # user and later be passed as one of the allowed_credentials arguments in the
+  # AuthenticatorAssertionResponse.verify call, we then need to support the two formats.
+  context "when everything's in place with the old public key format" do
+    it "verifies" do
+      allowed_credentials[0][:public_key] =
+        WebAuthn::AttestationStatement::FidoU2f::PublicKey
+        .new(allowed_credentials[0][:public_key])
+        .to_uncompressed_point
+
+      expect(
+        assertion_response.verify(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_truthy
+    end
+  end
+
   context "with more than one allowed credential" do
     let(:allowed_credentials) do
       [
         {
           id: credential_id,
-          public_key: key_bytes(credential_key.public_key)
+          public_key: credential_public_key
         },
         {
           id: SecureRandom.random_bytes(16),
@@ -89,12 +113,9 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   context "if signature was signed with a different key" do
     let(:credentials) do
-      [
-        {
-          id: credential_id,
-          public_key: key_bytes(WebAuthn::FakeAuthenticator::Create.new.credential_key.public_key)
-        }
-      ]
+      _different_id, different_public_key = create_credential(client: client)
+
+      [{ id: credential_id, public_key: different_public_key }]
     end
 
     it "is invalid" do
@@ -123,7 +144,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       [
         {
           id: SecureRandom.random_bytes(16),
-          public_key: key_bytes(credential_key.public_key)
+          public_key: credential_public_key
         }
       ]
     end
@@ -150,13 +171,9 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "type validation" do
-    let(:authenticator) do
-      WebAuthn::FakeAuthenticator::Get.new(challenge: original_challenge, context: { origin: original_origin })
-    end
-
     context "if type is create instead of get" do
       before do
-        allow(authenticator).to receive(:type).and_return("webauthn.create")
+        allow(client).to receive(:type_for).and_return("webauthn.create")
       end
 
       it "doesn't verify" do
@@ -182,12 +199,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "user present validation" do
-    let(:authenticator) do
-      WebAuthn::FakeAuthenticator::Get.new(
-        challenge: original_challenge,
-        context: { origin: original_origin, user_present: false, user_verified: false }
-      )
-    end
+    let(:assertion) { client.get(challenge: original_challenge, user_present: false, user_verified: false) }
 
     context "if user flags are off" do
       it "doesn't verify" do
@@ -261,13 +273,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "rp_id validation" do
-    let(:authenticator) do
-      WebAuthn::FakeAuthenticator::Get.new(
-        challenge: original_challenge,
-        rp_id: "different-rp_id",
-        context: { origin: original_origin }
-      )
-    end
+    let!(:credential) { create_credential(client: client, rp_id: "different-rp_id") }
+    let(:assertion) { client.get(challenge: original_challenge, rp_id: "different-rp_id") }
 
     context "if rp_id_hash doesn't match" do
       it "doesn't verify" do
@@ -317,7 +324,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   context "when Authenticator Data is invalid" do
-    let(:authenticator_data) { authenticator.authenticator_data[0..31] }
+    let(:authenticator_data) { assertion[:response][:authenticator_data][0..31] }
 
     it "doesn't verify" do
       expect {

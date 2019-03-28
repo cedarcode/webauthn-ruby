@@ -5,7 +5,7 @@ require "webauthn"
 require "cbor"
 
 require "byebug"
-require "webauthn/fake_authenticator"
+require "webauthn/fake_client"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -19,6 +19,20 @@ RSpec.configure do |config|
   end
 end
 
+def create_credential(client: WebAuthn::FakeClient.new, rp_id: nil)
+  rp_id ||= URI.parse(client.origin).host
+
+  create_result = client.create(rp_id: rp_id)
+
+  credential_public_key =
+    WebAuthn::AuthenticatorAttestationResponse
+    .new(create_result[:response])
+    .credential
+    .public_key
+
+  [create_result[:id], credential_public_key]
+end
+
 def fake_origin
   "http://localhost"
 end
@@ -27,7 +41,7 @@ def fake_challenge
   SecureRandom.random_bytes(32)
 end
 
-def fake_cose_credential_key(algorithm: nil, x_coordinate: nil, y_coordinate: nil)
+def fake_cose_credential_key(algorithm: -7, x_coordinate: nil, y_coordinate: nil)
   kty_label = 1
   alg_label = 3
   crv_label = -1
@@ -35,12 +49,11 @@ def fake_cose_credential_key(algorithm: nil, x_coordinate: nil, y_coordinate: ni
   y_label = -3
 
   kty_ec2 = 2
-  alg_es256 = -7
   crv_p256 = 1
 
   CBOR.encode(
     kty_label => kty_ec2,
-    alg_label => algorithm || alg_es256,
+    alg_label => algorithm,
     crv_label => crv_p256,
     x_label => x_coordinate || SecureRandom.random_bytes(32),
     y_label => y_coordinate || SecureRandom.random_bytes(32)

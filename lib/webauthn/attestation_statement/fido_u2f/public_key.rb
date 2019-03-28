@@ -2,12 +2,20 @@
 
 require "cose/ecdsa"
 require "cose/key/ec2"
+require "webauthn/attestation_statement/base"
 
 module WebAuthn
-  class AuthenticatorData
-    class AttestedCredentialData
+  module AttestationStatement
+    class FidoU2f < Base
       class PublicKey
         COORDINATE_LENGTH = 32
+        UNCOMPRESSED_FORM_INDICATOR = "\x04"
+
+        def self.uncompressed_point?(data)
+          data.size &&
+            data.length == UNCOMPRESSED_FORM_INDICATOR.length + COORDINATE_LENGTH * 2 &&
+            data[0] == UNCOMPRESSED_FORM_INDICATOR
+        end
 
         def initialize(data)
           @data = data
@@ -20,8 +28,8 @@ module WebAuthn
             cose_key.algorithm == COSE::ECDSA::ALG_ES256
         end
 
-        def to_str
-          "\x04" + cose_key.x_coordinate + cose_key.y_coordinate
+        def to_uncompressed_point
+          UNCOMPRESSED_FORM_INDICATOR + cose_key.x_coordinate + cose_key.y_coordinate
         end
 
         private

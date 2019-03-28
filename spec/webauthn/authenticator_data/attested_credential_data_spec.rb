@@ -3,11 +3,13 @@
 require "spec_helper"
 
 RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
+  let(:cose_key_data) { fake_cose_credential_key }
+
   def raw_attested_credential_data(options = {})
     options = {
       aaguid: SecureRandom.random_bytes(16),
       id: SecureRandom.random_bytes(16),
-      public_key: fake_cose_credential_key
+      public_key: cose_key_data
     }.merge(options)
 
     options[:aaguid] + [options[:id].length].pack("n*") + options[:id] + options[:public_key]
@@ -20,25 +22,15 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
       attested_credential_data =
         WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
 
-      expect(attested_credential_data.valid?).to be_falsy
-      expect(attested_credential_data.credential).to eq(nil)
+      expect { attested_credential_data.valid? }.to raise_error(COSE::UnknownKeyType)
+      expect { attested_credential_data.credential }.to raise_error(COSE::UnknownKeyType)
     end
 
-    it "returns false if one of public key coordinate is not long enough" do
-      raw_data = raw_attested_credential_data(
-        public_key: fake_cose_credential_key(y_coordinate: SecureRandom.random_bytes(31))
-      )
+    it "returns false if public key doesn't contain the alg parameter" do
+      raw_data = raw_attested_credential_data(public_key: fake_cose_credential_key(algorithm: nil))
 
       attested_credential_data =
         WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
-
-      expect(attested_credential_data.valid?).to be_falsy
-      expect(attested_credential_data.credential).to eq(nil)
-    end
-
-    it "returns false if public key alg is not ES256" do
-      raw_data = raw_attested_credential_data(public_key: fake_cose_credential_key(algorithm: -257))
-      attested_credential_data = WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
 
       expect(attested_credential_data.valid?).to be_falsy
       expect(attested_credential_data.credential).to eq(nil)
@@ -50,6 +42,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
 
       expect(attested_credential_data.valid?).to be_truthy
       expect(attested_credential_data.credential.id).to eq("this-is-a-credential-id")
+      expect(attested_credential_data.credential.public_key).to eq(cose_key_data)
     end
   end
 end

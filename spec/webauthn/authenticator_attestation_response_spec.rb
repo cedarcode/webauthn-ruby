@@ -11,15 +11,13 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_challenge) { fake_challenge }
     let(:origin) { fake_origin }
 
+    let(:client) { WebAuthn::FakeClient.new(origin) }
     let(:attestation_response) do
-      authenticator = WebAuthn::FakeAuthenticator::Create.new(
-        challenge: original_challenge,
-        context: { origin: origin }
-      )
+      response = client.create(challenge: original_challenge)[:response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: authenticator.attestation_object,
-        client_data_json: authenticator.client_data_json
+        attestation_object: response[:attestation_object],
+        client_data_json: response[:client_data_json]
       )
     end
 
@@ -267,14 +265,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_challenge) { fake_challenge }
 
     let(:attestation_response) do
-      authenticator = WebAuthn::FakeAuthenticator::Create.new(
-        challenge: original_challenge,
-        context: { origin: origin }
-      )
+      client = WebAuthn::FakeClient.new(origin)
+      response = client.create(challenge: original_challenge)[:response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: authenticator.attestation_object,
-        client_data_json: authenticator.client_data_json
+        attestation_object: response[:attestation_object],
+        client_data_json: response[:client_data_json]
       )
     end
 
@@ -310,11 +306,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_challenge) { fake_challenge }
 
     let(:attestation_response) do
-      authenticator = WebAuthn::FakeAuthenticator::Create.new(challenge: original_challenge, rp_id: rp_id)
+      client = WebAuthn::FakeClient.new(original_origin)
+      response = client.create(challenge: original_challenge, rp_id: rp_id)[:response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: authenticator.attestation_object,
-        client_data_json: authenticator.client_data_json
+        attestation_object: response[:attestation_object],
+        client_data_json: response[:client_data_json]
       )
     end
 
