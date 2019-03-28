@@ -49,7 +49,16 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
   end
 
-  # Backwards compatibility with v1.10.0 or lower
+  # Gem version v1.11.0 and lower, used to behave so that Credential#public_key
+  # returned an EC P-256 uncompressed point.
+  #
+  # Because of https://github.com/cedarcode/webauthn-ruby/issues/137 this was changed
+  # and Credential#public_key started returning the unchanged COSE_Key formatted
+  # credentialPublicKey (as in https://www.w3.org/TR/webauthn/#credentialpublickey).
+  #
+  # Given that the credential public key is expected to be stored long-term by the gem
+  # user and later be passed as one of the allowed_credentials arguments in the
+  # AuthenticatorAssertionResponse.verify call, we then need to support the two formats.
   context "when everything's in place with the old public key format" do
     it "verifies" do
       allowed_credentials[0][:public_key] =

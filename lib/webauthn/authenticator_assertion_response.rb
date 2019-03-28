@@ -37,7 +37,16 @@ module WebAuthn
     def valid_signature?(public_key_bytes)
       key =
         if WebAuthn::AttestationStatement::FidoU2f::PublicKey.uncompressed_point?(public_key_bytes)
-          # For backwards compatibility with stored public keys with format returned by v1.10.0 or lower
+          # Gem version v1.11.0 and lower, used to behave so that Credential#public_key
+          # returned an EC P-256 uncompressed point.
+          #
+          # Because of https://github.com/cedarcode/webauthn-ruby/issues/137 this was changed
+          # and Credential#public_key started returning the unchanged COSE_Key formatted
+          # credentialPublicKey (as in https://www.w3.org/TR/webauthn/#credentialpublickey).
+          #
+          # Given that the credential public key is expected to be stored long-term by the gem
+          # user and later be passed as one of the allowed_credentials arguments in the
+          # AuthenticatorAssertionResponse.verify call, we then need to support the two formats.
           group = OpenSSL::PKey::EC::Group.new("prime256v1")
           key = OpenSSL::PKey::EC.new(group)
           public_key_bn = OpenSSL::BN.new(public_key_bytes, 2)
