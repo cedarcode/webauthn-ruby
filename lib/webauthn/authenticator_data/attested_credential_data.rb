@@ -50,7 +50,7 @@ module WebAuthn
       def valid_credential_public_key?
         cose_key = COSE::Key.deserialize(public_key)
 
-        cose_key.algorithm
+        !!cose_key.algorithm
       end
 
       def id
