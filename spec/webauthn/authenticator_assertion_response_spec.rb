@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_assertion_response"
 
 RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
@@ -40,6 +41,33 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     it "is valid" do
       expect(
         assertion_response.valid?(
+          original_challenge,
+          original_origin,
+          allowed_credentials: allowed_credentials
+        )
+      ).to be_truthy
+    end
+  end
+
+  # Gem version v1.11.0 and lower, used to behave so that Credential#public_key
+  # returned an EC P-256 uncompressed point.
+  #
+  # Because of https://github.com/cedarcode/webauthn-ruby/issues/137 this was changed
+  # and Credential#public_key started returning the unchanged COSE_Key formatted
+  # credentialPublicKey (as in https://www.w3.org/TR/webauthn/#credentialpublickey).
+  #
+  # Given that the credential public key is expected to be stored long-term by the gem
+  # user and later be passed as one of the allowed_credentials arguments in the
+  # AuthenticatorAssertionResponse.verify call, we then need to support the two formats.
+  context "when everything's in place with the old public key format" do
+    it "verifies" do
+      allowed_credentials[0][:public_key] =
+        WebAuthn::AttestationStatement::FidoU2f::PublicKey
+        .new(allowed_credentials[0][:public_key])
+        .to_uncompressed_point
+
+      expect(
+        assertion_response.verify(
           original_challenge,
           original_origin,
           allowed_credentials: allowed_credentials
