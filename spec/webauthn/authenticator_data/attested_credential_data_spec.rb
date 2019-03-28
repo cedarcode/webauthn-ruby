@@ -3,11 +3,13 @@
 require "spec_helper"
 
 RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
+  let(:cose_key_data) { fake_cose_credential_key }
+
   def raw_attested_credential_data(options = {})
     options = {
       aaguid: SecureRandom.random_bytes(16),
       id: SecureRandom.random_bytes(16),
-      public_key: fake_cose_credential_key
+      public_key: cose_key_data
     }.merge(options)
 
     options[:aaguid] + [options[:id].length].pack("n*") + options[:id] + options[:public_key]
@@ -40,6 +42,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
 
       expect(attested_credential_data.valid?).to be_truthy
       expect(attested_credential_data.credential.id).to eq("this-is-a-credential-id")
+      expect(attested_credential_data.credential.public_key).to eq(cose_key_data)
     end
   end
 end
