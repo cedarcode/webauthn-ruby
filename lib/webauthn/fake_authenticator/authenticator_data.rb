@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "cose/key"
 require "cbor"
 require "securerandom"
 
@@ -53,13 +54,6 @@ module WebAuthn
           end
       end
 
-      def cose_credential_public_key
-        fake_cose_credential_key(
-          x_coordinate: key_bytes(credential[:public_key])[1..32],
-          y_coordinate: key_bytes(credential[:public_key])[33..64]
-        )
-      end
-
       def extensions
         CBOR.encode("fakeExtension" => "fakeExtensionValue")
       end
@@ -96,7 +90,7 @@ module WebAuthn
         { user_present: user_present, user_verified: user_verified }
       end
 
-      def fake_cose_credential_key(algorithm: nil, x_coordinate: nil, y_coordinate: nil)
+      def cose_credential_public_key
         kty_label = 1
         alg_label = 3
         crv_label = -1
@@ -104,15 +98,24 @@ module WebAuthn
         y_label = -3
 
         kty_ec2 = 2
-        alg_es256 = -7
-        crv_p256 = 1
+
+        alg = {
+          COSE::Key::EC2::CRV_P256 => -7,
+          COSE::Key::EC2::CRV_P384 => -35,
+          COSE::Key::EC2::CRV_P521 => -36
+        }
+
+        key = COSE::Key::EC2.from_pkey(credential[:public_key])
+
+        # FIXME: Remove once writer in cose
+        key.instance_variable_set(:@algorithm, alg[key.curve])
 
         CBOR.encode(
           kty_label => kty_ec2,
-          alg_label => algorithm || alg_es256,
-          crv_label => crv_p256,
-          x_label => x_coordinate || SecureRandom.random_bytes(32),
-          y_label => y_coordinate || SecureRandom.random_bytes(32)
+          alg_label => key.algorithm,
+          crv_label => key.curve,
+          x_label => key.x_coordinate,
+          y_label => key.y_coordinate
         )
       end
 
