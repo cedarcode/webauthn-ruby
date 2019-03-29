@@ -33,7 +33,7 @@ RSpec.describe "Packed attestation" do
         let(:credential_key) { OpenSSL::PKey::EC.new("secp521r1").generate_key }
 
         it "fails" do
-          pending
+          pending("Not implemented")
 
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
         end
@@ -44,7 +44,7 @@ RSpec.describe "Packed attestation" do
           let(:algorithm) { -36 }
 
           it "fails" do
-            pending
+            pending("Not implemented")
 
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
           end
@@ -123,7 +123,7 @@ RSpec.describe "Packed attestation" do
           let(:algorithm) { -36 }
 
           it "fails" do
-            pending
+            pending("Not implemented")
 
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
           end
