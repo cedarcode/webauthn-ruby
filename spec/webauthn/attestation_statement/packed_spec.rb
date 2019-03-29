@@ -30,7 +30,7 @@ RSpec.describe "Packed attestation" do
       end
 
       context "when credential public key algorithm doesn't match" do
-        let(:algorithm) { 1000 }
+        let(:credential_key) { OpenSSL::PKey::EC.new("secp521r1").generate_key }
 
         it "fails" do
           pending
