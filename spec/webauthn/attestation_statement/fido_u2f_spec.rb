@@ -84,8 +84,6 @@ RSpec.describe "FidoU2f attestation" do
         end
 
         it "fails" do
-          pending("fake authenticator cannot serialize 384 yet")
-
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
         end
       end
