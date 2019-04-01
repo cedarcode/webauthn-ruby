@@ -115,8 +115,6 @@ RSpec.describe "FidoU2f attestation" do
         let(:attestation_key) { OpenSSL::PKey::EC.new("secp384r1").generate_key }
 
         it "fails" do
-          pending("Not implemented")
-
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
         end
       end

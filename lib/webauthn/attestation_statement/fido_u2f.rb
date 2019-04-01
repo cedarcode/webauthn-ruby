@@ -8,6 +8,7 @@ module WebAuthn
   module AttestationStatement
     class FidoU2f < Base
       VALID_ATTESTATION_CERTIFICATE_COUNT = 1
+      VALID_ATTESTATION_CERTIFICATE_KEY_CURVE = "prime256v1"
 
       def valid?(authenticator_data, client_data_hash)
         valid_format? &&
@@ -29,7 +30,9 @@ module WebAuthn
       end
 
       def valid_certificate_public_key?
-        certificate_public_key.is_a?(OpenSSL::PKey::EC) && certificate_public_key.check_key
+        certificate_public_key.is_a?(OpenSSL::PKey::EC) &&
+          certificate_public_key.group.curve_name == VALID_ATTESTATION_CERTIFICATE_KEY_CURVE &&
+          certificate_public_key.check_key
       end
 
       def valid_credential_public_key?(public_key_bytes)
