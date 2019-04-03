@@ -42,22 +42,14 @@ def fake_challenge
 end
 
 def fake_cose_credential_key(algorithm: -7, x_coordinate: nil, y_coordinate: nil)
-  kty_label = 1
-  alg_label = 3
-  crv_label = -1
-  x_label = -2
-  y_label = -3
-
-  kty_ec2 = 2
   crv_p256 = 1
 
-  CBOR.encode(
-    kty_label => kty_ec2,
-    alg_label => algorithm,
-    crv_label => crv_p256,
-    x_label => x_coordinate || SecureRandom.random_bytes(32),
-    y_label => y_coordinate || SecureRandom.random_bytes(32)
-  )
+  COSE::Key::EC2.new(
+    alg: algorithm,
+    crv: crv_p256,
+    x: x_coordinate || SecureRandom.random_bytes(32),
+    y: y_coordinate || SecureRandom.random_bytes(32)
+  ).serialize
 end
 
 def key_bytes(public_key)
