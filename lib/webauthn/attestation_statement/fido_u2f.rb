@@ -9,6 +9,7 @@ module WebAuthn
     class FidoU2f < Base
       VALID_ATTESTATION_CERTIFICATE_COUNT = 1
       VALID_ATTESTATION_CERTIFICATE_KEY_CURVE = "prime256v1"
+      VALID_HASH_ALGORITHM = "SHA256"
 
       def valid?(authenticator_data, client_data_hash)
         valid_format? &&
@@ -53,7 +54,7 @@ module WebAuthn
 
       def valid_signature?(authenticator_data, client_data_hash)
         certificate_public_key.verify(
-          "SHA256",
+          VALID_HASH_ALGORITHM,
           signature,
           verification_data(authenticator_data, client_data_hash)
         )
