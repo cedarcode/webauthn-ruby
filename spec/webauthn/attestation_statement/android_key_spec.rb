@@ -85,9 +85,9 @@ RSpec.describe "AndroidKey attestation" do
         let(:algorithm) { -36 }
 
         it "fails" do
-          pending("Not implemented")
-
-          expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          expect {
+            statement.valid?(authenticator_data, client_data_hash)
+          }.to raise_error("Unsupported algorithm -36")
         end
       end
 

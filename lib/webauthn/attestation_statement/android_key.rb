@@ -7,6 +7,10 @@ require "webauthn/attestation_statement/base"
 module WebAuthn
   module AttestationStatement
     class AndroidKey < Base
+      HASH_ALGORITHMS = {
+        COSE::ECDSA::ALG_ES256 => "SHA256"
+      }.freeze
+
       EXTENSION_DATA_OID = "1.3.6.1.4.1.11129.2.1.17"
 
       # https://android.googlesource.com/platform/hardware/libhardware/+/master/include/hardware/keymaster_defs.h
@@ -26,11 +30,17 @@ module WebAuthn
       private
 
       def valid_signature?(authenticator_data, client_data_hash)
-        attestation_certificate.public_key.verify(
-          OpenSSL::Digest::SHA256.new,
-          signature,
-          authenticator_data.data + client_data_hash
-        )
+        hash_algorithm = HASH_ALGORITHMS[algorithm]
+
+        if hash_algorithm
+          attestation_certificate.public_key.verify(
+            hash_algorithm,
+            signature,
+            authenticator_data.data + client_data_hash
+          )
+        else
+          raise "Unsupported algorithm #{algorithm}"
+        end
       end
 
       def matching_public_key?(authenticator_data)
@@ -86,6 +96,10 @@ module WebAuthn
 
       def signature
         statement["sig"]
+      end
+
+      def algorithm
+        statement["alg"]
       end
     end
   end
