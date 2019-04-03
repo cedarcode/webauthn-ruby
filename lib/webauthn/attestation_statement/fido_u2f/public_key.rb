@@ -23,13 +23,13 @@ module WebAuthn
 
         def valid?
           data.size >= COORDINATE_LENGTH * 2 &&
-            cose_key.x_coordinate.length == COORDINATE_LENGTH &&
-            cose_key.y_coordinate.length == COORDINATE_LENGTH &&
-            cose_key.algorithm == COSE::ECDSA::ALG_ES256
+            cose_key.x.length == COORDINATE_LENGTH &&
+            cose_key.y.length == COORDINATE_LENGTH &&
+            cose_key.alg == COSE::ECDSA::ALG_ES256
         end
 
         def to_uncompressed_point
-          UNCOMPRESSED_FORM_INDICATOR + cose_key.x_coordinate + cose_key.y_coordinate
+          UNCOMPRESSED_FORM_INDICATOR + cose_key.x + cose_key.y
         end
 
         private

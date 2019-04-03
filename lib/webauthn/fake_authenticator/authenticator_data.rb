@@ -91,14 +91,6 @@ module WebAuthn
       end
 
       def cose_credential_public_key
-        kty_label = 1
-        alg_label = 3
-        crv_label = -1
-        x_label = -2
-        y_label = -3
-
-        kty_ec2 = 2
-
         alg = {
           COSE::Key::EC2::CRV_P256 => -7,
           COSE::Key::EC2::CRV_P384 => -35,
@@ -108,15 +100,9 @@ module WebAuthn
         key = COSE::Key::EC2.from_pkey(credential[:public_key])
 
         # FIXME: Remove once writer in cose
-        key.instance_variable_set(:@algorithm, alg[key.curve])
+        key.instance_variable_set(:@alg, alg[key.crv])
 
-        CBOR.encode(
-          kty_label => kty_ec2,
-          alg_label => key.algorithm,
-          crv_label => key.curve,
-          x_label => key.x_coordinate,
-          y_label => key.y_coordinate
-        )
+        key.serialize
       end
 
       def key_bytes(public_key)
