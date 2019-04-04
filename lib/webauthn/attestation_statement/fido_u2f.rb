@@ -8,7 +8,7 @@ module WebAuthn
   module AttestationStatement
     class FidoU2f < Base
       VALID_ATTESTATION_CERTIFICATE_COUNT = 1
-      VALID_ATTESTATION_CERTIFICATE_ALGORITHM = COSE::Algorithm::ECDSA.by_name("ES256")
+      VALID_ATTESTATION_CERTIFICATE_ALGORITHM = COSE::Algorithm.by_name("ES256")
 
       def valid?(authenticator_data, client_data_hash)
         valid_format? &&

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "cose/algorithm/ecdsa"
+require "cose/algorithm"
 require "cose/key"
 require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_response"
@@ -36,7 +36,7 @@ module WebAuthn
     attr_reader :credential_id, :authenticator_data_bytes, :signature
 
     def valid_signature?(credential_cose_key)
-      cose_algorithm = COSE::Algorithm::ECDSA.find(credential_cose_key.alg)
+      cose_algorithm = COSE::Algorithm.find(credential_cose_key.alg)
 
       if cose_algorithm
         credential_cose_key.to_pkey.verify(
@@ -72,7 +72,7 @@ module WebAuthn
         # user and later be passed as one of the allowed_credentials arguments in the
         # AuthenticatorAssertionResponse.verify call, we then need to support the two formats.
         COSE::Key::EC2.new(
-          alg: COSE::Algorithm::ECDSA.by_name("ES256").id,
+          alg: COSE::Algorithm.by_name("ES256").id,
           crv: 1,
           x: matched_credential[:public_key][1..32],
           y: matched_credential[:public_key][33..-1]

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "cose/algorithm/ecdsa"
+require "cose/algorithm"
 require "openssl"
 require "webauthn/attestation_statement/base"
 
@@ -103,7 +103,7 @@ module WebAuthn
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
-        cose_algorithm = COSE::Algorithm::ECDSA.find(algorithm)
+        cose_algorithm = COSE::Algorithm.find(algorithm)
 
         if cose_algorithm
           (attestation_certificate&.public_key || authenticator_data.credential.public_key_object).verify(

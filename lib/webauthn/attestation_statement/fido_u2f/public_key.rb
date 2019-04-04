@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "cose/algorithm/ecdsa"
+require "cose/algorithm"
 require "cose/key/ec2"
 require "webauthn/attestation_statement/base"
 
@@ -25,7 +25,7 @@ module WebAuthn
           data.size >= COORDINATE_LENGTH * 2 &&
             cose_key.x.length == COORDINATE_LENGTH &&
             cose_key.y.length == COORDINATE_LENGTH &&
-            cose_key.alg == COSE::Algorithm::ECDSA.by_name("ES256").id
+            cose_key.alg == COSE::Algorithm.by_name("ES256").id
         end
 
         def to_uncompressed_point
