@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "cose/algorithm/ecdsa"
 require "openssl"
 require "webauthn/attestation_statement/android_key/key_description"
 require "webauthn/attestation_statement/base"
@@ -7,10 +8,6 @@ require "webauthn/attestation_statement/base"
 module WebAuthn
   module AttestationStatement
     class AndroidKey < Base
-      HASH_ALGORITHMS = {
-        COSE::ECDSA::ALG_ES256 => "SHA256"
-      }.freeze
-
       EXTENSION_DATA_OID = "1.3.6.1.4.1.11129.2.1.17"
 
       # https://android.googlesource.com/platform/hardware/libhardware/+/master/include/hardware/keymaster_defs.h
@@ -30,11 +27,11 @@ module WebAuthn
       private
 
       def valid_signature?(authenticator_data, client_data_hash)
-        hash_algorithm = HASH_ALGORITHMS[algorithm]
+        cose_algorithm = COSE::Algorithm::ECDSA.find(algorithm)
 
-        if hash_algorithm
+        if cose_algorithm
           attestation_certificate.public_key.verify(
-            hash_algorithm,
+            cose_algorithm.hash,
             signature,
             authenticator_data.data + client_data_hash
           )

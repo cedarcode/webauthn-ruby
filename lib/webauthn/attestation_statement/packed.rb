@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "cose/algorithm/ecdsa"
 require "openssl"
 require "webauthn/attestation_statement/base"
 
@@ -8,10 +9,6 @@ module WebAuthn
   # ECDAA attestation is unsupported.
   module AttestationStatement
     class Packed < Base
-      HASH_ALGORITHMS = {
-        COSE::ECDSA::ALG_ES256 => "SHA256"
-      }.freeze
-
       # Follows "Verification procedure"
       def valid?(authenticator_data, client_data_hash)
         check_unsupported_feature
@@ -106,11 +103,11 @@ module WebAuthn
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
-        hash_algorithm = HASH_ALGORITHMS[algorithm]
+        cose_algorithm = COSE::Algorithm::ECDSA.find(algorithm)
 
-        if hash_algorithm
+        if cose_algorithm
           (attestation_certificate&.public_key || authenticator_data.credential.public_key_object).verify(
-            hash_algorithm,
+            cose_algorithm.hash,
             signature,
             verification_data(authenticator_data, client_data_hash)
           )

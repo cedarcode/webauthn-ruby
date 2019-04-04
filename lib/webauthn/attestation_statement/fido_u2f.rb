@@ -8,8 +8,7 @@ module WebAuthn
   module AttestationStatement
     class FidoU2f < Base
       VALID_ATTESTATION_CERTIFICATE_COUNT = 1
-      VALID_ATTESTATION_CERTIFICATE_KEY_CURVE = "prime256v1"
-      VALID_HASH_ALGORITHM = "SHA256"
+      VALID_ATTESTATION_CERTIFICATE_ALGORITHM = COSE::Algorithm::ECDSA.by_name("ES256")
 
       def valid?(authenticator_data, client_data_hash)
         valid_format? &&
@@ -32,7 +31,7 @@ module WebAuthn
 
       def valid_certificate_public_key?
         certificate_public_key.is_a?(OpenSSL::PKey::EC) &&
-          certificate_public_key.group.curve_name == VALID_ATTESTATION_CERTIFICATE_KEY_CURVE &&
+          certificate_public_key.group.curve_name == VALID_ATTESTATION_CERTIFICATE_ALGORITHM.key_curve &&
           certificate_public_key.check_key
       end
 
@@ -54,7 +53,7 @@ module WebAuthn
 
       def valid_signature?(authenticator_data, client_data_hash)
         certificate_public_key.verify(
-          VALID_HASH_ALGORITHM,
+          VALID_ATTESTATION_CERTIFICATE_ALGORITHM.hash,
           signature,
           verification_data(authenticator_data, client_data_hash)
         )

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "cose/ecdsa"
+require "cose/algorithm/ecdsa"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/authenticator_assertion_response"
 require "webauthn/security_utils"
@@ -11,7 +11,7 @@ require "securerandom"
 require "json"
 
 module WebAuthn
-  CRED_PARAM_ES256 = { type: "public-key", alg: COSE::ECDSA::ALG_ES256 }.freeze
+  CRED_PARAM_ES256 = { type: "public-key", alg: COSE::Algorithm::ECDSA.by_name("ES256").id }.freeze
   RP_NAME = "web-server"
   USER_ID = "1"
   USER_NAME = "web-user"
