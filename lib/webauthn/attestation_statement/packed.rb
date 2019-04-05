@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "cose/algorithm"
 require "openssl"
 require "webauthn/attestation_statement/base"
 
@@ -13,6 +14,7 @@ module WebAuthn
         check_unsupported_feature
 
         valid_format? &&
+          valid_algorithm?(authenticator_data.credential) &&
           valid_certificate_chain?(authenticator_data.credential) &&
           meet_certificate_requirement? &&
           matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
@@ -21,6 +23,14 @@ module WebAuthn
       end
 
       private
+
+      def valid_algorithm?(credential)
+        !self_attestation? || algorithm == COSE::Key.deserialize(credential.public_key).alg
+      end
+
+      def self_attestation?
+        !raw_attestation_certificates && !raw_ecdaa_key_id
+      end
 
       def algorithm
         statement["alg"]
@@ -93,11 +103,17 @@ module WebAuthn
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
-        (attestation_certificate&.public_key || authenticator_data.credential.public_key_object).verify(
-          "SHA256",
-          signature,
-          verification_data(authenticator_data, client_data_hash)
-        )
+        cose_algorithm = COSE::Algorithm.find(algorithm)
+
+        if cose_algorithm
+          (attestation_certificate&.public_key || authenticator_data.credential.public_key_object).verify(
+            cose_algorithm.hash,
+            signature,
+            verification_data(authenticator_data, client_data_hash)
+          )
+        else
+          raise "Unsupported algorithm #{algorithm}"
+        end
       end
 
       def verification_data(authenticator_data, client_data_hash)
