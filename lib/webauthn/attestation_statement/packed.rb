@@ -83,6 +83,8 @@ module WebAuthn
           subject = attestation_certificate.subject.to_a
 
           attestation_certificate.version == 2 &&
+            attestation_certificate.not_before < Time.now &&
+            attestation_certificate.not_after > Time.now &&
             subject.assoc('OU')&.at(1) == "Authenticator Attestation" &&
             attestation_certificate.extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == 'CA:FALSE'
         else
