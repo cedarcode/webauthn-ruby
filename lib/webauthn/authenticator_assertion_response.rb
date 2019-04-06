@@ -18,7 +18,7 @@ module WebAuthn
       @signature = signature
     end
 
-    def verify(expected_challenge, expected_origin, allowed_credentials:, rp_id: nil)
+    def verify(expected_challenge, expected_origin=nil, allowed_credentials:, rp_id: nil)
       super(expected_challenge, expected_origin, rp_id: rp_id)
 
       verify_item(:credential, allowed_credentials)

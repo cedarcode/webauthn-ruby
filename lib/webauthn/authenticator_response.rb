@@ -4,6 +4,9 @@ require "webauthn/error"
 
 module WebAuthn
   class VerificationError < Error; end
+  # `UnspecifiedRpIdError` is a caller error rather than an error in the webauthn
+  # response. So we directly subclass `Error`.
+  class UnspecifiedRpIdError < Error; end
 
   class AuthenticatorDataVerificationError < VerificationError; end
   class ChallengeVerificationError < VerificationError; end
@@ -18,13 +21,19 @@ module WebAuthn
       @client_data_json = client_data_json
     end
 
-    def verify(expected_challenge, expected_origin, rp_id: nil)
+    def verify(expected_challenge, expected_origin=nil, rp_id: nil)
+      if rp_id.nil?
+        if expected_origin.nil?
+          raise WebAuthn::UnspecifiedRpIdError
+        end
+        rp_id = URI.parse(expected_origin).host
+      end
+
       verify_item(:type)
-      verify_item(:token_binding)
       verify_item(:challenge, expected_challenge)
-      verify_item(:origin, expected_origin)
+      verify_item(:origin, rp_id, expected_origin)
+      verify_item(:rp_id, rp_id)
       verify_item(:authenticator_data)
-      verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
       verify_item(:user_presence)
 
       true
@@ -66,11 +75,23 @@ module WebAuthn
       WebAuthn::SecurityUtils.secure_compare(Base64.urlsafe_decode64(client_data.challenge), expected_challenge)
     end
 
-    def valid_origin?(expected_origin)
-      client_data.origin == expected_origin
+    def valid_origin?(rp_id, expected_origin)
+      # If the caller specifies the expected origin, check that it exactly matches the signed origin.
+      return false unless expected_origin.nil? || client_data.origin == expected_origin
+
+      origin = URI.parse(client_data.origin)
+      # Per https://www.w3.org/TR/webauthn/#rp-id
+      # - The RP ID must be equal to the origin's effective domain, or a registrable domain suffix of the origin's effective domain.
+      #   - The calculation of "registrable domain suffix" is specified at:
+      #     https://html.spec.whatwg.org/multipage/origin.html#is-a-registrable-domain-suffix-of-or-is-equal-to
+      # - The origin's scheme must be https.
+      # - The origin's port is unrestricted.
+      return false unless origin.host == rp_id || origin.host.end_with?("." + rp_id)
+      origin.scheme == "https"
     end
 
     def valid_rp_id?(rp_id)
+      # TODO: rp_id cannot be a public suffix
       OpenSSL::Digest::SHA256.digest(rp_id) == authenticator_data.rp_id_hash
     end
 
@@ -80,10 +101,6 @@ module WebAuthn
 
     def valid_user_presence?
       authenticator_data.user_flagged?
-    end
-
-    def rp_id_from_origin(expected_origin)
-      URI.parse(expected_origin).host
     end
 
     def type
