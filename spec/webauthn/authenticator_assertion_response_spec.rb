@@ -272,6 +272,58 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
   end
 
+  describe "tokenBinding validation" do
+    let(:client) { WebAuthn::FakeClient.new(original_origin, token_binding: token_binding) }
+
+    context "it has stuff" do
+      let(:token_binding) { { status: "supported" } }
+
+      it "verifies" do
+        expect(
+          assertion_response.verify(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        ).to be_truthy
+      end
+
+      it "is valid" do
+        expect(
+          assertion_response.valid?(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        ).to be_truthy
+      end
+    end
+
+    context "has an invalid format" do
+      let(:token_binding) { "invalid token binding format" }
+
+      it "doesn't verify" do
+        expect {
+          assertion_response.verify(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        }.to raise_exception(WebAuthn::TokenBindingVerificationError)
+      end
+
+      it "isn't valid" do
+        expect(
+          assertion_response.valid?(
+            original_challenge,
+            original_origin,
+            allowed_credentials: allowed_credentials
+          )
+        ).to be_falsy
+      end
+    end
+  end
+
   describe "rp_id validation" do
     let!(:credential) { create_credential(client: client, rp_id: "different-rp_id") }
     let(:assertion) { client.get(challenge: original_challenge, rp_id: "different-rp_id") }
