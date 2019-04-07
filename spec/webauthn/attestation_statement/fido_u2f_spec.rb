@@ -14,6 +14,7 @@ RSpec.describe "FidoU2f attestation" do
       WebAuthn::FakeAuthenticator::AuthenticatorData.new(
         rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
         credential: { id: "0".b * 16, public_key: credential_public_key },
+        aaguid: WebAuthn::AttestationStatement::FidoU2f::VALID_ATTESTED_AAGUID
       ).serialize
     end
 
@@ -117,6 +118,20 @@ RSpec.describe "FidoU2f attestation" do
         it "fails" do
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
         end
+      end
+    end
+
+    context "when the AAGUID is invalid" do
+      let(:authenticator_data_bytes) do
+        WebAuthn::FakeAuthenticator::AuthenticatorData.new(
+          rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
+          credential: { id: "0".b * 16, public_key: credential_public_key },
+          aaguid: WebAuthn::FakeAuthenticator::AAGUID
+        ).serialize
+      end
+
+      it "fails" do
+        expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
       end
     end
   end

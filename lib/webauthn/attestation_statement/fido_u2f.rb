@@ -9,11 +9,13 @@ module WebAuthn
     class FidoU2f < Base
       VALID_ATTESTATION_CERTIFICATE_COUNT = 1
       VALID_ATTESTATION_CERTIFICATE_ALGORITHM = COSE::Algorithm.by_name("ES256")
+      VALID_ATTESTED_AAGUID = 0.chr * WebAuthn::AuthenticatorData::AttestedCredentialData::AAGUID_LENGTH
 
       def valid?(authenticator_data, client_data_hash)
         valid_format? &&
           valid_certificate_public_key? &&
           valid_credential_public_key?(authenticator_data.credential.public_key) &&
+          valid_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, [attestation_certificate]]
       end
@@ -49,6 +51,10 @@ module WebAuthn
 
       def raw_attestation_certificates
         statement["x5c"]
+      end
+
+      def valid_aaguid?(attested_credential_data_aaguid)
+        attested_credential_data_aaguid == VALID_ATTESTED_AAGUID
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
