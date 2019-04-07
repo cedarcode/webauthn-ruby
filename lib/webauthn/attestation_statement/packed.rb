@@ -114,7 +114,9 @@ module WebAuthn
       end
 
       def certificate_in_use?(certificate)
-        certificate.not_before < Time.now && certificate.not_after > Time.now
+        now = Time.now
+
+        certificate.not_before < now && now < certificate.not_after
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
