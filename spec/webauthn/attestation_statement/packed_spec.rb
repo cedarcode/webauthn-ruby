@@ -80,13 +80,16 @@ RSpec.describe "Packed attestation" do
       let(:attestation_certificate_subject) { "/C=UY/O=ACME/OU=Authenticator Attestation/CN=CN" }
       let(:attestation_certificate_basic_constraints) { "CA:FALSE" }
       let(:attestation_certificate_aaguid) { authenticator_data.attested_credential_data.aaguid }
+      let(:attestation_certificate_start_time) { Time.now }
+      let(:attestation_certificate_end_time) { Time.now + 60 }
 
       let(:attestation_certificate) do
         certificate = OpenSSL::X509::Certificate.new
         certificate.version = attestation_certificate_version
         certificate.subject = OpenSSL::X509::Name.parse(attestation_certificate_subject)
-        certificate.not_before = Time.now
-        certificate.not_after = Time.now + 60
+        certificate.issuer = root_certificate.subject
+        certificate.not_before = attestation_certificate_start_time
+        certificate.not_after = attestation_certificate_end_time
         certificate.public_key = attestation_key
 
         extension_factory = OpenSSL::X509::ExtensionFactory.new
@@ -97,16 +100,34 @@ RSpec.describe "Packed attestation" do
           extension_factory.create_extension("basicConstraints", attestation_certificate_basic_constraints, true),
         ]
 
-        certificate.sign(attestation_key, OpenSSL::Digest::SHA256.new)
+        certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
 
         certificate.to_der
+      end
+
+      let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+      let(:root_certificate_start_time) { Time.now }
+      let(:root_certificate_end_time) { Time.now + 60 }
+
+      let(:root_certificate) do
+        root_certificate = OpenSSL::X509::Certificate.new
+        root_certificate.version = attestation_certificate_version
+        root_certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
+        root_certificate.issuer = root_certificate.subject
+        root_certificate.public_key = root_key
+        root_certificate.not_before = root_certificate_start_time
+        root_certificate.not_after = root_certificate_end_time
+
+        root_certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
+
+        root_certificate
       end
 
       let(:statement) do
         WebAuthn::AttestationStatement::Packed.new(
           "alg" => algorithm,
           "sig" => signature,
-          "x5c" => [attestation_certificate]
+          "x5c" => [attestation_certificate, root_certificate]
         )
       end
 
@@ -169,6 +190,40 @@ RSpec.describe "Packed attestation" do
 
         context "because Basic Constrains extension is invalid" do
           let(:attestation_certificate_basic_constraints) { "CA:TRUE" }
+
+          it "fails" do
+            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          end
+        end
+
+        context "because it hasn't yet started" do
+          let(:attestation_certificate_start_time) { Time.now + 10 }
+
+          it "fails" do
+            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          end
+        end
+
+        context "because it has expired" do
+          let(:attestation_certificate_end_time) { Time.now }
+
+          it "fails" do
+            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          end
+        end
+      end
+
+      context "when the certificate chain is invalid" do
+        context "because a cert hasn't yet started" do
+          let(:root_certificate_start_time) { Time.now + 10 }
+
+          it "fails" do
+            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          end
+        end
+
+        context "because a cert has expired" do
+          let(:root_certificate_end_time) { Time.now }
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

@@ -15,7 +15,8 @@ module WebAuthn
 
         valid_format? &&
           valid_algorithm?(authenticator_data.credential) &&
-          valid_certificate_chain?(authenticator_data.credential) &&
+          valid_certificate_chain? &&
+          valid_public_keys?(authenticator_data.credential) &&
           meet_certificate_requirement? &&
           matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
@@ -70,7 +71,16 @@ module WebAuthn
         attestation_certificate_chain&.first
       end
 
-      def valid_certificate_chain?(credential)
+      def valid_certificate_chain?
+        if attestation_certificate_chain
+          attestation_certificate_chain[1..-1].all? { |c| certificate_in_use?(c) }
+        else
+          true
+        end
+      end
+
+      # TODO: Reevaluate this check
+      def valid_public_keys?(credential)
         public_keys = attestation_certificate_chain&.map(&:public_key) || [credential.public_key_object]
         public_keys.all? do |public_key|
           public_key.is_a?(OpenSSL::PKey::EC) && public_key.check_key
@@ -83,6 +93,7 @@ module WebAuthn
           subject = attestation_certificate.subject.to_a
 
           attestation_certificate.version == 2 &&
+            certificate_in_use?(attestation_certificate) &&
             subject.assoc('OU')&.at(1) == "Authenticator Attestation" &&
             attestation_certificate.extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == 'CA:FALSE'
         else
@@ -100,6 +111,12 @@ module WebAuthn
         else
           true
         end
+      end
+
+      def certificate_in_use?(certificate)
+        now = Time.now
+
+        certificate.not_before < now && now < certificate.not_after
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
