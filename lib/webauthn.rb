@@ -12,17 +12,15 @@ require "json"
 
 module WebAuthn
   CRED_PARAM_ES256 = { type: "public-key", alg: COSE::Algorithm.by_name("ES256").id }.freeze
-  RP_NAME = "web-server"
-  USER_ID = "1"
-  USER_NAME = "web-user"
   TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
 
-  def self.credential_creation_options
+  # TODO: make keyword arguments mandatory in next major version
+  def self.credential_creation_options(rp_name: "web-server", user_name: "web-user", display_name: "web-user", id: "1")
     {
       challenge: challenge,
       pubKeyCredParams: [CRED_PARAM_ES256],
-      rp: { name: RP_NAME },
-      user: { name: USER_NAME, displayName: USER_NAME, id: USER_ID }
+      rp: { name: rp_name },
+      user: { name: user_name, displayName: display_name, id: id }
     }
   end
 
