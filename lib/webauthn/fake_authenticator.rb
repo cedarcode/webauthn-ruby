@@ -32,7 +32,7 @@ module WebAuthn
       attestation_object
     end
 
-    def get_assertion(rp_id:, client_data_hash:, user_present: true, user_verified: false)
+    def get_assertion(rp_id:, client_data_hash:, user_present: true, user_verified: false, aaguid: AAGUID)
       credential_options = credentials[rp_id]
 
       if credential_options
@@ -41,7 +41,8 @@ module WebAuthn
         authenticator_data = AuthenticatorData.new(
           rp_id_hash: hashed(rp_id),
           user_present: user_present,
-          user_verified: user_verified
+          user_verified: user_verified,
+          aaguid: aaguid,
         ).serialize
 
         signature = credential_key.sign("SHA256", authenticator_data + client_data_hash)

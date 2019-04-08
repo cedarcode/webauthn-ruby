@@ -7,12 +7,14 @@ require "securerandom"
 module WebAuthn
   class FakeAuthenticator
     class AuthenticatorData
-      def initialize(rp_id_hash:, credential: nil, sign_count: 0, user_present: true, user_verified: !user_present)
+      def initialize(rp_id_hash:, credential: nil, sign_count: 0, user_present: true, user_verified: !user_present,
+                     aaguid: WebAuthn::FakeAuthenticator::AAGUID)
         @rp_id_hash = rp_id_hash
         @credential = credential
         @sign_count = sign_count
         @user_present = user_present
         @user_verified = user_verified
+        @aaguid = aaguid
       end
 
       def serialize
@@ -45,7 +47,7 @@ module WebAuthn
       def attested_credential_data
         @attested_credential_data ||=
           if credential
-            WebAuthn::FakeAuthenticator::AAGUID +
+            @aaguid +
               [credential[:id].length].pack("n*") +
               credential[:id] +
               cose_credential_public_key
