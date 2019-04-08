@@ -15,12 +15,17 @@ module WebAuthn
   TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
 
   # TODO: make keyword arguments mandatory in next major version
-  def self.credential_creation_options(rp_name: "web-server", user_name: "web-user", display_name: "web-user", id: "1")
+  def self.credential_creation_options(
+    rp_name: "web-server",
+    user_name: "web-user",
+    display_name: "web-user",
+    user_id: "1"
+  )
     {
       challenge: challenge,
       pubKeyCredParams: [CRED_PARAM_ES256],
       rp: { name: rp_name },
-      user: { name: user_name, displayName: display_name, id: id }
+      user: { name: user_name, displayName: display_name, id: user_id }
     }
   end
 
