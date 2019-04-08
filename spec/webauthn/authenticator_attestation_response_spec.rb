@@ -7,20 +7,20 @@ require "webauthn/authenticator_attestation_response"
 require "openssl"
 
 RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
+  let(:original_challenge) { fake_challenge }
+  let(:origin) { fake_origin }
+
+  let(:client) { WebAuthn::FakeClient.new(origin) }
+  let(:attestation_response) do
+    response = client.create(challenge: original_challenge)[:response]
+
+    WebAuthn::AuthenticatorAttestationResponse.new(
+      attestation_object: response[:attestation_object],
+      client_data_json: response[:client_data_json]
+    )
+  end
+
   context "when everything's in place" do
-    let(:original_challenge) { fake_challenge }
-    let(:origin) { fake_origin }
-
-    let(:client) { WebAuthn::FakeClient.new(origin) }
-    let(:attestation_response) do
-      response = client.create(challenge: original_challenge)[:response]
-
-      WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: response[:attestation_object],
-        client_data_json: response[:client_data_json]
-      )
-    end
-
     it "verifies" do
       expect(attestation_response.verify(original_challenge, origin)).to be_truthy
     end
@@ -350,6 +350,36 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
       it "is valid" do
         expect(attestation_response.valid?(original_challenge, original_origin, rp_id: "custom")).to be_truthy
+      end
+    end
+  end
+
+  describe "tokenBinding validation" do
+    let(:client) { WebAuthn::FakeClient.new(origin, token_binding: token_binding) }
+
+    context "it has stuff" do
+      let(:token_binding) { { status: "supported" } }
+
+      it "verifies" do
+        expect(attestation_response.verify(original_challenge, origin)).to be_truthy
+      end
+
+      it "is valid" do
+        expect(attestation_response.valid?(original_challenge, origin)).to be_truthy
+      end
+    end
+
+    context "has an invalid format" do
+      let(:token_binding) { "invalid token binding format" }
+
+      it "doesn't verify" do
+        expect {
+          attestation_response.verify(original_challenge, origin)
+        }.to raise_exception(WebAuthn::TokenBindingVerificationError)
+      end
+
+      it "isn't valid" do
+        expect(attestation_response.valid?(original_challenge, origin)).to be_falsy
       end
     end
   end

@@ -9,6 +9,7 @@ module WebAuthn
   class ChallengeVerificationError < VerificationError; end
   class OriginVerificationError < VerificationError; end
   class RpIdVerificationError < VerificationError; end
+  class TokenBindingVerificationError < VerificationError; end
   class TypeVerificationError < VerificationError; end
   class UserPresenceVerificationError < VerificationError; end
 
@@ -19,6 +20,7 @@ module WebAuthn
 
     def verify(original_challenge, original_origin, rp_id: nil)
       verify_item(:type)
+      verify_item(:token_binding)
       verify_item(:challenge, original_challenge)
       verify_item(:origin, original_origin)
       verify_item(:authenticator_data)
@@ -54,6 +56,10 @@ module WebAuthn
 
     def valid_type?
       client_data.type == type
+    end
+
+    def valid_token_binding?
+      client_data.valid_token_binding_format?
     end
 
     def valid_challenge?(original_challenge)
