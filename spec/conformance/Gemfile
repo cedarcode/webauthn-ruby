@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+ruby "~> 2.6.0"
+
+gem "byebug"
+gem "rack-contrib"
+gem "sinatra", "~> 2.0"
+gem "sinatra-contrib"
+gem "webauthn", path: File.join("..", "..")
