@@ -1,5 +1,18 @@
 # Changelog
 
+## [v1.13.0] - 2019-04-09
+
+### Added
+
+- Verify 'none' attestation statement is really empty.
+- Verify 'packed' attestation statement certificates start/end dates.
+- Verify 'packed' attestation statement signature algorithm.
+- Verify 'fiod-u2f attestation statement AAGUID is zeroed out. Thank you @bdewater.
+- Verify 'android-key' attestation statement signature algorithm.
+- Verify assertion response signature algorithm.
+- Verify collectedClientData.tokenBinding format.
+- `WebAuthn.credential_creation_options` now accept `rp_name`, `user_id`, `user_name` and `display_name` as keyword arguments. Thank you @bdewater.
+
 ## [v1.12.0] - 2019-04-03
 
 ### Added
@@ -153,6 +166,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.13.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.12.0...v1.13.0/
 [v1.12.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.11.0...v1.12.0/
 [v1.11.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.10.0...v1.11.0/
 [v1.10.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.9.0...v1.10.0/
