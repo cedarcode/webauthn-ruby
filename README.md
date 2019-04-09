@@ -93,15 +93,15 @@ attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
 
 # This value needs to match `window.location.origin` evaluated by
 # the User Agent as part of the verification phase.
-original_origin = "https://www.example.com"
+expected_origin = "https://www.example.com"
 
-# In the case that a Relying Party ID (https://www.w3.org/TR/webauthn/#relying-party-identifier) different from `original_origin` was used on
+# In the case that a Relying Party ID (https://www.w3.org/TR/webauthn/#relying-party-identifier) different from `expected_origin` was used on
 # `navigator.credentials.create`, it needs to specified for verification.
 # Otherwise, you can ignore passing in this value to the `verify` method below.
 rp_id = "example.com"
 
 begin
-  attestation_response.verify(original_challenge, original_origin, rp_id: rp_id)
+  attestation_response.verify(expected_challenge, expected_origin, rp_id: rp_id)
 
   # 1. Register the new user and
   # 2. Keep Credential ID and Credential Public Key under storage
@@ -160,9 +160,9 @@ assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
 
 # This value needs to match `window.location.origin` evaluated by
 # the User Agent as part of the verification phase.
-original_origin = "https://www.example.com"
+expected_origin = "https://www.example.com"
 
-# In the case that a Relying Party ID (https://www.w3.org/TR/webauthn/#relying-party-identifier) different from `original_origin` was used on
+# In the case that a Relying Party ID (https://www.w3.org/TR/webauthn/#relying-party-identifier) different from `expected_origin` was used on
 # `navigator.credentials.get`, it needs to be specified for verification.
 # Otherwise, you can ignore passing in this value to the `verify` method below.`
 rp_id = "example.com"
@@ -175,7 +175,7 @@ allowed_credential = {
 }
 
 begin
-  assertion_response.verify(original_challenge, original_origin, allowed_credentials: [allowed_credential], rp_id: rp_id)
+  assertion_response.verify(expected_challenge, expected_origin, allowed_credentials: [allowed_credential], rp_id: rp_id)
 
   # Sign in the user
 rescue WebAuthn::VerificationError => e

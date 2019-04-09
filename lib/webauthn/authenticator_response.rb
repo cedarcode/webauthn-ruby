@@ -18,13 +18,13 @@ module WebAuthn
       @client_data_json = client_data_json
     end
 
-    def verify(original_challenge, original_origin, rp_id: nil)
+    def verify(expected_challenge, expected_origin, rp_id: nil)
       verify_item(:type)
       verify_item(:token_binding)
-      verify_item(:challenge, original_challenge)
-      verify_item(:origin, original_origin)
+      verify_item(:challenge, expected_challenge)
+      verify_item(:origin, expected_origin)
       verify_item(:authenticator_data)
-      verify_item(:rp_id, rp_id || rp_id_from_origin(original_origin))
+      verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
       verify_item(:user_presence)
 
       true
@@ -62,12 +62,12 @@ module WebAuthn
       client_data.valid_token_binding_format?
     end
 
-    def valid_challenge?(original_challenge)
-      WebAuthn::SecurityUtils.secure_compare(Base64.urlsafe_decode64(client_data.challenge), original_challenge)
+    def valid_challenge?(expected_challenge)
+      WebAuthn::SecurityUtils.secure_compare(Base64.urlsafe_decode64(client_data.challenge), expected_challenge)
     end
 
-    def valid_origin?(original_origin)
-      client_data.origin == original_origin
+    def valid_origin?(expected_origin)
+      client_data.origin == expected_origin
     end
 
     def valid_rp_id?(rp_id)
@@ -82,8 +82,8 @@ module WebAuthn
       authenticator_data.user_flagged?
     end
 
-    def rp_id_from_origin(original_origin)
-      URI.parse(original_origin).host
+    def rp_id_from_origin(expected_origin)
+      URI.parse(expected_origin).host
     end
 
     def type
