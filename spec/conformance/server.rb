@@ -59,9 +59,9 @@ post "/attestation/result" do
     client_data_json: client_data_json
   )
 
-  original_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  original_origin = "http://localhost:#{settings.port}"
-  attestation_response.verify(original_challenge, original_origin)
+  expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
+  expected_origin = "http://localhost:#{settings.port}"
+  attestation_response.verify(expected_challenge, expected_origin)
 
   req = ClientRequest.find(cookies["username"])
   req.credentials << {
@@ -94,10 +94,10 @@ post "/assertion/result" do
     signature: signature
   )
 
-  original_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  original_origin = "http://localhost:#{settings.port}"
+  expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
+  expected_origin = "http://localhost:#{settings.port}"
   allowed_credentials = ClientRequest.find(cookies["username"]).credentials
-  assertion_response.verify(original_challenge, original_origin, allowed_credentials: allowed_credentials)
+  assertion_response.verify(expected_challenge, expected_origin, allowed_credentials: allowed_credentials)
 
   render_ok
 end

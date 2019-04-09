@@ -21,7 +21,7 @@ module WebAuthn
       @attestation_object = attestation_object
     end
 
-    def verify(original_challenge, original_origin, rp_id: nil)
+    def verify(expected_challenge, expected_origin, rp_id: nil)
       super
 
       verify_item(:attestation_statement)
