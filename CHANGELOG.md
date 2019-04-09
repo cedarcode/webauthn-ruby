@@ -153,7 +153,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
-[v1.12.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.12.0...v1.12.0/
+[v1.12.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.11.0...v1.12.0/
 [v1.11.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.10.0...v1.11.0/
 [v1.10.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.9.0...v1.10.0/
 [v1.9.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.8.0...v1.9.0/
