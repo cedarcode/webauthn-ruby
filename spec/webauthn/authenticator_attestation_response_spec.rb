@@ -165,6 +165,39 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
+  context "when TPM attestation" do
+    let(:origin) { seeds[:tpm][:origin] }
+    let(:challenge) { Base64.strict_decode64(seeds[:tpm][:credential_creation_options][:challenge]) }
+
+    let(:attestation_response) do
+      response = seeds[:tpm][:authenticator_attestation_response]
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.strict_decode64(response[:attestation_object]),
+        client_data_json: Base64.strict_decode64(response[:client_data_json])
+      )
+    end
+
+    it "verifies" do
+      expect(attestation_response.verify(challenge, origin)).to be_truthy
+    end
+
+    it "is valid" do
+      expect(attestation_response.valid?(challenge, origin)).to eq(true)
+    end
+
+    it "returns attestation info" do
+      attestation_response.valid?(challenge, origin)
+
+      expect(attestation_response.attestation_type).to eq("AttCA")
+      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+    end
+
+    it "returns credential" do
+      expect(attestation_response.credential.id.length).to be >= 16
+    end
+  end
+
   context "when android-safetynet attestation" do
     around(:each) { |example| fake_time(Time.new(2018, 10, 6), &example) }
 
