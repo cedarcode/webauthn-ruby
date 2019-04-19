@@ -3,6 +3,7 @@
 require "openssl"
 require "webauthn/attestation_statement/base"
 require "webauthn/attestation_statement/fido_u2f/public_key"
+require "webauthn/signature_verifier"
 
 module WebAuthn
   module AttestationStatement
@@ -58,11 +59,9 @@ module WebAuthn
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
-        certificate_public_key.verify(
-          VALID_ATTESTATION_CERTIFICATE_ALGORITHM.hash,
-          signature,
-          verification_data(authenticator_data, client_data_hash)
-        )
+        WebAuthn::SignatureVerifier
+          .new(VALID_ATTESTATION_CERTIFICATE_ALGORITHM, certificate_public_key)
+          .verify(signature, verification_data(authenticator_data, client_data_hash))
       end
 
       def verification_data(authenticator_data, client_data_hash)

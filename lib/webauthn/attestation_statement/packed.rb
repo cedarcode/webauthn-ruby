@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "cose/algorithm"
 require "openssl"
 require "webauthn/attestation_statement/base"
+require "webauthn/signature_verifier"
 
 module WebAuthn
   # Implements https://www.w3.org/TR/2018/CR-webauthn-20180807/#packed-attestation
@@ -16,7 +16,7 @@ module WebAuthn
         valid_format? &&
           valid_algorithm?(authenticator_data.credential) &&
           valid_certificate_chain? &&
-          valid_public_keys?(authenticator_data.credential) &&
+          valid_ec_public_keys?(authenticator_data.credential) &&
           meet_certificate_requirement? &&
           matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
@@ -79,12 +79,10 @@ module WebAuthn
         end
       end
 
-      # TODO: Reevaluate this check
-      def valid_public_keys?(credential)
-        public_keys = attestation_certificate_chain&.map(&:public_key) || [credential.public_key_object]
-        public_keys.all? do |public_key|
-          public_key.is_a?(OpenSSL::PKey::EC) && public_key.check_key
-        end
+      def valid_ec_public_keys?(credential)
+        (attestation_certificate_chain&.map(&:public_key) || [credential.public_key_object])
+          .select { |pkey| pkey.is_a?(OpenSSL::PKey::EC) }
+          .all? { |pkey| pkey.check_key }
       end
 
       # Check https://www.w3.org/TR/2018/CR-webauthn-20180807/#packed-attestation-cert-requirements
@@ -120,21 +118,12 @@ module WebAuthn
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
-        cose_algorithm = COSE::Algorithm.find(algorithm)
+        signature_verifier = WebAuthn::SignatureVerifier.new(
+          algorithm,
+          attestation_certificate&.public_key || authenticator_data.credential.public_key_object
+        )
 
-        if cose_algorithm
-          (attestation_certificate&.public_key || authenticator_data.credential.public_key_object).verify(
-            cose_algorithm.hash,
-            signature,
-            verification_data(authenticator_data, client_data_hash)
-          )
-        else
-          raise "Unsupported algorithm #{algorithm}"
-        end
-      end
-
-      def verification_data(authenticator_data, client_data_hash)
-        authenticator_data.data + client_data_hash
+        signature_verifier.verify(signature, authenticator_data.data + client_data_hash)
       end
 
       def attestation_type_and_trust_path

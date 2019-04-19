@@ -4,6 +4,7 @@ require "cose/algorithm"
 require "cose/key"
 require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_response"
+require "webauthn/signature_verifier"
 
 module WebAuthn
   class CredentialVerificationError < VerificationError; end
@@ -36,17 +37,9 @@ module WebAuthn
     attr_reader :credential_id, :authenticator_data_bytes, :signature
 
     def valid_signature?(credential_cose_key)
-      cose_algorithm = COSE::Algorithm.find(credential_cose_key.alg)
-
-      if cose_algorithm
-        credential_cose_key.to_pkey.verify(
-          cose_algorithm.hash,
-          signature,
-          authenticator_data_bytes + client_data.hash
-        )
-      else
-        raise "Unsupported algorithm #{credential_cose_key.alg}"
-      end
+      WebAuthn::SignatureVerifier
+        .new(credential_cose_key.alg, credential_cose_key.to_pkey)
+        .verify(signature, authenticator_data_bytes + client_data.hash)
     end
 
     def valid_credential?(allowed_credentials)
