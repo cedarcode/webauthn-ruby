@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "cose/algorithm"
 require "openssl"
 require "webauthn/attestation_statement/android_key/key_description"
 require "webauthn/attestation_statement/base"
+require "webauthn/signature_verifier"
 
 module WebAuthn
   module AttestationStatement
@@ -27,17 +27,9 @@ module WebAuthn
       private
 
       def valid_signature?(authenticator_data, client_data_hash)
-        cose_algorithm = COSE::Algorithm.find(algorithm)
-
-        if cose_algorithm
-          attestation_certificate.public_key.verify(
-            cose_algorithm.hash,
-            signature,
-            authenticator_data.data + client_data_hash
-          )
-        else
-          raise "Unsupported algorithm #{algorithm}"
-        end
+        WebAuthn::SignatureVerifier
+          .new(algorithm, attestation_certificate.public_key)
+          .verify(signature, authenticator_data.data + client_data_hash)
       end
 
       def matching_public_key?(authenticator_data)

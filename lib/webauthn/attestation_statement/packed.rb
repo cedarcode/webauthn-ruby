@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "cose/algorithm"
 require "openssl"
 require "webauthn/attestation_statement/base"
+require "webauthn/signature_verifier"
 
 module WebAuthn
   # Implements https://www.w3.org/TR/2018/CR-webauthn-20180807/#packed-attestation
@@ -120,21 +120,12 @@ module WebAuthn
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
-        cose_algorithm = COSE::Algorithm.find(algorithm)
+        signature_verifier = WebAuthn::SignatureVerifier.new(
+          algorithm,
+          attestation_certificate&.public_key || authenticator_data.credential.public_key_object
+        )
 
-        if cose_algorithm
-          (attestation_certificate&.public_key || authenticator_data.credential.public_key_object).verify(
-            cose_algorithm.hash,
-            signature,
-            verification_data(authenticator_data, client_data_hash)
-          )
-        else
-          raise "Unsupported algorithm #{algorithm}"
-        end
-      end
-
-      def verification_data(authenticator_data, client_data_hash)
-        authenticator_data.data + client_data_hash
+        signature_verifier.verify(signature, authenticator_data.data + client_data_hash)
       end
 
       def attestation_type_and_trust_path
