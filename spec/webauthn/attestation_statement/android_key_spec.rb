@@ -80,6 +80,15 @@ RSpec.describe "AndroidKey attestation" do
       expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
     end
 
+    context "when RSA algorithm" do
+      let(:algorithm) { -257 }
+      let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }
+
+      it "works" do
+        expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+      end
+    end
+
     context "when signature is invalid" do
       context "because is signed with a different alg" do
         let(:algorithm) { -36 }

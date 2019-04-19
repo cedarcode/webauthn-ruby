@@ -29,6 +29,15 @@ RSpec.describe "Packed attestation" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
       end
 
+      context "when RSA algorithm" do
+        let(:algorithm) { -257 }
+        let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }
+
+        it "works" do
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+        end
+      end
+
       context "when credential public key algorithm doesn't match" do
         let(:credential_key) { OpenSSL::PKey::EC.new("secp521r1").generate_key }
 

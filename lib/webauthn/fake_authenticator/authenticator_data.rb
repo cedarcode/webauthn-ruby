@@ -93,16 +93,23 @@ module WebAuthn
       end
 
       def cose_credential_public_key
-        alg = {
-          COSE::Key::EC2::CRV_P256 => -7,
-          COSE::Key::EC2::CRV_P384 => -35,
-          COSE::Key::EC2::CRV_P521 => -36
-        }
+        case credential[:public_key]
+        when OpenSSL::PKey::RSA
+          key = COSE::Key::RSA.from_pkey(credential[:public_key])
+          # FIXME: Remove once writer in cose
+          key.instance_variable_set(:@alg, -257)
+        when OpenSSL::PKey::EC::Point
+          alg = {
+            COSE::Key::EC2::CRV_P256 => -7,
+            COSE::Key::EC2::CRV_P384 => -35,
+            COSE::Key::EC2::CRV_P521 => -36
+          }
 
-        key = COSE::Key::EC2.from_pkey(credential[:public_key])
+          key = COSE::Key::EC2.from_pkey(credential[:public_key])
+          # FIXME: Remove once writer in cose
+          key.instance_variable_set(:@alg, alg[key.crv])
 
-        # FIXME: Remove once writer in cose
-        key.instance_variable_set(:@alg, alg[key.crv])
+        end
 
         key.serialize
       end

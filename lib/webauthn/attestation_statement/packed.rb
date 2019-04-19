@@ -16,7 +16,7 @@ module WebAuthn
         valid_format? &&
           valid_algorithm?(authenticator_data.credential) &&
           valid_certificate_chain? &&
-          valid_public_keys?(authenticator_data.credential) &&
+          valid_ec_public_keys?(authenticator_data.credential) &&
           meet_certificate_requirement? &&
           matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
@@ -79,12 +79,10 @@ module WebAuthn
         end
       end
 
-      # TODO: Reevaluate this check
-      def valid_public_keys?(credential)
-        public_keys = attestation_certificate_chain&.map(&:public_key) || [credential.public_key_object]
-        public_keys.all? do |public_key|
-          public_key.is_a?(OpenSSL::PKey::EC) && public_key.check_key
-        end
+      def valid_ec_public_keys?(credential)
+        (attestation_certificate_chain&.map(&:public_key) || [credential.public_key_object])
+          .select { |pkey| pkey.is_a?(OpenSSL::PKey::EC) }
+          .all? { |pkey| pkey.check_key }
       end
 
       # Check https://www.w3.org/TR/2018/CR-webauthn-20180807/#packed-attestation-cert-requirements
