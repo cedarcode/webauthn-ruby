@@ -174,7 +174,7 @@ RSpec.describe "TPM attestation statement" do
               end
             end
 
-            context "because scheme doesn't match the statement alg" do
+            context "because scheme doesn't match the credential key alg" do
               let(:pub_area_parameters) do
                 {
                   symmetric: ::TPM::ALG_NULL,
@@ -247,7 +247,7 @@ RSpec.describe "TPM attestation statement" do
             end
           end
 
-          context "because scheme doesn't match the statement alg" do
+          context "because scheme doesn't match the credential key alg" do
             let(:pub_area_parameters) do
               {
                 symmetric: ::TPM::ALG_NULL,
