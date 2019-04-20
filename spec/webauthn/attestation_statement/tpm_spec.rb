@@ -73,13 +73,12 @@ RSpec.describe "TPM attestation statement" do
 
       let(:cert_info_magic) { ::TPM::GENERATED_VALUE }
       let(:cert_info_extra_data) { OpenSSL::Digest::SHA256.digest(att_to_be_signed) }
-      let(:cert_info_attested_name) { [::TPM::ALG_SHA256].pack("n") + OpenSSL::Digest::SHA256.digest(pub_area) }
+      let(:cert_info_attested_name) { [::TPM::ALG_SHA1].pack("n") + OpenSSL::Digest::SHA1.digest(pub_area) }
       let(:att_to_be_signed) { authenticator_data_bytes + client_data_hash }
 
       let(:pub_area) do
         t_public = ::TPM::TPublic.new
         t_public.alg_type = ::TPM::ALG_RSA
-        t_public.name_alg = ::TPM::ALG_SHA256
         t_public.parameters = pub_area_parameters
         t_public.unique.buffer = credential_key.params["n"].to_s(2)
 
@@ -120,7 +119,6 @@ RSpec.describe "TPM attestation statement" do
         let(:pub_area) do
           t_public = ::TPM::TPublic.new
           t_public.alg_type = ::TPM::ALG_ECC
-          t_public.name_alg = ::TPM::ALG_SHA256
           t_public.parameters = pub_area_parameters
           t_public.unique.buffer = credential_key.public_key.to_bn.to_s(2)[1..-1]
 
@@ -145,7 +143,6 @@ RSpec.describe "TPM attestation statement" do
             let(:pub_area) do
               t_public = ::TPM::TPublic.new
               t_public.alg_type = ::TPM::ALG_ECC
-              t_public.name_alg = ::TPM::ALG_SHA256
               t_public.parameters = pub_area_parameters
               t_public.unique.buffer =
                 OpenSSL::PKey::EC.generate("prime256v1").generate_key.public_key.to_bn.to_s(2)[1..-1]
@@ -220,7 +217,6 @@ RSpec.describe "TPM attestation statement" do
           let(:pub_area) do
             t_public = ::TPM::TPublic.new
             t_public.alg_type = ::TPM::ALG_RSA
-            t_public.name_alg = ::TPM::ALG_SHA256
             t_public.unique.buffer = OpenSSL::PKey::RSA.new(2048).params["n"].to_s(2)
 
             t_public.to_binary_s
@@ -299,7 +295,7 @@ RSpec.describe "TPM attestation statement" do
         context "because attested name is not a valid Name for pubArea" do
           context "because it was hashed on different data" do
             let(:cert_info_attested_name) do
-              [::TPM::ALG_SHA256].pack("n") + OpenSSL::Digest::SHA256.digest(pub_area + "X")
+              [::TPM::ALG_SHA1].pack("n") + OpenSSL::Digest::SHA1.digest(pub_area + "X")
             end
 
             it "returns false" do
@@ -309,7 +305,7 @@ RSpec.describe "TPM attestation statement" do
 
           context "because it was hashed with a different algorithm" do
             let(:cert_info_attested_name) do
-              [::TPM::ALG_SHA1].pack("n") + OpenSSL::Digest::SHA1.digest(pub_area)
+              [::TPM::ALG_SHA1].pack("n") + OpenSSL::Digest::SHA256.digest(pub_area)
             end
 
             it "returns false" do

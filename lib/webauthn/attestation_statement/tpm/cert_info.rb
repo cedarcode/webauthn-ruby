@@ -7,19 +7,31 @@ module WebAuthn
   module AttestationStatement
     class TPM < Base
       class CertInfo
+        TPM_TO_OPENSSL_HASH_ALG = {
+          ::TPM::ALG_SHA1 => "SHA1",
+          ::TPM::ALG_SHA256 => "SHA256"
+        }.freeze
+
         def initialize(data)
           @data = data
         end
 
-        def valid?(attested_name, extra_data)
+        def valid?(attested_data, extra_data)
           s_attest.magic == ::TPM::GENERATED_VALUE &&
-            s_attest.attested.name.buffer == attested_name &&
+            valid_name?(attested_data) &&
             s_attest.extra_data.buffer == extra_data
         end
 
         private
 
         attr_reader :data
+
+        def valid_name?(attested_data)
+          name_hash_alg = s_attest.attested.name.buffer[0..1].unpack("n")[0]
+          name = s_attest.attested.name.buffer[2..-1]
+
+          name == OpenSSL::Digest.digest(TPM_TO_OPENSSL_HASH_ALG[name_hash_alg], attested_data)
+        end
 
         def s_attest
           @s_attest ||= ::TPM::SAttest.read(data)
