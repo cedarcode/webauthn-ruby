@@ -10,8 +10,11 @@ module WebAuthn
       class PubArea
         BYTE_LENGTH = 8
 
-        COSE_TO_TPM_ALG = {
+        COSE_ECC_TO_TPM_ALG = {
           COSE::Algorithm.by_name("ES256").id => ::TPM::ALG_ECDSA,
+        }.freeze
+
+        COSE_RSA_TO_TPM_ALG = {
           COSE::Algorithm.by_name("RS256").id => ::TPM::ALG_RSASSA
         }.freeze
 
@@ -56,7 +59,7 @@ module WebAuthn
           t_public.parameters.symmetric == ::TPM::ALG_NULL &&
             (
               t_public.parameters.scheme == ::TPM::ALG_NULL ||
-              t_public.parameters.scheme == COSE_TO_TPM_ALG[cose_key.alg]
+              t_public.parameters.scheme == COSE_ECC_TO_TPM_ALG[cose_key.alg]
             ) &&
             t_public.parameters.curve_id == COSE_TO_TPM_CURVE[cose_key.crv] &&
             t_public.unique.buffer == cose_key.x + cose_key.y
@@ -66,7 +69,7 @@ module WebAuthn
           t_public.parameters.symmetric == ::TPM::ALG_NULL &&
             (
               t_public.parameters.scheme == ::TPM::ALG_NULL ||
-              t_public.parameters.scheme == COSE_TO_TPM_ALG[cose_key.alg]
+              t_public.parameters.scheme == COSE_RSA_TO_TPM_ALG[cose_key.alg]
             ) &&
             t_public.parameters.key_bits == cose_key.n.size * BYTE_LENGTH &&
             t_public.unique.buffer == cose_key.n
