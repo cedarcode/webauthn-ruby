@@ -2,9 +2,8 @@
 
 require "cose/algorithm"
 require "openssl"
-require "tpm/constants"
-require "tpm/s_attest"
 require "webauthn/attestation_statement/base"
+require "webauthn/attestation_statement/tpm/cert_info"
 require "webauthn/attestation_statement/tpm/pub_area"
 require "webauthn/signature_verifier"
 
@@ -24,8 +23,8 @@ module WebAuthn
           ver == TPM_V2 &&
             valid_signature? &&
             valid_aik_certificate? &&
-            valid_cert_info?(att_to_be_signed) &&
             pub_area.valid?(authenticator_data.credential.public_key, alg) &&
+            cert_info.valid?(pub_area.valid_name, OpenSSL::Digest.digest(algorithm.hash, att_to_be_signed)) &&
             matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
@@ -50,12 +49,6 @@ module WebAuthn
           aik_certificate.extensions.find { |ext| ext.oid == "extendedKeyUsage" }&.value == OID_TCG_KP_AIK_CERTIFICATE
       end
 
-      def valid_cert_info?(att_to_be_signed)
-        cert_info.magic == ::TPM::GENERATED_VALUE &&
-          cert_info.attested.name.buffer == pub_area.valid_name &&
-          cert_info.extra_data.buffer == OpenSSL::Digest.digest(algorithm.hash, att_to_be_signed)
-      end
-
       def certificate_in_use?(certificate)
         now = Time.now
 
@@ -73,7 +66,7 @@ module WebAuthn
       alias_method :attestation_certificate, :aik_certificate
 
       def cert_info
-        @cert_info ||= ::TPM::SAttest.read(statement["certInfo"])
+        @cert_info ||= CertInfo.new(statement["certInfo"])
       end
 
       def pub_area
