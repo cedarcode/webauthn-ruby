@@ -1,36 +1,19 @@
 # frozen_string_literal: true
 
 require "cose/algorithm"
-require "cose/key"
 require "openssl"
 require "tpm/constants"
 require "tpm/s_attest"
-require "tpm/t_public"
 require "webauthn/attestation_statement/base"
+require "webauthn/attestation_statement/tpm/pub_area"
 require "webauthn/signature_verifier"
 
 module WebAuthn
   module AttestationStatement
     class TPM < Base
-      BYTE_LENGTH = 8
       CERTIFICATE_V3 = 2
       CERTIFICATE_EMPTY_NAME = OpenSSL::X509::Name.new([]).freeze
-
-      COSE_TO_TPM_ALG = {
-        COSE::Algorithm.by_name("ES256").id => ::TPM::ALG_ECDSA,
-        COSE::Algorithm.by_name("RS256").id => ::TPM::ALG_RSASSA
-      }.freeze
-
-      COSE_TO_TPM_CURVE = {
-        COSE::Key::EC2::CRV_P256 => ::TPM::ECC_NIST_P256
-      }.freeze
-
       OID_TCG_KP_AIK_CERTIFICATE = "2.23.133.8.3"
-
-      TPM_TO_OPENSSL_HASH_ALG = {
-        ::TPM::ALG_SHA256 => "SHA256"
-      }.freeze
-
       TPM_V2 = "2.0"
 
       def valid?(authenticator_data, client_data_hash)
@@ -42,7 +25,7 @@ module WebAuthn
             valid_signature? &&
             valid_aik_certificate? &&
             valid_cert_info?(att_to_be_signed) &&
-            valid_public_key?(authenticator_data.credential.public_key) &&
+            pub_area.valid?(authenticator_data.credential.public_key, alg) &&
             matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
@@ -69,45 +52,14 @@ module WebAuthn
 
       def valid_cert_info?(att_to_be_signed)
         cert_info.magic == ::TPM::GENERATED_VALUE &&
-          cert_info.attested.name.buffer == [pub_area.name_alg].pack("n") + pub_area_hash &&
+          cert_info.attested.name.buffer == pub_area.valid_name &&
           cert_info.extra_data.buffer == OpenSSL::Digest.digest(algorithm.hash, att_to_be_signed)
-      end
-
-      def valid_public_key?(credential_public_key)
-        cose_key = COSE::Key.deserialize(credential_public_key)
-
-        case cose_key
-        when COSE::Key::EC2
-          valid_ecc_key?(cose_key)
-        when COSE::Key::RSA
-          valid_rsa_key?(cose_key)
-        else
-          raise "Unsupported or unknown TPM key type"
-        end
       end
 
       def certificate_in_use?(certificate)
         now = Time.now
 
         certificate.not_before < now && now < certificate.not_after
-      end
-
-      def valid_ecc_key?(cose_key)
-        pub_area.parameters.symmetric == ::TPM::ALG_NULL &&
-          (pub_area.parameters.scheme == ::TPM::ALG_NULL || pub_area.parameters.scheme == COSE_TO_TPM_ALG[alg]) &&
-          pub_area.parameters.curve_id == COSE_TO_TPM_CURVE[cose_key.crv] &&
-          pub_area.unique.buffer == cose_key.x + cose_key.y
-      end
-
-      def valid_rsa_key?(cose_key)
-        pub_area.parameters.symmetric == ::TPM::ALG_NULL &&
-          (pub_area.parameters.scheme == ::TPM::ALG_NULL || pub_area.parameters.scheme == COSE_TO_TPM_ALG[alg]) &&
-          pub_area.parameters.key_bits == cose_key.n.size * BYTE_LENGTH &&
-          pub_area.unique.buffer == cose_key.n
-      end
-
-      def pub_area_hash
-        OpenSSL::Digest.digest(TPM_TO_OPENSSL_HASH_ALG[pub_area.name_alg], statement["pubArea"])
       end
 
       def verification_data
@@ -125,7 +77,7 @@ module WebAuthn
       end
 
       def pub_area
-        @pub_area ||= ::TPM::TPublic.read(statement["pubArea"])
+        @pub_area ||= PubArea.new(statement["pubArea"])
       end
 
       def attestation_certificate_chain
