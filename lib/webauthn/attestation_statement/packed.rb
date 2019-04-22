@@ -45,16 +45,6 @@ module WebAuthn
         end
       end
 
-      def attestation_certificate_chain
-        @attestation_certificate_chain ||= raw_attestation_certificates&.map do |cert|
-          OpenSSL::X509::Certificate.new(cert)
-        end
-      end
-
-      def attestation_certificate
-        attestation_certificate_chain&.first
-      end
-
       def valid_certificate_chain?
         if attestation_certificate_chain
           attestation_certificate_chain[1..-1].all? { |c| certificate_in_use?(c) }

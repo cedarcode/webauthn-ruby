@@ -42,10 +42,6 @@ module WebAuthn
         attestation_certificate.public_key
       end
 
-      def attestation_certificate
-        @attestation_certificate ||= OpenSSL::X509::Certificate.new(raw_attestation_certificates[0])
-      end
-
       def valid_aaguid?(attested_credential_data_aaguid)
         attested_credential_data_aaguid == VALID_ATTESTED_AAGUID
       end

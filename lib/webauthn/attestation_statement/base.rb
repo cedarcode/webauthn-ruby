@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "openssl"
 require "webauthn/error"
 
 module WebAuthn
@@ -20,6 +21,16 @@ module WebAuthn
       private
 
       attr_reader :statement
+
+      def attestation_certificate
+        attestation_certificate_chain&.first
+      end
+
+      def attestation_certificate_chain
+        @attestation_certificate_chain ||= raw_attestation_certificates&.map do |raw_certificate|
+          OpenSSL::X509::Certificate.new(raw_certificate)
+        end
+      end
 
       def algorithm
         statement["alg"]
