@@ -22,10 +22,6 @@ module WebAuthn
           COSE::Key::EC2::CRV_P256 => ::TPM::ECC_NIST_P256
         }.freeze
 
-        TPM_TO_OPENSSL_HASH_ALG = {
-          ::TPM::ALG_SHA256 => "SHA256"
-        }.freeze
-
         def initialize(data)
           @data = data
         end
@@ -43,17 +39,9 @@ module WebAuthn
           end
         end
 
-        def valid_name
-          [t_public.name_alg].pack("n") + digest
-        end
-
         private
 
         attr_reader :data
-
-        def digest
-          OpenSSL::Digest.digest(TPM_TO_OPENSSL_HASH_ALG[t_public.name_alg], data)
-        end
 
         def valid_ecc_key?(cose_key)
           valid_symmetric? &&

@@ -24,7 +24,7 @@ module WebAuthn
             valid_signature? &&
             valid_aik_certificate? &&
             pub_area.valid?(authenticator_data.credential.public_key) &&
-            cert_info.valid?(pub_area.valid_name, OpenSSL::Digest.digest(algorithm.hash, att_to_be_signed)) &&
+            cert_info.valid?(statement["pubArea"], OpenSSL::Digest.digest(algorithm.hash, att_to_be_signed)) &&
             matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
