@@ -11,7 +11,12 @@ require "securerandom"
 require "json"
 
 module WebAuthn
-  CRED_PARAM_ES256 = { type: "public-key", alg: COSE::Algorithm.by_name("ES256").id }.freeze
+  DEFAULT_ALGORITHMS = ["ES256", "RS256"].freeze
+
+  DEFAULT_PUB_KEY_CRED_PARAMS = DEFAULT_ALGORITHMS.map do |alg_name|
+    { type: "public-key", alg: COSE::Algorithm.by_name(alg_name).id }
+  end.freeze
+
   TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
 
   # TODO: make keyword arguments mandatory in next major version
@@ -23,7 +28,7 @@ module WebAuthn
   )
     {
       challenge: challenge,
-      pubKeyCredParams: [CRED_PARAM_ES256],
+      pubKeyCredParams: DEFAULT_PUB_KEY_CRED_PARAMS,
       rp: { name: rp_name },
       user: { name: user_name, displayName: display_name, id: user_id }
     }
