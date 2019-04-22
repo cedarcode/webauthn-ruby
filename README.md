@@ -1,39 +1,38 @@
-# WebAuthn :key:
+# WebAuthn ruby library :key:
 
-Easily implement WebAuthn in your ruby/rails app
+Make your Ruby/Rails web server become a conformant WebAuthn Relying Party.
 
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
 [![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
+[![Join the chat at https://gitter.im/cedarcode/webauthn-ruby](https://badges.gitter.im/cedarcode/webauthn-ruby.svg)](https://gitter.im/cedarcode/webauthn-ruby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## What is WebAuthn?
 
-- [WebAuthn article with Google IO 2018 talk](https://developers.google.com/web/updates/2018/05/webauthn)
-- [Web Authentication API draft article by Mozilla](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API)
-- [WebAuthn W3C Recommendation](https://www.w3.org/TR/webauthn/)
-- [WebAuthn W3C Editor's Draft](https://w3c.github.io/webauthn/)
+WebAuthn (Web Authentication) is a W3C standard for secure public-key authentication on the Web supported by all leading browsers and platforms.
+
+For more:
+
+- WebAuthn [W3C Recommendation](https://www.w3.org/TR/webauthn/) (i.e. "The Standard")
+- WebAuthn [intro](https://www.yubico.com/webauthn/) by Yubico
+- WebAuthn [article](https://en.wikipedia.org/wiki/WebAuthn) in Wikipedia
+- [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API) in MDN
+- WebAuthn [article with talk](https://developers.google.com/web/updates/2018/05/webauthn) in Google Developers
 
 ## Prerequisites
 
-This gem will help your ruby server act as a conforming [_Relying-Party_](https://www.w3.org/TR/webauthn/#relying-party), in WebAuthn terminology. But for the [_Registration_](https://www.w3.org/TR/webauthn/#registration) and [_Authentication_](https://www.w3.org/TR/webauthn/#authentication) ceremonies to work, you will also need
+This ruby library will help your Ruby/Rails server act as a conforming [_Relying-Party_](https://www.w3.org/TR/webauthn/#relying-party), in WebAuthn terminology. But for the [_Registration_](https://www.w3.org/TR/webauthn/#registration) and [_Authentication_](https://www.w3.org/TR/webauthn/#authentication) ceremonies to fully work, you will also need to add two more pieces to the puzzle, a conforming [User Agent](https://www.w3.org/TR/webauthn/#conforming-user-agents) + [Authenticator](https://www.w3.org/TR/webauthn/#conforming-authenticators) pair.
 
-### A conforming User Agent
+A very small set of known conformant pairs are for example:
 
-Currently supporting [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API):
-  - [Mozilla Firefox](https://www.mozilla.org/firefox/) 60+
-  - [Google Chrome](https://www.google.com/chrome/) 67+
-  - [Google Chrome for Android](https://play.google.com/store/apps/details?id=com.android.chrome) 70+
+- Google Chrome for Android 70+ and Android's Fingerprint-based platform authenticator
+- Microsoft Edge and Windows 10 platform authenticator
+- Mozilla Firefox for Desktop and Yubico's Security Key roaming authenticator via USB
 
-### A conforming Authenticator
+For a detailed picture about what is conformant and what not, you can refer to:
 
-* Roaming authenticators
-  * [Security Key by Yubico](https://www.yubico.com/product/security-key-by-yubico/)
-  * [YubiKey 5 Series](https://www.yubico.com/products/yubikey-5-overview/) key
-* Platform authenticators
-  * Android's Fingerprint Scanner
-  * MacBook [Touch ID](https://en.wikipedia.org/wiki/Touch_ID)
+- [apowers313/fido2-webauthn-status](https://github.com/apowers313/fido2-webauthn-status)
+- [FIDO certified products](https://fidoalliance.org/certification/fido-certified-products)
 
-NOTE: Firefox states ([Firefox 60 release notes](https://www.mozilla.org/en-US/firefox/60.0/releasenotes/)) they only support USB FIDO2 or FIDO U2F enabled devices in their current implementation (version 60).
-  It's up to the gem's user to verify user agent compatibility if any other device wants to be used as the authenticator component.
 
 ## Installation
 
@@ -94,10 +93,15 @@ attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
 
 # This value needs to match `window.location.origin` evaluated by
 # the User Agent as part of the verification phase.
-original_origin = "https://www.example.com"
+expected_origin = "https://www.example.com"
+
+# In the case that a Relying Party ID (https://www.w3.org/TR/webauthn/#relying-party-identifier) different from `expected_origin` was used on
+# `navigator.credentials.create`, it needs to specified for verification.
+# Otherwise, you can ignore passing in this value to the `verify` method below.
+rp_id = "example.com"
 
 begin
-  attestation_response.verify(original_challenge, original_origin)
+  attestation_response.verify(expected_challenge, expected_origin, rp_id: rp_id)
 
   # 1. Register the new user and
   # 2. Keep Credential ID and Credential Public Key under storage
@@ -156,7 +160,12 @@ assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
 
 # This value needs to match `window.location.origin` evaluated by
 # the User Agent as part of the verification phase.
-original_origin = "https://www.example.com"
+expected_origin = "https://www.example.com"
+
+# In the case that a Relying Party ID (https://www.w3.org/TR/webauthn/#relying-party-identifier) different from `expected_origin` was used on
+# `navigator.credentials.get`, it needs to be specified for verification.
+# Otherwise, you can ignore passing in this value to the `verify` method below.`
+rp_id = "example.com"
 
 # This hash must have the id and its corresponding public key of the
 # previously stored credential for the user that is attempting to sign in.
@@ -166,7 +175,7 @@ allowed_credential = {
 }
 
 begin
-  assertion_response.verify(original_challenge, original_origin, allowed_credentials: [allowed_credential])
+  assertion_response.verify(expected_challenge, expected_origin, allowed_credentials: [allowed_credential], rp_id: rp_id)
 
   # Sign in the user
 rescue WebAuthn::VerificationError => e
@@ -174,9 +183,25 @@ rescue WebAuthn::VerificationError => e
 end
 ```
 
+## Attestation Statement Formats
+
+| Attestation Statement Format | Supported? |
+| -------- | :--------: |
+| packed (self attestation) | Yes |
+| packed (x5c attestation) | Yes |
+| packed (ECDAA attestation) | No |
+| tpm (x5c attestation) | No |
+| tpm (ECDAA attestation) | No |
+| android-key | Yes |
+| android-safetynet | Yes |
+| fido-u2f | Yes |
+| none | Yes |
+
+NOTE: Be aware that it is up to you to do "trust path validation" (steps 15 and 16 in [Registering a new credential](https://www.w3.org/TR/webauthn/#registering-a-new-credential)) if that's a requirement of your Relying Party policy. The gem doesn't perform that validation for you right now.
+
 ## Testing Your Integration
 
-The Webauthn spec requires for data that is signed and authenticated. As a result, it can be difficult to create valid test authenticator data when testing your integration. Webauthn-ruby exposes [WebAuthn::FakeAuthenticator](https://github.com/cedarcode/webauthn-ruby/blob/master/lib/webauthn/fake_authenticator.rb) for you to use in your tests. Example usage can be found in [webauthn-ruby/spec/webauthn/authenticator_assertion_response_spec.rb](https://github.com/cedarcode/webauthn-ruby/blob/master/spec/webauthn/authenticator_assertion_response_spec.rb).
+The Webauthn spec requires for data that is signed and authenticated. As a result, it can be difficult to create valid test authenticator data when testing your integration. webauthn-ruby exposes [WebAuthn::FakeClient](https://github.com/cedarcode/webauthn-ruby/blob/master/lib/webauthn/fake_client.rb) for you to use in your tests. Example usage can be found in [webauthn-ruby/spec/webauthn/authenticator_assertion_response_spec.rb](https://github.com/cedarcode/webauthn-ruby/blob/master/spec/webauthn/authenticator_assertion_response_spec.rb).
 
 ## Development
 

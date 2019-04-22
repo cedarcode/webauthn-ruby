@@ -3,154 +3,70 @@
 require "cbor"
 require "openssl"
 require "securerandom"
+require "webauthn/fake_authenticator/attestation_object"
+require "webauthn/fake_authenticator/authenticator_data"
 
 module WebAuthn
   class FakeAuthenticator
-    class Base
-      def initialize(challenge: fake_challenge, rp_id: "localhost", sign_count: 0, context: {})
-        @challenge = challenge
-        @rp_id = rp_id
-        @sign_count = sign_count
-        @context = context
-      end
+    AAGUID = SecureRandom.random_bytes(16)
 
-      def authenticator_data
-        @authenticator_data ||= rp_id_hash + raw_flags + raw_sign_count + attested_credential_data
-      end
+    def initialize
+      @credentials = {}
+    end
 
-      def client_data_json
-        @client_data_json ||= { challenge: encode(challenge), origin: origin, type: type }.to_json
-      end
+    def make_credential(rp_id:, client_data_hash:, user_present: true, user_verified: false)
+      credential_id, credential_key = new_credential
 
-      def credential_key
-        @credential_key ||= OpenSSL::PKey::EC.new("prime256v1").generate_key
-      end
+      attestation_object = AttestationObject.new(
+        client_data_hash: client_data_hash,
+        rp_id_hash: hashed(rp_id),
+        credential_id: credential_id,
+        credential_key: credential_key,
+        user_present: user_present,
+        user_verified: user_verified
+      ).serialize
 
-      def credential_id
-        @credential_id ||= SecureRandom.random_bytes(16)
-      end
+      credentials[rp_id] ||= {}
+      credentials[rp_id][credential_id] = credential_key
 
-      def rp_id_hash
-        OpenSSL::Digest::SHA256.digest(rp_id)
-      end
+      attestation_object
+    end
 
-      private
+    def get_assertion(rp_id:, client_data_hash:, user_present: true, user_verified: false, aaguid: AAGUID)
+      credential_options = credentials[rp_id]
 
-      attr_reader :challenge, :context, :rp_id
+      if credential_options
+        credential_id, credential_key = credential_options.first
 
-      def raw_flags
-        ["#{bit(:user_present)}0#{bit(:user_verified)}000#{attested_credential_data_present_bit}0"].pack("b*")
-      end
+        authenticator_data = AuthenticatorData.new(
+          rp_id_hash: hashed(rp_id),
+          user_present: user_present,
+          user_verified: user_verified,
+          aaguid: aaguid,
+        ).serialize
 
-      def attested_credential_data_present_bit
-        if attested_credential_data.empty?
-          "0"
-        else
-          "1"
-        end
-      end
+        signature = credential_key.sign("SHA256", authenticator_data + client_data_hash)
 
-      def attested_credential_data
-        ""
-      end
-
-      def raw_sign_count
-        [@sign_count].pack('L>')
-      end
-
-      def bit(flag)
-        if context[flag].nil? || context[flag]
-          "1"
-        else
-          "0"
-        end
-      end
-
-      def origin
-        @origin ||= context[:origin] || fake_origin
-      end
-
-      def encode(bytes)
-        Base64.urlsafe_encode64(bytes, padding: false)
-      end
-
-      def fake_challenge
-        SecureRandom.random_bytes(32)
-      end
-
-      def fake_origin
-        "http://localhost"
+        {
+          credential_id: credential_id,
+          authenticator_data: authenticator_data,
+          signature: signature
+        }
+      else
+        raise "No credentials found for RP #{rp_id}"
       end
     end
 
-    class Create < Base
-      def attestation_object
-        CBOR.encode(
-          "fmt" => "none",
-          "attStmt" => {},
-          "authData" => authenticator_data
-        )
-      end
+    private
 
-      private
+    attr_reader :credentials
 
-      def attested_credential_data
-        aaguid + [credential_id.length].pack("n*") + credential_id + cose_credential_public_key
-      end
-
-      def aaguid
-        @aaguid ||= SecureRandom.random_bytes(16)
-      end
-
-      def cose_credential_public_key
-        fake_cose_credential_key(
-          x_coordinate: key_bytes(credential_key.public_key)[1..32],
-          y_coordinate: key_bytes(credential_key.public_key)[33..64]
-        )
-      end
-
-      def type
-        "webauthn.create"
-      end
-
-      def fake_cose_credential_key(algorithm: nil, x_coordinate: nil, y_coordinate: nil)
-        kty_label = 1
-        alg_label = 3
-        crv_label = -1
-        x_label = -2
-        y_label = -3
-
-        kty_ec2 = 2
-        alg_es256 = -7
-        crv_p256 = 1
-
-        CBOR.encode(
-          kty_label => kty_ec2,
-          alg_label => algorithm || alg_es256,
-          crv_label => crv_p256,
-          x_label => x_coordinate || SecureRandom.random_bytes(32),
-          y_label => y_coordinate || SecureRandom.random_bytes(32)
-        )
-      end
-
-      def key_bytes(public_key)
-        public_key.to_bn.to_s(2)
-      end
+    def new_credential
+      [SecureRandom.random_bytes(16), OpenSSL::PKey::EC.new("prime256v1").generate_key]
     end
 
-    class Get < Base
-      def signature
-        @signature ||= credential_key.sign(
-          "SHA256",
-          authenticator_data + OpenSSL::Digest::SHA256.digest(client_data_json)
-        )
-      end
-
-      private
-
-      def type
-        "webauthn.get"
-      end
+    def hashed(target)
+      OpenSSL::Digest::SHA256.digest(target)
     end
   end
 end

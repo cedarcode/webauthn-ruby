@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "cose/ecdsa"
+require "cose/algorithm"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/authenticator_assertion_response"
 require "webauthn/security_utils"
@@ -11,18 +11,26 @@ require "securerandom"
 require "json"
 
 module WebAuthn
-  CRED_PARAM_ES256 = { type: "public-key", alg: COSE::ECDSA::ALG_ES256 }.freeze
-  RP_NAME = "web-server"
-  USER_ID = "1"
-  USER_NAME = "web-user"
+  DEFAULT_ALGORITHMS = ["ES256", "RS256"].freeze
+
+  DEFAULT_PUB_KEY_CRED_PARAMS = DEFAULT_ALGORITHMS.map do |alg_name|
+    { type: "public-key", alg: COSE::Algorithm.by_name(alg_name).id }
+  end.freeze
+
   TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
 
-  def self.credential_creation_options
+  # TODO: make keyword arguments mandatory in next major version
+  def self.credential_creation_options(
+    rp_name: "web-server",
+    user_name: "web-user",
+    display_name: "web-user",
+    user_id: "1"
+  )
     {
       challenge: challenge,
-      pubKeyCredParams: [CRED_PARAM_ES256],
-      rp: { name: RP_NAME },
-      user: { name: USER_NAME, displayName: USER_NAME, id: USER_ID }
+      pubKeyCredParams: DEFAULT_PUB_KEY_CRED_PARAMS,
+      rp: { name: rp_name },
+      user: { name: user_name, displayName: display_name, id: user_id }
     }
   end
 

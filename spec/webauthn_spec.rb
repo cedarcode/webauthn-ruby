@@ -17,8 +17,11 @@ RSpec.describe WebAuthn do
     end
 
     it "has public key params" do
-      expect(@credential_creation_options[:pubKeyCredParams][0][:type]).to eq("public-key")
-      expect(@credential_creation_options[:pubKeyCredParams][0][:alg]).to eq(-7)
+      params = @credential_creation_options[:pubKeyCredParams]
+
+      expect(params.size).to eq(2)
+      expect(params).to include(type: "public-key", alg: -7)
+      expect(params).to include(type: "public-key", alg: -257)
     end
 
     it "has relying party info" do

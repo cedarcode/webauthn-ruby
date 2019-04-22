@@ -1,5 +1,50 @@
 # Changelog
 
+## [v1.13.0] - 2019-04-09
+
+### Added
+
+- Verify 'none' attestation statement is really empty.
+- Verify 'packed' attestation statement certificates start/end dates.
+- Verify 'packed' attestation statement signature algorithm.
+- Verify 'fiod-u2f attestation statement AAGUID is zeroed out. Thank you @bdewater.
+- Verify 'android-key' attestation statement signature algorithm.
+- Verify assertion response signature algorithm.
+- Verify collectedClientData.tokenBinding format.
+- `WebAuthn.credential_creation_options` now accept `rp_name`, `user_id`, `user_name` and `display_name` as keyword arguments. Thank you @bdewater.
+
+## [v1.12.0] - 2019-04-03
+
+### Added
+
+- Verification of the attestation certificate public key curve for `fido-u2f` attestation statements.
+
+### Changed
+
+- `Credential#public_key` now returns the COSE_Key formatted version of the credential public key, instead of the
+uncompressed EC point format.
+
+Note #1: A `Credential` instance is what is returned in `WebAuthn::AuthenticatorAttestationResponse#credential`.
+
+Note #2: You don't need to do any convesion before passing the public key in `AuthenticatorAssertionResponse#verify`'s
+`allowed_credentials` argument, `#verify` is backwards-compatible and will handle both public key formats properly.
+
+## [v1.11.0] - 2019-03-15
+
+### Added
+
+- `WebAuthn::AuthenticatorAttestationResponse#verify` supports `android-key` attestation statements. Thank you @bdewater!
+
+### Fixed
+
+- Verify matching AAGUID if needed when verifying `packed` attestation statements. Thank you @bdewater!
+
+## [v1.10.0] - 2019-03-05
+
+### Added
+
+- Parse and make AuthenticatorData's extensionData available
+
 ## [v1.9.0] - 2019-02-22
 
 ### Added
@@ -121,6 +166,10 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.13.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.12.0...v1.13.0/
+[v1.12.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.11.0...v1.12.0/
+[v1.11.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.10.0...v1.11.0/
+[v1.10.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.9.0...v1.10.0/
 [v1.9.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.8.0...v1.9.0/
 [v1.8.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.7.0...v1.8.0/
 [v1.7.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.6.0...v1.7.0/

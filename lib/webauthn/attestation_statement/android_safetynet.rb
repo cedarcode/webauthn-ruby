@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "jwt"
+require "android_safetynet/attestation_response"
 require "openssl"
 require "webauthn/attestation_statement/base"
 
@@ -14,10 +14,8 @@ module WebAuthn
 
       def valid?(authenticator_data, client_data_hash, trust_store: self.class.default_trust_store)
         trusted_attestation_certificate?(trust_store) &&
-          valid_signature? &&
-          valid_attestation_domain? &&
+          valid_response?(authenticator_data, client_data_hash) &&
           valid_version? &&
-          valid_nonce?(authenticator_data, client_data_hash) &&
           cts_profile_match? &&
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_certificate]
       end
@@ -31,15 +29,14 @@ module WebAuthn
         trust_store.verify(attestation_certificate)
       end
 
-      def valid_signature?
-        signed_payload, _, base64_signature = statement["response"].rpartition(".")
-        signature = Base64.urlsafe_decode64(base64_signature)
-        attestation_certificate.public_key.verify(OpenSSL::Digest::SHA256.new, signature, signed_payload)
-      end
+      def valid_response?(authenticator_data, client_data_hash)
+        nonce = Digest::SHA256.base64digest(authenticator_data.data + client_data_hash)
 
-      def valid_attestation_domain?
-        subject = attestation_certificate.subject.to_a
-        subject.assoc('CN')[1] == "attest.android.com"
+        begin
+          attestation_response.verify(nonce)
+        rescue ::AndroidSafetynet::AttestationResponse::VerificationError
+          false
+        end
       end
 
       # TODO: improve once the spec has clarifications https://github.com/w3c/webauthn/issues/968
@@ -47,35 +44,20 @@ module WebAuthn
         !statement["ver"].empty?
       end
 
-      def valid_nonce?(authenticator_data, client_data_hash)
-        nonce = unverified_jws_result[0]["nonce"]
-        nonce == verification_data(authenticator_data, client_data_hash)
-      end
-
       def cts_profile_match?
-        unverified_jws_result[0]["ctsProfileMatch"]
-      end
-
-      def verification_data(authenticator_data, client_data_hash)
-        Digest::SHA256.base64digest(authenticator_data.data + client_data_hash)
+        attestation_response.cts_profile_match?
       end
 
       def attestation_certificate
-        attestation_certificate_chain[0]
+        attestation_response.certificate_chain[0]
       end
 
       def signing_certificates
-        attestation_certificate_chain[1..-1]
+        attestation_response.certificate_chain[1..-1]
       end
 
-      def attestation_certificate_chain
-        @attestation_certificate_chain ||= unverified_jws_result[1]["x5c"].map do |cert|
-          OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
-        end
-      end
-
-      def unverified_jws_result
-        @unverified_jws_result ||= JWT.decode(statement["response"], nil, false)
+      def attestation_response
+        @attestation_response ||= ::AndroidSafetynet::AttestationResponse.new(statement["response"])
       end
     end
   end
