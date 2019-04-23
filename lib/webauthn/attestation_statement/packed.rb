@@ -33,22 +33,6 @@ module WebAuthn
         !raw_attestation_certificates && !raw_ecdaa_key_id
       end
 
-      def algorithm
-        statement["alg"]
-      end
-
-      def signature
-        statement["sig"]
-      end
-
-      def raw_attestation_certificates
-        statement["x5c"]
-      end
-
-      def raw_ecdaa_key_id
-        statement["ecdaaKeyId"]
-      end
-
       def valid_format?
         algorithm && signature && (
           [raw_attestation_certificates, raw_ecdaa_key_id].compact.size < 2
@@ -59,16 +43,6 @@ module WebAuthn
         if raw_ecdaa_key_id
           raise NotSupportedError, "ecdaaKeyId of the packed attestation format is not implemented yet"
         end
-      end
-
-      def attestation_certificate_chain
-        @attestation_certificate_chain ||= raw_attestation_certificates&.map do |cert|
-          OpenSSL::X509::Certificate.new(cert)
-        end
-      end
-
-      def attestation_certificate
-        attestation_certificate_chain&.first
       end
 
       def valid_certificate_chain?

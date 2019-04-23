@@ -23,10 +23,6 @@ module WebAuthn
 
       private
 
-      def signature
-        statement["sig"]
-      end
-
       def valid_format?
         !!(raw_attestation_certificates && signature) &&
           raw_attestation_certificates.length == VALID_ATTESTATION_CERTIFICATE_COUNT
@@ -44,14 +40,6 @@ module WebAuthn
 
       def certificate_public_key
         attestation_certificate.public_key
-      end
-
-      def attestation_certificate
-        @attestation_certificate ||= OpenSSL::X509::Certificate.new(raw_attestation_certificates[0])
-      end
-
-      def raw_attestation_certificates
-        statement["x5c"]
       end
 
       def valid_aaguid?(attested_credential_data_aaguid)

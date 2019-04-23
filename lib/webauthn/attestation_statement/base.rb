@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "openssl"
 require "webauthn/error"
 
 module WebAuthn
@@ -31,6 +32,32 @@ module WebAuthn
         else
           true
         end
+      end
+
+      def attestation_certificate
+        attestation_certificate_chain&.first
+      end
+
+      def attestation_certificate_chain
+        @attestation_certificate_chain ||= raw_attestation_certificates&.map do |raw_certificate|
+          OpenSSL::X509::Certificate.new(raw_certificate)
+        end
+      end
+
+      def algorithm
+        statement["alg"]
+      end
+
+      def raw_attestation_certificates
+        statement["x5c"]
+      end
+
+      def raw_ecdaa_key_id
+        statement["ecdaaKeyId"]
+      end
+
+      def signature
+        statement["sig"]
       end
     end
   end

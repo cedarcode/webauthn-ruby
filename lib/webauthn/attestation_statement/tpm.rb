@@ -22,9 +22,9 @@ module WebAuthn
 
           ver == TPM_V2 &&
             valid_signature? &&
-            valid_aik_certificate? &&
+            valid_attestation_certificate? &&
             pub_area.valid?(authenticator_data.credential.public_key) &&
-            cert_info.valid?(statement["pubArea"], OpenSSL::Digest.digest(algorithm.hash, att_to_be_signed)) &&
+            cert_info.valid?(statement["pubArea"], OpenSSL::Digest.digest(cose_algorithm.hash, att_to_be_signed)) &&
             matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
@@ -38,15 +38,19 @@ module WebAuthn
       private
 
       def valid_signature?
-        WebAuthn::SignatureVerifier.new(alg, aik_certificate.public_key).verify(sig, verification_data)
+        WebAuthn::SignatureVerifier
+          .new(algorithm, attestation_certificate.public_key)
+          .verify(signature, verification_data)
       end
 
-      def valid_aik_certificate?
-        aik_certificate.version == CERTIFICATE_V3 &&
-          aik_certificate.subject.eql?(CERTIFICATE_EMPTY_NAME) &&
-          certificate_in_use?(aik_certificate) &&
-          aik_certificate.extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == "CA:FALSE" &&
-          aik_certificate.extensions.find { |ext| ext.oid == "extendedKeyUsage" }&.value == OID_TCG_KP_AIK_CERTIFICATE
+      def valid_attestation_certificate?
+        extensions = attestation_certificate.extensions
+
+        attestation_certificate.version == CERTIFICATE_V3 &&
+          attestation_certificate.subject.eql?(CERTIFICATE_EMPTY_NAME) &&
+          certificate_in_use?(attestation_certificate) &&
+          extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == "CA:FALSE" &&
+          extensions.find { |ext| ext.oid == "extendedKeyUsage" }&.value == OID_TCG_KP_AIK_CERTIFICATE
       end
 
       def certificate_in_use?(certificate)
@@ -59,12 +63,6 @@ module WebAuthn
         statement["certInfo"]
       end
 
-      def aik_certificate
-        attestation_certificate_chain[0]
-      end
-
-      alias_method :attestation_certificate, :aik_certificate
-
       def cert_info
         @cert_info ||= CertInfo.new(statement["certInfo"])
       end
@@ -73,38 +71,18 @@ module WebAuthn
         @pub_area ||= PubArea.new(statement["pubArea"])
       end
 
-      def attestation_certificate_chain
-        @attestation_certificate_chain ||= raw_certificates.map { |c| OpenSSL::X509::Certificate.new(c) }
-      end
-
-      def raw_certificates
-        statement["x5c"]
-      end
-
-      def sig
-        statement["sig"]
-      end
-
       def ver
         statement["ver"]
       end
 
-      def algorithm
-        @algorithm ||= COSE::Algorithm.find(alg)
-      end
-
-      def alg
-        statement["alg"]
-      end
-
-      def ecdaa_key_id
-        statement["ecdaaKeyId"]
+      def cose_algorithm
+        @cose_algorithm ||= COSE::Algorithm.find(algorithm)
       end
 
       def attestation_type
-        if raw_certificates && !ecdaa_key_id
+        if raw_attestation_certificates && !raw_ecdaa_key_id
           ATTESTATION_TYPE_ATTCA
-        elsif ecdaa_key_id && !raw_certificates
+        elsif raw_ecdaa_key_id && !raw_attestation_certificates
           ATTESTATION_TYPE_ECDAA
         else
           raise "Attestation type invalid"
