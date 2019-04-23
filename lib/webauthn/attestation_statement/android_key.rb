@@ -68,28 +68,6 @@ module WebAuthn
           KeyDescription.new(OpenSSL::ASN1.decode(raw_key_description.value).value)
         end
       end
-
-      def attestation_certificate
-        attestation_certificate_chain[0]
-      end
-
-      def attestation_certificate_chain
-        @attestation_certificate_chain ||= raw_attestation_certificates.map do |cert|
-          OpenSSL::X509::Certificate.new(cert)
-        end
-      end
-
-      def raw_attestation_certificates
-        statement["x5c"]
-      end
-
-      def signature
-        statement["sig"]
-      end
-
-      def algorithm
-        statement["alg"]
-      end
     end
   end
 end
