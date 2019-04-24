@@ -11,6 +11,7 @@ module WebAuthn
     ATTESTATION_FORMAT_PACKED = 'packed'
     ATTESTATION_FORMAT_ANDROID_SAFETYNET = "android-safetynet"
     ATTESTATION_FORMAT_ANDROID_KEY = "android-key"
+    ATTESTATION_FORMAT_TPM = "tpm"
 
     ATTESTATION_TYPE_NONE = "None"
     ATTESTATION_TYPE_BASIC = "Basic"
@@ -36,6 +37,9 @@ module WebAuthn
       when ATTESTATION_FORMAT_ANDROID_KEY
         require "webauthn/attestation_statement/android_key"
         WebAuthn::AttestationStatement::AndroidKey.new(statement)
+      when ATTESTATION_FORMAT_TPM
+        require "webauthn/attestation_statement/tpm"
+        WebAuthn::AttestationStatement::TPM.new(statement)
       else
         raise FormatNotSupportedError, "Unsupported attestation format '#{format}'"
       end
