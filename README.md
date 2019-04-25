@@ -1,16 +1,22 @@
-# WebAuthn ruby library :key:
+# WebAuthn ruby server library :key:
 
-Make your Ruby/Rails web server become a conformant WebAuthn Relying Party.
+Makes your Ruby/Rails web server become a functional [WebAuthn Relying Party](https://www.w3.org/TR/webauthn/#webauthn-relying-party).
+
+Takes care of the [server-side operations](https://www.w3.org/TR/webauthn/#rp-operations) needed to
+[register](https://www.w3.org/TR/webauthn/#registration) or [authenticate](https://www.w3.org/TR/webauthn/#authentication)
+a user [credential](https://www.w3.org/TR/webauthn/#public-key-credential), including the necessary cryptographic checks.
 
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
 [![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
 [![Join the chat at https://gitter.im/cedarcode/webauthn-ruby](https://badges.gitter.im/cedarcode/webauthn-ruby.svg)](https://gitter.im/cedarcode/webauthn-ruby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+## Why WebAuthn in my web server?
+
+- [Security Benefits for WebAuthn Relying Parties](https://www.w3.org/TR/webauthn/#sctn-rp-benefits)
+
 ## What is WebAuthn?
 
 WebAuthn (Web Authentication) is a W3C standard for secure public-key authentication on the Web supported by all leading browsers and platforms.
-
-For more:
 
 - WebAuthn [W3C Recommendation](https://www.w3.org/TR/webauthn/) (i.e. "The Standard")
 - WebAuthn [intro](https://www.yubico.com/webauthn/) by Yubico
@@ -22,7 +28,7 @@ For more:
 
 This ruby library will help your Ruby/Rails server act as a conforming [_Relying-Party_](https://www.w3.org/TR/webauthn/#relying-party), in WebAuthn terminology. But for the [_Registration_](https://www.w3.org/TR/webauthn/#registration) and [_Authentication_](https://www.w3.org/TR/webauthn/#authentication) ceremonies to fully work, you will also need to add two more pieces to the puzzle, a conforming [User Agent](https://www.w3.org/TR/webauthn/#conforming-user-agents) + [Authenticator](https://www.w3.org/TR/webauthn/#conforming-authenticators) pair.
 
-A very small set of known conformant pairs are for example:
+Known conformant pairs are, for example:
 
 - Google Chrome for Android 70+ and Android's Fingerprint-based platform authenticator
 - Microsoft Edge and Windows 10 platform authenticator
