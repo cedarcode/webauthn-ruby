@@ -190,7 +190,7 @@ end
 | packed (self attestation) | Yes |
 | packed (x5c attestation) | Yes |
 | packed (ECDAA attestation) | No |
-| tpm (x5c attestation) | No |
+| tpm (x5c attestation) | Yes |
 | tpm (ECDAA attestation) | No |
 | android-key | Yes |
 | android-safetynet | Yes |
