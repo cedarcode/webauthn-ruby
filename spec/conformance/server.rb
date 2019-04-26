@@ -52,12 +52,7 @@ post "/attestation/options" do
 end
 
 post "/attestation/result" do
-  attestation_object = Base64.urlsafe_decode64(params["response"]["attestationObject"])
-  client_data_json = Base64.urlsafe_decode64(params["response"]["clientDataJSON"])
-  attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
-    attestation_object: attestation_object,
-    client_data_json: client_data_json
-  )
+  attestation_response = WebAuthn::Attestation.from_json(params)
 
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
   expected_origin = "http://localhost:#{settings.port}"

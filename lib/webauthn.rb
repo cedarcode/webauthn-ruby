@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "cose/algorithm"
-require "webauthn/authenticator_attestation_response"
+require "webauthn/attestation"
 require "webauthn/authenticator_assertion_response"
 require "webauthn/security_utils"
 require "webauthn/version"
