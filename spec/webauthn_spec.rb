@@ -24,15 +24,29 @@ RSpec.describe WebAuthn do
       expect(params).to include(type: "public-key", alg: -257)
     end
 
-    it "has relying party info" do
-      expect(@credential_creation_options[:rp][:name]).to eq("web-server")
-    end
-
     it "has user info" do
       user_info = @credential_creation_options[:user]
       expect(user_info[:name]).to eq("web-user")
       expect(user_info[:displayName]).to eq("web-user")
       expect(user_info[:id]).to eq("1")
+    end
+
+    context "Relying Party info" do
+      it "has relying party name default" do
+        expect(@credential_creation_options[:rp][:name]).to eq("web-server")
+      end
+
+      context "when configured" do
+        before do
+          WebAuthn.configuration.rp_name = "Example Inc."
+        end
+
+        it "has the configured values" do
+          creation_options = WebAuthn.credential_creation_options
+
+          expect(creation_options[:rp][:name]).to eq("Example Inc.")
+        end
+      end
     end
   end
 

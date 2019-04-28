@@ -70,6 +70,9 @@ WebAuthn.configure do |config|
   # the User Agent during registration and authentication ceremonies.
   config.origin = "https://auth.example.com"
 
+  # Relying Party name for display purposes
+  config.rp_name = "Example Inc."
+
   # You can optionally specify a different Relying Party ID
   # (https://www.w3.org/TR/webauthn/#relying-party-identifier)
   # if it differs from the default one.

@@ -29,16 +29,11 @@ module WebAuthn
   end
 
   # TODO: make keyword arguments mandatory in next major version
-  def self.credential_creation_options(
-    rp_name: "web-server",
-    user_name: "web-user",
-    display_name: "web-user",
-    user_id: "1"
-  )
+  def self.credential_creation_options(rp_name: nil, user_name: "web-user", display_name: "web-user", user_id: "1")
     {
       challenge: challenge,
       pubKeyCredParams: DEFAULT_PUB_KEY_CRED_PARAMS,
-      rp: { name: rp_name },
+      rp: { name: rp_name || configuration.rp_name || "web-server" },
       user: { name: user_name, displayName: display_name, id: user_id }
     }
   end
