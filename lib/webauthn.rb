@@ -3,6 +3,7 @@
 require "cose/algorithm"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/authenticator_assertion_response"
+require "webauthn/configuration"
 require "webauthn/security_utils"
 require "webauthn/version"
 
@@ -18,6 +19,14 @@ module WebAuthn
   end.freeze
 
   TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
+
+  def self.configuration
+    @configuration ||= Configuration.new
+  end
+
+  def self.configure
+    yield(configuration)
+  end
 
   # TODO: make keyword arguments mandatory in next major version
   def self.credential_creation_options(

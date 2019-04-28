@@ -20,13 +20,17 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     )
   end
 
+  before do
+    WebAuthn.configuration.origin = origin
+  end
+
   context "when everything's in place" do
     it "verifies" do
-      expect(attestation_response.verify(original_challenge, origin)).to be_truthy
+      expect(attestation_response.verify(original_challenge)).to be_truthy
     end
 
     it "is valid" do
-      expect(attestation_response.valid?(original_challenge, origin)).to be_truthy
+      expect(attestation_response.valid?(original_challenge)).to be_truthy
     end
 
     it "returns the credential" do
@@ -44,7 +48,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       Base64.strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
     end
 
-    let(:original_origin) { "http://localhost:3000" }
+    let(:origin) { "http://localhost:3000" }
 
     let(:attestation_response) do
       response = seeds[:security_key_direct][:authenticator_attestation_response]
@@ -56,15 +60,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "verifies" do
-      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+      expect(attestation_response.verify(original_challenge)).to be_truthy
     end
 
     it "is valid" do
-      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
+      expect(attestation_response.valid?(original_challenge)).to eq(true)
     end
 
     it "returns attestation info" do
-      attestation_response.valid?(original_challenge, original_origin)
+      attestation_response.valid?(original_challenge)
 
       expect(attestation_response.attestation_type).to eq("Basic_or_AttCA")
       expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
@@ -80,7 +84,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when packed attestation (self attestation)" do
-    let(:original_origin) { "https://localhost:13010" }
+    let(:origin) { "https://localhost:13010" }
 
     let(:original_challenge) do
       Base64.strict_decode64(
@@ -98,15 +102,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "verifies" do
-      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+      expect(attestation_response.verify(original_challenge)).to be_truthy
     end
 
     it "is valid" do
-      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
+      expect(attestation_response.valid?(original_challenge)).to eq(true)
     end
 
     it "returns attestation info" do
-      attestation_response.valid?(original_challenge, original_origin)
+      attestation_response.valid?(original_challenge)
 
       expect(attestation_response.attestation_type).to eq("Self")
       expect(attestation_response.attestation_trust_path).to eq(nil)
@@ -122,7 +126,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when packed attestation (basic attestation)" do
-    let(:original_origin) { "http://localhost:3000" }
+    let(:origin) { "http://localhost:3000" }
 
     let(:original_challenge) do
       Base64.strict_decode64(
@@ -140,15 +144,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "verifies" do
-      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+      expect(attestation_response.verify(original_challenge)).to be_truthy
     end
 
     it "is valid" do
-      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
+      expect(attestation_response.valid?(original_challenge)).to eq(true)
     end
 
     it "returns attestation info" do
-      attestation_response.valid?(original_challenge, original_origin)
+      attestation_response.valid?(original_challenge)
 
       expect(attestation_response.attestation_type).to eq("Basic_or_AttCA")
       expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
@@ -201,7 +205,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   context "when android-safetynet attestation" do
     around(:each) { |example| fake_time(Time.new(2018, 10, 6), &example) }
 
-    let(:original_origin) { "http://localhost:3000" }
+    let(:origin) { "http://localhost:3000" }
 
     let(:original_challenge) do
       Base64.strict_decode64(seeds[:android_safetynet_direct][:credential_creation_options][:challenge])
@@ -217,15 +221,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "verifies" do
-      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+      expect(attestation_response.verify(original_challenge)).to be_truthy
     end
 
     it "is valid" do
-      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
+      expect(attestation_response.valid?(original_challenge)).to eq(true)
     end
 
     it "returns attestation info" do
-      attestation_response.valid?(original_challenge, original_origin)
+      attestation_response.valid?(original_challenge)
 
       expect(attestation_response.attestation_type).to eq("Basic")
       expect(attestation_response.attestation_trust_path).to be_kind_of(OpenSSL::X509::Certificate)
@@ -241,7 +245,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-key attestation" do
-    let(:original_origin) { "http://localhost:8080" }
+    let(:origin) { "http://localhost:8080" }
 
     let(:original_challenge) do
       Base64.urlsafe_decode64(seeds[:android_key_direct][:credential_creation_options][:challenge])
@@ -257,15 +261,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "verifies" do
-      expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+      expect(attestation_response.verify(original_challenge)).to be_truthy
     end
 
     it "is valid" do
-      expect(attestation_response.valid?(original_challenge, original_origin)).to eq(true)
+      expect(attestation_response.valid?(original_challenge)).to eq(true)
     end
 
     it "returns attestation info" do
-      attestation_response.valid?(original_challenge, original_origin)
+      attestation_response.valid?(original_challenge)
 
       expect(attestation_response.attestation_type).to eq("Basic")
       expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
@@ -294,11 +298,11 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   describe "origin validation" do
-    let(:original_origin) { "http://localhost" }
+    let(:origin) { "http://localhost" }
     let(:original_challenge) { fake_challenge }
 
     let(:attestation_response) do
-      client = WebAuthn::FakeClient.new(origin)
+      client = WebAuthn::FakeClient.new(actual_origin)
       response = client.create(challenge: original_challenge)[:response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
@@ -308,38 +312,37 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     context "matches the default one" do
-      let(:origin) { "http://localhost" }
+      let(:actual_origin) { "http://localhost" }
 
       it "verifies" do
-        expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+        expect(attestation_response.verify(original_challenge)).to be_truthy
       end
 
       it "is valid" do
-        expect(attestation_response.valid?(original_challenge, original_origin)).to be_truthy
+        expect(attestation_response.valid?(original_challenge)).to be_truthy
       end
     end
 
     context "doesn't match the default one" do
-      let(:origin) { "http://invalid" }
+      let(:actual_origin) { "http://invalid" }
 
       it "doesn't verify" do
         expect {
-          attestation_response.verify(original_challenge, original_origin)
+          attestation_response.verify(original_challenge)
         }.to raise_exception(WebAuthn::OriginVerificationError)
       end
 
       it "isn't valid" do
-        expect(attestation_response.valid?(original_challenge, original_origin)).to be_falsy
+        expect(attestation_response.valid?(original_challenge)).to be_falsy
       end
     end
   end
 
   describe "rp_id validation" do
-    let(:original_origin) { fake_origin }
     let(:original_challenge) { fake_challenge }
 
     let(:attestation_response) do
-      client = WebAuthn::FakeClient.new(original_origin)
+      client = WebAuthn::FakeClient.new(origin)
       response = client.create(challenge: original_challenge, rp_id: rp_id)[:response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
@@ -352,11 +355,11 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:rp_id) { "localhost" }
 
       it "verifies" do
-        expect(attestation_response.verify(original_challenge, original_origin)).to be_truthy
+        expect(attestation_response.verify(original_challenge)).to be_truthy
       end
 
       it "is valid" do
-        expect(attestation_response.valid?(original_challenge, original_origin)).to be_truthy
+        expect(attestation_response.valid?(original_challenge)).to be_truthy
       end
     end
 
@@ -365,24 +368,28 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
       it "doesn't verify" do
         expect {
-          attestation_response.verify(original_challenge, original_origin)
+          attestation_response.verify(original_challenge)
         }.to raise_exception(WebAuthn::RpIdVerificationError)
       end
 
       it "is invalid" do
-        expect(attestation_response.valid?(original_challenge, original_origin)).to be_falsy
+        expect(attestation_response.valid?(original_challenge)).to be_falsy
       end
     end
 
     context "matches the one explicitly given" do
       let(:rp_id) { "custom" }
 
+      before do
+        WebAuthn.configuration.rp_id = rp_id
+      end
+
       it "verifies" do
-        expect(attestation_response.verify(original_challenge, original_origin, rp_id: "custom")).to be_truthy
+        expect(attestation_response.verify(original_challenge)).to be_truthy
       end
 
       it "is valid" do
-        expect(attestation_response.valid?(original_challenge, original_origin, rp_id: "custom")).to be_truthy
+        expect(attestation_response.valid?(original_challenge)).to be_truthy
       end
     end
   end

@@ -18,7 +18,10 @@ module WebAuthn
       @client_data_json = client_data_json
     end
 
-    def verify(expected_challenge, expected_origin, rp_id: nil)
+    def verify(expected_challenge, expected_origin = nil, rp_id: nil)
+      expected_origin ||= WebAuthn.configuration.origin || raise("Unspecified expected origin")
+      rp_id ||= WebAuthn.configuration.rp_id
+
       verify_item(:type)
       verify_item(:token_binding)
       verify_item(:challenge, expected_challenge)
@@ -67,7 +70,7 @@ module WebAuthn
     end
 
     def valid_origin?(expected_origin)
-      client_data.origin == expected_origin
+      expected_origin && (client_data.origin == expected_origin)
     end
 
     def valid_rp_id?(rp_id)

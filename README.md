@@ -60,6 +60,27 @@ Or install it yourself as:
 
 NOTE: You can find a working example on how to use this gem in a __Rails__ app in [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app).
 
+### Configuration
+
+For a Rails application this would go in `config/initializers/webauthn.rb`.
+
+```ruby
+WebAuthn.configure do |config|
+  # This value needs to match `window.location.origin` evaluated by
+  # the User Agent during registration and authentication ceremonies.
+  config.origin = "https://auth.example.com"
+
+  # You can optionally specify a different Relying Party ID
+  # (https://www.w3.org/TR/webauthn/#relying-party-identifier)
+  # if it differs from the default one.
+  #
+  # In this case the default would be "auth.example.com", but you can set it to
+  # the suffix "example.com"
+  #
+  # config.rp_id = "example.com"
+end
+```
+
 ### Registration
 
 #### Initiation phase
@@ -97,17 +118,9 @@ attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
   client_data_json: client_data_json
 )
 
-# This value needs to match `window.location.origin` evaluated by
-# the User Agent as part of the verification phase.
-expected_origin = "https://www.example.com"
-
-# In the case that a Relying Party ID (https://www.w3.org/TR/webauthn/#relying-party-identifier) different from `expected_origin` was used on
-# `navigator.credentials.create`, it needs to specified for verification.
-# Otherwise, you can ignore passing in this value to the `verify` method below.
-rp_id = "example.com"
 
 begin
-  attestation_response.verify(expected_challenge, expected_origin, rp_id: rp_id)
+  attestation_response.verify(expected_challenge)
 
   # 1. Register the new user and
   # 2. Keep Credential ID and Credential Public Key under storage
@@ -164,15 +177,6 @@ assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
   signature: signature
 )
 
-# This value needs to match `window.location.origin` evaluated by
-# the User Agent as part of the verification phase.
-expected_origin = "https://www.example.com"
-
-# In the case that a Relying Party ID (https://www.w3.org/TR/webauthn/#relying-party-identifier) different from `expected_origin` was used on
-# `navigator.credentials.get`, it needs to be specified for verification.
-# Otherwise, you can ignore passing in this value to the `verify` method below.`
-rp_id = "example.com"
-
 # This hash must have the id and its corresponding public key of the
 # previously stored credential for the user that is attempting to sign in.
 allowed_credential = {
@@ -181,7 +185,7 @@ allowed_credential = {
 }
 
 begin
-  assertion_response.verify(expected_challenge, expected_origin, allowed_credentials: [allowed_credential], rp_id: rp_id)
+  assertion_response.verify(expected_challenge, allowed_credentials: [allowed_credential])
 
   # Sign in the user
 rescue WebAuthn::VerificationError => e
