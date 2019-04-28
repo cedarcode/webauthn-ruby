@@ -6,28 +6,43 @@ require "webauthn/metadata/client"
 RSpec.describe WebAuthn::Metadata::Client do
   let(:fake_token) { "6d6b44d78b09fed0c5559e34c71db291d0d322d4d4de0000" }
   let(:uri) { URI("https://fidoalliance.co.nz/mds/") }
-  let(:response) { { status: 200, body: "webmock response" } }
+  let(:response) { { status: 200, body: "" } }
   let(:support_path) { Pathname.new(File.expand_path(File.join(__dir__, "..", "..", "support"))) }
+  let(:current_time) { Time.utc(2019, 5, 12) }
 
   before(:each) do
     stub_request(:get, uri).with(query: { "token" => fake_token }).to_return(response)
+    allow(Time).to receive(:now).and_return(current_time)
   end
 
   context "#download_toc" do
-    let(:toc) { File.read(support_path.join("toc.txt")) }
+    let(:toc) { File.read(support_path.join("mds_toc.txt")) }
     let(:response) { { status: 200, body: toc } }
     let(:trust_store) do
       store = OpenSSL::X509::Store.new
+      store.purpose = OpenSSL::X509::PURPOSE_ANY
+      store.flags = OpenSSL::X509::V_FLAG_CRL_CHECK | OpenSSL::X509::V_FLAG_CRL_CHECK_ALL
       file = File.read(support_path.join("MDSROOT.crt"))
       store.add_cert(OpenSSL::X509::Certificate.new(file))
-      store.time = Time.utc(2019, 4, 28).to_i
+      store.time = current_time.to_i
       store
+    end
+    let(:mdcsa_crl) { { status: 200, body: File.read(support_path.join("MDSCA-1.crl")) } }
+    let(:mdsroot_crl) { { status: 200, body: File.read(support_path.join("MDSROOT.crl")) } }
+
+    before(:each) do
+      stub_request(:get, "https://fidoalliance.co.nz/mds/crl/MDSCA-1.crl").to_return(mdcsa_crl)
+      stub_request(:get, "https://fidoalliance.co.nz/mds/crl/MDSROOT.crl").to_return(mdsroot_crl)
+      stub_request(
+        :get,
+        "https://fidoalliance.co.nz/safetynetpki/crl/FIDO%20Fake%20Root%20Certificate%20Authority%202018.crl"
+      ).to_return(status: 404)
     end
 
     subject { described_class.new(fake_token).download_toc(uri, trust_store: trust_store) }
 
     context "when everything's in place" do
-      it "returns a MetadataTOCPayload with the required keys" do
+      it "returns a MetadataTOCPayload hash with the required keys" do
         expect(subject).to include("nextUpdate", "entries", "no")
       end
 
@@ -38,7 +53,7 @@ RSpec.describe WebAuthn::Metadata::Client do
 
     context "when the x5c certificates are not trusted" do
       context "because the chain cannot be verified" do
-        let(:trust_store) { OpenSSL::X509::Store.new }
+        let(:toc) { File.read(support_path.join("mds_toc_invalid_chain.txt")) }
 
         specify do
           expect { subject }.to raise_error(
@@ -47,12 +62,12 @@ RSpec.describe WebAuthn::Metadata::Client do
         end
       end
 
-      context "because a certificate has expired" do
-        specify do
-          trust_store.time = Time.utc(3000, 1, 1).to_i
+      context "because the certificate was revoked" do
+        let(:toc) { File.read(support_path.join("mds_toc_revoked.txt")) }
 
+        specify do
           expect { subject }.to raise_error(
-            described_class::UnverifiedSigningKeyError, "OpenSSL error 10 (certificate has expired)"
+            described_class::UnverifiedSigningKeyError, "OpenSSL error 23 (certificate revoked)"
           )
         end
       end
@@ -81,10 +96,38 @@ RSpec.describe WebAuthn::Metadata::Client do
         expect { subject }.to raise_error(JWT::DecodeError)
       end
     end
+
+    context "when a CRL cannot be downloaded" do
+      let(:mdcsa_crl) { { status: 404 } }
+
+      specify do
+        expect { subject }.to raise_error(
+          described_class::UnverifiedSigningKeyError, "OpenSSL error 3 (unable to get certificate CRL)"
+        )
+      end
+    end
+
+    context "when a CRL is malformed" do
+      let(:mdcsa_crl) { { status: 200, body: "crl" } }
+
+      specify do
+        expect { subject }.to raise_error(OpenSSL::X509::CRLError)
+      end
+    end
+
+    context "when a CRL is expired" do
+      let(:current_time) { Time.utc(2049, 1, 1) }
+
+      specify do
+        expect { subject }.to raise_error(
+          described_class::UnverifiedSigningKeyError, "OpenSSL error 12 (CRL has expired)"
+        )
+      end
+    end
   end
 
   context "#download_entry" do
-    let(:entry) { File.read(support_path.join("entry.txt")) }
+    let(:entry) { File.read(support_path.join("mds_entry.txt")) }
     let(:response) { { status: 200, body: entry } }
     let(:uri) { URI("https://fidoalliance.co.nz/mds/metadata/cae4a9e5-4373-40d1-8826-9c3ddc817259.json/") }
     let(:hash) { "DtuJ-Cj8vlhqpQLk3VxDqPh8_uOUxfEiCGFGNpsQE6k" }
@@ -92,7 +135,7 @@ RSpec.describe WebAuthn::Metadata::Client do
     subject { described_class.new(fake_token).download_entry(uri, expected_hash: hash) }
 
     context "when everything's in place" do
-      it "returns a MetadataStatement with the required keys" do
+      it "returns a MetadataStatement hash with the required keys" do
         expect(subject).to include(
           "description", "authenticatorVersion", "upv", "assertionScheme",
           "authenticationAlgorithm", "publicKeyAlgAndEncoding", "attestationTypes", "userVerificationDetails",
@@ -127,7 +170,7 @@ RSpec.describe WebAuthn::Metadata::Client do
     end
 
     context "when the urlsafe base64 JSON is malformed" do
-      let(:entry) { File.read(support_path.join("entry.txt"))[0..-10] }
+      let(:entry) { File.read(support_path.join("mds_entry.txt"))[0..-10] }
       let(:response) { { status: 200, body: entry } }
       let(:hash) { Base64.urlsafe_encode64(OpenSSL::Digest::SHA256.digest(entry), padding: false) }
 

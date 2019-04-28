@@ -17,6 +17,8 @@ module WebAuthn
 
       def self.fido_trust_store
         store = OpenSSL::X509::Store.new
+        store.purpose = OpenSSL::X509::PURPOSE_ANY
+        store.flags = OpenSSL::X509::V_FLAG_CRL_CHECK | OpenSSL::X509::V_FLAG_CRL_CHECK_ALL
         file = File.read(File.join(__dir__, "Root.cer"))
         store.add_cert(OpenSSL::X509::Certificate.new(file))
       end
@@ -54,18 +56,21 @@ module WebAuthn
       end
 
       def get(uri)
-        get = Net::HTTP::Get.new(uri.request_uri, DEFAULT_HEADERS)
-        response = build_http(uri).request(get)
-        response.value || response.body
+        get = Net::HTTP::Get.new(uri, DEFAULT_HEADERS)
+        response = http(uri).request(get)
+        response.value
+        response.body
       end
 
-      def build_http(uri)
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = uri.port == 443
-        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-        http.open_timeout = 5
-        http.read_timeout = 5
-        http
+      def http(uri)
+        @http ||= begin
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = uri.port == 443
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.open_timeout = 5
+          http.read_timeout = 5
+          http
+        end
       end
 
       def verified_public_key(x5c, trust_store)
@@ -75,10 +80,39 @@ module WebAuthn
         leaf_certificate = certificates[0]
         chain_certificates = certificates[1..-1]
 
+        crls = download_crls(certificates)
+        crls.each do |crl|
+          trust_store.add_crl(crl)
+        end
+
         if trust_store.verify(leaf_certificate, chain_certificates)
           leaf_certificate.public_key
         else
           raise(UnverifiedSigningKeyError, "OpenSSL error #{trust_store.error} (#{trust_store.error_string})")
+        end
+      end
+
+      def download_crls(certificates)
+        uris = extract_crl_distribution_points(certificates)
+
+        crls = uris.compact.uniq.map do |uri|
+          begin
+            get(uri)
+          rescue Net::ProtoServerError
+            # TODO: figure out why test endpoint specifies a missing and unused CRL in the cert chain, and see if this
+            # rescue can be removed. If the CRL is used, OpenSSL error 3 (unable to get certificate CRL) will raise.
+            nil
+          end
+        end
+        crls.compact.map { |crl| OpenSSL::X509::CRL.new(crl) }
+      end
+
+      def extract_crl_distribution_points(certificates)
+        certificates.map do |certificate|
+          extension = certificate.extensions.detect { |ext| ext.oid == "crlDistributionPoints" }
+          # TODO: replace this with proper parsing of deeply nested ASN1 structures
+          match = extension&.value&.match(/URI:(?<uri>\S*)/)
+          URI(match[:uri]) if match
         end
       end
     end
