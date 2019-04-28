@@ -3,6 +3,7 @@
 require "cose/algorithm"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/authenticator_assertion_response"
+require "webauthn/configuration"
 require "webauthn/security_utils"
 require "webauthn/version"
 
@@ -19,17 +20,20 @@ module WebAuthn
 
   TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
 
+  def self.configuration
+    @configuration ||= Configuration.new
+  end
+
+  def self.configure
+    yield(configuration)
+  end
+
   # TODO: make keyword arguments mandatory in next major version
-  def self.credential_creation_options(
-    rp_name: "web-server",
-    user_name: "web-user",
-    display_name: "web-user",
-    user_id: "1"
-  )
+  def self.credential_creation_options(rp_name: nil, user_name: "web-user", display_name: "web-user", user_id: "1")
     {
       challenge: challenge,
       pubKeyCredParams: DEFAULT_PUB_KEY_CRED_PARAMS,
-      rp: { name: rp_name },
+      rp: { name: rp_name || configuration.rp_name || "web-server" },
       user: { name: user_name, displayName: display_name, id: user_id }
     }
   end
