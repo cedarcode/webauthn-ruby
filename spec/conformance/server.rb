@@ -35,6 +35,10 @@ ClientRequest =
     end
   end
 
+WebAuthn.configure do |config|
+  config.origin = "http://localhost:#{settings.port}"
+end
+
 post "/attestation/options" do
   req = ClientRequest.find_or_create(params)
   cookies["username"] = req.user_name
@@ -60,8 +64,7 @@ post "/attestation/result" do
   )
 
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  expected_origin = "http://localhost:#{settings.port}"
-  attestation_response.verify(expected_challenge, expected_origin)
+  attestation_response.verify(expected_challenge)
 
   req = ClientRequest.find(cookies["username"])
   req.credentials << {
@@ -95,9 +98,8 @@ post "/assertion/result" do
   )
 
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  expected_origin = "http://localhost:#{settings.port}"
   allowed_credentials = ClientRequest.find(cookies["username"]).credentials
-  assertion_response.verify(expected_challenge, expected_origin, allowed_credentials: allowed_credentials)
+  assertion_response.verify(expected_challenge, allowed_credentials: allowed_credentials)
 
   render_ok
 end
