@@ -46,7 +46,7 @@ module AndroidSafetynet
     private
 
     def valid_nonce?(nonce)
-      payload["nonce"] == nonce
+      WebAuthn::SecurityUtils.secure_compare(payload["nonce"], nonce)
     end
 
     def valid_attestation_domain?
