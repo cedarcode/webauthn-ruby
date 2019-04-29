@@ -11,8 +11,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["gonzalo@cedarcode.com", "braulio@cedarcode.com"]
 
   spec.summary       = "WebAuthn ruby server library"
-  spec.description   =
-    "WebAuthn ruby server library ― Make your Ruby/Rails web server become a functional WebAuthn Relying Party"
+  spec.description   = 'WebAuthn ruby server library ― Make your application a W3C Web Authentication conformant
+    Relying Party and allow your users to authenticate with U2F and FIDO 2.0 authenticators.'
   spec.homepage      = "https://github.com/cedarcode/webauthn-ruby"
   spec.license       = "MIT"
 
