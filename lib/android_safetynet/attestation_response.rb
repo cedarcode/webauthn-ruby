@@ -46,7 +46,7 @@ module AndroidSafetynet
     private
 
     def valid_nonce?(nonce)
-      payload["nonce"] == nonce
+      WebAuthn::SecurityUtils.secure_compare(payload["nonce"], nonce)
     end
 
     def valid_attestation_domain?
@@ -58,20 +58,9 @@ module AndroidSafetynet
     end
 
     def valid_signature?
-      JWT.decode(response, leaf_certificate.public_key, true, algorithms: algorithm_for(leaf_certificate.public_key))
+      JWT.decode(response, leaf_certificate.public_key, true, algorithms: ["ES256", "RS256"])
     rescue JWT::VerificationError
       false
-    end
-
-    def algorithm_for(public_key)
-      case public_key
-      when OpenSSL::PKey::RSA
-        "RS256"
-      when OpenSSL::PKey::EC, OpenSSL::PKey::EC::Point
-        "ES256"
-      else
-        raise "Unsupported algorithm"
-      end
     end
 
     def leaf_certificate
