@@ -35,8 +35,10 @@ ClientRequest =
     end
   end
 
+host = ENV["HOST"] || "localhost"
+
 WebAuthn.configure do |config|
-  config.origin = "http://localhost:#{settings.port}"
+  config.origin = "http://#{host}:#{settings.port}"
   config.rp_name = RP_NAME
 end
 
