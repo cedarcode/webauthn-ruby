@@ -38,9 +38,13 @@ WebAuthn.configure do |config|
 end
 
 post "/attestation/options" do
-  options = base64_credential_creation_options
-  options[:user][:name] = params["username"]
-  options[:user][:displayName] = params["displayName"]
+  options = WebAuthn::CredentialCreationOptions.new(
+    user_id: "1",
+    user_name: params["username"],
+    user_display_name: params["displayName"]
+  ).to_h
+
+  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
   options[:attestation] = params["attestation"]
   options[:authenticatorSelection] = params["authenticatorSelection"]
   options[:extensions] = params["extensions"]
@@ -125,12 +129,6 @@ end
 
 def render_error(message)
   JSON.dump(status: "error", errorMessage: message)
-end
-
-def base64_credential_creation_options
-  options = WebAuthn.credential_creation_options
-  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
-  options
 end
 
 def base64_credential_request_options
