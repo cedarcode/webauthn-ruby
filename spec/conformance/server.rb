@@ -82,11 +82,11 @@ end
 post "/assertion/options" do
   options = WebAuthn::CredentialRequestOptions.new(
     allow_credentials: Credential.registered_for(params["username"]).map(&:descriptor),
-    extensions: params["extensions"]
+    extensions: params["extensions"],
+    user_verification: params["userVerification"]
   ).to_h
 
   options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
-  options[:userVerification] = params["userVerification"]
 
   cookies["username"] = params["username"]
   cookies["challenge"] = options[:challenge]

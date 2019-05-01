@@ -8,11 +8,12 @@ module WebAuthn
   end
 
   class CredentialRequestOptions < CredentialOptions
-    attr_accessor :allow_credentials, :extensions
+    attr_accessor :allow_credentials, :extensions, :user_verification
 
-    def initialize(allow_credentials: [], extensions: nil)
+    def initialize(allow_credentials: [], extensions: nil, user_verification: nil)
       @allow_credentials = allow_credentials
       @extensions = extensions
+      @user_verification = user_verification
     end
 
     def to_h
@@ -20,6 +21,10 @@ module WebAuthn
 
       if extensions
         options[:extensions] = extensions
+      end
+
+      if user_verification
+        options[:userVerification] = user_verification
       end
 
       options
