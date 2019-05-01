@@ -8,9 +8,10 @@ module WebAuthn
   end
 
   class CredentialRequestOptions < CredentialOptions
-    attr_accessor :extensions
+    attr_accessor :allow_credentials, :extensions
 
-    def initialize(extensions: nil)
+    def initialize(allow_credentials: [], extensions: nil)
+      @allow_credentials = allow_credentials
       @extensions = extensions
     end
 
@@ -22,10 +23,6 @@ module WebAuthn
       end
 
       options
-    end
-
-    def allow_credentials
-      []
     end
   end
 end
