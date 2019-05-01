@@ -37,6 +37,7 @@ ClientRequest =
 
 WebAuthn.configure do |config|
   config.origin = "http://localhost:#{settings.port}"
+  config.rp_name = RP_NAME
 end
 
 post "/attestation/options" do
@@ -124,7 +125,6 @@ end
 
 def base64_credential_creation_options
   options = WebAuthn.credential_creation_options
-  options[:rp][:name] = RP_NAME
   options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
   options
 end
