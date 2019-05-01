@@ -80,7 +80,9 @@ post "/attestation/result" do
 end
 
 post "/assertion/options" do
-  options = base64_credential_request_options
+  options = WebAuthn::CredentialRequestOptions.new.to_h
+
+  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
   options[:allowCredentials] = Credential.registered_for(params["username"]).map(&:descriptor)
   options[:extensions] = params["extensions"]
   options[:userVerification] = params["userVerification"]
@@ -129,10 +131,4 @@ end
 
 def render_error(message)
   JSON.dump(status: "error", errorMessage: message)
-end
-
-def base64_credential_request_options
-  options = WebAuthn.credential_request_options
-  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
-  options
 end
