@@ -80,11 +80,10 @@ post "/attestation/result" do
 end
 
 post "/assertion/options" do
-  options = WebAuthn::CredentialRequestOptions.new.to_h
+  options = WebAuthn::CredentialRequestOptions.new(extensions: params["extensions"]).to_h
 
   options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
   options[:allowCredentials] = Credential.registered_for(params["username"]).map(&:descriptor)
-  options[:extensions] = params["extensions"]
   options[:userVerification] = params["userVerification"]
 
   cookies["username"] = params["username"]
