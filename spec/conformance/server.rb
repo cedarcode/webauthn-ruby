@@ -41,6 +41,7 @@ post "/attestation/options" do
   options = WebAuthn::CredentialCreationOptions.new(
     attestation: params["attestation"],
     authenticator_selection: params["authenticatorSelection"],
+    exclude_credentials: Credential.registered_for(params["username"]).map(&:descriptor),
     extensions: params["extensions"],
     user_id: "1",
     user_name: params["username"],
@@ -48,7 +49,6 @@ post "/attestation/options" do
   ).to_h
 
   options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
-  options[:excludeCredentials] = Credential.registered_for(params["username"]).map(&:descriptor)
 
   cookies["username"] = params["username"]
   cookies["challenge"] = options[:challenge]

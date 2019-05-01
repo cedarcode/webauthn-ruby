@@ -21,11 +21,12 @@ module WebAuthn
       { type: "public-key", alg: COSE::Algorithm.by_name(alg_name).id }
     end.freeze
 
-    attr_accessor :attestation, :authenticator_selection, :extensions
+    attr_accessor :attestation, :authenticator_selection, :exclude_credentials, :extensions
 
     def initialize(
       attestation: nil,
       authenticator_selection: nil,
+      exclude_credentials: nil,
       extensions: nil,
       user_id:,
       user_name:,
@@ -34,6 +35,7 @@ module WebAuthn
     )
       @attestation = attestation
       @authenticator_selection = authenticator_selection
+      @exclude_credentials = exclude_credentials
       @extensions = extensions
       @user_id = user_id
       @user_name = user_name
@@ -55,6 +57,10 @@ module WebAuthn
 
       if authenticator_selection
         options[:authenticatorSelection] = authenticator_selection
+      end
+
+      if exclude_credentials
+        options[:excludeCredentials] = exclude_credentials
       end
 
       if extensions
