@@ -11,29 +11,22 @@ set show_exceptions: false
 
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
 
-ClientRequest =
-  Struct.new(:user_name, :display_name, :attestation, :authenticator_selection, :extensions, :credentials) do
-    @storage = {}
+Credential = Struct.new(:id, :public_key) do
+  @credentials = {}
 
-    def self.find(user_name)
-      @storage.fetch(user_name)
-    end
-
-    def self.find_or_create(params)
-      @storage[params["username"]] ||= ClientRequest.new(
-        params["username"],
-        params["displayName"],
-        params["attestation"],
-        params["authenticatorSelection"],
-        params["extensions"] || { "example.extension": true },
-        []
-      )
-    end
-
-    def public_key_credential_descriptors
-      credentials.map { |credential| { id: credential[:credential_id], type: "public-key" } }
-    end
+  def self.register(username, id:, public_key:)
+    @credentials[username] ||= []
+    @credentials[username] << Credential.new(id, public_key)
   end
+
+  def self.registered_for(username)
+    @credentials[username] || []
+  end
+
+  def descriptor
+    { type: "public-key", id: id }
+  end
+end
 
 host = ENV["HOST"] || "localhost"
 
@@ -43,18 +36,17 @@ WebAuthn.configure do |config|
 end
 
 post "/attestation/options" do
-  req = ClientRequest.find_or_create(params)
-  cookies["username"] = req.user_name
-
   options = base64_credential_creation_options
-  options[:user][:name] = req.user_name
-  options[:user][:displayName] = req.display_name
-  options[:attestation] = req.attestation
-  options[:authenticatorSelection] = req.authenticator_selection
-  options[:extensions] = req.extensions
-  options[:excludeCredentials] = req.public_key_credential_descriptors
+  options[:user][:name] = params["username"]
+  options[:user][:displayName] = params["displayName"]
+  options[:attestation] = params["attestation"]
+  options[:authenticatorSelection] = params["authenticatorSelection"]
+  options[:extensions] = params["extensions"]
+  options[:excludeCredentials] = Credential.registered_for(params["username"]).map(&:descriptor)
 
+  cookies["username"] = params["username"]
   cookies["challenge"] = options[:challenge]
+
   render_ok(options)
 end
 
@@ -69,21 +61,26 @@ post "/attestation/result" do
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
   attestation_response.verify(expected_challenge)
 
-  req = ClientRequest.find(cookies["username"])
-  req.credentials << {
-    credential_id: Base64.urlsafe_encode64(attestation_response.credential.id, padding: false),
-    public_key: attestation_response.credential.public_key,
-  }
+  Credential.register(
+    cookies["username"],
+    id: Base64.urlsafe_encode64(attestation_response.credential.id, padding: false),
+    public_key: attestation_response.credential.public_key
+  )
+
+  cookies["challenge"] = nil
+  cookies["username"] = nil
 
   render_ok
 end
 
 post "/assertion/options" do
-  req = ClientRequest.find(cookies["username"])
   options = base64_credential_request_options
-  options[:allowCredentials] = req.public_key_credential_descriptors
-  options[:extensions] = req.extensions
+  options[:allowCredentials] = Credential.registered_for(params["username"]).map(&:descriptor)
+  options[:extensions] = params["extensions"]
   options[:userVerification] = params["userVerification"]
+
+  cookies["username"] = params["username"]
+  cookies["challenge"] = options[:challenge]
 
   render_ok(options)
 end
@@ -101,8 +98,11 @@ post "/assertion/result" do
   )
 
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  allowed_credentials = ClientRequest.find(cookies["username"]).credentials
+  allowed_credentials = Credential.registered_for(cookies["username"]).map(&:descriptor)
   assertion_response.verify(expected_challenge, allowed_credentials: allowed_credentials)
+
+  cookies["challenge"] = nil
+  cookies["username"] = nil
 
   render_ok
 end
