@@ -3,6 +3,7 @@
 require "openssl"
 require "webauthn/attestation_statement/android_key/key_description"
 require "webauthn/attestation_statement/base"
+require "webauthn/security_utils"
 require "webauthn/signature_verifier"
 
 module WebAuthn

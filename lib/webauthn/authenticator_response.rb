@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "webauthn/error"
+require "webauthn/security_utils"
 
 module WebAuthn
   TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
