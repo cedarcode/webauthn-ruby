@@ -7,8 +7,10 @@ require "securerandom"
 module WebAuthn
   class FakeAuthenticator
     class AuthenticatorData
+      AAGUID = SecureRandom.random_bytes(16)
+
       def initialize(rp_id_hash:, credential: nil, sign_count: 0, user_present: true, user_verified: !user_present,
-                     aaguid: WebAuthn::FakeAuthenticator::AAGUID)
+                     aaguid: AAGUID)
         @rp_id_hash = rp_id_hash
         @credential = credential
         @sign_count = sign_count
