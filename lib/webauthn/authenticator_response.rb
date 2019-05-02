@@ -3,6 +3,8 @@
 require "webauthn/error"
 
 module WebAuthn
+  TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
+
   class VerificationError < Error; end
 
   class AuthenticatorDataVerificationError < VerificationError; end

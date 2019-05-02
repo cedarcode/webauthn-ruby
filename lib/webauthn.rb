@@ -10,7 +10,3 @@ require "webauthn/version"
 
 require "base64"
 require "json"
-
-module WebAuthn
-  TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
-end
