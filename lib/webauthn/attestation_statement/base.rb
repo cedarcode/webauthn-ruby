@@ -6,6 +6,13 @@ require "webauthn/error"
 
 module WebAuthn
   module AttestationStatement
+    ATTESTATION_TYPE_NONE = "None"
+    ATTESTATION_TYPE_BASIC = "Basic"
+    ATTESTATION_TYPE_SELF = "Self"
+    ATTESTATION_TYPE_ATTCA = "AttCA"
+    ATTESTATION_TYPE_ECDAA = "ECDAA"
+    ATTESTATION_TYPE_BASIC_OR_ATTCA = "Basic_or_AttCA"
+
     class Base
       class NotSupportedError < Error; end
 
