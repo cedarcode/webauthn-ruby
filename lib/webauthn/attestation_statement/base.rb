@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "openssl"
+require "webauthn/authenticator_data/attested_credential_data"
 require "webauthn/error"
 
 module WebAuthn

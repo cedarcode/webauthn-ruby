@@ -3,6 +3,7 @@
 require "cose/algorithm"
 require "cose/key"
 require "webauthn/attestation_statement/fido_u2f/public_key"
+require "webauthn/authenticator_data"
 require "webauthn/authenticator_response"
 require "webauthn/signature_verifier"
 

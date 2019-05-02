@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require "openssl"
 require "tpm/constants"
 require "tpm/s_attest"
+require "webauthn/attestation_statement/base"
 
 module WebAuthn
   module AttestationStatement
