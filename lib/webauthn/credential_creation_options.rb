@@ -6,6 +6,13 @@ require "webauthn/credential_rp_entity"
 require "webauthn/credential_user_entity"
 
 module WebAuthn
+  # TODO: make keyword arguments mandatory in next major version
+  def self.credential_creation_options(rp_name: nil, user_name: "web-user", display_name: "web-user", user_id: "1")
+    CredentialCreationOptions.new(
+      rp_name: rp_name, user_id: user_id, user_name: user_name, user_display_name: display_name
+    ).to_h
+  end
+
   class CredentialCreationOptions < CredentialOptions
     DEFAULT_ALGORITHMS = ["ES256", "RS256"].freeze
     DEFAULT_RP_NAME = "web-server"
