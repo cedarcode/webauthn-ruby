@@ -19,7 +19,7 @@ module WebAuthn
         }.freeze
 
         COSE_TO_TPM_CURVE = {
-          COSE::Key::EC2::CRV_P256 => ::TPM::ECC_NIST_P256
+          COSE::Key::Curve.by_name("P-256").id => ::TPM::ECC_NIST_P256
         }.freeze
 
         def initialize(data)
