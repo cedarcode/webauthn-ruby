@@ -7,6 +7,3 @@ require "webauthn/credential_creation_options"
 require "webauthn/credential_request_options"
 require "webauthn/security_utils"
 require "webauthn/version"
-
-require "base64"
-require "json"
