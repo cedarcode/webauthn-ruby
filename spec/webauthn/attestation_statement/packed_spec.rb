@@ -2,6 +2,7 @@
 
 require "spec_helper"
 
+require "json"
 require "openssl"
 require "webauthn/attestation_statement/packed"
 

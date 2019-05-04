@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "base64"
 require "webauthn/client_data"
 require "webauthn/error"
 require "webauthn/security_utils"

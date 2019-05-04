@@ -3,6 +3,7 @@
 require "spec_helper"
 require "support/seeds"
 
+require "base64"
 require "webauthn/authenticator_attestation_response"
 require "openssl"
 

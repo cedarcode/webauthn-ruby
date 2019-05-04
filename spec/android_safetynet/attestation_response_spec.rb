@@ -3,6 +3,7 @@
 require "spec_helper"
 
 require "android_safetynet/attestation_response"
+require "base64"
 require "jwt"
 require "openssl"
 
