@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require "cose/algorithm"
 require "cose/key"
 require "tpm/constants"
 require "tpm/t_public"
+require "webauthn/attestation_statement/base"
 
 module WebAuthn
   module AttestationStatement

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "jwt"
+require "webauthn/security_utils"
 
 module AndroidSafetynet
   # Decoupled from WebAuthn, candidate for extraction

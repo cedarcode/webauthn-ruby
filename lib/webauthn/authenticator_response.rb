@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "webauthn/client_data"
 require "webauthn/error"
+require "webauthn/security_utils"
 
 module WebAuthn
+  TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
+
   class VerificationError < Error; end
 
   class AuthenticatorDataVerificationError < VerificationError; end

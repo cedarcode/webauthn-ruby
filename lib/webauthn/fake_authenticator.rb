@@ -8,8 +8,6 @@ require "webauthn/fake_authenticator/authenticator_data"
 
 module WebAuthn
   class FakeAuthenticator
-    AAGUID = SecureRandom.random_bytes(16)
-
     def initialize
       @credentials = {}
     end
@@ -32,7 +30,13 @@ module WebAuthn
       attestation_object
     end
 
-    def get_assertion(rp_id:, client_data_hash:, user_present: true, user_verified: false, aaguid: AAGUID)
+    def get_assertion(
+      rp_id:,
+      client_data_hash:,
+      user_present: true,
+      user_verified: false,
+      aaguid: AuthenticatorData::AAGUID
+    )
       credential_options = credentials[rp_id]
 
       if credential_options

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "webauthn/security_utils"
 
 RSpec.describe WebAuthn::SecurityUtils do
   describe "#secure_compare" do

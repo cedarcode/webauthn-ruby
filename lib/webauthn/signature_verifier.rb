@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require "cose/algorithm"
+require "cose/key"
+require "openssl"
+require "webauthn/error"
 
 module WebAuthn
   class SignatureVerifier
