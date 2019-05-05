@@ -89,48 +89,32 @@ end
 #### Initiation phase
 
 ```ruby
-credential_creation_options = WebAuthn.credential_creation_options
+create_options = WebAuthn::Credential.create_options(user: { id: user.id, name: user.name })
 
-# Store the newly generated challenge somewhere so you can have it
-# for the verification phase.
-#
-# You can read it from the resulting options:
-credential_creation_options[:challenge]
+# Store the options somewhere so you can have them for the verification phase.
+session[:create_options] = create_options
 
-# Send `credential_creation_options` to the browser, so that they can be used
-# to call `navigator.credentials.create({ "publicKey": credentialCreationOptions })`
+# Send `create_options` to the browser and use them to call
+# `navigator.credentials.create({ "publicKey": createOptions })`
 ```
 
 #### Verification phase
 
 ```ruby
-# These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
-#
-# If the user-agent is a web browser, you would use some encoding algorithm to send what
-# `navigator.credentials.create` returned through the wire.
-#
-# Then you need to decode that data before passing it to the `#verify` method.
-#
-# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
-# on the user-agent encoded data before calling `#verify`
-attestation_object = "..."
-client_data_json = "..."
+# This is the ruby Hash representing the unmodified JSON returned in `navigator.credentials.create`
+credential_json = { ... }
 
-attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
-  attestation_object: attestation_object,
-  client_data_json: client_data_json
-)
-
+credential = WebAuthn::Credential.from_json(credential_json)
 
 begin
-  attestation_response.verify(expected_challenge)
+  credential.verify(session[:create_options])
 
   # 1. Register the new user and
   # 2. Keep Credential ID and Credential Public Key under storage
   #    for future authentications
   #    Access by invoking:
-  #      `attestation_response.credential.id`
-  #      `attestation_response.credential.public_key`
+  #      `credential.id`
+  #      `credential.public_key`
 rescue WebAuthn::VerificationError => e
   # Handle error
 end
@@ -140,55 +124,37 @@ end
 
 #### Initiation phase
 
-Assuming you have the previously stored Credential ID, now in variable `credential_id`
+Assuming you have the previously stored one or more Credential ID for the user trying to autenticate:
 
 ```ruby
-credential_request_options = WebAuthn.credential_request_options
-credential_request_options[:allowCredentials] << { id: credential_id, type: "public-key" }
+get_options = WebAuthn::Credential.get_options
+# OR
+# if you want to restrict authentication to only a particular credential:
+# get_options = WebAuthn::Credential.get_options(credential_id)
+# OR
+# if you want to restrict authentication to a group of credentials:
+# get_options = WebAuthn::Credential.get_options(user.credentials.map(&:id))
 
-# Store the newly generated challenge somewhere so you can have it
-# for the verification phase.
-#
-# You can read it from the resulting options:
-credential_request_options[:challenge]
+# Store the options somewhere so you can have them for the verification phase.
+session[:get_options] = get_options
 
-# Send `credential_request_options` to the browser, so that they can be used
-# to call `navigator.credentials.get({ "publicKey": credentialRequestOptions })`
+# Send `get_options` to the browser and use them to call
+# `navigator.credentials.get({ "publicKey": getOptions })`
 ```
 
 #### Verification phase
 
-Assuming you have the previously stored Credential Public Key, now in variable `credential_public_key`
-
 ```ruby
-# These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
-#
-# If the user-agent is a web browser, you would use some encoding algorithm to send what
-# `navigator.credentials.get` returned through the wire.
-#
-# Then you need to decode that data before passing it to the `#verify` method.
-#
-# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
-# on the user-agent encoded data before calling `#verify`
-authenticator_data = "..."
-client_data_json = "..."
-signature = "..."
+# This is the ruby Hash representing the unmodified JSON returned in `navigator.credentials.get`
+credential_json = { ... }
 
-assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-  authenticator_data: authenticator_data,
-  client_data_json: client_data_json,
-  signature: signature
-)
+credential = WebAuthn::Credential.from_json(credential_json)
 
-# This hash must have the id and its corresponding public key of the
-# previously stored credential for the user that is attempting to sign in.
-allowed_credential = {
-  id: credential_id,
-  public_key: credential_public_key
-}
+# Lookup the stored public key corresponding to the Credential ID
+public_key = user.credentials.find_by(credential.id).public_key
 
 begin
-  assertion_response.verify(expected_challenge, allowed_credentials: [allowed_credential])
+  credential.verify(session[:get_options], public_key)
 
   # Sign in the user
 rescue WebAuthn::VerificationError => e
