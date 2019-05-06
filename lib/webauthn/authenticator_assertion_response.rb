@@ -5,6 +5,7 @@ require "cose/key"
 require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_data"
 require "webauthn/authenticator_response"
+require "webauthn/client_utils"
 require "webauthn/signature_verifier"
 
 module WebAuthn
@@ -12,6 +13,15 @@ module WebAuthn
   class SignatureVerificationError < VerificationError; end
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
+    def self.from_json(json, id)
+      new(
+        credential_id: id, # TODO: Remove this argument
+        authenticator_data: WebAuthn::ClientUtils.decode(json["authenticatorData"]),
+        client_data_json: WebAuthn::ClientUtils.decode(json["clientDataJSON"]),
+        signature: WebAuthn::ClientUtils.decode(json["signature"])
+      )
+    end
+
     def initialize(credential_id:, authenticator_data:, signature:, **options)
       super(options)
 
@@ -43,6 +53,7 @@ module WebAuthn
         .verify(signature, authenticator_data_bytes + client_data.hash)
     end
 
+    # TODO: Move this validation out of the scope of this class
     def valid_credential?(allowed_credentials)
       allowed_credential_ids = allowed_credentials.map { |credential| credential[:id] }
 

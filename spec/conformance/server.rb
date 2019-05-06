@@ -26,7 +26,7 @@ Credential = Struct.new(:id, :public_key) do
   end
 
   def descriptor
-    { type: "public-key", id: id }
+    { type: "public-key", id: WebAuthn::ClientUtils.encode(id) }
   end
 end
 
@@ -53,20 +53,13 @@ post "/attestation/options" do
 end
 
 post "/attestation/result" do
-  attestation_object = Base64.urlsafe_decode64(params["response"]["attestationObject"])
-  client_data_json = Base64.urlsafe_decode64(params["response"]["clientDataJSON"])
-  attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
-    attestation_object: attestation_object,
-    client_data_json: client_data_json
-  )
-
-  expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  attestation_response.verify(expected_challenge)
+  credential = WebAuthn::Credential.from_json(params)
+  credential.verify(Base64.urlsafe_decode64(cookies["challenge"]))
 
   Credential.register(
     cookies["username"],
-    id: Base64.urlsafe_encode64(attestation_response.credential.id, padding: false),
-    public_key: attestation_response.credential.public_key
+    id: credential.id,
+    public_key: credential.public_key
   )
 
   cookies["challenge"] = nil
@@ -88,24 +81,10 @@ post "/assertion/options" do
 end
 
 post "/assertion/result" do
-  credential_id = Base64.urlsafe_decode64(params["id"])
-  authenticator_data = Base64.urlsafe_decode64(params["response"]["authenticatorData"])
-  client_data_json = Base64.urlsafe_decode64(params["response"]["clientDataJSON"])
-  signature = Base64.urlsafe_decode64(params["response"]["signature"])
-  assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-    credential_id: credential_id,
-    authenticator_data: authenticator_data,
-    client_data_json: client_data_json,
-    signature: signature
-  )
-
+  credential = WebAuthn::Credential.from_json(params)
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-
-  allowed_credentials = Credential.registered_for(cookies["username"]).map do |c|
-    { id: Base64.urlsafe_decode64(c.id), public_key: c.public_key }
-  end
-
-  assertion_response.verify(expected_challenge, allowed_credentials: allowed_credentials)
+  public_key = Credential.registered_for(cookies["username"]).detect { |c| c.id == credential.id }.public_key
+  credential.verify(expected_challenge, public_key)
 
   cookies["challenge"] = nil
   cookies["username"] = nil
