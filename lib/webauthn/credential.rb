@@ -6,7 +6,13 @@ require "webauthn/client_utils"
 
 module WebAuthn
   class Credential
+    VALID_TYPE = "public-key"
+
     def self.from_json(json)
+      if json["type"] != VALID_TYPE
+        raise "invalid credential type"
+      end
+
       id = WebAuthn::ClientUtils.decode(json["id"])
       response_json = json["response"]
 
