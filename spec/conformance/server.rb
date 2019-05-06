@@ -100,7 +100,11 @@ post "/assertion/result" do
   )
 
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  allowed_credentials = Credential.registered_for(cookies["username"]).map(&:descriptor)
+
+  allowed_credentials = Credential.registered_for(cookies["username"]).map do |c|
+    { id: Base64.urlsafe_decode64(c.id), public_key: c.public_key }
+  end
+
   assertion_response.verify(expected_challenge, allowed_credentials: allowed_credentials)
 
   cookies["challenge"] = nil
