@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    webauthn (1.14.0)
+    webauthn (1.15.0)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
       cose (~> 0.7.0)
