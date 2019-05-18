@@ -24,13 +24,9 @@ module WebAuthn
     attr_reader :data
 
     def valid?
-      if attested_credential_data_included? || extension_data_included?
-        data.length > base_length &&
-          (!attested_credential_data_included? || attested_credential_data.valid?) &&
-          (!extension_data_included? || extension_data)
-      else
-        data.length == base_length
-      end
+      valid_length? &&
+        (!attested_credential_data_included? || attested_credential_data.valid?) &&
+        (!extension_data_included? || extension_data)
     end
 
     def user_flagged?
@@ -74,7 +70,7 @@ module WebAuthn
     end
 
     def extension_data
-      @extension_data ||= CBOR.decode(data_at(extension_data_position))
+      @extension_data ||= CBOR.decode(raw_extension_data)
     end
 
     def flags
@@ -83,6 +79,14 @@ module WebAuthn
 
     private
 
+    def valid_length?
+      data.length == base_length + attested_credential_data_length + extension_data_length
+    end
+
+    def raw_extension_data
+      data_at(extension_data_position)
+    end
+
     def attested_credential_data_position
       base_length
     end
@@ -90,6 +94,14 @@ module WebAuthn
     def attested_credential_data_length
       if attested_credential_data_included?
         attested_credential_data.length
+      else
+        0
+      end
+    end
+
+    def extension_data_length
+      if extension_data_included?
+        raw_extension_data.length
       else
         0
       end

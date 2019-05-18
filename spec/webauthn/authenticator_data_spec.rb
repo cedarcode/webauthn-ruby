@@ -19,6 +19,26 @@ RSpec.describe WebAuthn::AuthenticatorData do
 
   let(:authenticator_data) { described_class.new(serialized_authenticator_data) }
 
+  describe "#valid?" do
+    it "returns true" do
+      expect(authenticator_data.valid?).to be_truthy
+    end
+
+    it "returns false if leftover bytes" do
+      data = WebAuthn::FakeAuthenticator::AuthenticatorData.new(
+        rp_id_hash: rp_id_hash,
+        sign_count: sign_count,
+        user_present: user_present,
+        user_verified: user_verified,
+        extensions: nil
+      ).serialize
+
+      authenticator_data = WebAuthn::AuthenticatorData.new(data + CBOR.encode("k" => "v"))
+
+      expect(authenticator_data.valid?).to be_falsy
+    end
+  end
+
   describe "#rp_id_hash" do
     subject { authenticator_data.rp_id_hash }
     it { is_expected.to eq(rp_id_hash) }

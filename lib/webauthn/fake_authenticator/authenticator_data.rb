@@ -9,23 +9,34 @@ module WebAuthn
     class AuthenticatorData
       AAGUID = SecureRandom.random_bytes(16)
 
-      def initialize(rp_id_hash:, credential: nil, sign_count: 0, user_present: true, user_verified: !user_present,
-                     aaguid: AAGUID)
+      def initialize(
+        rp_id_hash:,
+        credential: {
+          id: SecureRandom.random_bytes(16),
+          public_key: OpenSSL::PKey::EC.new("prime256v1").generate_key.public_key
+        },
+        sign_count: 0,
+        user_present: true,
+        user_verified: !user_present,
+        aaguid: AAGUID,
+        extensions: { "fakeExtension" => "fakeExtensionValue" }
+      )
         @rp_id_hash = rp_id_hash
         @credential = credential
         @sign_count = sign_count
         @user_present = user_present
         @user_verified = user_verified
         @aaguid = aaguid
+        @extensions = extensions
       end
 
       def serialize
-        rp_id_hash + flags + serialized_sign_count + attested_credential_data + extensions
+        rp_id_hash + flags + serialized_sign_count + attested_credential_data + extension_data
       end
 
       private
 
-      attr_reader :rp_id_hash, :credential, :sign_count, :user_present, :user_verified
+      attr_reader :rp_id_hash, :credential, :sign_count, :user_present, :user_verified, :extensions
 
       def flags
         [
@@ -58,8 +69,12 @@ module WebAuthn
           end
       end
 
-      def extensions
-        CBOR.encode("fakeExtension" => "fakeExtensionValue")
+      def extension_data
+        if extensions
+          CBOR.encode(extensions)
+        else
+          ""
+        end
       end
 
       def bit(flag)
@@ -79,7 +94,7 @@ module WebAuthn
       end
 
       def extension_data_included_bit
-        if extensions.empty?
+        if extension_data.empty?
           "0"
         else
           "1"
