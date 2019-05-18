@@ -60,8 +60,15 @@ post "/attestation/result" do
     client_data_json: client_data_json
   )
 
+  public_key_credential = WebAuthn::PublicKeyCredential.new(
+    type: params["type"],
+    id: params["id"],
+    raw_id: Base64.urlsafe_decode64(params["rawId"]),
+    response: attestation_response
+  )
+
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  attestation_response.verify(expected_challenge)
+  public_key_credential.verify(expected_challenge)
 
   Credential.register(
     cookies["username"],
@@ -92,11 +99,19 @@ post "/assertion/result" do
   authenticator_data = Base64.urlsafe_decode64(params["response"]["authenticatorData"])
   client_data_json = Base64.urlsafe_decode64(params["response"]["clientDataJSON"])
   signature = Base64.urlsafe_decode64(params["response"]["signature"])
+
   assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
     credential_id: credential_id,
     authenticator_data: authenticator_data,
     client_data_json: client_data_json,
     signature: signature
+  )
+
+  public_key_credential = WebAuthn::PublicKeyCredential.new(
+    type: params["type"],
+    id: params["id"],
+    raw_id: Base64.urlsafe_decode64(params["rawId"]),
+    response: assertion_response
   )
 
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
@@ -105,7 +120,7 @@ post "/assertion/result" do
     { id: Base64.urlsafe_decode64(c.id), public_key: c.public_key }
   end
 
-  assertion_response.verify(expected_challenge, allowed_credentials: allowed_credentials)
+  public_key_credential.verify(expected_challenge, allowed_credentials: allowed_credentials)
 
   cookies["challenge"] = nil
   cookies["username"] = nil
