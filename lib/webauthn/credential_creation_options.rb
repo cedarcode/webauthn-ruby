@@ -21,7 +21,22 @@ module WebAuthn
       { type: "public-key", alg: COSE::Algorithm.by_name(alg_name).id }
     end.freeze
 
-    def initialize(user_id:, user_name:, user_display_name: nil, rp_name: nil)
+    attr_accessor :attestation, :authenticator_selection, :exclude_credentials, :extensions
+
+    def initialize(
+      attestation: nil,
+      authenticator_selection: nil,
+      exclude_credentials: nil,
+      extensions: nil,
+      user_id:,
+      user_name:,
+      user_display_name: nil,
+      rp_name: nil
+    )
+      @attestation = attestation
+      @authenticator_selection = authenticator_selection
+      @exclude_credentials = exclude_credentials
+      @extensions = extensions
       @user_id = user_id
       @user_name = user_name
       @user_display_name = user_display_name
@@ -29,12 +44,30 @@ module WebAuthn
     end
 
     def to_h
-      {
+      options = {
         challenge: challenge,
         pubKeyCredParams: pub_key_cred_params,
         user: { id: user.id, name: user.name, displayName: user.display_name },
         rp: { name: rp.name }
       }
+
+      if attestation
+        options[:attestation] = attestation
+      end
+
+      if authenticator_selection
+        options[:authenticatorSelection] = authenticator_selection
+      end
+
+      if exclude_credentials
+        options[:excludeCredentials] = exclude_credentials
+      end
+
+      if extensions
+        options[:extensions] = extensions
+      end
+
+      options
     end
 
     def pub_key_cred_params

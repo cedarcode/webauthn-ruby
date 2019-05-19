@@ -38,13 +38,17 @@ WebAuthn.configure do |config|
 end
 
 post "/attestation/options" do
-  options = base64_credential_creation_options
-  options[:user][:name] = params["username"]
-  options[:user][:displayName] = params["displayName"]
-  options[:attestation] = params["attestation"]
-  options[:authenticatorSelection] = params["authenticatorSelection"]
-  options[:extensions] = params["extensions"]
-  options[:excludeCredentials] = Credential.registered_for(params["username"]).map(&:descriptor)
+  options = WebAuthn::CredentialCreationOptions.new(
+    attestation: params["attestation"],
+    authenticator_selection: params["authenticatorSelection"],
+    exclude_credentials: Credential.registered_for(params["username"]).map(&:descriptor),
+    extensions: params["extensions"],
+    user_id: "1",
+    user_name: params["username"],
+    user_display_name: params["displayName"]
+  ).to_h
+
+  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
 
   cookies["username"] = params["username"]
   cookies["challenge"] = options[:challenge]
@@ -83,10 +87,13 @@ post "/attestation/result" do
 end
 
 post "/assertion/options" do
-  options = base64_credential_request_options
-  options[:allowCredentials] = Credential.registered_for(params["username"]).map(&:descriptor)
-  options[:extensions] = params["extensions"]
-  options[:userVerification] = params["userVerification"]
+  options = WebAuthn::CredentialRequestOptions.new(
+    allow_credentials: Credential.registered_for(params["username"]).map(&:descriptor),
+    extensions: params["extensions"],
+    user_verification: params["userVerification"]
+  ).to_h
+
+  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
 
   cookies["username"] = params["username"]
   cookies["challenge"] = options[:challenge]
@@ -144,16 +151,4 @@ end
 
 def render_error(message)
   JSON.dump(status: "error", errorMessage: message)
-end
-
-def base64_credential_creation_options
-  options = WebAuthn.credential_creation_options
-  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
-  options
-end
-
-def base64_credential_request_options
-  options = WebAuthn.credential_request_options
-  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
-  options
 end
