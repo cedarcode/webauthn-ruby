@@ -159,6 +159,22 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
   end
 
+  describe "user verified validation" do
+    context "if user flags are off" do
+      let(:assertion) { client.get(challenge: original_challenge, user_present: true, user_verified: false) }
+
+      it "doesn't verify" do
+        expect {
+          assertion_response.verify(
+            original_challenge,
+            allowed_credentials: allowed_credentials,
+            user_verification: true
+          )
+        }.to raise_exception(WebAuthn::UserVerifiedVerificationError)
+      end
+    end
+  end
+
   describe "challenge validation" do
     context "if challenge doesn't match" do
       it "doesn't verify" do

@@ -17,13 +17,14 @@ module WebAuthn
   class TokenBindingVerificationError < VerificationError; end
   class TypeVerificationError < VerificationError; end
   class UserPresenceVerificationError < VerificationError; end
+  class UserVerifiedVerificationError < VerificationError; end
 
   class AuthenticatorResponse
     def initialize(client_data_json:)
       @client_data_json = client_data_json
     end
 
-    def verify(expected_challenge, expected_origin = nil, rp_id: nil)
+    def verify(expected_challenge, expected_origin = nil, user_verification: nil, rp_id: nil)
       expected_origin ||= WebAuthn.configuration.origin || raise("Unspecified expected origin")
       rp_id ||= WebAuthn.configuration.rp_id
 
@@ -34,6 +35,7 @@ module WebAuthn
       verify_item(:authenticator_data)
       verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
       verify_item(:user_presence)
+      verify_item(:user_verified, user_verification)
 
       true
     end
@@ -88,6 +90,14 @@ module WebAuthn
 
     def valid_user_presence?
       authenticator_data.user_flagged?
+    end
+
+    def valid_user_verified?(user_verification)
+      if user_verification
+        authenticator_data.user_verified?
+      else
+        true
+      end
     end
 
     def rp_id_from_origin(expected_origin)
