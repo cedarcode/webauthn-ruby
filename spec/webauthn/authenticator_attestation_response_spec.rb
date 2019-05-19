@@ -13,13 +13,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   let(:client) { WebAuthn::FakeClient.new(origin) }
   let(:attestation_response) do
-    response = client.create(challenge: original_challenge)[:response]
+    response = public_key_credential[:response]
 
     WebAuthn::AuthenticatorAttestationResponse.new(
       attestation_object: response[:attestation_object],
       client_data_json: response[:client_data_json]
     )
   end
+
+  let(:public_key_credential) { client.create(challenge: original_challenge) }
 
   before do
     WebAuthn.configuration.origin = origin
@@ -421,6 +423,18 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
       it "isn't valid" do
         expect(attestation_response.valid?(original_challenge, origin)).to be_falsy
+      end
+    end
+  end
+
+  describe "user verification" do
+    context "when UV is not set" do
+      let(:public_key_credential) { client.create(challenge: original_challenge, user_verified: false) }
+
+      it "doesn't verify if user verification is required" do
+        expect {
+          attestation_response.verify(original_challenge, origin, user_verification: true)
+        }.to raise_exception(WebAuthn::UserVerifiedVerificationError)
       end
     end
   end

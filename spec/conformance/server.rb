@@ -89,6 +89,7 @@ post "/assertion/options" do
   options[:userVerification] = params["userVerification"]
 
   cookies["username"] = params["username"]
+  cookies["userVerification"] = params["userVerification"]
   cookies["challenge"] = options[:challenge]
 
   render_ok(options)
@@ -120,10 +121,15 @@ post "/assertion/result" do
     { id: Base64.urlsafe_decode64(c.id), public_key: c.public_key }
   end
 
-  public_key_credential.verify(expected_challenge, allowed_credentials: allowed_credentials)
+  public_key_credential.verify(
+    expected_challenge,
+    allowed_credentials: allowed_credentials,
+    user_verification: cookies["userVerification"] == "required"
+  )
 
   cookies["challenge"] = nil
   cookies["username"] = nil
+  cookies["userVerification"] = nil
 
   render_ok
 end
