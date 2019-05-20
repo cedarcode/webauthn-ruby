@@ -101,6 +101,47 @@ RSpec.describe "SignatureVerifier" do
         expect(verifier.verify(signature, to_be_signed)).to be_falsy
       end
     end
+  end
+
+  context "RS1" do
+    let(:algorithm_id) { -65535 }
+    let(:public_key) { key.public_key }
+    let(:key) { OpenSSL::PKey::RSA.new(2048) }
+
+    it "works" do
+      expect(verifier.verify(signature, to_be_signed)).to be_truthy
+    end
+
+    context "when it was signed using a different hash algorithm" do
+      let(:hash_algorithm) { "SHA512" }
+
+      it "fails" do
+        expect(verifier.verify(signature, to_be_signed)).to be_falsy
+      end
+    end
+
+    context "when it is valid but in an EC context" do
+      let(:public_key) do
+        pkey = OpenSSL::PKey::EC.new("prime256v1")
+        pkey.public_key = key.public_key
+
+        pkey
+      end
+
+      let(:key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+
+      it "fails" do
+        expect { verifier.verify(signature, to_be_signed) }.to raise_error("Incompatible algorithm and key")
+      end
+    end
+
+    context "when it was signed with a different key" do
+      let(:signature) { OpenSSL::PKey::RSA.new(2048).sign(hash_algorithm, to_be_signed) }
+
+      it "fails" do
+        expect(verifier.verify(signature, to_be_signed)).to be_falsy
+      end
+    end
 
     context "because it was signed over different data" do
       let(:signature) { key.sign(hash_algorithm, "different data") }
