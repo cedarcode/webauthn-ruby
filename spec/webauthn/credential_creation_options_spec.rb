@@ -14,14 +14,33 @@ RSpec.describe WebAuthn::CredentialCreationOptions do
     expect(creation_options.challenge.length).to eq(32)
   end
 
-  it "has public key params" do
-    params = creation_options.pub_key_cred_params
+  context "public key params" do
+    it "has default public key params" do
+      params = creation_options.pub_key_cred_params
 
-    expect(params.class).to eq(Array)
-    expect(params.length).to eq(2)
+      expect(params.class).to eq(Array)
+      expect(params.length).to eq(2)
 
-    expect(params).to include(type: "public-key", alg: -7)
-    expect(params).to include(type: "public-key", alg: -257)
+      expect(params).to include(type: "public-key", alg: -7)
+      expect(params).to include(type: "public-key", alg: -257)
+    end
+
+    context "when extra alg added" do
+      before do
+        WebAuthn.configuration.algorithms << "RS1"
+      end
+
+      it "is added to public key params" do
+        params = creation_options.pub_key_cred_params
+
+        expect(params.class).to eq(Array)
+        expect(params.length).to eq(3)
+
+        expect(params).to include(type: "public-key", alg: -7)
+        expect(params).to include(type: "public-key", alg: -257)
+        expect(params).to include(type: "public-key", alg: -65535)
+      end
+    end
   end
 
   context "Relying Party info" do
