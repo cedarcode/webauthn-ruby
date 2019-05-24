@@ -14,12 +14,7 @@ module WebAuthn
   end
 
   class CredentialCreationOptions < CredentialOptions
-    DEFAULT_ALGORITHMS = ["ES256", "RS256"].freeze
     DEFAULT_RP_NAME = "web-server"
-
-    DEFAULT_PUB_KEY_CRED_PARAMS = DEFAULT_ALGORITHMS.map do |alg_name|
-      { type: "public-key", alg: COSE::Algorithm.by_name(alg_name).id }
-    end.freeze
 
     attr_accessor :attestation, :authenticator_selection, :exclude_credentials, :extensions
 
@@ -71,7 +66,9 @@ module WebAuthn
     end
 
     def pub_key_cred_params
-      DEFAULT_PUB_KEY_CRED_PARAMS
+      WebAuthn.configuration.algorithms.map do |alg_name|
+        { type: "public-key", alg: COSE::Algorithm.by_name(alg_name).id }
+      end
     end
 
     def rp
