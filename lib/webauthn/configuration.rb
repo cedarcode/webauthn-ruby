@@ -10,8 +10,15 @@ module WebAuthn
   end
 
   class Configuration
+    DEFAULT_ALGORITHMS = ["ES256", "RS256"].freeze
+
+    attr_accessor :algorithms
     attr_accessor :origin
     attr_accessor :rp_id
     attr_accessor :rp_name
+
+    def initialize
+      @algorithms = DEFAULT_ALGORITHMS.dup
+    end
   end
 end

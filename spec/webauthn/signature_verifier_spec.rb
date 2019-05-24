@@ -108,6 +108,10 @@ RSpec.describe "SignatureVerifier" do
     let(:public_key) { key.public_key }
     let(:key) { OpenSSL::PKey::RSA.new(2048) }
 
+    before do
+      WebAuthn.configuration.algorithms << "RS1"
+    end
+
     it "works" do
       expect(verifier.verify(signature, to_be_signed)).to be_truthy
     end

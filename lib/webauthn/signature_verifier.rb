@@ -40,13 +40,17 @@ module WebAuthn
     end
 
     def validate
-      if cose_algorithm
-        if !KTY_MAP[cose_algorithm.kty].include?(public_key.class)
-          raise("Incompatible algorithm and key")
-        end
-      else
+      if !cose_algorithm
         raise UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}"
+      elsif !supported_algorithms.include?(cose_algorithm.name)
+        raise UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}"
+      elsif !KTY_MAP[cose_algorithm.kty].include?(public_key.class)
+        raise("Incompatible algorithm and key")
       end
+    end
+
+    def supported_algorithms
+      WebAuthn.configuration.algorithms
     end
   end
 end
