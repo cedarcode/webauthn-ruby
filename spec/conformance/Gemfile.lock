@@ -6,7 +6,7 @@ PATH
       cbor (~> 0.5.9)
       cose (~> 0.7.0)
       jwt (>= 1.5, < 3.0)
-      openssl (~> 2.0)
+      openssl (~> 2.1)
       securecompare (~> 1.0)
 
 GEM
@@ -19,7 +19,7 @@ GEM
     cose (0.7.0)
       cbor (~> 0.5.9)
     ipaddr (1.2.2)
-    jwt (2.1.0)
+    jwt (2.2.1)
     multi_json (1.13.1)
     mustermann (1.0.3)
     openssl (2.1.2)

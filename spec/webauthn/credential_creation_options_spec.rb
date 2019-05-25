@@ -18,11 +18,11 @@ RSpec.describe WebAuthn::CredentialCreationOptions do
     it "has default public key params" do
       params = creation_options.pub_key_cred_params
 
-      expect(params.class).to eq(Array)
-      expect(params.length).to eq(2)
-
-      expect(params).to include(type: "public-key", alg: -7)
-      expect(params).to include(type: "public-key", alg: -257)
+      expect(params).to match_array([
+                                      { type: "public-key", alg: -7 },
+                                      { type: "public-key", alg: -37 },
+                                      { type: "public-key", alg: -257 },
+                                    ])
     end
 
     context "when extra alg added" do
@@ -33,12 +33,12 @@ RSpec.describe WebAuthn::CredentialCreationOptions do
       it "is added to public key params" do
         params = creation_options.pub_key_cred_params
 
-        expect(params.class).to eq(Array)
-        expect(params.length).to eq(3)
-
-        expect(params).to include(type: "public-key", alg: -7)
-        expect(params).to include(type: "public-key", alg: -257)
-        expect(params).to include(type: "public-key", alg: -65535)
+        expect(params).to match_array([
+                                        { type: "public-key", alg: -7 },
+                                        { type: "public-key", alg: -37 },
+                                        { type: "public-key", alg: -257 },
+                                        { type: "public-key", alg: -65535 },
+                                      ])
       end
     end
   end

@@ -10,7 +10,7 @@ module WebAuthn
   end
 
   class Configuration
-    DEFAULT_ALGORITHMS = ["ES256", "RS256"].freeze
+    DEFAULT_ALGORITHMS = ["ES256", "PS256", "RS256"].freeze
 
     attr_accessor :algorithms
     attr_accessor :origin
