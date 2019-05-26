@@ -48,7 +48,7 @@ RSpec.describe "PublicKeyCredential" do
       let(:type) { nil }
 
       it "fails" do
-        expect { public_key_credential.verify(challenge) }.to raise_error
+        expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
       end
     end
 
@@ -56,7 +56,7 @@ RSpec.describe "PublicKeyCredential" do
       let(:type) { "password" }
 
       it "fails" do
-        expect { public_key_credential.verify(challenge) }.to raise_error
+        expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
       end
     end
   end
@@ -66,7 +66,7 @@ RSpec.describe "PublicKeyCredential" do
       let(:id) { nil }
 
       it "fails" do
-        expect { public_key_credential.verify(challenge) }.to raise_error
+        expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
       end
     end
 
@@ -74,14 +74,14 @@ RSpec.describe "PublicKeyCredential" do
       let(:id) { Base64.urlsafe_encode64(raw_id + "a") }
 
       it "fails" do
-        expect { public_key_credential.verify(challenge) }.to raise_error
+        expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
       end
     end
   end
 
   context "when response is invalid" do
     it "fails" do
-      expect { public_key_credential.verify("another challenge") }.to raise_error
+      expect { public_key_credential.verify("another challenge") }.to raise_error(WebAuthn::ChallengeVerificationError)
     end
   end
 end
