@@ -19,11 +19,20 @@ RSpec.describe WebAuthn do
     it "has public key params" do
       params = @credential_creation_options[:pubKeyCredParams]
 
-      expect(params).to match_array([
-                                      { type: "public-key", alg: -7 },
-                                      { type: "public-key", alg: -37 },
-                                      { type: "public-key", alg: -257 },
-                                    ])
+      array = if OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
+                [
+                  { type: "public-key", alg: -7 },
+                  { type: "public-key", alg: -37 },
+                  { type: "public-key", alg: -257 },
+                ]
+              else
+                [
+                  { type: "public-key", alg: -7 },
+                  { type: "public-key", alg: -257 },
+                ]
+              end
+
+      expect(params).to match_array(array)
     end
 
     it "has user info" do

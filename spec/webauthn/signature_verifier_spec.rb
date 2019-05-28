@@ -63,6 +63,12 @@ RSpec.describe "SignatureVerifier" do
   end
 
   context "PS256" do
+    before do
+      unless OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
+        skip "Ruby OpenSSL gem #{OpenSSL::VERSION} do not support RSASSA-PSS"
+      end
+    end
+
     let(:signature) { key.sign_pss(hash_algorithm, to_be_signed, salt_length: :digest, mgf1_hash: hash_algorithm) }
     let(:algorithm_id) { -37 }
     let(:public_key) { key.public_key }
@@ -173,6 +179,12 @@ RSpec.describe "SignatureVerifier" do
     end
 
     context "when it was signed with the same key but using PSS" do
+      before do
+        unless OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
+          skip "Ruby OpenSSL gem #{OpenSSL::VERSION} do not support RSASSA-PSS"
+        end
+      end
+
       let(:signature) { key.sign_pss(hash_algorithm, to_be_signed, salt_length: :digest, mgf1_hash: hash_algorithm) }
 
       it "fails" do
