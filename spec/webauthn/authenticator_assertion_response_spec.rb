@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "support/seeds"
 require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_assertion_response"
+require "webauthn/u2f_migrator"
 
 RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   let(:client) { WebAuthn::FakeClient.new(actual_origin) }
@@ -325,6 +327,53 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             assertion_response.verify(original_challenge, allowed_credentials: allowed_credentials)
           }.to raise_exception(WebAuthn::SignCountVerificationError)
         end
+      end
+    end
+  end
+
+  describe "migrated U2F credential" do
+    let(:origin) { "https://f69df4d9.ngrok.io" }
+    let(:app_id) { "#{origin}/appid" }
+    let(:migrated_credential) do
+      WebAuthn::U2fMigrator.new(
+        app_id: app_id,
+        certificate: seeds[:u2f_migration][:stored_credential][:certificate],
+        key_handle: seeds[:u2f_migration][:stored_credential][:key_handle],
+        public_key: seeds[:u2f_migration][:stored_credential][:public_key],
+        counter: 41
+      )
+    end
+    let(:allowed_credentials) do
+      [
+        {
+          id: migrated_credential.credential.id,
+          public_key: migrated_credential.credential.public_key,
+        }
+      ]
+    end
+
+    let(:assertion_data) { seeds[:u2f_migration][:assertion] }
+    let(:assertion_response) do
+      WebAuthn::AuthenticatorAssertionResponse.new(
+        credential_id: Base64.strict_decode64(assertion_data[:id]),
+        client_data_json: Base64.strict_decode64(assertion_data[:response][:client_data_json]),
+        authenticator_data: Base64.strict_decode64(assertion_data[:response][:authenticator_data]),
+        signature: Base64.strict_decode64(assertion_data[:response][:signature])
+      )
+    end
+    let(:original_challenge) { Base64.strict_decode64(assertion_data[:challenge]) }
+
+    context "when correct FIDO AppID is given as rp_id" do
+      it "verifies" do
+        expect(
+          assertion_response.verify(original_challenge, allowed_credentials: allowed_credentials, rp_id: app_id)
+        ).to be_truthy
+      end
+
+      it "is valid" do
+        expect(
+          assertion_response.valid?(original_challenge, allowed_credentials: allowed_credentials, rp_id: app_id)
+        ).to be_truthy
       end
     end
   end

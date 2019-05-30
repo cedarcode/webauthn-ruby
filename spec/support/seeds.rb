@@ -57,5 +57,21 @@ def seeds
         "client_data_json": "eyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJjaGFsbGVuZ2UiOiJ2MmgxYzJWeWJtRnRaWFEwYVY5T2JUUm9iakZEZUVrd1NHYzNPSGh6VFdsamFHRnNiR1Z1WjJWUXR1YkVEQzRPU3BHSGViSExMTmVyRmY4IiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9"
       },
     },
+    u2f_migration: {
+      stored_credential: {
+        certificate: "MIIBNDCB26ADAgECAgp2ubKB51u9YwjcMAoGCCqGSM49BAMCMBUxEzARBgNVBAMTClUyRiBJc3N1ZXIwGhcLMDAwMTAxMDAwMFoXCzAwMDEwMTAwMDBaMBUxEzARBgNVBAMTClUyRiBEZXZpY2UwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQfqziP5Gobu7FmIoFH0WCaD15knMWpIiLgeero1dVBVt2qo62PNI6GktGDUkzCwoj5pENTzTFVDUqAZTHDHTN1oxcwFTATBgsrBgEEAYLlHAIBAQQEAwIFIDAKBggqhkjOPQQDAgNIADBFAiEAwaOmji8WpyFGJwV/YrtyjJ4D56G6YtBGUk5FbSwvP3MCIAtfeOURqhgSn28jbZITIn2StOZ+31PoFt+wXZ3IuQ/e",
+        key_handle: "1a9tIwwYiYNdmfmxVaksOkxKapK2HtDNSsL4MssbCHILhkMzA0xZYk5IHmBljyblTQ_SnsQea-QEMzgTN2L1Mw",
+        public_key: "BBbTnfbd5sY+rCxZDQi87+akvZedjIqR8567GfrsLR0Gnp4zBpD5zhdSq1wKPvhzEoKJvFuYel1cpdTCzpahrBA=",
+      },
+      assertion: {
+        challenge: "v7G2KR2NYPW6AWxfevjMYflTxbWQqLwEoaZkOnm25K8=",
+        id: "1a9tIwwYiYNdmfmxVaksOkxKapK2HtDNSsL4MssbCHILhkMzA0xZYk5IHmBljyblTQ/SnsQea+QEMzgTN2L1Mw==",
+        response: {
+          client_data_json: "eyJjaGFsbGVuZ2UiOiJ2N0cyS1IyTllQVzZBV3hmZXZqTVlmbFR4YldRcUx3RW9hWmtPbm0yNUs4Iiwib3JpZ2luIjoiaHR0cHM6Ly9mNjlkZjRkOS5uZ3Jvay5pbyIsInR5cGUiOiJ3ZWJhdXRobi5nZXQifQ==",
+          signature: "MEYCIQCvDq6m7mzBlfhbu+Y20018/iesDoaRyMOwMjVLUgKdJQIhAMFscVb7oUrIhEU/btWUWMj9xjXN9PSUio6ApytJ4Vd7",
+          authenticator_data: "wqc1M3OySstQSIGfoFIjkPhIJrGaCJiQKPeryg70zSsBAAAAbQ=="
+        }
+      }
+    }
   }
 end
