@@ -20,8 +20,20 @@ module WebAuthn
       @signature = signature
     end
 
-    def verify(expected_challenge, expected_origin = nil, allowed_credentials:, user_verification: nil, rp_id: nil)
-      super(expected_challenge, expected_origin, user_verification: user_verification, rp_id: rp_id)
+    def verify(
+      expected_challenge,
+      expected_origin = nil,
+      allowed_credentials:,
+      user_verification: nil,
+      rp_id: nil,
+      fido_app_id: nil
+    )
+      super(
+        expected_challenge,
+        expected_origin,
+        user_verification: user_verification,
+        rp_id: rp_id,
+        fido_app_id: fido_app_id)
 
       verify_item(:credential, allowed_credentials)
       verify_item(:signature, credential_cose_key(allowed_credentials))

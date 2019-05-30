@@ -24,7 +24,7 @@ module WebAuthn
       @client_data_json = client_data_json
     end
 
-    def verify(expected_challenge, expected_origin = nil, user_verification: nil, rp_id: nil)
+    def verify(expected_challenge, expected_origin = nil, user_verification: nil, rp_id: nil, fido_app_id: nil)
       expected_origin ||= WebAuthn.configuration.origin || raise("Unspecified expected origin")
       rp_id ||= WebAuthn.configuration.rp_id
 
@@ -33,7 +33,7 @@ module WebAuthn
       verify_item(:challenge, expected_challenge)
       verify_item(:origin, expected_origin)
       verify_item(:authenticator_data)
-      verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
+      verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin), fido_app_id)
       verify_item(:user_presence)
       verify_item(:user_verified, user_verification)
 
@@ -80,8 +80,12 @@ module WebAuthn
       expected_origin && (client_data.origin == expected_origin)
     end
 
-    def valid_rp_id?(rp_id)
-      OpenSSL::Digest::SHA256.digest(rp_id) == authenticator_data.rp_id_hash
+    def valid_rp_id?(rp_id, fido_app_id = nil)
+      if fido_app_id && fido_app_id_from_extension
+        OpenSSL::Digest::SHA256.digest(fido_app_id) == authenticator_data.rp_id_hash
+      else
+        OpenSSL::Digest::SHA256.digest(rp_id) == authenticator_data.rp_id_hash
+      end
     end
 
     def valid_authenticator_data?
@@ -102,6 +106,10 @@ module WebAuthn
 
     def rp_id_from_origin(expected_origin)
       URI.parse(expected_origin).host
+    end
+
+    def fido_app_id_from_extension
+      client_data.client_extensions&.dig("appid")
     end
 
     def type

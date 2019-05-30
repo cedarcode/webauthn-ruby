@@ -30,6 +30,10 @@ module WebAuthn
       data["tokenBinding"]
     end
 
+    def client_extensions
+      data["clientExtensions"]
+    end
+
     def valid_token_binding_format?
       if token_binding
         token_binding.is_a?(Hash) && VALID_TOKEN_BINDING_STATUSES.include?(token_binding["status"])
