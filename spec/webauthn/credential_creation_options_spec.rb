@@ -18,11 +18,20 @@ RSpec.describe WebAuthn::CredentialCreationOptions do
     it "has default public key params" do
       params = creation_options.pub_key_cred_params
 
-      expect(params.class).to eq(Array)
-      expect(params.length).to eq(2)
+      array = if OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
+                [
+                  { type: "public-key", alg: -7 },
+                  { type: "public-key", alg: -37 },
+                  { type: "public-key", alg: -257 },
+                ]
+              else
+                [
+                  { type: "public-key", alg: -7 },
+                  { type: "public-key", alg: -257 },
+                ]
+              end
 
-      expect(params).to include(type: "public-key", alg: -7)
-      expect(params).to include(type: "public-key", alg: -257)
+      expect(params).to match_array(array)
     end
 
     context "when extra alg added" do
@@ -33,12 +42,22 @@ RSpec.describe WebAuthn::CredentialCreationOptions do
       it "is added to public key params" do
         params = creation_options.pub_key_cred_params
 
-        expect(params.class).to eq(Array)
-        expect(params.length).to eq(3)
+        array = if OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
+                  [
+                    { type: "public-key", alg: -7 },
+                    { type: "public-key", alg: -37 },
+                    { type: "public-key", alg: -257 },
+                    { type: "public-key", alg: -65535 },
+                  ]
+                else
+                  [
+                    { type: "public-key", alg: -7 },
+                    { type: "public-key", alg: -257 },
+                    { type: "public-key", alg: -65535 },
+                  ]
+                end
 
-        expect(params).to include(type: "public-key", alg: -7)
-        expect(params).to include(type: "public-key", alg: -257)
-        expect(params).to include(type: "public-key", alg: -65535)
+        expect(params).to match_array(array)
       end
     end
   end

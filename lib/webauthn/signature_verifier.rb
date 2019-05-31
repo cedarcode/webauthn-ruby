@@ -23,7 +23,12 @@ module WebAuthn
     end
 
     def verify(signature, verification_data)
-      public_key.verify(cose_algorithm.hash, signature, verification_data)
+      if rsa_pss?
+        public_key.verify_pss(cose_algorithm.hash, signature, verification_data,
+                              salt_length: :digest, mgf1_hash: cose_algorithm.hash)
+      else
+        public_key.verify(cose_algorithm.hash, signature, verification_data)
+      end
     end
 
     private
@@ -37,6 +42,10 @@ module WebAuthn
       else
         COSE::Algorithm.find(algorithm)
       end
+    end
+
+    def rsa_pss?
+      cose_algorithm.name.start_with?("PS")
     end
 
     def validate
