@@ -27,6 +27,12 @@ module COSE
 end
 
 COSE::Algorithm.register(-7, "ES256", "SHA256", COSE::Key::EC2::KTY_EC2, "prime256v1")
+COSE::Algorithm.register(-35, "ES384", "SHA384", COSE::Key::EC2::KTY_EC2, "prime256v1")
+COSE::Algorithm.register(-36, "ES512", "SHA512", COSE::Key::EC2::KTY_EC2, "prime256v1")
 COSE::Algorithm.register(-37, "PS256", "SHA256", COSE::Key::RSA::KTY_RSA)
+COSE::Algorithm.register(-38, "PS384", "SHA384", COSE::Key::RSA::KTY_RSA)
+COSE::Algorithm.register(-39, "PS512", "SHA512", COSE::Key::RSA::KTY_RSA)
 COSE::Algorithm.register(-257, "RS256", "SHA256", COSE::Key::RSA::KTY_RSA)
+COSE::Algorithm.register(-258, "RS384", "SHA384", COSE::Key::RSA::KTY_RSA)
+COSE::Algorithm.register(-259, "RS512", "SHA512", COSE::Key::RSA::KTY_RSA)
 COSE::Algorithm.register(-65535, "RS1", "SHA1", COSE::Key::RSA::KTY_RSA)
