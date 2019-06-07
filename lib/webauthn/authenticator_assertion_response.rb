@@ -10,6 +10,7 @@ require "webauthn/signature_verifier"
 module WebAuthn
   class CredentialVerificationError < VerificationError; end
   class SignatureVerificationError < VerificationError; end
+  class SignCountVerificationError < VerificationError; end
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
     def initialize(credential_id:, authenticator_data:, signature:, **options)
@@ -25,6 +26,7 @@ module WebAuthn
 
       verify_item(:credential, allowed_credentials)
       verify_item(:signature, credential_cose_key(allowed_credentials))
+      verify_item(:sign_count, allowed_credentials)
 
       true
     end
@@ -41,6 +43,20 @@ module WebAuthn
       WebAuthn::SignatureVerifier
         .new(credential_cose_key.alg, credential_cose_key.to_pkey)
         .verify(signature, authenticator_data_bytes + client_data.hash)
+    end
+
+    def valid_sign_count?(allowed_credentials)
+      matched_credential = allowed_credentials.find do |credential|
+        credential[:id] == credential_id
+      end
+      # TODO: make passing sign count mandatory in next major version
+      stored_sign_count = matched_credential.fetch(:sign_count, 0)
+
+      if authenticator_data.sign_count.nonzero? || stored_sign_count.nonzero?
+        authenticator_data.sign_count > stored_sign_count
+      else
+        true
+      end
     end
 
     def valid_credential?(allowed_credentials)

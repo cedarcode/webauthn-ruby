@@ -35,7 +35,8 @@ module WebAuthn
       client_data_hash:,
       user_present: true,
       user_verified: false,
-      aaguid: AuthenticatorData::AAGUID
+      aaguid: AuthenticatorData::AAGUID,
+      sign_count: 0
     )
       credential_options = credentials[rp_id]
 
@@ -47,6 +48,7 @@ module WebAuthn
           user_present: user_present,
           user_verified: user_verified,
           aaguid: aaguid,
+          sign_count: sign_count,
         ).serialize
 
         signature = credential_key.sign("SHA256", authenticator_data + client_data_hash)

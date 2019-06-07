@@ -126,11 +126,12 @@ begin
   attestation_response.verify(expected_challenge)
 
   # 1. Register the new user and
-  # 2. Keep Credential ID and Credential Public Key under storage
+  # 2. Keep Credential ID, Credential Public Key and Sign Count under storage
   #    for future authentications
   #    Access by invoking:
   #      `attestation_response.credential.id`
   #      `attestation_response.credential.public_key`
+  #      `attestation_response.authenticator_data.sign_count`
 rescue WebAuthn::VerificationError => e
   # Handle error
 end
@@ -170,6 +171,7 @@ Assuming you have the previously stored Credential Public Key, now in variable `
 #
 # E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
 # on the user-agent encoded data before calling `#verify`
+selected_credential_id = "..."
 authenticator_data = "..."
 client_data_json = "..."
 signature = "..."
@@ -185,7 +187,8 @@ assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
 # previously stored credential for the user that is attempting to sign in.
 allowed_credential = {
   id: credential_id,
-  public_key: credential_public_key
+  public_key: credential_public_key,
+  sign_count: sign_count,
 }
 
 begin
@@ -195,6 +198,9 @@ begin
 rescue WebAuthn::VerificationError => e
   # Handle error
 end
+
+# Find the selected credential in your data storage using `selected_credential_id`
+# Update the stored sign count with the value from `assertion_response.authenticator_data.sign_count`
 ```
 
 ## Attestation Statement Formats

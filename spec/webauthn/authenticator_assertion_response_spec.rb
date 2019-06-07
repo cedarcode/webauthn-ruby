@@ -11,7 +11,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   let(:credential_id) { credential[0] }
   let(:credential_public_key) { credential[1] }
 
-  let(:allowed_credentials) { [{ id: credential_id, public_key: credential_public_key }] }
+  let(:allowed_credentials) { [{ id: credential_id, public_key: credential_public_key, sign_count: 0 }] }
 
   let(:origin) { fake_origin }
   let(:actual_origin) { origin }
@@ -68,7 +68,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       [
         {
           id: credential_id,
-          public_key: credential_public_key
+          public_key: credential_public_key,
+          sign_count: 0
         },
         {
           id: SecureRandom.random_bytes(16),
@@ -271,6 +272,59 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             rp_id: URI.parse(origin).host
           )
         ).to be_truthy
+      end
+    end
+  end
+
+  describe "sign_count validation" do
+    context "if authenticator does not support counter" do
+      let(:allowed_credentials) { [{ id: credential_id, public_key: credential_public_key, sign_count: 0 }] }
+      let(:assertion) { client.get(challenge: original_challenge, sign_count: 0) }
+
+      it "verifies" do
+        expect(
+          assertion_response.verify(
+            original_challenge,
+            allowed_credentials: allowed_credentials,
+          )
+        ).to be_truthy
+      end
+    end
+
+    context "when the authenticator supports counter" do
+      let(:allowed_credentials) { [{ id: credential_id, public_key: credential_public_key, sign_count: 5 }] }
+
+      context "and it's greater than the stored counter" do
+        let(:assertion) { client.get(challenge: original_challenge, sign_count: 6) }
+
+        it "verifies" do
+          expect(
+            assertion_response.verify(
+              original_challenge,
+              allowed_credentials: allowed_credentials,
+            )
+          ).to be_truthy
+        end
+      end
+
+      context "and it's equal to the stored counter" do
+        let(:assertion) { client.get(challenge: original_challenge, sign_count: 5) }
+
+        it "doesn't verify" do
+          expect {
+            assertion_response.verify(original_challenge, allowed_credentials: allowed_credentials)
+          }.to raise_exception(WebAuthn::SignCountVerificationError)
+        end
+      end
+
+      context "and it's less than the stored counter" do
+        let(:assertion) { client.get(challenge: original_challenge, sign_count: 4) }
+
+        it "doesn't verify" do
+          expect {
+            assertion_response.verify(original_challenge, allowed_credentials: allowed_credentials)
+          }.to raise_exception(WebAuthn::SignCountVerificationError)
+        end
       end
     end
   end
