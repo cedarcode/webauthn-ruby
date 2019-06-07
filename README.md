@@ -23,6 +23,7 @@ WebAuthn (Web Authentication) is a W3C standard for secure public-key authentica
 - WebAuthn [article](https://en.wikipedia.org/wiki/WebAuthn) in Wikipedia
 - [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API) in MDN
 - WebAuthn [article with talk](https://developers.google.com/web/updates/2018/05/webauthn) in Google Developers
+- How to use [WebAuthn in Android apps](https://developers.google.com/identity/fido/android/native-apps)
 
 ## Prerequisites
 
