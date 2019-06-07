@@ -175,6 +175,7 @@ client_data_json = "..."
 signature = "..."
 
 assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
+  credential_id: selected_credential_id,
   authenticator_data: authenticator_data,
   client_data_json: client_data_json,
   signature: signature
