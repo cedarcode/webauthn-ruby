@@ -200,7 +200,9 @@ credential_request_options[:challenge]
 
 #### Verification phase
 
-Assuming you have the previously stored Credential Public Key, now in variable `credential_public_key`
+You need to look up the stored credential for a user by matching the `id` attribute from the PublicKeyCredential 
+interface returned by the browser to the stored `credential_id`. The corresponding `public_key` and `sign_count` 
+attributes must be passed as keyword arguments to the `verify` method call.
 
 ```ruby
 # These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
@@ -212,36 +214,24 @@ Assuming you have the previously stored Credential Public Key, now in variable `
 #
 # E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
 # on the user-agent encoded data before calling `#verify`
-selected_credential_id = "..."
 authenticator_data = "..."
 client_data_json = "..."
 signature = "..."
 
 assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-  credential_id: selected_credential_id,
   authenticator_data: authenticator_data,
   client_data_json: client_data_json,
   signature: signature
 )
 
-# This hash must have the id and its corresponding public key of the
-# previously stored credential for the user that is attempting to sign in.
-allowed_credential = {
-  id: credential_id,
-  public_key: credential_public_key,
-  sign_count: sign_count,
-}
-
+credential = "..."
 begin
-  assertion_response.verify(expected_challenge, allowed_credentials: [allowed_credential])
-
+  assertion_response.verify(expected_challenge, public_key: credential.public_key, sign_count: credential.sign_count)
+  # Update the stored credential sign count with the value from `assertion_response.authenticator_data.sign_count`
   # Sign in the user
 rescue WebAuthn::VerificationError => e
   # Handle error
 end
-
-# Find the selected credential in your data storage using `selected_credential_id`
-# Update the stored sign count with the value from `assertion_response.authenticator_data.sign_count`
 ```
 
 ## API
