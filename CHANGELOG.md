@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.16.0] - 2019-06-13
+
+### Added
+
+- Ability to enforce [user verification](https://www.w3.org/TR/webauthn/#user-verification) with extra argument in the `#verify` method.
+- Support RS1 (RSA w/ SHA-1) credentials. Off by default. Enable by adding `"RS1"` to `WebAuthn.configuration.algorithms` array.
+- Support PS256 (RSA Probabilistic Signature Scheme w/ SHA-256) credentials. On by default. Thank you @bdewater.
+
 ## [v1.15.0] - 2019-05-16
 
 ### Added
@@ -179,6 +187,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.16.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.15.0...v1.16.0/
 [v1.15.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.14.0...v1.15.0/
 [v1.14.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.13.0...v1.14.0/
 [v1.13.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.12.0...v1.13.0/
