@@ -24,9 +24,6 @@ Metrics/LineLength:
 Naming:
   Enabled: true
 
-Performance:
-  Enabled: true
-
 Security:
   Enabled: true
 
