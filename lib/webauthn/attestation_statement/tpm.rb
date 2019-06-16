@@ -40,7 +40,7 @@ module WebAuthn
       def valid_signature?
         WebAuthn::SignatureVerifier
           .new(algorithm, attestation_certificate.public_key)
-          .verify(signature, verification_data)
+          .verify(signature, verification_data, rsa_pss_salt_length: :auto)
       end
 
       def valid_attestation_certificate?

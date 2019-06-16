@@ -22,10 +22,10 @@ module WebAuthn
       validate
     end
 
-    def verify(signature, verification_data)
+    def verify(signature, verification_data, rsa_pss_salt_length: :digest)
       if rsa_pss?
         public_key.verify_pss(cose_algorithm.hash, signature, verification_data,
-                              salt_length: :digest, mgf1_hash: cose_algorithm.hash)
+                              salt_length: rsa_pss_salt_length, mgf1_hash: cose_algorithm.hash)
       else
         public_key.verify(cose_algorithm.hash, signature, verification_data)
       end

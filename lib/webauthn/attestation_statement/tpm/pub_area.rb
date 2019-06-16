@@ -17,7 +17,8 @@ module WebAuthn
         }.freeze
 
         COSE_RSA_TO_TPM_ALG = {
-          COSE::Algorithm.by_name("RS256").id => ::TPM::ALG_RSASSA
+          COSE::Algorithm.by_name("RS256").id => ::TPM::ALG_RSASSA,
+          COSE::Algorithm.by_name("PS256").id => ::TPM::ALG_RSAPSS,
         }.freeze
 
         COSE_TO_TPM_CURVE = {
