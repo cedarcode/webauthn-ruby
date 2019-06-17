@@ -41,7 +41,7 @@ module WebAuthn
       }
     end
 
-    def get(challenge: fake_challenge, rp_id: nil, user_present: true, user_verified: false)
+    def get(challenge: fake_challenge, rp_id: nil, user_present: true, user_verified: false, sign_count: 0)
       rp_id ||= URI.parse(origin).host
 
       client_data_json = data_json_for(:get, challenge)
@@ -51,7 +51,8 @@ module WebAuthn
         rp_id: rp_id,
         client_data_hash: client_data_hash,
         user_present: user_present,
-        user_verified: user_verified
+        user_verified: user_verified,
+        sign_count: sign_count,
       )
 
       {

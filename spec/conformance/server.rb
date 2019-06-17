@@ -13,12 +13,12 @@ set show_exceptions: false
 
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
 
-Credential = Struct.new(:id, :public_key) do
+Credential = Struct.new(:id, :public_key, :sign_count) do
   @credentials = {}
 
-  def self.register(username, id:, public_key:)
+  def self.register(username, id:, public_key:, sign_count:)
     @credentials[username] ||= []
-    @credentials[username] << Credential.new(id, public_key)
+    @credentials[username] << Credential.new(id, public_key, sign_count)
   end
 
   def self.registered_for(username)
@@ -78,7 +78,8 @@ post "/attestation/result" do
   Credential.register(
     cookies["username"],
     id: Base64.urlsafe_encode64(attestation_response.credential.id, padding: false),
-    public_key: attestation_response.credential.public_key
+    public_key: attestation_response.credential.public_key,
+    sign_count: attestation_response.authenticator_data.sign_count,
   )
 
   cookies["challenge"] = nil
@@ -126,7 +127,7 @@ post "/assertion/result" do
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
 
   allowed_credentials = Credential.registered_for(cookies["username"]).map do |c|
-    { id: Base64.urlsafe_decode64(c.id), public_key: c.public_key }
+    { id: Base64.urlsafe_decode64(c.id), public_key: c.public_key, sign_count: c.sign_count }
   end
 
   public_key_credential.verify(
@@ -135,6 +136,10 @@ post "/assertion/result" do
     user_verification: cookies["userVerification"] == "required"
   )
 
+  used_credential = Credential.registered_for(cookies["username"]).detect do |c|
+    c.id == public_key_credential.id
+  end
+  used_credential.sign_count = assertion_response.authenticator_data.sign_count
   cookies["challenge"] = nil
   cookies["username"] = nil
   cookies["userVerification"] = nil
