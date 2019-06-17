@@ -35,7 +35,7 @@ host = ENV["HOST"] || "localhost"
 WebAuthn.configure do |config|
   config.origin = "http://#{host}:#{settings.port}"
   config.rp_name = RP_NAME
-  config.algorithms << "RS1"
+  config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
 end
 
 post "/attestation/options" do
