@@ -205,6 +205,23 @@ RSpec.describe "TPM attestation statement" do
         end
       end
 
+      context "when RSA PSS algorithm" do
+        before do
+          unless OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
+            skip "Ruby OpenSSL gem #{OpenSSL::VERSION} do not support RSASSA-PSS"
+          end
+        end
+
+        let(:algorithm) { -37 }
+        let(:signature) do
+          aik.sign_pss("SHA256", to_be_signed, salt_length: :max, mgf1_hash: "SHA256")
+        end
+
+        it "works if everything's fine" do
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+        end
+      end
+
       context "when TPM version is not 2.0" do
         let(:tpm_version) { "1.2" }
 
