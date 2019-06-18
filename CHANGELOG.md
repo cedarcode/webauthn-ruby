@@ -1,5 +1,12 @@
 # Changelog
 
+## [v1.17.0] - 2019-06-18
+
+### Added
+
+- Support ES384, ES512, PS384, PS512, RS384 and RS512 credentials. Off by default. Enable by adding any of them to `WebAuthn.configuration.algorithms` array. Thank you @bdewater.
+- Support [Signature Counter](https://www.w3.org/TR/webauthn/#signature-counter) verification. Thank you @bdewater.
+
 ## [v1.16.0] - 2019-06-13
 
 ### Added
@@ -187,6 +194,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.17.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.16.0...v1.17.0/
 [v1.16.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.15.0...v1.16.0/
 [v1.15.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.14.0...v1.15.0/
 [v1.14.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.13.0...v1.14.0/
