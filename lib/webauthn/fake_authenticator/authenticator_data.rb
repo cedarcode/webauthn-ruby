@@ -9,6 +9,8 @@ module WebAuthn
     class AuthenticatorData
       AAGUID = SecureRandom.random_bytes(16)
 
+      attr_reader :sign_count
+
       def initialize(
         rp_id_hash:,
         credential: {
@@ -36,7 +38,7 @@ module WebAuthn
 
       private
 
-      attr_reader :rp_id_hash, :credential, :sign_count, :user_present, :user_verified, :extensions
+      attr_reader :rp_id_hash, :credential, :user_present, :user_verified, :extensions
 
       def flags
         [
