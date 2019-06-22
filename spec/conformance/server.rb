@@ -92,25 +92,7 @@ post "/assertion/options" do
 end
 
 post "/assertion/result" do
-  credential_id = Base64.urlsafe_decode64(params["id"])
-  authenticator_data = Base64.urlsafe_decode64(params["response"]["authenticatorData"])
-  client_data_json = Base64.urlsafe_decode64(params["response"]["clientDataJSON"])
-  signature = Base64.urlsafe_decode64(params["response"]["signature"])
-
-  assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-    credential_id: credential_id,
-    authenticator_data: authenticator_data,
-    client_data_json: client_data_json,
-    signature: signature
-  )
-
-  public_key_credential = WebAuthn::PublicKeyCredential.new(
-    type: params["type"],
-    id: params["id"],
-    raw_id: Base64.urlsafe_decode64(params["rawId"]),
-    response: assertion_response
-  )
-
+  public_key_credential = WebAuthn::PublicKeyCredential.from_get(params)
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
 
   allowed_credentials = Credential.registered_for(cookies["username"]).map do |c|
@@ -126,7 +108,7 @@ post "/assertion/result" do
   used_credential = Credential.registered_for(cookies["username"]).detect do |c|
     c.id == public_key_credential.id
   end
-  used_credential.sign_count = assertion_response.authenticator_data.sign_count
+  used_credential.sign_count = public_key_credential.response.authenticator_data.sign_count
   cookies["challenge"] = nil
   cookies["username"] = nil
   cookies["userVerification"] = nil

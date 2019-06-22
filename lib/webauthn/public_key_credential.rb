@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "base64"
+require "webauthn/authenticator_assertion_response"
 require "webauthn/authenticator_attestation_response"
 
 module WebAuthn
@@ -17,6 +18,21 @@ module WebAuthn
         response: WebAuthn::AuthenticatorAttestationResponse.new(
           attestation_object: decode(credential["response"]["attestationObject"]),
           client_data_json: decode(credential["response"]["clientDataJSON"])
+        )
+      )
+    end
+
+    def self.from_get(credential)
+      new(
+        type: credential["type"],
+        id: credential["id"],
+        raw_id: decode(credential["rawId"]),
+        response: WebAuthn::AuthenticatorAssertionResponse.new(
+          # FIXME: credential_id doesn't belong inside AuthenticatorAssertionResponse
+          credential_id: decode(credential["id"]),
+          authenticator_data: decode(credential["response"]["authenticatorData"]),
+          client_data_json: decode(credential["response"]["clientDataJSON"]),
+          signature: decode(credential["response"]["signature"])
         )
       )
     end

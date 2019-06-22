@@ -13,6 +13,7 @@ module WebAuthn
   class SignCountVerificationError < VerificationError; end
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
+    # FIXME: credential_id doesn't belong inside AuthenticatorAssertionResponse
     def initialize(credential_id:, authenticator_data:, signature:, **options)
       super(options)
 
