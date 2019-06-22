@@ -58,28 +58,15 @@ post "/attestation/options" do
 end
 
 post "/attestation/result" do
-  attestation_object = Base64.urlsafe_decode64(params["response"]["attestationObject"])
-  client_data_json = Base64.urlsafe_decode64(params["response"]["clientDataJSON"])
-  attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
-    attestation_object: attestation_object,
-    client_data_json: client_data_json
-  )
-
-  public_key_credential = WebAuthn::PublicKeyCredential.new(
-    type: params["type"],
-    id: params["id"],
-    raw_id: Base64.urlsafe_decode64(params["rawId"]),
-    response: attestation_response
-  )
-
+  public_key_credential = WebAuthn::PublicKeyCredential.from_create(params)
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
   public_key_credential.verify(expected_challenge)
 
   Credential.register(
     cookies["username"],
-    id: Base64.urlsafe_encode64(attestation_response.credential.id, padding: false),
-    public_key: attestation_response.credential.public_key,
-    sign_count: attestation_response.authenticator_data.sign_count,
+    id: Base64.urlsafe_encode64(public_key_credential.response.credential.id, padding: false),
+    public_key: public_key_credential.response.credential.public_key,
+    sign_count: public_key_credential.response.authenticator_data.sign_count,
   )
 
   cookies["challenge"] = nil
