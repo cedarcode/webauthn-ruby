@@ -58,7 +58,7 @@ post "/attestation/options" do
 end
 
 post "/attestation/result" do
-  public_key_credential = WebAuthn::PublicKeyCredential.from_create(params)
+  public_key_credential = WebAuthn::PublicKeyCredential.from_create(params, encoding: :base64url)
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
   public_key_credential.verify(expected_challenge)
 
@@ -92,7 +92,7 @@ post "/assertion/options" do
 end
 
 post "/assertion/result" do
-  public_key_credential = WebAuthn::PublicKeyCredential.from_get(params)
+  public_key_credential = WebAuthn::PublicKeyCredential.from_get(params, encoding: :base64url)
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
 
   allowed_credentials = Credential.registered_for(cookies["username"]).map do |c|

@@ -9,79 +9,133 @@ require "webauthn/configuration"
 require "webauthn/public_key_credential"
 
 RSpec.describe "PublicKeyCredential" do
-  let(:public_key_credential) do
-    WebAuthn::PublicKeyCredential.new(
-      type: type,
-      id: id,
-      raw_id: raw_id,
-      response: attestation_response
-    )
-  end
+  describe "#verify" do
+    let(:public_key_credential) do
+      WebAuthn::PublicKeyCredential.new(
+        type: type,
+        id: id,
+        raw_id: raw_id,
+        response: attestation_response
+      )
+    end
 
-  let(:type) { "public-key" }
-  let(:id) { Base64.urlsafe_encode64(raw_id) }
-  let(:raw_id) { SecureRandom.random_bytes(16) }
+    let(:type) { "public-key" }
+    let(:id) { Base64.urlsafe_encode64(raw_id) }
+    let(:raw_id) { SecureRandom.random_bytes(16) }
 
-  let(:attestation_response) do
-    response = client.create(challenge: challenge)[:response]
+    let(:attestation_response) do
+      response = client.create(challenge: challenge)[:response]
 
-    WebAuthn::AuthenticatorAttestationResponse.new(
-      attestation_object: response[:attestation_object],
-      client_data_json: response[:client_data_json]
-    )
-  end
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: response[:attestation_object],
+        client_data_json: response[:client_data_json]
+      )
+    end
 
-  let(:client) { WebAuthn::FakeClient.new(origin) }
-  let(:challenge) { fake_challenge }
-  let(:origin) { fake_origin }
+    let(:client) { WebAuthn::FakeClient.new(origin) }
+    let(:challenge) { fake_challenge }
+    let(:origin) { fake_origin }
 
-  before do
-    WebAuthn.configuration.origin = origin
-  end
+    before do
+      WebAuthn.configuration.origin = origin
+    end
 
-  it "works" do
-    expect(public_key_credential.verify(challenge)).to be_truthy
-  end
+    it "works" do
+      expect(public_key_credential.verify(challenge)).to be_truthy
+    end
 
-  context "when type is invalid" do
-    context "because it is missing" do
-      let(:type) { nil }
+    context "when type is invalid" do
+      context "because it is missing" do
+        let(:type) { nil }
 
-      it "fails" do
-        expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+        it "fails" do
+          expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+        end
+      end
+
+      context "because it is something else" do
+        let(:type) { "password" }
+
+        it "fails" do
+          expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+        end
       end
     end
 
-    context "because it is something else" do
-      let(:type) { "password" }
+    context "when id is invalid" do
+      context "because it is missing" do
+        let(:id) { nil }
 
+        it "fails" do
+          expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+        end
+      end
+
+      context "because it is not the base64url of raw id" do
+        let(:id) { Base64.urlsafe_encode64(raw_id + "a") }
+
+        it "fails" do
+          expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+        end
+      end
+    end
+
+    context "when response is invalid" do
       it "fails" do
-        expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+        expect {
+          public_key_credential.verify("another challenge")
+        }.to raise_error(WebAuthn::ChallengeVerificationError)
       end
     end
   end
 
-  context "when id is invalid" do
-    context "because it is missing" do
-      let(:id) { nil }
+  describe ".from_create" do
+    it "works" do
+      client = WebAuthn::FakeClient.new(encoding: :base64url)
+      credential = client.create
 
-      it "fails" do
-        expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
-      end
-    end
+      # TODO: Make FakeClient return camelCase string keys instead of snakecase symbols
+      public_key_credential = WebAuthn::PublicKeyCredential.from_create(
+        {
+          "id" => credential[:id],
+          "type" => credential[:type],
+          "rawId" => credential[:raw_id],
+          "response" => {
+            "attestationObject" => credential[:response][:attestation_object],
+            "clientDataJSON" => credential[:response][:client_data_json],
+          }
+        },
+        encoding: :base64url
+      )
 
-    context "because it is not the base64url of raw id" do
-      let(:id) { Base64.urlsafe_encode64(raw_id + "a") }
-
-      it "fails" do
-        expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
-      end
+      expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
+      expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAttestationResponse)
     end
   end
 
-  context "when response is invalid" do
-    it "fails" do
-      expect { public_key_credential.verify("another challenge") }.to raise_error(WebAuthn::ChallengeVerificationError)
+  describe ".from_get" do
+    it "works" do
+      client = WebAuthn::FakeClient.new(encoding: :base64url)
+      client.create
+      credential = client.get
+
+      # TODO: Make FakeClient return camelCase string keys instead of snakecase symbols
+      public_key_credential = WebAuthn::PublicKeyCredential.from_get(
+        {
+          "id" => credential[:id],
+          "type" => credential[:type],
+          "rawId" => credential[:raw_id],
+          "response" => {
+            "authenticatorData" => credential[:response][:authenticator_data],
+            "clientDataJSON" => credential[:response][:client_data_json],
+            "signature" => credential[:response][:signature]
+          }
+        },
+        encoding: :base64url
+      )
+
+      expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
+      expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAssertionResponse)
     end
   end
 end

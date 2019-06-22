@@ -3,6 +3,7 @@
 require "base64"
 require "webauthn/authenticator_assertion_response"
 require "webauthn/authenticator_attestation_response"
+require "webauthn/encoder"
 
 module WebAuthn
   class PublicKeyCredential
@@ -10,35 +11,35 @@ module WebAuthn
 
     attr_reader :type, :id, :raw_id, :response
 
-    def self.from_create(credential)
+    def self.from_create(credential, encoding: :base64)
+      encoder = WebAuthn::Encoder.new(encoding)
+
       new(
         type: credential["type"],
         id: credential["id"],
-        raw_id: decode(credential["rawId"]),
+        raw_id: encoder.decode(credential["rawId"]),
         response: WebAuthn::AuthenticatorAttestationResponse.new(
-          attestation_object: decode(credential["response"]["attestationObject"]),
-          client_data_json: decode(credential["response"]["clientDataJSON"])
+          attestation_object: encoder.decode(credential["response"]["attestationObject"]),
+          client_data_json: encoder.decode(credential["response"]["clientDataJSON"])
         )
       )
     end
 
-    def self.from_get(credential)
+    def self.from_get(credential, encoding: :base64)
+      encoder = WebAuthn::Encoder.new(encoding)
+
       new(
         type: credential["type"],
         id: credential["id"],
-        raw_id: decode(credential["rawId"]),
+        raw_id: encoder.decode(credential["rawId"]),
         response: WebAuthn::AuthenticatorAssertionResponse.new(
           # FIXME: credential_id doesn't belong inside AuthenticatorAssertionResponse
-          credential_id: decode(credential["id"]),
-          authenticator_data: decode(credential["response"]["authenticatorData"]),
-          client_data_json: decode(credential["response"]["clientDataJSON"]),
-          signature: decode(credential["response"]["signature"])
+          credential_id: encoder.decode(credential["id"]),
+          authenticator_data: encoder.decode(credential["response"]["authenticatorData"]),
+          client_data_json: encoder.decode(credential["response"]["clientDataJSON"]),
+          signature: encoder.decode(credential["response"]["signature"])
         )
       )
-    end
-
-    def self.decode(data)
-      Base64.urlsafe_decode64(data)
     end
 
     def initialize(type:, id:, raw_id:, response:)
