@@ -25,7 +25,10 @@ module WebAuthn
       ).serialize
 
       credentials[rp_id] ||= {}
-      credentials[rp_id][credential_id] = credential_key
+      credentials[rp_id][credential_id] = {
+        credential_key: credential_key,
+        sign_count: 1
+      }
 
       attestation_object
     end
@@ -36,22 +39,25 @@ module WebAuthn
       user_present: true,
       user_verified: false,
       aaguid: AuthenticatorData::AAGUID,
-      sign_count: 0
+      sign_count: nil
     )
       credential_options = credentials[rp_id]
 
       if credential_options
-        credential_id, credential_key = credential_options.first
+        credential_id, credential = credential_options.first
+        credential_key = credential[:credential_key]
+        credential_sign_count = credential[:sign_count]
 
         authenticator_data = AuthenticatorData.new(
           rp_id_hash: hashed(rp_id),
           user_present: user_present,
           user_verified: user_verified,
           aaguid: aaguid,
-          sign_count: sign_count,
+          sign_count: sign_count || credential_sign_count,
         ).serialize
 
         signature = credential_key.sign("SHA256", authenticator_data + client_data_hash)
+        credential[:sign_count] += 1
 
         {
           credential_id: credential_id,
