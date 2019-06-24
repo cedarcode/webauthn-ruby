@@ -12,25 +12,25 @@ module WebAuthn
       @credentials = {}
     end
 
-    def make_credential(rp_id:, client_data_hash:, user_present: true, user_verified: false)
-      credential_id, credential_key = new_credential
+    def make_credential(rp_id:, client_data_hash:, user_present: true, user_verified: false, sign_count: nil)
+      credential_id, credential_key, credential_sign_count = new_credential
+      sign_count ||= credential_sign_count
 
-      attestation_object = AttestationObject.new(
+      credentials[rp_id] ||= {}
+      credentials[rp_id][credential_id] = {
+        credential_key: credential_key,
+        sign_count: sign_count + 1
+      }
+
+      AttestationObject.new(
         client_data_hash: client_data_hash,
         rp_id_hash: hashed(rp_id),
         credential_id: credential_id,
         credential_key: credential_key,
         user_present: user_present,
-        user_verified: user_verified
+        user_verified: user_verified,
+        sign_count: sign_count
       ).serialize
-
-      credentials[rp_id] ||= {}
-      credentials[rp_id][credential_id] = {
-        credential_key: credential_key,
-        sign_count: 1
-      }
-
-      attestation_object
     end
 
     def get_assertion(
@@ -74,7 +74,7 @@ module WebAuthn
     attr_reader :credentials
 
     def new_credential
-      [SecureRandom.random_bytes(16), OpenSSL::PKey::EC.new("prime256v1").generate_key]
+      [SecureRandom.random_bytes(16), OpenSSL::PKey::EC.new("prime256v1").generate_key, 0]
     end
 
     def hashed(target)
