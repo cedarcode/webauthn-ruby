@@ -91,7 +91,7 @@ RSpec.describe "PublicKeyCredential" do
 
   describe ".from_create" do
     it "works" do
-      client = WebAuthn::FakeClient.new(encoding: :base64url)
+      client = WebAuthn::FakeClient.new(encoding: :base64)
       credential = client.create
 
       # TODO: Make FakeClient return camelCase string keys instead of snakecase symbols
@@ -105,7 +105,7 @@ RSpec.describe "PublicKeyCredential" do
             "clientDataJSON" => credential[:response][:client_data_json],
           }
         },
-        encoding: :base64url
+        encoding: :base64
       )
 
       expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
@@ -115,7 +115,7 @@ RSpec.describe "PublicKeyCredential" do
 
   describe ".from_get" do
     it "works" do
-      client = WebAuthn::FakeClient.new(encoding: :base64url)
+      client = WebAuthn::FakeClient.new(encoding: :base64)
       client.create
       credential = client.get
 
@@ -131,7 +131,7 @@ RSpec.describe "PublicKeyCredential" do
             "signature" => credential[:response][:signature]
           }
         },
-        encoding: :base64url
+        encoding: :base64
       )
 
       expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)

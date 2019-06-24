@@ -34,7 +34,7 @@ module WebAuthn
         raw_id: encoder.decode(credential["rawId"]),
         response: WebAuthn::AuthenticatorAssertionResponse.new(
           # FIXME: credential_id doesn't belong inside AuthenticatorAssertionResponse
-          credential_id: encoder.decode(credential["id"]),
+          credential_id: Base64.urlsafe_decode64(credential["id"]),
           authenticator_data: encoder.decode(credential["response"]["authenticatorData"]),
           client_data_json: encoder.decode(credential["response"]["clientDataJSON"]),
           signature: encoder.decode(credential["response"]["signature"])
