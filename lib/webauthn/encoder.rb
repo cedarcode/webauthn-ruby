@@ -14,7 +14,7 @@ module WebAuthn
         Base64.strict_encode64(data)
       when :base64url
         Base64.urlsafe_encode64(data, padding: false)
-      when nil
+      when nil, false
         data
       else
         raise "Unsupported or unknown encoding: #{encoding}"
@@ -27,7 +27,7 @@ module WebAuthn
         Base64.strict_decode64(data)
       when :base64url
         Base64.urlsafe_decode64(data)
-      when nil
+      when nil, false
         data
       else
         raise "Unsupported or unknown encoding: #{encoding}"
