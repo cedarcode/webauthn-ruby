@@ -59,7 +59,10 @@ Or install it yourself as:
 
 ## Usage
 
-NOTE: You can find a working example on how to use this gem in a __Rails__ app in [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app).
+You can find a working example on how to use this gem in a __Rails__ app in [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app).
+
+If you are migrating an existing application from the legacy FIDO U2F JavaScript API to WebAuthn, also refer to
+[`docs/u2f_migration.md`](https://github.com/cedarcode/webauthn-ruby/blob/u2f-migration-doc/docs/u2f_migration.md).
 
 ### Configuration
 
