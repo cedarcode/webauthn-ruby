@@ -12,7 +12,8 @@ module WebAuthn
         credential_id:,
         credential_key:,
         user_present: true,
-        user_verified: false
+        user_verified: false,
+        sign_count: 0
       )
         @client_data_hash = client_data_hash
         @rp_id_hash = rp_id_hash
@@ -20,6 +21,7 @@ module WebAuthn
         @credential_key = credential_key
         @user_present = user_present
         @user_verified = user_verified
+        @sign_count = sign_count
       end
 
       def serialize
@@ -32,14 +34,23 @@ module WebAuthn
 
       private
 
-      attr_reader :client_data_hash, :rp_id_hash, :credential_id, :credential_key, :user_present, :user_verified
+      attr_reader(
+        :client_data_hash,
+        :rp_id_hash,
+        :credential_id,
+        :credential_key,
+        :user_present,
+        :user_verified,
+        :sign_count
+      )
 
       def authenticator_data
         @authenticator_data ||= AuthenticatorData.new(
           rp_id_hash: rp_id_hash,
           credential: { id: credential_id, public_key: credential_key.public_key },
           user_present: user_present,
-          user_verified: user_verified
+          user_verified: user_verified,
+          sign_count: 0
         )
       end
     end
