@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "openssl"
+
 module WebAuthn
   def self.configuration
     @configuration ||= Configuration.new
