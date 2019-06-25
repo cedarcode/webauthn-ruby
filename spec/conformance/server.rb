@@ -64,9 +64,9 @@ post "/attestation/result" do
 
   Credential.register(
     cookies["username"],
-    id: Base64.urlsafe_encode64(public_key_credential.response.credential.id, padding: false),
-    public_key: public_key_credential.response.credential.public_key,
-    sign_count: public_key_credential.response.authenticator_data.sign_count,
+    id: public_key_credential.id,
+    public_key: public_key_credential.public_key,
+    sign_count: public_key_credential.sign_count,
   )
 
   cookies["challenge"] = nil
@@ -108,7 +108,7 @@ post "/assertion/result" do
   used_credential = Credential.registered_for(cookies["username"]).detect do |c|
     c.id == public_key_credential.id
   end
-  used_credential.sign_count = public_key_credential.response.authenticator_data.sign_count
+  used_credential.sign_count = public_key_credential.sign_count
   cookies["challenge"] = nil
   cookies["username"] = nil
   cookies["userVerification"] = nil

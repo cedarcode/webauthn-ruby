@@ -42,6 +42,10 @@ RSpec.describe "PublicKeyCredential" do
 
     it "works" do
       expect(public_key_credential.verify(challenge)).to be_truthy
+
+      expect(public_key_credential.id).not_to be_empty
+      expect(public_key_credential.public_key).not_to be_empty
+      expect(public_key_credential.sign_count).to eq(0)
     end
 
     context "when type is invalid" do
@@ -110,6 +114,10 @@ RSpec.describe "PublicKeyCredential" do
 
       expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
       expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAttestationResponse)
+
+      expect(public_key_credential.id).not_to be_empty
+      expect(public_key_credential.public_key).not_to be_empty
+      expect(public_key_credential.sign_count).to eq(0)
     end
   end
 
@@ -136,6 +144,10 @@ RSpec.describe "PublicKeyCredential" do
 
       expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
       expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAssertionResponse)
+
+      expect(public_key_credential.id).not_to be_empty
+      expect(public_key_credential.public_key).not_to be_empty
+      expect(public_key_credential.sign_count).to eq(0)
     end
   end
 end

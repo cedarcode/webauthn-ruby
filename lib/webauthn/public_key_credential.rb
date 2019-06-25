@@ -57,6 +57,14 @@ module WebAuthn
       true
     end
 
+    def public_key
+      response&.authenticator_data&.credential&.public_key
+    end
+
+    def sign_count
+      response&.authenticator_data&.sign_count
+    end
+
     private
 
     def valid_type?
