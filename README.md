@@ -8,6 +8,7 @@ a user [credential](https://www.w3.org/TR/webauthn/#public-key-credential), incl
 
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
 [![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-informational.svg?style=flat-square)](https://conventionalcommits.org)
 [![Join the chat at https://gitter.im/cedarcode/webauthn-ruby](https://badges.gitter.im/cedarcode/webauthn-ruby.svg)](https://gitter.im/cedarcode/webauthn-ruby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Why WebAuthn in my web server?
@@ -238,23 +239,21 @@ DYLD_INSERT_LIBRARIES=/usr/local/Cellar/libfaketime/2.9.7_1/lib/faketime/libfake
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-### Commit message format
+### Commits
 
-Each commit message follows the `<type>: <message>` format.
+We try to follow [Conventional Commits](https://conventionalcommits.org) specification since `v1.17.0`.
 
-The "message" starts with lowercase and the "type" is one of:
+On top of `fix` and `feat` types, we also use optional:
 
 * __build__: Changes that affect the build system or external dependencies
 * __ci__: Changes to the CI configuration files and scripts
 * __docs__: Documentation only changes
-* __feat__: A new feature
-* __fix__: A bug fix
 * __perf__: A code change that improves performance
 * __refactor__: A code change that neither fixes a bug nor adds a feature
 * __style__: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
 * __test__: Adding missing tests or correcting existing tests
 
-Inspired in a subset of [Angular's Commit Message Guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-guidelines).
+Partially inspired in [Angular's Commit Message Guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-guidelines).
 
 ## Contributing
 
