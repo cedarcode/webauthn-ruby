@@ -58,28 +58,15 @@ post "/attestation/options" do
 end
 
 post "/attestation/result" do
-  attestation_object = Base64.urlsafe_decode64(params["response"]["attestationObject"])
-  client_data_json = Base64.urlsafe_decode64(params["response"]["clientDataJSON"])
-  attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
-    attestation_object: attestation_object,
-    client_data_json: client_data_json
-  )
-
-  public_key_credential = WebAuthn::PublicKeyCredential.new(
-    type: params["type"],
-    id: params["id"],
-    raw_id: Base64.urlsafe_decode64(params["rawId"]),
-    response: attestation_response
-  )
-
+  public_key_credential = WebAuthn::PublicKeyCredential.from_create(params, encoding: :base64url)
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
   public_key_credential.verify(expected_challenge)
 
   Credential.register(
     cookies["username"],
-    id: Base64.urlsafe_encode64(attestation_response.credential.id, padding: false),
-    public_key: attestation_response.credential.public_key,
-    sign_count: attestation_response.authenticator_data.sign_count,
+    id: public_key_credential.id,
+    public_key: public_key_credential.public_key,
+    sign_count: public_key_credential.sign_count,
   )
 
   cookies["challenge"] = nil
@@ -105,25 +92,7 @@ post "/assertion/options" do
 end
 
 post "/assertion/result" do
-  credential_id = Base64.urlsafe_decode64(params["id"])
-  authenticator_data = Base64.urlsafe_decode64(params["response"]["authenticatorData"])
-  client_data_json = Base64.urlsafe_decode64(params["response"]["clientDataJSON"])
-  signature = Base64.urlsafe_decode64(params["response"]["signature"])
-
-  assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-    credential_id: credential_id,
-    authenticator_data: authenticator_data,
-    client_data_json: client_data_json,
-    signature: signature
-  )
-
-  public_key_credential = WebAuthn::PublicKeyCredential.new(
-    type: params["type"],
-    id: params["id"],
-    raw_id: Base64.urlsafe_decode64(params["rawId"]),
-    response: assertion_response
-  )
-
+  public_key_credential = WebAuthn::PublicKeyCredential.from_get(params, encoding: :base64url)
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
 
   allowed_credentials = Credential.registered_for(cookies["username"]).map do |c|
@@ -139,7 +108,7 @@ post "/assertion/result" do
   used_credential = Credential.registered_for(cookies["username"]).detect do |c|
     c.id == public_key_credential.id
   end
-  used_credential.sign_count = assertion_response.authenticator_data.sign_count
+  used_credential.sign_count = public_key_credential.sign_count
   cookies["challenge"] = nil
   cookies["username"] = nil
   cookies["userVerification"] = nil
