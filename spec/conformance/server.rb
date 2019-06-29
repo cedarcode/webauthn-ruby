@@ -32,10 +32,26 @@ end
 
 host = ENV["HOST"] || "localhost"
 
+store = OpenSSL::X509::Store.new
+Dir.each_child("server_metadata") do |filename|
+  file = File.read("./server_metadata/#{filename}")
+  certs = JSON.parse(file)["attestationRootCertificates"]
+
+  certs.each do |cert|
+    begin
+      store.add_cert(OpenSSL::X509::Certificate.new(Base64.decode64(cert)))
+    rescue OpenSSL::X509::StoreError
+      next
+    end
+  end
+end
+
 WebAuthn.configure do |config|
   config.origin = "http://#{host}:#{settings.port}"
   config.rp_name = RP_NAME
   config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
+  config.verify_attestation_statement = true
+  config.metadata_store = store
 end
 
 post "/attestation/options" do

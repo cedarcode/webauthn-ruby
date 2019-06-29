@@ -9,6 +9,8 @@ module WebAuthn
   # ECDAA attestation is unsupported.
   module AttestationStatement
     class Packed < Base
+      class UntrustworthyAttestationStatement < StandardError; end
+
       # Follows "Verification procedure"
       def valid?(authenticator_data, client_data_hash)
         check_unsupported_feature
@@ -20,6 +22,7 @@ module WebAuthn
           meet_certificate_requirement? &&
           matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
+          valid_attestation_trustworthiness? &&
           attestation_type_and_trust_path
       end
 
@@ -93,6 +96,17 @@ module WebAuthn
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, attestation_certificate_chain]
         else
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF, nil]
+        end
+      end
+
+      def valid_attestation_trustworthiness?
+        mds = WebAuthn.configuration.metadata_store
+        if mds && (raw_attestation_certificates || raw_ecdaa_key_id)
+          # return false if self_attestation?
+
+          mds.verify(attestation_certificate, attestation_certificate_chain)
+        else
+          true
         end
       end
     end

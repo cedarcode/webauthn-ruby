@@ -21,6 +21,7 @@ module WebAuthn
     attr_accessor :rp_id
     attr_accessor :rp_name
     attr_accessor :verify_attestation_statement
+    attr_accessor :metadata_store
 
     def initialize
       @algorithms = DEFAULT_ALGORITHMS.dup
