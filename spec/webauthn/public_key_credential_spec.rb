@@ -147,7 +147,7 @@ RSpec.describe "PublicKeyCredential" do
 
       expect(public_key_credential.id).not_to be_empty
       expect(public_key_credential.public_key).not_to be_empty
-      expect(public_key_credential.sign_count).to eq(0)
+      expect(public_key_credential.sign_count).to eq(1)
     end
   end
 end

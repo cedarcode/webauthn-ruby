@@ -438,4 +438,45 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       end
     end
   end
+
+  describe "attestation statement verification" do
+    let(:original_challenge) do
+      Base64.strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
+    end
+
+    let(:origin) { "http://localhost:3000" }
+
+    let(:attestation_response) do
+      response = seeds[:security_key_direct][:authenticator_attestation_response]
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.strict_decode64(response[:attestation_object]),
+        client_data_json: Base64.strict_decode64(response[:client_data_json])
+      )
+    end
+
+    before do
+      attestation_response.attestation["attStmt"]["sig"] = "corrupted signature".b
+    end
+
+    context "when verification is set to true" do
+      before do
+        WebAuthn.configuration.verify_attestation_statement = true
+      end
+
+      it "verifies the attestation statement" do
+        expect { attestation_response.verify(original_challenge) }.to raise_error(OpenSSL::PKey::PKeyError)
+      end
+    end
+
+    context "when verification is set to false" do
+      before do
+        WebAuthn.configuration.verify_attestation_statement = false
+      end
+
+      it "does not verify the attestation statement" do
+        expect(attestation_response.verify(original_challenge)).to be_truthy
+      end
+    end
+  end
 end

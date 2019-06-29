@@ -24,7 +24,7 @@ module WebAuthn
     def verify(expected_challenge, expected_origin = nil, user_verification: nil, rp_id: nil)
       super
 
-      verify_item(:attestation_statement)
+      verify_item(:attestation_statement) if WebAuthn.configuration.verify_attestation_statement
 
       true
     end

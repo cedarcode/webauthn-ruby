@@ -22,9 +22,11 @@ module WebAuthn
     attr_accessor :origin
     attr_accessor :rp_id
     attr_accessor :rp_name
+    attr_accessor :verify_attestation_statement
 
     def initialize
       @algorithms = DEFAULT_ALGORITHMS.dup
+      @verify_attestation_statement = true
     end
   end
 end
