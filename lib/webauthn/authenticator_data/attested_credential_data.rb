@@ -26,8 +26,12 @@ module WebAuthn
         data.length >= AAGUID_LENGTH + ID_LENGTH_LENGTH && valid_credential_public_key?
       end
 
-      def aaguid
+      def raw_aaguid
         data_at(0, AAGUID_LENGTH)
+      end
+
+      def aaguid
+        raw_aaguid.unpack("H8H4H4H4H12").join("-")
       end
 
       def credential

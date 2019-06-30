@@ -82,7 +82,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to eq("\x00" * 16)
+      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
+        eq("00000000-0000-0000-0000-000000000000")
+      )
     end
   end
 
@@ -124,7 +126,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to eq("\x00" * 16)
+      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
+        eq("00000000-0000-0000-0000-000000000000")
+      )
     end
   end
 
@@ -167,7 +171,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     it "returns the AAGUID" do
       expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq(["f8a011f38c0a4d15800617111f9edc7d"].pack("H*"))
+        eq("f8a011f3-8c0a-4d15-8006-17111f9edc7d")
       )
     end
   end
@@ -243,7 +247,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to eq("\x00" * 16)
+      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
+        eq("00000000-0000-0000-0000-000000000000")
+      )
     end
   end
 
@@ -284,7 +290,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     it "returns the AAGUID" do
       expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq(["550e4b54aa47409f9a951ab76c130131"].pack("H*"))
+        eq("550e4b54-aa47-409f-9a95-1ab76c130131")
       )
     end
   end

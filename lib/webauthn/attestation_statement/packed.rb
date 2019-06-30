@@ -18,7 +18,7 @@ module WebAuthn
           valid_certificate_chain? &&
           valid_ec_public_keys?(authenticator_data.credential) &&
           meet_certificate_requirement? &&
-          matching_aaguid?(authenticator_data.attested_credential_data.aaguid) &&
+          matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
           attestation_type_and_trust_path
       end
