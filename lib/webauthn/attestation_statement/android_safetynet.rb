@@ -23,10 +23,7 @@ module WebAuthn
       private
 
       def trusted_attestation_certificate?(trust_store)
-        signing_certificates.each do |certificate|
-          trust_store.add_cert(certificate)
-        end
-        trust_store.verify(attestation_certificate)
+        trust_store.verify(attestation_certificate, signing_certificates)
       end
 
       def valid_response?(authenticator_data, client_data_hash)
