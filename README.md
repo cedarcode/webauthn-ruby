@@ -38,16 +38,17 @@ If you have discovered a security bug, please send an email to security@cedarcod
 
 WebAuthn (Web Authentication) is a W3C standard for secure public-key authentication on the Web supported by all leading browsers and platforms.
 
+#### Good Intros
+
+- [Guide to Web Authentication](https://webauthn.guide) by Duo
+- [What is WebAuthn?](https://www.yubico.com/webauthn/) by Yubico
+
+#### In Depth
+
 - WebAuthn [W3C Recommendation](https://www.w3.org/TR/webauthn/) (i.e. "The Standard")
-- WebAuthn [intro](https://www.yubico.com/webauthn/) by Yubico
-- WebAuthn [article](https://en.wikipedia.org/wiki/WebAuthn) in Wikipedia
 - [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API) in MDN
-- WebAuthn [article with talk](https://developers.google.com/web/updates/2018/05/webauthn) in Google Developers
 - How to use [WebAuthn in Android apps](https://developers.google.com/identity/fido/android/native-apps)
-
-### Why WebAuthn in my web server?
-
-- [Security Benefits for WebAuthn Relying Parties](https://www.w3.org/TR/webauthn/#sctn-rp-benefits)
+- [Security Benefits for WebAuthn Servers (a.k.a Relying Parties)](https://www.w3.org/TR/webauthn/#sctn-rp-benefits)
 
 ## Prerequisites
 
