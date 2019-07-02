@@ -1,4 +1,13 @@
-# WebAuthn ruby server library :key:
+# webauthn-ruby
+
+![banner](webauthn-ruby.png)
+
+[![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
+[![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-informational.svg?style=flat-square)](https://conventionalcommits.org)
+[![Join the chat at https://gitter.im/cedarcode/webauthn-ruby](https://badges.gitter.im/cedarcode/webauthn-ruby.svg)](https://gitter.im/cedarcode/webauthn-ruby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+> WebAuthn ruby server library
 
 Makes your Ruby/Rails web server become a functional [WebAuthn Relying Party](https://www.w3.org/TR/webauthn/#webauthn-relying-party).
 
@@ -6,25 +15,40 @@ Takes care of the [server-side operations](https://www.w3.org/TR/webauthn/#rp-op
 [register](https://www.w3.org/TR/webauthn/#registration) or [authenticate](https://www.w3.org/TR/webauthn/#authentication)
 a user [credential](https://www.w3.org/TR/webauthn/#public-key-credential), including the necessary cryptographic checks.
 
-[![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
-[![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-informational.svg?style=flat-square)](https://conventionalcommits.org)
-[![Join the chat at https://gitter.im/cedarcode/webauthn-ruby](https://badges.gitter.im/cedarcode/webauthn-ruby.svg)](https://gitter.im/cedarcode/webauthn-ruby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+## Table of Contents
 
-## Why WebAuthn in my web server?
+- [Security](#security)
+- [Background](#background)
+- [Prerequisites](#prerequisites)
+- [Install](#install)
+- [Usage](#usage)
+- [API](#api)
+- [Attestation Statement Formats](#attestation-statement-formats)
+- [Testing Your Integration](#testing-your-integration)
+- [Contributing](#contributing)
+- [License](#license)
 
-- [Security Benefits for WebAuthn Relying Parties](https://www.w3.org/TR/webauthn/#sctn-rp-benefits)
+## Security
 
-## What is WebAuthn?
+If you have discovered a security bug, please send an email to security@cedarcode.com instead of posting to the GitHub issue tracker.
+
+## Background
+
+### What is WebAuthn?
 
 WebAuthn (Web Authentication) is a W3C standard for secure public-key authentication on the Web supported by all leading browsers and platforms.
 
+#### Good Intros
+
+- [Guide to Web Authentication](https://webauthn.guide) by Duo
+- [What is WebAuthn?](https://www.yubico.com/webauthn/) by Yubico
+
+#### In Depth
+
 - WebAuthn [W3C Recommendation](https://www.w3.org/TR/webauthn/) (i.e. "The Standard")
-- WebAuthn [intro](https://www.yubico.com/webauthn/) by Yubico
-- WebAuthn [article](https://en.wikipedia.org/wiki/WebAuthn) in Wikipedia
 - [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API) in MDN
-- WebAuthn [article with talk](https://developers.google.com/web/updates/2018/05/webauthn) in Google Developers
 - How to use [WebAuthn in Android apps](https://developers.google.com/identity/fido/android/native-apps)
+- [Security Benefits for WebAuthn Servers (a.k.a Relying Parties)](https://www.w3.org/TR/webauthn/#sctn-rp-benefits)
 
 ## Prerequisites
 
@@ -42,7 +66,7 @@ For a detailed picture about what is conformant and what not, you can refer to:
 - [FIDO certified products](https://fidoalliance.org/certification/fido-certified-products)
 
 
-## Installation
+## Install
 
 Add this line to your application's Gemfile:
 
@@ -208,6 +232,10 @@ end
 # Update the stored sign count with the value from `assertion_response.authenticator_data.sign_count`
 ```
 
+## API
+
+_Pending_
+
 ## Attestation Statement Formats
 
 | Attestation Statement Format | Supported? |
@@ -228,41 +256,12 @@ NOTE: Be aware that it is up to you to do "trust path validation" (steps 15 and 
 
 The Webauthn spec requires for data that is signed and authenticated. As a result, it can be difficult to create valid test authenticator data when testing your integration. webauthn-ruby exposes [WebAuthn::FakeClient](https://github.com/cedarcode/webauthn-ruby/blob/master/lib/webauthn/fake_client.rb) for you to use in your tests. Example usage can be found in [webauthn-ruby/spec/webauthn/authenticator_assertion_response_spec.rb](https://github.com/cedarcode/webauthn-ruby/blob/master/spec/webauthn/authenticator_assertion_response_spec.rb).
 
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake` to run the tests and code-style checks. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-Some tests require stubbing time with [libfaketime](https://github.com/wolfcw/libfaketime) in order to pass, otherwise they're skipped. You can install this library with your package manager. Follow libfaketime's instructions for your OS to preload the library before running the tests, and use the `DONT_FAKE_MONOTONIC=1 FAKETIME_NO_CACHE=1` options. E.g. when installed via homebrew on macOS:
-```shell
-DYLD_INSERT_LIBRARIES=/usr/local/Cellar/libfaketime/2.9.7_1/lib/faketime/libfaketime.1.dylib DYLD_FORCE_FLAT_NAMESPACE=1 DONT_FAKE_MONOTONIC=1 FAKETIME_NO_CACHE=1 bundle exec rspec
-```
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-### Commits
-
-We try to follow [Conventional Commits](https://conventionalcommits.org) specification since `v1.17.0`.
-
-On top of `fix` and `feat` types, we also use optional:
-
-* __build__: Changes that affect the build system or external dependencies
-* __ci__: Changes to the CI configuration files and scripts
-* __docs__: Documentation only changes
-* __perf__: A code change that improves performance
-* __refactor__: A code change that neither fixes a bug nor adds a feature
-* __style__: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-* __test__: Adding missing tests or correcting existing tests
-
-Partially inspired in [Angular's Commit Message Guidelines](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-guidelines).
-
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/cedarcode/webauthn-ruby.
+See [the contributing file](CONTRIBUTING.md)!
 
-### Security
-
-If you have discovered a security bug, please send an email to security@cedarcode.com instead of posting to the GitHub issue tracker.
+Bug reports, feature suggestions, and pull requests are welcome on GitHub at https://github.com/cedarcode/webauthn-ruby.
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+The library is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
