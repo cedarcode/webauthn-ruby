@@ -23,7 +23,7 @@ module WebAuthn
         sign_count: @counter,
         user_present: true,
         user_verified: false,
-        aaguid: WebAuthn::AttestationStatement::FidoU2f::VALID_ATTESTED_AAGUID,
+        aaguid: WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
       )
     end
 

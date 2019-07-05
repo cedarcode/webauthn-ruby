@@ -6,6 +6,7 @@ module WebAuthn
   class AuthenticatorData
     class AttestedCredentialData
       AAGUID_LENGTH = 16
+      ZEROED_AAGUID = 0.chr * AAGUID_LENGTH
 
       ID_LENGTH_LENGTH = 2
 

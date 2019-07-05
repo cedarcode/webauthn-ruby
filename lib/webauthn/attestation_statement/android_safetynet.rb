@@ -20,6 +20,10 @@ module WebAuthn
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_certificate]
       end
 
+      def attestation_certificate
+        attestation_response.certificate_chain[0]
+      end
+
       private
 
       def trusted_attestation_certificate?(trust_store)
@@ -43,10 +47,6 @@ module WebAuthn
 
       def cts_profile_match?
         attestation_response.cts_profile_match?
-      end
-
-      def attestation_certificate
-        attestation_response.certificate_chain[0]
       end
 
       def signing_certificates

@@ -50,6 +50,17 @@ module WebAuthn
       @attestation ||= CBOR.decode(attestation_object)
     end
 
+    def aaguid
+      raw_aaguid = authenticator_data.attested_credential_data.raw_aaguid
+      unless raw_aaguid == WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
+        authenticator_data.attested_credential_data.aaguid
+      end
+    end
+
+    def attestation_certificate_key
+      raw_subject_key_identifier(attestation_statement.attestation_certificate)&.unpack("H*")&.[](0)
+    end
+
     private
 
     attr_reader :attestation_object
@@ -60,6 +71,15 @@ module WebAuthn
 
     def valid_attestation_statement?
       @attestation_type, @attestation_trust_path = attestation_statement.valid?(authenticator_data, client_data.hash)
+    end
+
+    def raw_subject_key_identifier(certificate)
+      extension = certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
+      return unless extension
+
+      ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
+      ext_value = ext_asn1.value.last
+      OpenSSL::ASN1.decode(ext_value.value).value
     end
   end
 end

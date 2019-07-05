@@ -81,9 +81,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       expect(attestation_response.credential.id.length).to be >= 16
     end
 
-    it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("00000000-0000-0000-0000-000000000000")
+    it "returns the attestation certificate key" do
+      expect(attestation_response.attestation_certificate_key).to(
+        eq("f4b64a68c334e901b8e23c6e66e6866c31931f5d")
       )
     end
   end
@@ -125,10 +125,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       expect(attestation_response.credential.id.length).to be >= 16
     end
 
-    it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("00000000-0000-0000-0000-000000000000")
-      )
+    it "returns no zeroed AAGUID" do
+      expect(attestation_response.aaguid).to be_nil
     end
   end
 
@@ -170,9 +168,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("f8a011f3-8c0a-4d15-8006-17111f9edc7d")
-      )
+      expect(attestation_response.aaguid).to eq("f8a011f3-8c0a-4d15-8006-17111f9edc7d")
     end
   end
 
@@ -206,6 +202,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     it "returns credential" do
       expect(attestation_response.credential.id.length).to be >= 16
+    end
+
+    it "returns the AAGUID" do
+      expect(attestation_response.aaguid).to eq("a7d6d93a-8a0d-11e8-9a94-a6cf71072f73")
     end
   end
 
@@ -246,10 +246,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       expect(attestation_response.credential.id.length).to be >= 16
     end
 
-    it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("00000000-0000-0000-0000-000000000000")
-      )
+    it "returns no zeroed AAGUID" do
+      expect(attestation_response.aaguid).to be_nil
     end
   end
 
@@ -289,9 +287,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("550e4b54-aa47-409f-9a95-1ab76c130131")
-      )
+      expect(attestation_response.aaguid).to eq("550e4b54-aa47-409f-9a95-1ab76c130131")
     end
   end
 
