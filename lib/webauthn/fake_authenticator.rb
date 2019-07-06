@@ -12,7 +12,14 @@ module WebAuthn
       @credentials = {}
     end
 
-    def make_credential(rp_id:, client_data_hash:, user_present: true, user_verified: false, sign_count: nil)
+    def make_credential(
+      rp_id:,
+      client_data_hash:,
+      user_present: true,
+      user_verified: false,
+      attested_credential_data: true,
+      sign_count: nil
+    )
       credential_id, credential_key, credential_sign_count = new_credential
       sign_count ||= credential_sign_count
 
@@ -29,6 +36,7 @@ module WebAuthn
         credential_key: credential_key,
         user_present: user_present,
         user_verified: user_verified,
+        attested_credential_data: attested_credential_data,
         sign_count: sign_count
       ).serialize
     end

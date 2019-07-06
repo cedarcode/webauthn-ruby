@@ -24,7 +24,12 @@ module WebAuthn
       @encoding = encoding
     end
 
-    def create(challenge: fake_challenge, rp_id: nil, user_present: true, user_verified: false)
+    def create(
+      challenge: fake_challenge,
+      rp_id: nil, user_present: true,
+      user_verified: false,
+      attested_credential_data: true
+    )
       rp_id ||= URI.parse(origin).host
 
       client_data_json = data_json_for(:create, challenge)
@@ -34,10 +39,16 @@ module WebAuthn
         rp_id: rp_id,
         client_data_hash: client_data_hash,
         user_present: user_present,
-        user_verified: user_verified
+        user_verified: user_verified,
+        attested_credential_data: attested_credential_data
       )
 
-      id = WebAuthn::AuthenticatorData.new(CBOR.decode(attestation_object)["authData"]).credential.id
+      id =
+        if attested_credential_data
+          WebAuthn::AuthenticatorData.new(CBOR.decode(attestation_object)["authData"]).credential.id
+        else
+          "id-for-pk-without-attested-credential-data"
+        end
 
       # TODO: return camelCase string keys instead of snakecase symbols
       {
