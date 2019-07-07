@@ -445,6 +445,18 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
+  describe "attested credential data verification" do
+    context "when AT is not set" do
+      let(:public_key_credential) { client.create(challenge: original_challenge, attested_credential_data: false) }
+
+      it "doesn't verify" do
+        expect {
+          attestation_response.verify(original_challenge, origin)
+        }.to raise_exception(WebAuthn::AttestedCredentialVerificationError)
+      end
+    end
+  end
+
   describe "attestation statement verification" do
     let(:original_challenge) do
       Base64.strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
