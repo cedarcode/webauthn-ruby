@@ -136,7 +136,8 @@ RSpec.describe "PublicKeyCredential" do
           "response" => {
             "authenticatorData" => credential[:response][:authenticator_data],
             "clientDataJSON" => credential[:response][:client_data_json],
-            "signature" => credential[:response][:signature]
+            "signature" => credential[:response][:signature],
+            "userHandle" => credential[:response][:user_handle]
           }
         },
         encoding: :base64
@@ -147,6 +148,7 @@ RSpec.describe "PublicKeyCredential" do
 
       expect(public_key_credential.id).not_to be_empty
       expect(public_key_credential.public_key).not_to be_empty
+      expect(public_key_credential.user_handle).to be_nil
       expect(public_key_credential.sign_count).to eq(1)
     end
   end

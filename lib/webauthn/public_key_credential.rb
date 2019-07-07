@@ -28,6 +28,11 @@ module WebAuthn
     def self.from_get(credential, encoding: :base64)
       encoder = WebAuthn::Encoder.new(encoding)
 
+      user_handle =
+        if credential["response"]["userHandle"]
+          encoder.decode(credential["response"]["userHandle"])
+        end
+
       new(
         type: credential["type"],
         id: credential["id"],
@@ -37,7 +42,8 @@ module WebAuthn
           credential_id: Base64.urlsafe_decode64(credential["id"]),
           authenticator_data: encoder.decode(credential["response"]["authenticatorData"]),
           client_data_json: encoder.decode(credential["response"]["clientDataJSON"]),
-          signature: encoder.decode(credential["response"]["signature"])
+          signature: encoder.decode(credential["response"]["signature"]),
+          user_handle: user_handle
         )
       )
     end
@@ -59,6 +65,12 @@ module WebAuthn
 
     def public_key
       response&.authenticator_data&.credential&.public_key
+    end
+
+    def user_handle
+      if response.is_a?(WebAuthn::AuthenticatorAssertionResponse)
+        response.user_handle
+      end
     end
 
     def sign_count

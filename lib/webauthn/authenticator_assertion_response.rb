@@ -13,13 +13,16 @@ module WebAuthn
   class SignCountVerificationError < VerificationError; end
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
+    attr_reader :user_handle
+
     # FIXME: credential_id doesn't belong inside AuthenticatorAssertionResponse
-    def initialize(credential_id:, authenticator_data:, signature:, **options)
+    def initialize(credential_id:, authenticator_data:, signature:, user_handle: nil, **options)
       super(options)
 
       @credential_id = credential_id
       @authenticator_data_bytes = authenticator_data
       @signature = signature
+      @user_handle = user_handle
     end
 
     def verify(expected_challenge, expected_origin = nil, allowed_credentials:, user_verification: nil, rp_id: nil)
