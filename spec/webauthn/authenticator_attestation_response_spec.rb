@@ -210,9 +210,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-safetynet attestation" do
-    around(:each) { |example| fake_time(Time.new(2018, 10, 6), &example) }
+    around(:each) { |example| fake_time(Time.new(2019, 8, 7), &example) }
 
-    let(:origin) { "http://localhost:3000" }
+    let(:origin) { "https://7f41ac45.ngrok.io" }
 
     let(:original_challenge) do
       Base64.strict_decode64(seeds[:android_safetynet_direct][:credential_creation_options][:challenge])
@@ -246,8 +246,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       expect(attestation_response.credential.id.length).to be >= 16
     end
 
-    it "returns no zeroed AAGUID" do
-      expect(attestation_response.aaguid).to be_nil
+    it "returns the AAGUID" do
+      expect(attestation_response.aaguid).to eq("b93fd961-f2e6-462f-b122-82002247de78")
     end
   end
 
