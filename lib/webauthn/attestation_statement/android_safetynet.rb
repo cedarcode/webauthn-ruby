@@ -6,7 +6,7 @@ require "webauthn/attestation_statement/base"
 
 module WebAuthn
   module AttestationStatement
-    # Implements https://www.w3.org/TR/2018/CR-webauthn-20180807/#android-safetynet-attestation
+    # Implements https://www.w3.org/TR/webauthn-1/#sctn-android-safetynet-attestation
     class AndroidSafetynet < Base
       def self.default_trust_store
         OpenSSL::X509::Store.new.tap { |trust_store| trust_store.set_default_paths }
@@ -22,6 +22,7 @@ module WebAuthn
 
       private
 
+      # FIXME: This should be a responsibility of AndroidSafetynet::AttestationResponse#verify
       def trusted_attestation_certificate?(trust_store)
         trust_store.verify(attestation_certificate, signing_certificates)
       end
