@@ -120,7 +120,7 @@ module WebAuthn
     end
 
     def fake_origin
-      "http://localhost#{rand(1000)}"
+      "http://localhost#{rand(1000)}.test"
     end
 
     def type_for(method)
