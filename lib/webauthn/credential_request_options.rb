@@ -17,7 +17,11 @@ module WebAuthn
     end
 
     def to_h
-      options = { challenge: challenge, allowCredentials: allow_credentials }
+      options = {
+        challenge: challenge,
+        timeout: timeout,
+        allowCredentials: allow_credentials
+      }
 
       if extensions
         options[:extensions] = extensions

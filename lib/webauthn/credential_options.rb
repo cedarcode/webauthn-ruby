@@ -9,5 +9,9 @@ module WebAuthn
     def challenge
       @challenge ||= SecureRandom.random_bytes(CHALLENGE_LENGTH)
     end
+
+    def timeout
+      @timeout = WebAuthn.configuration.credential_options_timeout
+    end
   end
 end

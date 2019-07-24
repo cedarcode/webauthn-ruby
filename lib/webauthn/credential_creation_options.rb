@@ -42,6 +42,7 @@ module WebAuthn
       options = {
         challenge: challenge,
         pubKeyCredParams: pub_key_cred_params,
+        timeout: timeout,
         user: { id: user.id, name: user.name, displayName: user.display_name },
         rp: { name: rp.name }
       }
