@@ -1,5 +1,20 @@
 # Changelog
 
+## [v1.18.0] - 2019-07-27
+
+### Added
+
+- Ability to migrate U2F credentials to WebAuthn ([#211](https://github.com/cedarcode/webauthn-ruby/pull/211)) (@bdewater + @jdongelmans)
+- Ability to skip attestation statement verification ([#219](https://github.com/cedarcode/webauthn-ruby/pull/219)) (@MaximeNdutiye)
+- Ability to configure default credential options timeout ([#243](https://github.com/cedarcode/webauthn-ruby/pull/243)) (@MaximeNdutiye)
+- AttestedCredentialData presence verification ([#237](https://github.com/cedarcode/webauthn-ruby/pull/237))
+- FakeClient learns how to increment sign count ([#225](https://github.com/cedarcode/webauthn-ruby/pull/225))
+
+### Fixed
+
+- Properly verify SafetyNet certificates from input ([#233](https://github.com/cedarcode/webauthn-ruby/pull/233)) (@bdewater)
+- FakeClient default origin URL ([#242](https://github.com/cedarcode/webauthn-ruby/pull/242)) (@kalebtesfay)
+
 ## [v1.17.0] - 2019-06-18
 
 ### Added
@@ -194,6 +209,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v1.18.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.17.0...v1.18.0/
 [v1.17.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.16.0...v1.17.0/
 [v1.16.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.15.0...v1.16.0/
 [v1.15.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.14.0...v1.15.0/

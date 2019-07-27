@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    webauthn (1.17.0)
+    webauthn (1.18.0)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
       cose (~> 0.7.0)
@@ -15,7 +15,7 @@ GEM
     backports (3.12.0)
     bindata (2.4.4)
     byebug (11.0.0)
-    cbor (0.5.9.3)
+    cbor (0.5.9.6)
     cose (0.7.0)
       cbor (~> 0.5.9)
     ipaddr (1.2.2)
