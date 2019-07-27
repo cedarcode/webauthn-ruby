@@ -16,7 +16,7 @@ RSpec.describe "android-safetynet attestation" do
       JWT.encode(
         payload,
         attestation_key,
-        "ES256",
+        "RS256",
         x5c: [Base64.strict_encode64(leaf_certificate.to_der)]
       )
     end
@@ -24,7 +24,7 @@ RSpec.describe "android-safetynet attestation" do
     let(:payload) { { "nonce" => nonce, "ctsProfileMatch" => cts_profile_match } }
     let(:cts_profile_match) { true }
     let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)) }
-    let(:attestation_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:attestation_key) { OpenSSL::PKey::RSA.new(2048) }
 
     let(:leaf_certificate) do
       certificate = OpenSSL::X509::Certificate.new
@@ -47,7 +47,7 @@ RSpec.describe "android-safetynet attestation" do
       ).serialize
     end
 
-    let(:credential_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }
     let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
 
     let(:trust_store) do
