@@ -23,10 +23,12 @@ module WebAuthn
     attr_accessor :rp_id
     attr_accessor :rp_name
     attr_accessor :verify_attestation_statement
+    attr_accessor :credential_options_timeout
 
     def initialize
       @algorithms = DEFAULT_ALGORITHMS.dup
       @verify_attestation_statement = true
+      @credential_options_timeout = 120000
     end
   end
 end

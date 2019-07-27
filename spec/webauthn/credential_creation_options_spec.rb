@@ -83,4 +83,20 @@ RSpec.describe WebAuthn::CredentialCreationOptions do
     expect(creation_options.user.name).to eq("User")
     expect(creation_options.user.display_name).to eq("User Display")
   end
+
+  context "client timeout" do
+    it "has a default client timeout" do
+      expect(creation_options.timeout).to(eq(120000))
+    end
+
+    context "when client timeout is configured" do
+      before do
+        WebAuthn.configuration.credential_options_timeout = 60000
+      end
+
+      it "updates the client timeout" do
+        expect(creation_options.timeout).to(eq(60000))
+      end
+    end
+  end
 end
