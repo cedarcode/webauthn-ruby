@@ -29,6 +29,7 @@ GEM
       rack (~> 2.0)
     rack-protection (2.0.5)
       rack
+    rubyzip (1.2.3)
     securecompare (1.0.0)
     sinatra (2.0.5)
       mustermann (~> 1.0)
@@ -50,6 +51,7 @@ PLATFORMS
 DEPENDENCIES
   byebug
   rack-contrib
+  rubyzip
   sinatra (~> 2.0)
   sinatra-contrib
   webauthn!

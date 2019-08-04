@@ -24,6 +24,8 @@ module WebAuthn
     attr_accessor :rp_name
     attr_accessor :verify_attestation_statement
     attr_accessor :credential_options_timeout
+    attr_accessor :metadata_token
+    attr_accessor :cache_backend
 
     def initialize
       @algorithms = DEFAULT_ALGORITHMS.dup

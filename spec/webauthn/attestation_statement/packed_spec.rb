@@ -141,6 +141,31 @@ RSpec.describe "Packed attestation" do
         )
       end
 
+      let(:metadata_statement_root_certificates) { [root_certificate] }
+      let(:metadata_statement) do
+        statement = WebAuthn::Metadata::Statement.new
+        statement.aaguid = authenticator_data.attested_credential_data.aaguid
+        statement.attestation_root_certificates = metadata_statement_root_certificates
+        statement
+      end
+      let(:metadata_statement_key) { "statement_#{metadata_statement.aaguid}" }
+      let(:metadata_entry) do
+        entry = WebAuthn::Metadata::Entry.new
+        entry.aaguid = metadata_statement.aaguid
+        entry
+      end
+      let(:metadata_toc_entries) { [metadata_entry] }
+      let(:metadata_toc) do
+        toc = WebAuthn::Metadata::TableOfContents.new
+        toc.entries = metadata_toc_entries
+        toc
+      end
+
+      before do
+        WebAuthn.configuration.cache_backend.write(metadata_statement_key, metadata_statement)
+        WebAuthn.configuration.cache_backend.write("metadata_toc", metadata_toc)
+      end
+
       it "works if everything's fine" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
       end
@@ -236,6 +261,18 @@ RSpec.describe "Packed attestation" do
           let(:root_certificate_end_time) { Time.now }
 
           it "fails" do
+            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          end
+        end
+      end
+
+      context "when the metadata cannot verify the attestation statement" do
+        context "because the AAGUID is completely unknown" do
+          let(:metadata_toc_entries) { [] }
+
+          it "fails" do
+            WebAuthn.configuration.cache_backend.delete(metadata_statement_key)
+
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
           end
         end

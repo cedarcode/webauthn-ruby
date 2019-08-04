@@ -8,10 +8,14 @@ require "rack/contrib"
 require "sinatra/cookies"
 require "byebug"
 
+require_relative "conformance_cache_store"
+
 use Rack::PostBodyContentTypeParser
 set show_exceptions: false
 
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
+UNACCEPTABLE_STATUSES = ["USER_VERIFICATION_BYPASS", "ATTESTATION_KEY_COMPROMISE", "USER_KEY_REMOTE_COMPROMISE",
+                         "USER_KEY_PHYSICAL_COMPROMISE", "REVOKED"].freeze
 
 Credential = Struct.new(:id, :public_key, :sign_count) do
   @credentials = {}
@@ -36,6 +40,10 @@ WebAuthn.configure do |config|
   config.origin = "http://#{host}:#{settings.port}"
   config.rp_name = RP_NAME
   config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
+  config.metadata_token = ""
+  config.cache_backend = ConformanceCacheStore.new
+  config.cache_backend.setup_authenticators
+  config.cache_backend.setup_metadata_store
 end
 
 post "/attestation/options" do
@@ -61,6 +69,9 @@ post "/attestation/result" do
   public_key_credential = WebAuthn::PublicKeyCredential.from_create(params)
   expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
   public_key_credential.verify(expected_challenge)
+
+  metadata_entry = public_key_credential.response.attestation_statement.metadata_entry
+  verify_authenticator_status(metadata_entry)
 
   Credential.register(
     cookies["username"],
@@ -130,4 +141,12 @@ end
 
 def render_error(message)
   JSON.dump(status: "error", errorMessage: message)
+end
+
+def verify_authenticator_status(entry)
+  return unless entry
+
+  raise("bad authenticator status") if entry.status_reports.any? do |status_report|
+    UNACCEPTABLE_STATUSES.include?(status_report.status)
+  end
 end
