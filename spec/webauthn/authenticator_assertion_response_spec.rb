@@ -19,14 +19,14 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   let(:actual_origin) { origin }
   let(:original_challenge) { fake_challenge }
   let(:assertion) { client.get(challenge: original_challenge) }
-  let(:authenticator_data) { assertion[:response][:authenticator_data] }
+  let(:authenticator_data) { assertion["response"]["authenticatorData"] }
 
   let(:assertion_response) do
     WebAuthn::AuthenticatorAssertionResponse.new(
-      credential_id: assertion[:id],
-      client_data_json: assertion[:response][:client_data_json],
+      credential_id: assertion["id"],
+      client_data_json: assertion["response"]["clientDataJSON"],
       authenticator_data: authenticator_data,
-      signature: assertion[:response][:signature]
+      signature: assertion["response"]["signature"]
     )
   end
 
@@ -379,7 +379,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   context "when Authenticator Data is invalid" do
-    let(:authenticator_data) { assertion[:response][:authenticator_data][0..31] }
+    let(:authenticator_data) { assertion["response"]["authenticatorData"][0..31] }
 
     it "doesn't verify" do
       expect {

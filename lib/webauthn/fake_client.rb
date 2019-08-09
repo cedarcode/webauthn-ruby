@@ -50,14 +50,13 @@ module WebAuthn
           "id-for-pk-without-attested-credential-data"
         end
 
-      # TODO: return camelCase string keys instead of snakecase symbols
       {
-        type: "public-key",
-        id: Base64.urlsafe_encode64(id),
-        raw_id: encoder.encode(id),
-        response: {
-          attestation_object: encoder.encode(attestation_object),
-          client_data_json: encoder.encode(client_data_json)
+        "type" => "public-key",
+        "id" => Base64.urlsafe_encode64(id),
+        "rawId" => encoder.encode(id),
+        "response" => {
+          "attestationObject" => encoder.encode(attestation_object),
+          "clientDataJSON" => encoder.encode(client_data_json)
         }
       }
     end
@@ -76,15 +75,14 @@ module WebAuthn
         sign_count: sign_count,
       )
 
-      # TODO: return camelCase string keys instead of snakecase symbols
       {
-        type: "public-key",
-        id: Base64.urlsafe_encode64(assertion[:credential_id]),
-        raw_id: encoder.encode(assertion[:credential_id]),
-        response: {
-          client_data_json: encoder.encode(client_data_json),
-          authenticator_data: encoder.encode(assertion[:authenticator_data]),
-          signature: encoder.encode(assertion[:signature])
+        "type" => "public-key",
+        "id" => Base64.urlsafe_encode64(assertion[:credential_id]),
+        "rawId" => encoder.encode(assertion[:credential_id]),
+        "response" => {
+          "clientDataJSON" => encoder.encode(client_data_json),
+          "authenticatorData" => encoder.encode(assertion[:authenticator_data]),
+          "signature" => encoder.encode(assertion[:signature])
         }
       }
     end

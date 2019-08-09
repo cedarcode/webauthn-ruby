@@ -24,11 +24,11 @@ RSpec.describe "PublicKeyCredential" do
     let(:raw_id) { SecureRandom.random_bytes(16) }
 
     let(:attestation_response) do
-      response = client.create(challenge: challenge)[:response]
+      response = client.create(challenge: challenge)["response"]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: response[:attestation_object],
-        client_data_json: response[:client_data_json]
+        attestation_object: response["attestationObject"],
+        client_data_json: response["clientDataJSON"]
       )
     end
 
@@ -96,21 +96,7 @@ RSpec.describe "PublicKeyCredential" do
   describe ".from_create" do
     it "works" do
       client = WebAuthn::FakeClient.new(encoding: :base64)
-      credential = client.create
-
-      # TODO: Make FakeClient return camelCase string keys instead of snakecase symbols
-      public_key_credential = WebAuthn::PublicKeyCredential.from_create(
-        {
-          "id" => credential[:id],
-          "type" => credential[:type],
-          "rawId" => credential[:raw_id],
-          "response" => {
-            "attestationObject" => credential[:response][:attestation_object],
-            "clientDataJSON" => credential[:response][:client_data_json],
-          }
-        },
-        encoding: :base64
-      )
+      public_key_credential = WebAuthn::PublicKeyCredential.from_create(client.create, encoding: :base64)
 
       expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
       expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAttestationResponse)
@@ -125,23 +111,8 @@ RSpec.describe "PublicKeyCredential" do
     it "works" do
       client = WebAuthn::FakeClient.new(encoding: :base64)
       client.create
-      credential = client.get
 
-      # TODO: Make FakeClient return camelCase string keys instead of snakecase symbols
-      public_key_credential = WebAuthn::PublicKeyCredential.from_get(
-        {
-          "id" => credential[:id],
-          "type" => credential[:type],
-          "rawId" => credential[:raw_id],
-          "response" => {
-            "authenticatorData" => credential[:response][:authenticator_data],
-            "clientDataJSON" => credential[:response][:client_data_json],
-            "signature" => credential[:response][:signature],
-            "userHandle" => credential[:response][:user_handle]
-          }
-        },
-        encoding: :base64
-      )
+      public_key_credential = WebAuthn::PublicKeyCredential.from_get(client.get, encoding: :base64)
 
       expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
       expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAssertionResponse)

@@ -30,11 +30,14 @@ def create_credential(client: WebAuthn::FakeClient.new, rp_id: nil)
 
   credential_public_key =
     WebAuthn::AuthenticatorAttestationResponse
-    .new(create_result[:response])
+    .new(
+      attestation_object: create_result["response"]["attestationObject"],
+      client_data_json: create_result["response"]["clientDataJSON"]
+    )
     .credential
     .public_key
 
-  [create_result[:id], credential_public_key]
+  [create_result["id"], credential_public_key]
 end
 
 def fake_origin
