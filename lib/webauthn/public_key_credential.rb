@@ -11,7 +11,7 @@ module WebAuthn
 
     attr_reader :type, :id, :raw_id, :response
 
-    def self.from_create(credential, encoding: :base64)
+    def self.from_create(credential, encoding: :base64url)
       encoder = WebAuthn::Encoder.new(encoding)
 
       new(
@@ -25,7 +25,7 @@ module WebAuthn
       )
     end
 
-    def self.from_get(credential, encoding: :base64)
+    def self.from_get(credential, encoding: :base64url)
       encoder = WebAuthn::Encoder.new(encoding)
 
       user_handle =
