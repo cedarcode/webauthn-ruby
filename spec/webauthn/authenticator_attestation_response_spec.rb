@@ -185,6 +185,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
+    before do
+      WebAuthn.configure do |config|
+        config.algorithms.concat(%w(RS1))
+      end
+    end
+
     it "verifies" do
       expect(attestation_response.verify(challenge, origin)).to be_truthy
     end
@@ -205,7 +211,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.aaguid).to eq("a7d6d93a-8a0d-11e8-9a94-a6cf71072f73")
+      expect(attestation_response.aaguid).to eq("08987058-cadc-4b81-b6e1-30de50dcbe96")
     end
   end
 
