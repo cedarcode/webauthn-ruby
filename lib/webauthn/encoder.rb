@@ -6,7 +6,7 @@ module WebAuthn
   class Encoder
     attr_reader :encoding
 
-    def initialize(encoding = :base64)
+    def initialize(encoding = :base64url)
       @encoding = encoding
     end
 
