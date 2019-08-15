@@ -95,8 +95,8 @@ RSpec.describe "PublicKeyCredential" do
 
   describe ".from_create" do
     it "works" do
-      client = WebAuthn::FakeClient.new(encoding: :base64)
-      public_key_credential = WebAuthn::PublicKeyCredential.from_create(client.create, encoding: :base64)
+      client = WebAuthn::FakeClient.new(encoding: :base64url)
+      public_key_credential = WebAuthn::PublicKeyCredential.from_create(client.create)
 
       expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
       expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAttestationResponse)
@@ -109,10 +109,10 @@ RSpec.describe "PublicKeyCredential" do
 
   describe ".from_get" do
     it "works" do
-      client = WebAuthn::FakeClient.new(encoding: :base64)
+      client = WebAuthn::FakeClient.new(encoding: :base64url)
       client.create
 
-      public_key_credential = WebAuthn::PublicKeyCredential.from_get(client.get, encoding: :base64)
+      public_key_credential = WebAuthn::PublicKeyCredential.from_get(client.get)
 
       expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
       expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAssertionResponse)

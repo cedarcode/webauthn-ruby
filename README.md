@@ -1,3 +1,6 @@
+__Note__: You are viewing the README for the development version of webauthn-ruby.
+For the current release version see https://github.com/cedarcode/webauthn-ruby/blob/1-stable/README.md.
+
 # webauthn-ruby
 
 ![banner](webauthn-ruby.png)
@@ -30,7 +33,9 @@ a user [credential](https://www.w3.org/TR/webauthn/#public-key-credential), incl
 
 ## Security
 
-If you have discovered a security bug, please send an email to security@cedarcode.com instead of posting to the GitHub issue tracker.
+Please report security vulnerabilities to security@cedarcode.com.
+
+_More_: [SECURITY](SECURITY.md)
 
 ## Background
 

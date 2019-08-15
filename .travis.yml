@@ -11,6 +11,7 @@ rvm:
   - 2.3.8
 
 gemfile:
+  - gemfiles/openssl_head.gemfile
   - gemfiles/openssl_2_1.gemfile
   - gemfiles/openssl_2_0.gemfile
 
@@ -19,6 +20,7 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: 2.7.0-preview1
+    - gemfile: gemfiles/openssl_head.gemfile
 
 before_install:
   - wget http://archive.ubuntu.com/ubuntu/pool/universe/f/faketime/libfaketime_0.9.7-3_amd64.deb
