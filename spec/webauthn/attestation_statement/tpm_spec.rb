@@ -37,10 +37,12 @@ RSpec.describe "TPM attestation statement" do
         cert.public_key = aik
 
         extension_factory = OpenSSL::X509::ExtensionFactory.new
+        extension_factory.config = aik_certificate_san_config
 
         cert.extensions = [
           extension_factory.create_extension("basicConstraints", aik_certificate_basic_constraints, true),
-          extension_factory.create_extension("extendedKeyUsage", aik_certificate_extended_key_usage)
+          extension_factory.create_extension("extendedKeyUsage", aik_certificate_extended_key_usage),
+          extension_factory.create_extension("subjectAltName", "ASN1:SEQUENCE:dir_seq", aik_certificate_san_critical),
         ]
 
         cert.sign(aik, OpenSSL::Digest::SHA256.new)
@@ -53,6 +55,36 @@ RSpec.describe "TPM attestation statement" do
       let(:aik_certificate_subject) { "" }
       let(:aik_certificate_basic_constraints) { "CA:FALSE" }
       let(:aik_certificate_extended_key_usage) { WebAuthn::AttestationStatement::TPM::OID_TCG_KP_AIK_CERTIFICATE }
+      let(:aik_certificate_san_critical) { true }
+      let(:aik_certificate_san_manufacturer) { "id:4E544300" }
+      let(:aik_certificate_san_model) { "TPM test model" }
+      let(:aik_certificate_san_version) { "id:42" }
+      let(:aik_certificate_san_config) do
+        OpenSSL::Config.parse(<<~OPENSSL_CONF)
+          [dir_seq]
+          seq = EXPLICIT:4,SEQUENCE:dir_seq_seq
+
+          [dir_seq_seq]
+          set = SET:dir_set
+
+          [dir_set]
+          seq.1 = SEQUENCE:dir_seq_1
+          seq.2 = SEQUENCE:dir_seq_2
+          seq.3 = SEQUENCE:dir_seq_3
+
+          [dir_seq_1]
+          oid=OID:2.23.133.2.1
+          str=UTF8:"#{aik_certificate_san_manufacturer}"
+
+          [dir_seq_2]
+          oid=OID:2.23.133.2.2
+          str=UTF8:"#{aik_certificate_san_model}"
+
+          [dir_seq_3]
+          oid=OID:2.23.133.2.3
+          str=UTF8:"#{aik_certificate_san_version}"
+        OPENSSL_CONF
+      end
       let(:aik_certificate_start_time) { Time.now }
       let(:aik_certificate_end_time) { Time.now + 60 }
 
@@ -415,6 +447,40 @@ RSpec.describe "TPM attestation statement" do
 
           it "returns false" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          end
+        end
+
+        context "when the subject alternative name is invalid" do
+          context "because the extension is not critical" do
+            let(:aik_certificate_san_critical) { false }
+
+            it "returns false" do
+              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            end
+          end
+
+          context "because the manufacturer is unknown" do
+            let(:aik_certificate_san_manufacturer) { "id:F0000000" }
+
+            it "returns false" do
+              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            end
+          end
+
+          context "because the model is blank" do
+            let(:aik_certificate_san_model) { "" }
+
+            it "returns false" do
+              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            end
+          end
+
+          context "because the version is blank" do
+            let(:aik_certificate_san_version) { "" }
+
+            it "returns false" do
+              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            end
           end
         end
       end
