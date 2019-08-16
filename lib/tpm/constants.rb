@@ -19,4 +19,26 @@ module TPM
 
   # ECC curves
   ECC_NIST_P256 = 0x0003
+
+  # https://trustedcomputinggroup.org/resource/vendor-id-registry/ section 2 "TPM Capabilities Vendor ID (CAP_VID)"
+  VENDOR_IDS = {
+    "id:414D4400" => "AMD",
+    "id:41544D4C" => "Atmel",
+    "id:4252434D" => "Broadcom",
+    "id:49424D00" => "IBM",
+    "id:49465800" => "Infineon",
+    "id:494E5443" => "Intel",
+    "id:4C454E00" => "Lenovo",
+    "id:4E534D20" => "National Semiconductor",
+    "id:4E545A00" => "Nationz",
+    "id:4E544300" => "Nuvoton Technology",
+    "id:51434F4D" => "Qualcomm",
+    "id:534D5343" => "SMSC",
+    "id:53544D20" => "ST Microelectronics",
+    "id:534D534E" => "Samsung",
+    "id:534E5300" => "Sinosun",
+    "id:54584E00" => "Texas Instruments",
+    "id:57454300" => "Winbond",
+    "id:524F4343" => "Fuzhou Rockchip",
+  }.freeze
 end
