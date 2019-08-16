@@ -13,11 +13,11 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   let(:client) { WebAuthn::FakeClient.new(origin) }
   let(:attestation_response) do
-    response = public_key_credential[:response]
+    response = public_key_credential["response"]
 
     WebAuthn::AuthenticatorAttestationResponse.new(
-      attestation_object: response[:attestation_object],
-      client_data_json: response[:client_data_json]
+      attestation_object: response["attestationObject"],
+      client_data_json: response["clientDataJSON"]
     )
   end
 
@@ -314,11 +314,11 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     let(:attestation_response) do
       client = WebAuthn::FakeClient.new(actual_origin)
-      response = client.create(challenge: original_challenge)[:response]
+      response = client.create(challenge: original_challenge)["response"]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: response[:attestation_object],
-        client_data_json: response[:client_data_json]
+        attestation_object: response["attestationObject"],
+        client_data_json: response["clientDataJSON"]
       )
     end
 
@@ -354,11 +354,11 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     let(:attestation_response) do
       client = WebAuthn::FakeClient.new(origin)
-      response = client.create(challenge: original_challenge, rp_id: rp_id)[:response]
+      response = client.create(challenge: original_challenge, rp_id: rp_id)["response"]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: response[:attestation_object],
-        client_data_json: response[:client_data_json]
+        attestation_object: response["attestationObject"],
+        client_data_json: response["clientDataJSON"]
       )
     end
 
