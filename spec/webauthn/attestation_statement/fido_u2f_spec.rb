@@ -15,7 +15,7 @@ RSpec.describe "FidoU2f attestation" do
       WebAuthn::FakeAuthenticator::AuthenticatorData.new(
         rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
         credential: { id: "0".b * 16, public_key: credential_public_key },
-        aaguid: WebAuthn::AttestationStatement::FidoU2f::VALID_ATTESTED_AAGUID
+        aaguid: WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
       ).serialize
     end
 

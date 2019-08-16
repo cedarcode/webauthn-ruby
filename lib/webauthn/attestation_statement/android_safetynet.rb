@@ -20,6 +20,10 @@ module WebAuthn
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_certificate]
       end
 
+      def attestation_certificate
+        attestation_response.certificate_chain[0]
+      end
+
       private
 
       # FIXME: This should be a responsibility of AndroidSafetynet::AttestationResponse#verify
@@ -44,10 +48,6 @@ module WebAuthn
 
       def cts_profile_match?
         attestation_response.cts_profile_match?
-      end
-
-      def attestation_certificate
-        attestation_response.certificate_chain[0]
       end
 
       def signing_certificates

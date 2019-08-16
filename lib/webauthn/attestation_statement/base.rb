@@ -26,6 +26,10 @@ module WebAuthn
         raise NotImpelementedError
       end
 
+      def attestation_certificate
+        attestation_certificate_chain&.first
+      end
+
       private
 
       attr_reader :statement
@@ -40,10 +44,6 @@ module WebAuthn
         else
           true
         end
-      end
-
-      def attestation_certificate
-        attestation_certificate_chain&.first
       end
 
       def attestation_certificate_chain

@@ -81,9 +81,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       expect(attestation_response.credential.id.length).to be >= 16
     end
 
-    it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("00000000-0000-0000-0000-000000000000")
+    it "returns the attestation certificate key" do
+      expect(attestation_response.attestation_certificate_key).to(
+        eq("f4b64a68c334e901b8e23c6e66e6866c31931f5d")
       )
     end
   end
@@ -125,10 +125,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       expect(attestation_response.credential.id.length).to be >= 16
     end
 
-    it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("00000000-0000-0000-0000-000000000000")
-      )
+    it "returns no zeroed AAGUID" do
+      expect(attestation_response.aaguid).to be_nil
     end
   end
 
@@ -170,9 +168,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("f8a011f3-8c0a-4d15-8006-17111f9edc7d")
-      )
+      expect(attestation_response.aaguid).to eq("f8a011f3-8c0a-4d15-8006-17111f9edc7d")
     end
   end
 
@@ -187,6 +183,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         attestation_object: Base64.strict_decode64(response[:attestation_object]),
         client_data_json: Base64.strict_decode64(response[:client_data_json])
       )
+    end
+
+    before do
+      WebAuthn.configure do |config|
+        config.algorithms.concat(%w(RS1))
+      end
     end
 
     it "verifies" do
@@ -207,12 +209,16 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     it "returns credential" do
       expect(attestation_response.credential.id.length).to be >= 16
     end
+
+    it "returns the AAGUID" do
+      expect(attestation_response.aaguid).to eq("08987058-cadc-4b81-b6e1-30de50dcbe96")
+    end
   end
 
   context "when android-safetynet attestation" do
-    around(:each) { |example| fake_time(Time.new(2018, 10, 6), &example) }
+    around(:each) { |example| fake_time(Time.new(2019, 8, 7), &example) }
 
-    let(:origin) { "http://localhost:3000" }
+    let(:origin) { "https://7f41ac45.ngrok.io" }
 
     let(:original_challenge) do
       Base64.strict_decode64(seeds[:android_safetynet_direct][:credential_creation_options][:challenge])
@@ -247,9 +253,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("00000000-0000-0000-0000-000000000000")
-      )
+      expect(attestation_response.aaguid).to eq("b93fd961-f2e6-462f-b122-82002247de78")
     end
   end
 
@@ -289,9 +293,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.authenticator_data.attested_credential_data.aaguid).to(
-        eq("550e4b54-aa47-409f-9a95-1ab76c130131")
-      )
+      expect(attestation_response.aaguid).to eq("550e4b54-aa47-409f-9a95-1ab76c130131")
     end
   end
 
