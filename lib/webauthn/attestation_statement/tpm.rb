@@ -19,8 +19,19 @@ module WebAuthn
       OID_TCG_AT_TPM_VERSION = "2.23.133.2.3"
       OID_TCG_KP_AIK_CERTIFICATE = "2.23.133.8.3"
       TPM_V2 = "2.0"
+      TCG_TRUST_STORE = begin
+        store = OpenSSL::X509::Store.new
+        path = File.expand_path(File.join(__dir__, "..", "..", "tpm", "certificates"))
+        Dir.glob("*.{cer,crt,der}", base: path) do |filename|
+          File.open(File.join(path, filename)) do |file|
+            certificate = OpenSSL::X509::Certificate.new(file)
+            store.add_cert(certificate)
+          end
+        end
+        store
+      end
 
-      def valid?(authenticator_data, client_data_hash)
+      def valid?(authenticator_data, client_data_hash, trust_store: TCG_TRUST_STORE)
         case attestation_type
         when ATTESTATION_TYPE_ATTCA
           att_to_be_signed = authenticator_data.data + client_data_hash
@@ -31,6 +42,7 @@ module WebAuthn
             pub_area.valid?(authenticator_data.credential.public_key) &&
             cert_info.valid?(statement["pubArea"], OpenSSL::Digest.digest(cose_algorithm.hash, att_to_be_signed)) &&
             matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
+            certificate_chain_trusted?(trust_store) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
           raise(
@@ -54,7 +66,6 @@ module WebAuthn
         attestation_certificate.version == CERTIFICATE_V3 &&
           attestation_certificate.subject.eql?(CERTIFICATE_EMPTY_NAME) &&
           valid_subject_alternative_name? &&
-          certificate_in_use?(attestation_certificate) &&
           extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == "CA:FALSE" &&
           extensions.find { |ext| ext.oid == "extendedKeyUsage" }&.value == OID_TCG_KP_AIK_CERTIFICATE
       end
@@ -77,10 +88,11 @@ module WebAuthn
         ::TPM::VENDOR_IDS[manufacturer] && !model.empty? && !version.empty?
       end
 
-      def certificate_in_use?(certificate)
-        now = Time.now
-
-        certificate.not_before < now && now < certificate.not_after
+      def certificate_chain_trusted?(trust_store)
+        store_context = OpenSSL::X509::StoreContext.new(
+          trust_store, attestation_certificate, attestation_certificate_chain
+        )
+        store_context.verify
       end
 
       def verification_data
