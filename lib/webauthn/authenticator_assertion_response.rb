@@ -8,29 +8,25 @@ require "webauthn/authenticator_response"
 require "webauthn/signature_verifier"
 
 module WebAuthn
-  class CredentialVerificationError < VerificationError; end
   class SignatureVerificationError < VerificationError; end
   class SignCountVerificationError < VerificationError; end
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
     attr_reader :user_handle
 
-    # FIXME: credential_id doesn't belong inside AuthenticatorAssertionResponse
-    def initialize(credential_id:, authenticator_data:, signature:, user_handle: nil, **options)
+    def initialize(authenticator_data:, signature:, user_handle: nil, **options)
       super(options)
 
-      @credential_id = credential_id
       @authenticator_data_bytes = authenticator_data
       @signature = signature
       @user_handle = user_handle
     end
 
-    def verify(expected_challenge, expected_origin = nil, allowed_credentials:, user_verification: nil, rp_id: nil)
+    def verify(expected_challenge, expected_origin = nil, public_key:, sign_count: 0, user_verification: nil,
+               rp_id: nil)
       super(expected_challenge, expected_origin, user_verification: user_verification, rp_id: rp_id)
-
-      verify_item(:credential, allowed_credentials)
-      verify_item(:signature, credential_cose_key(allowed_credentials))
-      verify_item(:sign_count, allowed_credentials)
+      verify_item(:signature, credential_cose_key(public_key))
+      verify_item(:sign_count, sign_count)
 
       true
     end
@@ -41,7 +37,7 @@ module WebAuthn
 
     private
 
-    attr_reader :credential_id, :authenticator_data_bytes, :signature
+    attr_reader :authenticator_data_bytes, :signature
 
     def valid_signature?(credential_cose_key)
       WebAuthn::SignatureVerifier
@@ -49,13 +45,7 @@ module WebAuthn
         .verify(signature, authenticator_data_bytes + client_data.hash)
     end
 
-    def valid_sign_count?(allowed_credentials)
-      matched_credential = allowed_credentials.find do |credential|
-        credential[:id] == credential_id
-      end
-      # TODO: make passing sign count mandatory in next major version
-      stored_sign_count = matched_credential.fetch(:sign_count, 0)
-
+    def valid_sign_count?(stored_sign_count)
       if authenticator_data.sign_count.nonzero? || stored_sign_count.nonzero?
         authenticator_data.sign_count > stored_sign_count
       else
@@ -63,18 +53,8 @@ module WebAuthn
       end
     end
 
-    def valid_credential?(allowed_credentials)
-      allowed_credential_ids = allowed_credentials.map { |credential| credential[:id] }
-
-      allowed_credential_ids.include?(credential_id)
-    end
-
-    def credential_cose_key(allowed_credentials)
-      matched_credential = allowed_credentials.find do |credential|
-        credential[:id] == credential_id
-      end
-
-      if WebAuthn::AttestationStatement::FidoU2f::PublicKey.uncompressed_point?(matched_credential[:public_key])
+    def credential_cose_key(public_key)
+      if WebAuthn::AttestationStatement::FidoU2f::PublicKey.uncompressed_point?(public_key)
         # Gem version v1.11.0 and lower, used to behave so that Credential#public_key
         # returned an EC P-256 uncompressed point.
         #
@@ -83,16 +63,16 @@ module WebAuthn
         # credentialPublicKey (as in https://www.w3.org/TR/webauthn/#credentialpublickey).
         #
         # Given that the credential public key is expected to be stored long-term by the gem
-        # user and later be passed as one of the allowed_credentials arguments in the
+        # user and later be passed as the public_key argument in the
         # AuthenticatorAssertionResponse.verify call, we then need to support the two formats.
         COSE::Key::EC2.new(
           alg: COSE::Algorithm.by_name("ES256").id,
           crv: 1,
-          x: matched_credential[:public_key][1..32],
-          y: matched_credential[:public_key][33..-1]
+          x: public_key[1..32],
+          y: public_key[33..-1]
         )
       else
-        COSE::Key.deserialize(matched_credential[:public_key])
+        COSE::Key.deserialize(public_key)
       end
     end
 
