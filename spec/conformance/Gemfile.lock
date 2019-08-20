@@ -2,6 +2,7 @@ PATH
   remote: ../..
   specs:
     webauthn (1.18.0)
+      awrence (~> 1.1)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
       cose (~> 0.8.0)
@@ -12,6 +13,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    awrence (1.1.0)
     backports (3.12.0)
     bindata (2.4.4)
     byebug (11.0.0)

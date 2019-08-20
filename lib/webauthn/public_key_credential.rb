@@ -4,10 +4,12 @@ require "base64"
 require "webauthn/authenticator_assertion_response"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/encoder"
+require "webauthn/public_key_credential/creation_options"
+require "webauthn/public_key_credential/request_options"
 
 module WebAuthn
   class PublicKeyCredential
-    VALID_TYPE = "public-key"
+    TYPE_PUBLIC_KEY = "public-key"
 
     attr_reader :type, :id, :raw_id, :response
 
@@ -78,7 +80,7 @@ module WebAuthn
     private
 
     def valid_type?
-      type == VALID_TYPE
+      type == TYPE_PUBLIC_KEY
     end
 
     def valid_id?

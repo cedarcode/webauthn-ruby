@@ -130,16 +130,26 @@ end
 #### Initiation phase
 
 ```ruby
-credential_creation_options = WebAuthn.credential_creation_options
+create_options = WebAuthn::PublicKeyCredential.create_options(
+  user: { id: ..., name: ..., display_name: ... }
+)
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
 #
-# You can read it from the resulting options:
-credential_creation_options[:challenge]
+# You can read it from the resulting options. E.g.:
+session[:webauthn_challenge] = create_options.challenge
 
-# Send `credential_creation_options` to the browser, so that they can be used
-# to call `navigator.credentials.create({ "publicKey": credentialCreationOptions })`
+# Send `create_options` back to the browser, so that they can be used
+# to call `navigator.credentials.create({ "publicKey": createOptions })`
+#
+# You can call `create_options.as_json` to get a hash with a JSON representation if needed.
+
+# If inside a Rails controller, `render json: create_options` will just work.
+# I.e. it will encode and convert the options to JSON automatically.
+
+# For your frontend code, you might find @github/webauthn-json JS library useful.
+# Especially for handling the necessary decoding of the options.
 ```
 
 #### Verification phase
@@ -185,17 +195,24 @@ end
 Assuming you have the previously stored Credential ID, now in variable `credential_id`
 
 ```ruby
-credential_request_options = WebAuthn.credential_request_options
-credential_request_options[:allowCredentials] << { id: credential_id, type: "public-key" }
+get_options = WebAuthn::PublicKeyCredential.get_options(allow: credential_id)
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
 #
-# You can read it from the resulting options:
-credential_request_options[:challenge]
+# You can read it from the resulting options. E.g.:
+session[:webauthn_challenge] = get_options.challenge
 
-# Send `credential_request_options` to the browser, so that they can be used
-# to call `navigator.credentials.get({ "publicKey": credentialRequestOptions })`
+# Send `get_options` back to the browser, so that they can be used
+# to call `navigator.credentials.get({ "publicKey": getOptions })`
+
+# You can call `get_options.as_json` to get a hash with a JSON representation if needed.
+
+# If inside a Rails controller, `render json: get_options` will just work.
+# I.e. it will encode and convert the options to JSON automatically.
+
+# For your frontend code, you might find @github/webauthn-json JS library useful.
+# Especially for handling the necessary decoding of the options.
 ```
 
 #### Verification phase
