@@ -53,7 +53,7 @@ module WebAuthn
 
       {
         "type" => "public-key",
-        "id" => Base64.urlsafe_encode64(id),
+        "id" => internal_encoder.encode(id),
         "rawId" => encoder.encode(id),
         "response" => {
           "attestationObject" => encoder.encode(attestation_object),
@@ -78,7 +78,7 @@ module WebAuthn
 
       {
         "type" => "public-key",
-        "id" => Base64.urlsafe_encode64(assertion[:credential_id]),
+        "id" => internal_encoder.encode(assertion[:credential_id]),
         "rawId" => encoder.encode(assertion[:credential_id]),
         "response" => {
           "clientDataJSON" => encoder.encode(client_data_json),
@@ -95,7 +95,7 @@ module WebAuthn
     def data_json_for(method, challenge)
       data = {
         type: type_for(method),
-        challenge: Base64.urlsafe_encode64(challenge, padding: false),
+        challenge: internal_encoder.encode(challenge),
         origin: origin
       }
 
@@ -108,6 +108,10 @@ module WebAuthn
 
     def encoder
       @encoder ||= WebAuthn::Encoder.new(encoding)
+    end
+
+    def internal_encoder
+      @internal_encoder ||= WebAuthn::Encoder.new(:base64url)
     end
 
     def hashed(data)
