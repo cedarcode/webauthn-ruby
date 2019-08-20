@@ -26,7 +26,8 @@ module WebAuthn
 
     def create(
       challenge: fake_challenge,
-      rp_id: nil, user_present: true,
+      rp_id: nil,
+      user_present: true,
       user_verified: false,
       attested_credential_data: true
     )
