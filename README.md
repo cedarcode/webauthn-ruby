@@ -152,7 +152,7 @@ credential_creation_options[:challenge]
 #
 # Then you need to decode that data before passing it to the `#verify` method.
 #
-# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
+# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.urlsafe_decode64`
 # on the user-agent encoded data before calling `#verify`
 attestation_object = "..."
 client_data_json = "..."
@@ -212,7 +212,7 @@ attributes must be passed as keyword arguments to the `verify` method call.
 #
 # Then you need to decode that data before passing it to the `#verify` method.
 #
-# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
+# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.urlsafe_decode64`
 # on the user-agent encoded data before calling `#verify`
 authenticator_data = "..."
 client_data_json = "..."
