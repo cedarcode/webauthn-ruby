@@ -11,6 +11,7 @@ rvm:
   - 2.3.8
 
 gemfile:
+  - gemfiles/cose_head.gemfile
   - gemfiles/openssl_head.gemfile
   - gemfiles/openssl_2_1.gemfile
   - gemfiles/openssl_2_0.gemfile
@@ -20,6 +21,7 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: 2.7.0-preview1
+    - gemfile: gemfiles/cose_head.gemfile
     - gemfile: gemfiles/openssl_head.gemfile
 
 before_install:
