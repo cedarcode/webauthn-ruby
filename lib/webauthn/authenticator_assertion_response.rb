@@ -22,7 +22,7 @@ module WebAuthn
       @user_handle = user_handle
     end
 
-    def verify(expected_challenge, expected_origin = nil, public_key:, sign_count: 0, user_verification: nil,
+    def verify(expected_challenge, expected_origin = nil, public_key:, sign_count:, user_verification: nil,
                rp_id: nil)
       super(expected_challenge, expected_origin, user_verification: user_verification, rp_id: rp_id)
       verify_item(:signature, credential_cose_key(public_key))
@@ -46,8 +46,9 @@ module WebAuthn
     end
 
     def valid_sign_count?(stored_sign_count)
-      if authenticator_data.sign_count.nonzero? || stored_sign_count.nonzero?
-        authenticator_data.sign_count > stored_sign_count
+      normalized_sign_count = stored_sign_count || 0
+      if authenticator_data.sign_count.nonzero? || normalized_sign_count.nonzero?
+        authenticator_data.sign_count > normalized_sign_count
       else
         true
       end
