@@ -25,6 +25,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   before do
     WebAuthn.configuration.origin = origin
+    WebAuthn.configuration.verify_attestation_statement = true
   end
 
   context "when everything's in place" do

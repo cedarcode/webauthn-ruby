@@ -27,7 +27,7 @@ module WebAuthn
 
     def initialize
       @algorithms = DEFAULT_ALGORITHMS.dup
-      @verify_attestation_statement = true
+      @verify_attestation_statement = false
       @credential_options_timeout = 120000
     end
   end
