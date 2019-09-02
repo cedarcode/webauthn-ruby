@@ -83,7 +83,8 @@ module WebAuthn
         "response" => {
           "clientDataJSON" => encoder.encode(client_data_json),
           "authenticatorData" => encoder.encode(assertion[:authenticator_data]),
-          "signature" => encoder.encode(assertion[:signature])
+          "signature" => encoder.encode(assertion[:signature]),
+          "userHandle" => nil
         }
       }
     end
