@@ -24,10 +24,6 @@ Credential = Struct.new(:id, :public_key, :sign_count) do
   def self.registered_for(username)
     @credentials[username] || []
   end
-
-  def descriptor
-    { type: "public-key", id: id }
-  end
 end
 
 host = ENV["HOST"] || "localhost"
@@ -39,22 +35,18 @@ WebAuthn.configure do |config|
 end
 
 post "/attestation/options" do
-  options = WebAuthn::CredentialCreationOptions.new(
+  create_options = WebAuthn::PublicKeyCredential.create_options(
     attestation: params["attestation"],
     authenticator_selection: params["authenticatorSelection"],
-    exclude_credentials: Credential.registered_for(params["username"]).map(&:descriptor),
+    exclude: Credential.registered_for(params["username"]).map(&:id),
     extensions: params["extensions"],
-    user_id: "1",
-    user_name: params["username"],
-    user_display_name: params["displayName"]
-  ).to_h
-
-  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
+    user: { id: "1", name: params["username"], display_name: params["displayName"] }
+  )
 
   cookies["username"] = params["username"]
-  cookies["challenge"] = options[:challenge]
+  cookies["challenge"] = create_options.challenge
 
-  render_ok(options)
+  render_ok(create_options.as_json)
 end
 
 post "/attestation/result" do
@@ -76,19 +68,17 @@ post "/attestation/result" do
 end
 
 post "/assertion/options" do
-  options = WebAuthn::CredentialRequestOptions.new(
-    allow_credentials: Credential.registered_for(params["username"]).map(&:descriptor),
+  get_options = WebAuthn::PublicKeyCredential.get_options(
+    allow: Credential.registered_for(params["username"]).map(&:id),
     extensions: params["extensions"],
     user_verification: params["userVerification"]
-  ).to_h
-
-  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
+  )
 
   cookies["username"] = params["username"]
   cookies["userVerification"] = params["userVerification"]
-  cookies["challenge"] = options[:challenge]
+  cookies["challenge"] = get_options.challenge
 
-  render_ok(options)
+  render_ok(get_options.as_json)
 end
 
 post "/assertion/result" do

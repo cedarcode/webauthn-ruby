@@ -9,7 +9,7 @@ RSpec.describe WebAuthn do
 
   describe "#credential_creation_options" do
     before do
-      @credential_creation_options = WebAuthn.credential_creation_options
+      @credential_creation_options = silence_warnings { WebAuthn.credential_creation_options }
     end
 
     it "has a 32 byte length challenge" do
@@ -43,8 +43,8 @@ RSpec.describe WebAuthn do
     end
 
     context "Relying Party info" do
-      it "has relying party name default" do
-        expect(@credential_creation_options[:rp][:name]).to eq("web-server")
+      it "has relying party name default set to nothing" do
+        expect(@credential_creation_options[:rp][:name]).to eq(nil)
       end
 
       context "when configured" do
@@ -53,7 +53,7 @@ RSpec.describe WebAuthn do
         end
 
         it "has the configured values" do
-          creation_options = WebAuthn.credential_creation_options
+          creation_options = silence_warnings { WebAuthn.credential_creation_options }
 
           expect(creation_options[:rp][:name]).to eq("Example Inc.")
         end
@@ -62,7 +62,7 @@ RSpec.describe WebAuthn do
   end
 
   describe "#credential_request_options" do
-    let(:credential_request_options) { WebAuthn.credential_request_options }
+    let(:credential_request_options) { silence_warnings { WebAuthn.credential_request_options } }
 
     it "has a 32 byte length challenge" do
       expect(credential_request_options[:challenge].length).to eq(32)
