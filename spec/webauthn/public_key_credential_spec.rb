@@ -121,6 +121,8 @@ RSpec.describe "PublicKeyCredential" do
 
         expect(public_key_credential.id).not_to be_empty
         expect(public_key_credential.public_key).not_to be_empty
+        expect(public_key_credential.public_key.class).to eq(String)
+        expect(public_key_credential.public_key.encoding).not_to eq(Encoding::BINARY)
         expect(public_key_credential.sign_count).to eq(0)
       end
     end
@@ -136,6 +138,8 @@ RSpec.describe "PublicKeyCredential" do
 
         expect(public_key_credential.id).not_to be_empty
         expect(public_key_credential.public_key).not_to be_empty
+        expect(public_key_credential.public_key.class).to eq(String)
+        expect(public_key_credential.public_key.encoding).not_to eq(Encoding::BINARY)
         expect(public_key_credential.sign_count).to eq(0)
       end
     end
@@ -151,6 +155,8 @@ RSpec.describe "PublicKeyCredential" do
 
         expect(public_key_credential.id).not_to be_empty
         expect(public_key_credential.public_key).not_to be_empty
+        expect(public_key_credential.public_key.class).to eq(String)
+        expect(public_key_credential.public_key.encoding).to eq(Encoding::BINARY)
         expect(public_key_credential.sign_count).to eq(0)
       end
     end
