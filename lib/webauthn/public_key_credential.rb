@@ -23,7 +23,8 @@ module WebAuthn
         response: WebAuthn::AuthenticatorAttestationResponse.new(
           attestation_object: encoder.decode(credential["response"]["attestationObject"]),
           client_data_json: encoder.decode(credential["response"]["clientDataJSON"])
-        )
+        ),
+        encoding: encoding
       )
     end
 
@@ -44,21 +45,24 @@ module WebAuthn
           client_data_json: encoder.decode(credential["response"]["clientDataJSON"]),
           signature: encoder.decode(credential["response"]["signature"]),
           user_handle: user_handle
-        )
+        ),
+        encoding: encoding
       )
     end
 
-    def initialize(type:, id:, raw_id:, response:)
+    def initialize(type:, id:, raw_id:, response:, encoding: :base64url)
       @type = type
       @id = id
       @raw_id = raw_id
       @response = response
+      @encoding = encoding
     end
 
-    def verify(*args)
+    def verify(challenge, *args)
       valid_type? || raise("invalid type")
       valid_id? || raise("invalid id")
-      response.verify(*args)
+
+      response.verify(encoder.decode(challenge), *args)
 
       true
     end
@@ -79,12 +83,18 @@ module WebAuthn
 
     private
 
+    attr_reader :encoding
+
     def valid_type?
       type == TYPE_PUBLIC_KEY
     end
 
     def valid_id?
       raw_id && id && raw_id == Base64.urlsafe_decode64(id)
+    end
+
+    def encoder
+      @encoder ||= WebAuthn::Encoder.new(encoding)
     end
   end
 end

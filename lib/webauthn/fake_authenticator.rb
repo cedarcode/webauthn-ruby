@@ -61,6 +61,7 @@ module WebAuthn
           user_present: user_present,
           user_verified: user_verified,
           aaguid: aaguid,
+          credential: nil,
           sign_count: sign_count || credential_sign_count,
         ).serialize
 

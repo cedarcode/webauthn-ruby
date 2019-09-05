@@ -51,8 +51,7 @@ end
 
 post "/attestation/result" do
   public_key_credential = WebAuthn::PublicKeyCredential.from_create(params)
-  expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  public_key_credential.verify(expected_challenge)
+  public_key_credential.verify(cookies["challenge"])
 
   Credential.register(
     cookies["username"],
@@ -83,14 +82,13 @@ end
 
 post "/assertion/result" do
   public_key_credential = WebAuthn::PublicKeyCredential.from_get(params)
-  expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
 
   user_credential = Credential.registered_for(cookies["username"]).detect do |uc|
     uc.id == public_key_credential.id
   end
 
   public_key_credential.verify(
-    expected_challenge,
+    cookies["challenge"],
     public_key: user_credential.public_key,
     sign_count: user_credential.sign_count,
     user_verification: cookies["userVerification"] == "required"
