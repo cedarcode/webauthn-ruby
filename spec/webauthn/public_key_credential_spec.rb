@@ -24,7 +24,7 @@ RSpec.describe "PublicKeyCredential" do
     let(:raw_id) { SecureRandom.random_bytes(16) }
 
     let(:attestation_response) do
-      response = client.create(challenge: challenge)["response"]
+      response = client.create(challenge: raw_challenge)["response"]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
         attestation_object: response["attestationObject"],
@@ -33,7 +33,8 @@ RSpec.describe "PublicKeyCredential" do
     end
 
     let(:client) { WebAuthn::FakeClient.new(origin) }
-    let(:challenge) { fake_challenge }
+    let(:challenge) { Base64.urlsafe_encode64(raw_challenge) }
+    let(:raw_challenge) { fake_challenge }
     let(:origin) { fake_origin }
 
     before do
@@ -84,43 +85,144 @@ RSpec.describe "PublicKeyCredential" do
       end
     end
 
-    context "when response is invalid" do
+    context "when challenge is invalid" do
       it "fails" do
         expect {
-          public_key_credential.verify("another challenge")
+          public_key_credential.verify(Base64.urlsafe_encode64("another challenge"))
         }.to raise_error(WebAuthn::ChallengeVerificationError)
       end
     end
   end
 
+  let(:origin) { fake_origin }
+
+  before do
+    WebAuthn.configuration.origin = origin
+  end
+
   describe ".from_create" do
-    it "works" do
-      client = WebAuthn::FakeClient.new(encoding: :base64url)
-      public_key_credential = WebAuthn::PublicKeyCredential.from_create(client.create)
+    let(:challenge) do
+      WebAuthn::PublicKeyCredential.create_options(
+        { user: { id: "1", name: "User" } },
+        encoding: encoding
+      ).challenge
+    end
 
-      expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
-      expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAttestationResponse)
+    let(:client) { WebAuthn::FakeClient.new(origin, encoding: encoding) }
 
-      expect(public_key_credential.id).not_to be_empty
-      expect(public_key_credential.public_key).not_to be_empty
-      expect(public_key_credential.sign_count).to eq(0)
+    context "when encoding is base64url" do
+      let(:encoding) { :base64url }
+
+      it "works" do
+        credential = client.create(challenge: Base64.urlsafe_decode64(challenge))
+        public_key_credential = WebAuthn::PublicKeyCredential.from_create(credential, encoding: encoding)
+
+        expect(public_key_credential.verify(challenge)).to be_truthy
+
+        expect(public_key_credential.id).not_to be_empty
+        expect(public_key_credential.public_key).not_to be_empty
+        expect(public_key_credential.sign_count).to eq(0)
+      end
+    end
+
+    context "when encoding is base64" do
+      let(:encoding) { :base64 }
+
+      it "works" do
+        credential = client.create(challenge: Base64.strict_decode64(challenge))
+        public_key_credential = WebAuthn::PublicKeyCredential.from_create(credential, encoding: encoding)
+
+        expect(public_key_credential.verify(challenge)).to be_truthy
+
+        expect(public_key_credential.id).not_to be_empty
+        expect(public_key_credential.public_key).not_to be_empty
+        expect(public_key_credential.sign_count).to eq(0)
+      end
+    end
+
+    context "when not encoding" do
+      let(:encoding) { false }
+
+      it "works" do
+        credential = client.create(challenge: challenge)
+        public_key_credential = WebAuthn::PublicKeyCredential.from_create(credential, encoding: encoding)
+
+        expect(public_key_credential.verify(challenge)).to be_truthy
+
+        expect(public_key_credential.id).not_to be_empty
+        expect(public_key_credential.public_key).not_to be_empty
+        expect(public_key_credential.sign_count).to eq(0)
+      end
     end
   end
 
   describe ".from_get" do
-    it "works" do
-      client = WebAuthn::FakeClient.new(encoding: :base64url)
-      client.create
+    let(:challenge) do
+      WebAuthn::PublicKeyCredential.get_options({}, encoding: encoding).challenge
+    end
 
-      public_key_credential = WebAuthn::PublicKeyCredential.from_get(client.get)
+    let(:client) { WebAuthn::FakeClient.new(origin, encoding: encoding) }
 
-      expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
-      expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAssertionResponse)
+    let(:public_key_credential_from_create) do
+      WebAuthn::PublicKeyCredential.from_create(created_credential, encoding: encoding)
+    end
 
-      expect(public_key_credential.id).not_to be_empty
-      expect(public_key_credential.public_key).not_to be_empty
-      expect(public_key_credential.user_handle).to be_nil
-      expect(public_key_credential.sign_count).to eq(1)
+    let(:created_credential) { client.create }
+
+    let(:public_key) { public_key_credential_from_create.public_key }
+    let(:sign_count) { public_key_credential_from_create.sign_count }
+
+    before do
+      # Client needs to have a created credential before getting one
+      created_credential
+    end
+
+    context "when encoding is base64url" do
+      let(:encoding) { :base64url }
+
+      it "works" do
+        credential = client.get(challenge: Base64.urlsafe_decode64(challenge))
+        public_key_credential = WebAuthn::PublicKeyCredential.from_get(credential, encoding: encoding)
+
+        expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
+
+        expect(public_key_credential.id).not_to be_empty
+        expect(public_key_credential.public_key).to be_nil
+        expect(public_key_credential.user_handle).to be_nil
+        expect(public_key_credential.sign_count).to eq(1)
+      end
+    end
+
+    context "when encoding is base64" do
+      let(:encoding) { :base64 }
+
+      it "works" do
+        credential = client.get(challenge: Base64.strict_decode64(challenge))
+        public_key_credential = WebAuthn::PublicKeyCredential.from_get(credential, encoding: encoding)
+
+        expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
+
+        expect(public_key_credential.id).not_to be_empty
+        expect(public_key_credential.public_key).to be_nil
+        expect(public_key_credential.user_handle).to be_nil
+        expect(public_key_credential.sign_count).to eq(1)
+      end
+    end
+
+    context "when not encoding" do
+      let(:encoding) { false }
+
+      it "works" do
+        credential = client.get(challenge: challenge)
+        public_key_credential = WebAuthn::PublicKeyCredential.from_get(credential, encoding: encoding)
+
+        expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
+
+        expect(public_key_credential.id).not_to be_empty
+        expect(public_key_credential.public_key).to be_nil
+        expect(public_key_credential.user_handle).to be_nil
+        expect(public_key_credential.sign_count).to eq(1)
+      end
     end
   end
 end
