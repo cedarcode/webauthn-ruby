@@ -58,16 +58,28 @@ module WebAuthn
       @encoding = encoding
     end
 
-    def verify(challenge, *args)
+    def verify(challenge, *args, **keyword_arguments)
+      # TODO: Avoid all these conditionals here by splitting PublicKeyCredential into two separate objects,
+      # one for attestation and one for assertion.
+      if keyword_arguments.key?(:public_key)
+        keyword_arguments[:public_key] = encoder.decode(keyword_arguments[:public_key])
+      end
+
       valid_type? || raise("invalid type")
       valid_id? || raise("invalid id")
 
-      response.verify(encoder.decode(challenge), *args)
+      response.verify(encoder.decode(challenge), *args, **keyword_arguments)
 
       true
     end
 
     def public_key
+      if raw_public_key
+        encoder.encode(raw_public_key)
+      end
+    end
+
+    def raw_public_key
       response&.authenticator_data&.credential&.public_key
     end
 
