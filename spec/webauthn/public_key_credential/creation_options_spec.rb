@@ -12,7 +12,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
 
   it "has a challenge" do
     expect(creation_options.challenge.class).to eq(String)
-    expect(creation_options.challenge.encoding).to eq(Encoding::ASCII_8BIT)
+    expect(creation_options.challenge.encoding).to eq(Encoding::BINARY)
     expect(creation_options.challenge.length).to eq(32)
   end
 
