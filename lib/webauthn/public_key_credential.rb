@@ -84,6 +84,12 @@ module WebAuthn
     end
 
     def user_handle
+      if raw_user_handle
+        encoder.encode(raw_user_handle)
+      end
+    end
+
+    def raw_user_handle
       if response.is_a?(WebAuthn::AuthenticatorAssertionResponse)
         response.user_handle
       end
