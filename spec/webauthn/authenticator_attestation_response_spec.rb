@@ -40,9 +40,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       credential = attestation_response.credential
 
       expect(credential.id.class).to eq(String)
-      expect(credential.id.encoding).to eq(Encoding::ASCII_8BIT)
+      expect(credential.id.encoding).to eq(Encoding::BINARY)
       expect(credential.public_key.class).to eq(String)
-      expect(credential.public_key.encoding).to be(Encoding::ASCII_8BIT)
+      expect(credential.public_key.encoding).to be(Encoding::BINARY)
     end
   end
 
