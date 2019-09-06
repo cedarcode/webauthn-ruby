@@ -72,4 +72,48 @@ RSpec.describe WebAuthn do
       expect(credential_request_options[:allowCredentials]).to match_array([])
     end
   end
+
+  describe "#generate_user_id" do
+    let(:user_id) { WebAuthn.generate_user_id(encoding: encoding) }
+    let(:encoder) { WebAuthn::Encoder.new(encoding) }
+
+    context "when encoding is base64url" do
+      let(:encoding) { :base64url }
+
+      it "is encoded" do
+        expect(user_id.class).to eq(String)
+        expect(user_id.encoding).not_to eq(Encoding::BINARY)
+      end
+
+      it "is 64 bytes long" do
+        expect(encoder.decode(user_id).length).to eq(64)
+      end
+    end
+
+    context "when encoding is base64" do
+      let(:encoding) { :base64 }
+
+      it "is encoded" do
+        expect(user_id.class).to eq(String)
+        expect(user_id.encoding).not_to eq(Encoding::BINARY)
+      end
+
+      it "is 64 bytes long" do
+        expect(encoder.decode(user_id).length).to eq(64)
+      end
+    end
+
+    context "when not encoding" do
+      let(:encoding) { false }
+
+      it "is not encoded" do
+        expect(user_id.class).to eq(String)
+        expect(user_id.encoding).to eq(Encoding::BINARY)
+      end
+
+      it "is 64 bytes long" do
+        expect(user_id.length).to eq(64)
+      end
+    end
+  end
 end

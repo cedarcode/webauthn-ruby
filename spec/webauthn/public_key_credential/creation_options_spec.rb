@@ -4,9 +4,10 @@ require "spec_helper"
 require "webauthn/public_key_credential/creation_options"
 
 RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
+  let(:user_id) { WebAuthn.generate_user_id }
   let(:creation_options) do
     WebAuthn::PublicKeyCredential::CreationOptions.new(
-      user: { id: "1", name: "User", display_name: "User Display" }
+      user: { id: user_id, name: "User", display_name: "User Display" }
     )
   end
 
@@ -83,7 +84,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
   end
 
   it "has user info" do
-    expect(creation_options.user.id).to eq("1")
+    expect(creation_options.user.id).to eq(user_id)
     expect(creation_options.user.name).to eq("User")
     expect(creation_options.user.display_name).to eq("User Display")
   end
