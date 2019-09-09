@@ -74,8 +74,12 @@ RSpec.describe WebAuthn do
   end
 
   describe "#generate_user_id" do
-    let(:user_id) { WebAuthn.generate_user_id(encoding: encoding) }
+    let(:user_id) { WebAuthn.generate_user_id }
     let(:encoder) { WebAuthn::Encoder.new(encoding) }
+
+    before do
+      WebAuthn.configuration.encoding = encoding
+    end
 
     context "when encoding is base64url" do
       let(:encoding) { :base64url }
