@@ -6,18 +6,6 @@ require "webauthn/public_key_credential/rp_entity"
 require "webauthn/public_key_credential/user_entity"
 
 module WebAuthn
-  def self.credential_creation_options(rp_name: nil, user_name: "web-user", display_name: "web-user", user_id: "1")
-    warn(
-      "DEPRECATION WARNING: `WebAuthn.credential_creation_options` is deprecated."\
-      " Please use `WebAuthn::PublicKeyCredential.create_options` instead."
-    )
-
-    PublicKeyCredential::CreationOptions.new(
-      rp: { name: rp_name },
-      user: { id: user_id, name: user_name, display_name: display_name }
-    ).as_json
-  end
-
   class PublicKeyCredential
     def self.create_options(options, encoding: :base64url)
       WebAuthn::PublicKeyCredential::CreationOptions.new(options.merge(encoding: encoding))

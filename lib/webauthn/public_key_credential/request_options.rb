@@ -3,15 +3,6 @@
 require "webauthn/public_key_credential/options"
 
 module WebAuthn
-  def self.credential_request_options
-    warn(
-      "DEPRECATION WARNING: `WebAuthn.credential_request_options` is deprecated."\
-      " Please use `WebAuthn::PublicKeyCredential.get_options` instead."
-    )
-
-    PublicKeyCredential::RequestOptions.new.as_json
-  end
-
   class PublicKeyCredential
     def self.get_options(options, encoding: :base64url)
       WebAuthn::PublicKeyCredential::RequestOptions.new(options.merge(encoding: encoding))

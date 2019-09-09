@@ -43,8 +43,8 @@ RSpec.describe WebAuthn do
     end
 
     context "Relying Party info" do
-      it "has relying party name default set to nothing" do
-        expect(@credential_creation_options[:rp][:name]).to eq(nil)
+      it "has relying party name default" do
+        expect(@credential_creation_options[:rp][:name]).to eq("web-server")
       end
 
       context "when configured" do
