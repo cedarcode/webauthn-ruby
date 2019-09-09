@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "base64"
 require "openssl"
+require "securerandom"
 require "webauthn/authenticator_data"
 require "webauthn/encoder"
 require "webauthn/fake_authenticator"
