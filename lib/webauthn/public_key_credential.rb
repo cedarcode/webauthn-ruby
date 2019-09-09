@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "base64"
 require "webauthn/authenticator_assertion_response"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/encoder"
@@ -14,7 +13,7 @@ module WebAuthn
     attr_reader :type, :id, :raw_id, :response
 
     def self.from_create(credential)
-      encoder = WebAuthn::Encoder.new
+      encoder = WebAuthn.configuration.encoder
 
       new(
         type: credential["type"],
@@ -28,7 +27,7 @@ module WebAuthn
     end
 
     def self.from_get(credential)
-      encoder = WebAuthn::Encoder.new
+      encoder = WebAuthn.configuration.encoder
 
       user_handle =
         if credential["response"]["userHandle"]
@@ -103,11 +102,11 @@ module WebAuthn
     end
 
     def valid_id?
-      raw_id && id && raw_id == Base64.urlsafe_decode64(id)
+      raw_id && id && raw_id == WebAuthn.standard_encoder.decode(id)
     end
 
     def encoder
-      @encoder ||= WebAuthn::Encoder.new
+      WebAuthn.configuration.encoder
     end
   end
 end

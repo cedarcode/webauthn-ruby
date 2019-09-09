@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "openssl"
+require "webauthn/encoder"
 
 module WebAuthn
   def self.configuration
@@ -17,7 +18,6 @@ module WebAuthn
     end
 
     DEFAULT_ALGORITHMS = ["ES256", if_pss_supported("PS256"), "RS256"].compact.freeze
-    DEFAULT_ENCODING = :base64url
 
     attr_accessor :algorithms
     attr_accessor :encoding
@@ -29,9 +29,15 @@ module WebAuthn
 
     def initialize
       @algorithms = DEFAULT_ALGORITHMS.dup
-      @encoding = DEFAULT_ENCODING
+      @encoding = WebAuthn::Encoder::STANDARD_ENCODING
       @verify_attestation_statement = true
       @credential_options_timeout = 120000
+    end
+
+    # This is the user-data encoder.
+    # Used to decode user input and to encode data provided to the user.
+    def encoder
+      @encoder ||= WebAuthn::Encoder.new(encoding)
     end
   end
 end

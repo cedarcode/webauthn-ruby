@@ -1,13 +1,19 @@
 # frozen_string_literal: true
 
 require "base64"
-require "webauthn/configuration"
 
 module WebAuthn
+  def self.standard_encoder
+    @standard_encoder ||= Encoder.new
+  end
+
   class Encoder
+    # https://www.w3.org/TR/webauthn-2/#base64url-encoding
+    STANDARD_ENCODING = :base64url
+
     attr_reader :encoding
 
-    def initialize(encoding = WebAuthn.configuration.encoding)
+    def initialize(encoding = STANDARD_ENCODING)
       @encoding = encoding
     end
 

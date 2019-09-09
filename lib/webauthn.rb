@@ -8,6 +8,6 @@ require "webauthn/version"
 
 module WebAuthn
   def self.generate_user_id
-    WebAuthn::Encoder.new.encode(SecureRandom.random_bytes(64))
+    configuration.encoder.encode(SecureRandom.random_bytes(64))
   end
 end

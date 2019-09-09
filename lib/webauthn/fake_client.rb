@@ -112,7 +112,7 @@ module WebAuthn
     end
 
     def internal_encoder
-      @internal_encoder ||= WebAuthn::Encoder.new(:base64url)
+      WebAuthn.standard_encoder
     end
 
     def hashed(data)

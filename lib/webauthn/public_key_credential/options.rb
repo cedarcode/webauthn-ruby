@@ -49,7 +49,7 @@ module WebAuthn
       end
 
       def encoder
-        @encoder ||= WebAuthn::Encoder.new
+        WebAuthn.configuration.encoder
       end
 
       def raw_challenge
