@@ -10,10 +10,9 @@ module WebAuthn
 
       attr_reader :timeout, :extensions
 
-      def initialize(timeout: default_timeout, extensions: nil, encoding: nil)
+      def initialize(timeout: default_timeout, extensions: nil)
         @timeout = timeout
         @extensions = extensions
-        @encoding = encoding
       end
 
       def challenge
@@ -26,8 +25,6 @@ module WebAuthn
       end
 
       private
-
-      attr_reader :encoding
 
       def to_hash
         hash = {}
@@ -52,7 +49,7 @@ module WebAuthn
       end
 
       def encoder
-        @encoder ||= WebAuthn::Encoder.new(encoding)
+        WebAuthn.configuration.encoder
       end
 
       def raw_challenge

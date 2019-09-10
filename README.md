@@ -122,6 +122,12 @@ WebAuthn.configure do |config|
   # the suffix "example.com"
   #
   # config.rp_id = "example.com"
+
+  # Configure preferred binary-to-text encoding scheme. This should match the encoding scheme
+  # used in your client-side (user agent) code before sending the credential to the server.
+  # Supported values: `:base64url` (default), `:base64` or `false` to disable all encoding.
+  #
+  # config.encoding = false
 end
 ```
 

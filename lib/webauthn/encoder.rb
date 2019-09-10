@@ -3,10 +3,17 @@
 require "base64"
 
 module WebAuthn
+  def self.standard_encoder
+    @standard_encoder ||= Encoder.new
+  end
+
   class Encoder
+    # https://www.w3.org/TR/webauthn-2/#base64url-encoding
+    STANDARD_ENCODING = :base64url
+
     attr_reader :encoding
 
-    def initialize(encoding = :base64url)
+    def initialize(encoding = STANDARD_ENCODING)
       @encoding = encoding
     end
 
