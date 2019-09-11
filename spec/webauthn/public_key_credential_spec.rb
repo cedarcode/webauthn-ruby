@@ -7,11 +7,12 @@ require "securerandom"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/configuration"
 require "webauthn/public_key_credential"
+require "webauthn/public_key_credential_with_attestation"
 
 RSpec.describe "PublicKeyCredential" do
   describe "#verify" do
     let(:public_key_credential) do
-      WebAuthn::PublicKeyCredential.new(
+      WebAuthn::PublicKeyCredentialWithAttestation.new(
         type: type,
         id: id,
         raw_id: raw_id,
@@ -196,7 +197,6 @@ RSpec.describe "PublicKeyCredential" do
         expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
 
         expect(public_key_credential.id).not_to be_empty
-        expect(public_key_credential.public_key).to be_nil
         expect(public_key_credential.user_handle).to be_nil
         expect(public_key_credential.sign_count).to eq(1)
       end
@@ -212,7 +212,6 @@ RSpec.describe "PublicKeyCredential" do
         expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
 
         expect(public_key_credential.id).not_to be_empty
-        expect(public_key_credential.public_key).to be_nil
         expect(public_key_credential.user_handle).to be_nil
         expect(public_key_credential.sign_count).to eq(1)
       end
@@ -228,7 +227,6 @@ RSpec.describe "PublicKeyCredential" do
         expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
 
         expect(public_key_credential.id).not_to be_empty
-        expect(public_key_credential.public_key).to be_nil
         expect(public_key_credential.user_handle).to be_nil
         expect(public_key_credential.sign_count).to eq(1)
       end
