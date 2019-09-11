@@ -22,6 +22,15 @@ module WebAuthn
       PublicKeyCredentialWithAssertion.from_client(credential)
     end
 
+    def self.from_client(credential)
+      new(
+        type: credential["type"],
+        id: credential["id"],
+        raw_id: WebAuthn.configuration.encoder.decode(credential["rawId"]),
+        response: response_from_client(credential["response"])
+      )
+    end
+
     def initialize(type:, id:, raw_id:, response:)
       @type = type
       @id = id

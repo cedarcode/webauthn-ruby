@@ -6,17 +6,12 @@ require "webauthn/public_key_credential"
 
 module WebAuthn
   class PublicKeyCredentialWithAttestation < PublicKeyCredential
-    def self.from_client(credential)
+    def self.response_from_client(response)
       encoder = WebAuthn.configuration.encoder
 
-      new(
-        type: credential["type"],
-        id: credential["id"],
-        raw_id: encoder.decode(credential["rawId"]),
-        response: WebAuthn::AuthenticatorAttestationResponse.new(
-          attestation_object: encoder.decode(credential["response"]["attestationObject"]),
-          client_data_json: encoder.decode(credential["response"]["clientDataJSON"])
-        )
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: encoder.decode(response["attestationObject"]),
+        client_data_json: encoder.decode(response["clientDataJSON"])
       )
     end
 

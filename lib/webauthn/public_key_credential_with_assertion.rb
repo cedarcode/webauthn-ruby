@@ -6,24 +6,19 @@ require "webauthn/public_key_credential"
 
 module WebAuthn
   class PublicKeyCredentialWithAssertion < PublicKeyCredential
-    def self.from_client(credential)
+    def self.response_from_client(response)
       encoder = WebAuthn.configuration.encoder
 
       user_handle =
-        if credential["response"]["userHandle"]
-          encoder.decode(credential["response"]["userHandle"])
+        if response["userHandle"]
+          encoder.decode(response["userHandle"])
         end
 
-      new(
-        type: credential["type"],
-        id: credential["id"],
-        raw_id: encoder.decode(credential["rawId"]),
-        response: WebAuthn::AuthenticatorAssertionResponse.new(
-          authenticator_data: encoder.decode(credential["response"]["authenticatorData"]),
-          client_data_json: encoder.decode(credential["response"]["clientDataJSON"]),
-          signature: encoder.decode(credential["response"]["signature"]),
-          user_handle: user_handle
-        )
+      WebAuthn::AuthenticatorAssertionResponse.new(
+        authenticator_data: encoder.decode(response["authenticatorData"]),
+        client_data_json: encoder.decode(response["clientDataJSON"]),
+        signature: encoder.decode(response["signature"]),
+        user_handle: user_handle
       )
     end
 
