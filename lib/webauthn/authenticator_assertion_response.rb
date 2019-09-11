@@ -5,6 +5,7 @@ require "cose/key"
 require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_data"
 require "webauthn/authenticator_response"
+require "webauthn/encoder"
 require "webauthn/signature_verifier"
 
 module WebAuthn
@@ -12,6 +13,22 @@ module WebAuthn
   class SignCountVerificationError < VerificationError; end
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
+    def self.from_client(response)
+      encoder = WebAuthn.configuration.encoder
+
+      user_handle =
+        if response["userHandle"]
+          encoder.decode(response["userHandle"])
+        end
+
+      new(
+        authenticator_data: encoder.decode(response["authenticatorData"]),
+        client_data_json: encoder.decode(response["clientDataJSON"]),
+        signature: encoder.decode(response["signature"]),
+        user_handle: user_handle
+      )
+    end
+
     attr_reader :user_handle
 
     def initialize(authenticator_data:, signature:, user_handle: nil, **options)

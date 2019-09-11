@@ -27,7 +27,7 @@ module WebAuthn
         type: credential["type"],
         id: credential["id"],
         raw_id: WebAuthn.configuration.encoder.decode(credential["rawId"]),
-        response: response_from_client(credential["response"])
+        response: response_class.from_client(credential["response"])
       )
     end
 

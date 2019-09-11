@@ -1,18 +1,12 @@
 # frozen_string_literal: true
 
 require "webauthn/authenticator_attestation_response"
-require "webauthn/encoder"
 require "webauthn/public_key_credential"
 
 module WebAuthn
   class PublicKeyCredentialWithAttestation < PublicKeyCredential
-    def self.response_from_client(response)
-      encoder = WebAuthn.configuration.encoder
-
-      WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: encoder.decode(response["attestationObject"]),
-        client_data_json: encoder.decode(response["clientDataJSON"])
-      )
+    def self.response_class
+      WebAuthn::AuthenticatorAttestationResponse
     end
 
     def verify(challenge)
