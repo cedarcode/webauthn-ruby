@@ -54,15 +54,26 @@ module WebAuthn
       @response = response
     end
 
-    def verify(challenge, *args, **keyword_arguments)
+    def verify(options, *args, **keyword_arguments)
       # TODO: Avoid all these conditionals here by splitting PublicKeyCredential into two separate objects,
       # one for attestation and one for assertion.
-      if keyword_arguments.key?(:public_key)
+      if response.is_a?(WebAuthn::AuthenticatorAttestationResponse)
+        if options.is_a?(String)
+          options = WebAuthn::PublicKeyCredential::CreationOptions.deserialize(options)
+        end
+        keyword_arguments[:user_verification] = options.authenticator_selection&.user_verification == "required"
+      else
+        if options.is_a?(String)
+          options = WebAuthn::PublicKeyCredential::RequestOptions.deserialize(options)
+        end
         keyword_arguments[:public_key] = encoder.decode(keyword_arguments[:public_key])
+        keyword_arguments[:user_verification] = options.user_verification == "required"
       end
 
       valid_type? || raise("invalid type")
       valid_id? || raise("invalid id")
+
+      challenge = options.challenge
 
       response.verify(encoder.decode(challenge), *args, **keyword_arguments)
 

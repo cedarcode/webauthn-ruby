@@ -5,6 +5,10 @@ require "webauthn/public_key_credential/entity"
 module WebAuthn
   class PublicKeyCredential
     class UserEntity < Entity
+      def self.attributes
+        super.concat([:id, :display_name])
+      end
+
       attr_reader :id, :display_name
 
       def initialize(id:, display_name: nil, **keyword_arguments)
@@ -12,12 +16,6 @@ module WebAuthn
 
         @id = id
         @display_name = display_name || name
-      end
-
-      private
-
-      def attributes
-        super.concat([:id, :display_name])
       end
     end
   end

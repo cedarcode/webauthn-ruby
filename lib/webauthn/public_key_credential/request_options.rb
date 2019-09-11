@@ -9,6 +9,14 @@ module WebAuthn
     end
 
     class RequestOptions < Options
+      def self.keyword_arguments_for_initialize(hash)
+        {
+          rp_id: hash["rp_id"],
+          user_verification: hash["user_verification"],
+          allow_credentials: hash["allow_credentials"]
+        }
+      end
+
       attr_accessor :rp_id, :allow, :user_verification
 
       def initialize(rp_id: nil, allow_credentials: nil, allow: nil, user_verification: nil, **keyword_arguments)

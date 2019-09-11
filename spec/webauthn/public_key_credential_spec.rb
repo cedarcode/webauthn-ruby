@@ -10,6 +10,10 @@ require "webauthn/public_key_credential"
 
 RSpec.describe "PublicKeyCredential" do
   describe "#verify" do
+    let(:creation_options) do
+      WebAuthn::PublicKeyCredential.create_options(user: { id: "1", name: "User" })
+    end
+
     let(:public_key_credential) do
       WebAuthn::PublicKeyCredential.new(
         type: type,
@@ -33,8 +37,8 @@ RSpec.describe "PublicKeyCredential" do
     end
 
     let(:client) { WebAuthn::FakeClient.new(origin) }
-    let(:challenge) { Base64.urlsafe_encode64(raw_challenge) }
-    let(:raw_challenge) { fake_challenge }
+    let(:challenge) { creation_options.challenge }
+    let(:raw_challenge) { creation_options.raw_challenge }
     let(:origin) { fake_origin }
 
     before do
@@ -42,11 +46,17 @@ RSpec.describe "PublicKeyCredential" do
     end
 
     it "works" do
-      expect(public_key_credential.verify(challenge)).to be_truthy
+      expect(public_key_credential.verify(creation_options.serialize)).to be_truthy
 
       expect(public_key_credential.id).not_to be_empty
       expect(public_key_credential.public_key).not_to be_empty
       expect(public_key_credential.sign_count).to eq(0)
+    end
+
+    context "when options are CreationOptions" do
+      it "works" do
+        expect(public_key_credential.verify(creation_options)).to be_truthy
+      end
     end
 
     context "when type is invalid" do
@@ -54,7 +64,7 @@ RSpec.describe "PublicKeyCredential" do
         let(:type) { nil }
 
         it "fails" do
-          expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+          expect { public_key_credential.verify(creation_options.serialize) }.to raise_error(RuntimeError)
         end
       end
 
@@ -62,7 +72,7 @@ RSpec.describe "PublicKeyCredential" do
         let(:type) { "password" }
 
         it "fails" do
-          expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+          expect { public_key_credential.verify(creation_options.serialize) }.to raise_error(RuntimeError)
         end
       end
     end
@@ -72,7 +82,7 @@ RSpec.describe "PublicKeyCredential" do
         let(:id) { nil }
 
         it "fails" do
-          expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+          expect { public_key_credential.verify(creation_options.serialize) }.to raise_error(RuntimeError)
         end
       end
 
@@ -80,15 +90,19 @@ RSpec.describe "PublicKeyCredential" do
         let(:id) { Base64.urlsafe_encode64(raw_id + "a") }
 
         it "fails" do
-          expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
+          expect { public_key_credential.verify(creation_options.serialize) }.to raise_error(RuntimeError)
         end
       end
     end
 
     context "when challenge is invalid" do
+      let(:raw_challenge) do
+        SecureRandom.random_bytes(32)
+      end
+
       it "fails" do
         expect {
-          public_key_credential.verify(Base64.urlsafe_encode64("another challenge"))
+          public_key_credential.verify(creation_options.serialize)
         }.to raise_error(WebAuthn::ChallengeVerificationError)
       end
     end
@@ -101,8 +115,12 @@ RSpec.describe "PublicKeyCredential" do
   end
 
   describe ".from_create" do
+    let(:creation_options) do
+      WebAuthn::PublicKeyCredential.create_options(user: { id: "1", name: "User" })
+    end
+
     let(:challenge) do
-      WebAuthn::PublicKeyCredential.create_options(user: { id: "1", name: "User" }).challenge
+      creation_options.challenge
     end
 
     let(:client) { WebAuthn::FakeClient.new(origin, encoding: encoding) }
@@ -118,7 +136,7 @@ RSpec.describe "PublicKeyCredential" do
         credential = client.create(challenge: Base64.urlsafe_decode64(challenge))
         public_key_credential = WebAuthn::PublicKeyCredential.from_create(credential)
 
-        expect(public_key_credential.verify(challenge)).to be_truthy
+        expect(public_key_credential.verify(creation_options.serialize)).to be_truthy
 
         expect(public_key_credential.id).not_to be_empty
         expect(public_key_credential.public_key).not_to be_empty
@@ -135,7 +153,7 @@ RSpec.describe "PublicKeyCredential" do
         credential = client.create(challenge: Base64.strict_decode64(challenge))
         public_key_credential = WebAuthn::PublicKeyCredential.from_create(credential)
 
-        expect(public_key_credential.verify(challenge)).to be_truthy
+        expect(public_key_credential.verify(creation_options.serialize)).to be_truthy
 
         expect(public_key_credential.id).not_to be_empty
         expect(public_key_credential.public_key).not_to be_empty
@@ -152,7 +170,7 @@ RSpec.describe "PublicKeyCredential" do
         credential = client.create(challenge: challenge)
         public_key_credential = WebAuthn::PublicKeyCredential.from_create(credential)
 
-        expect(public_key_credential.verify(challenge)).to be_truthy
+        expect(public_key_credential.verify(creation_options.serialize)).to be_truthy
 
         expect(public_key_credential.id).not_to be_empty
         expect(public_key_credential.public_key).not_to be_empty
@@ -164,8 +182,12 @@ RSpec.describe "PublicKeyCredential" do
   end
 
   describe ".from_get" do
+    let(:get_options) do
+      WebAuthn::PublicKeyCredential.get_options({})
+    end
+
     let(:challenge) do
-      WebAuthn::PublicKeyCredential.get_options({}).challenge
+      get_options.challenge
     end
 
     let(:client) { WebAuthn::FakeClient.new(origin, encoding: encoding) }
@@ -193,7 +215,7 @@ RSpec.describe "PublicKeyCredential" do
         credential = client.get(challenge: Base64.urlsafe_decode64(challenge))
         public_key_credential = WebAuthn::PublicKeyCredential.from_get(credential)
 
-        expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
+        expect(public_key_credential.verify(get_options.serialize, public_key: public_key, sign_count: sign_count)).to be_truthy
 
         expect(public_key_credential.id).not_to be_empty
         expect(public_key_credential.public_key).to be_nil
@@ -209,7 +231,7 @@ RSpec.describe "PublicKeyCredential" do
         credential = client.get(challenge: Base64.strict_decode64(challenge))
         public_key_credential = WebAuthn::PublicKeyCredential.from_get(credential)
 
-        expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
+        expect(public_key_credential.verify(get_options.serialize, public_key: public_key, sign_count: sign_count)).to be_truthy
 
         expect(public_key_credential.id).not_to be_empty
         expect(public_key_credential.public_key).to be_nil
@@ -225,7 +247,7 @@ RSpec.describe "PublicKeyCredential" do
         credential = client.get(challenge: challenge)
         public_key_credential = WebAuthn::PublicKeyCredential.from_get(credential)
 
-        expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
+        expect(public_key_credential.verify(get_options.serialize, public_key: public_key, sign_count: sign_count)).to be_truthy
 
         expect(public_key_credential.id).not_to be_empty
         expect(public_key_credential.public_key).to be_nil

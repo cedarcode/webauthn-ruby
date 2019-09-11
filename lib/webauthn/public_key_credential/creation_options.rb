@@ -12,6 +12,18 @@ module WebAuthn
     end
 
     class CreationOptions < Options
+      def self.keyword_arguments_for_initialize(hash)
+        {
+          attestation: hash["attestation"],
+          authenticator_selection: hash["authenticator_selection"],
+          exclude_credentials: hash["exclude_credentials"],
+          pub_key_cred_params: hash["pub_key_cred_params"],
+          algs: hash["algs"],
+          rp: WebAuthn::PublicKeyCredential::RPEntity.from_json(hash["rp"]),
+          user: WebAuthn::PublicKeyCredential::UserEntity.from_json(hash["user"])
+        }
+      end
+
       attr_accessor(
         :attestation,
         :authenticator_selection,

@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "cose", "~> 0.8.0"
   spec.add_dependency "jwt", [">= 1.5", "< 3.0"]
   spec.add_dependency "openssl", "~> 2.0"
+  spec.add_dependency "plissken", "~>1.3"
   spec.add_dependency "securecompare", "~> 1.0"
 
   spec.add_development_dependency "appraisal", "~> 2.2.0"

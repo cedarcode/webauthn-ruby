@@ -43,14 +43,14 @@ post "/attestation/options" do
   )
 
   cookies["username"] = params["username"]
-  cookies["challenge"] = create_options.challenge
+  cookies["creation_options"] = create_options.serialize
 
   render_ok(create_options.as_json)
 end
 
 post "/attestation/result" do
   public_key_credential = WebAuthn::PublicKeyCredential.from_create(params)
-  public_key_credential.verify(cookies["challenge"])
+  public_key_credential.verify(cookies["creation_options"])
 
   Credential.register(
     cookies["username"],
@@ -59,7 +59,7 @@ post "/attestation/result" do
     sign_count: public_key_credential.sign_count,
   )
 
-  cookies["challenge"] = nil
+  cookies["creation_options"] = nil
   cookies["username"] = nil
 
   render_ok
@@ -73,8 +73,7 @@ post "/assertion/options" do
   )
 
   cookies["username"] = params["username"]
-  cookies["userVerification"] = params["userVerification"]
-  cookies["challenge"] = get_options.challenge
+  cookies["request_options"] = get_options.serialize
 
   render_ok(get_options.as_json)
 end
@@ -87,16 +86,14 @@ post "/assertion/result" do
   end
 
   public_key_credential.verify(
-    cookies["challenge"],
+    cookies["request_options"],
     public_key: user_credential.public_key,
-    sign_count: user_credential.sign_count,
-    user_verification: cookies["userVerification"] == "required"
+    sign_count: user_credential.sign_count
   )
 
   user_credential.sign_count = public_key_credential.sign_count
-  cookies["challenge"] = nil
   cookies["username"] = nil
-  cookies["userVerification"] = nil
+  cookies["request_options"] = nil
 
   render_ok
 end

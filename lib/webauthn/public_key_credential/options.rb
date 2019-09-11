@@ -1,12 +1,32 @@
 # frozen_string_literal: true
 
 require "awrence"
+require "json"
 require "securerandom"
 
 module WebAuthn
   class PublicKeyCredential
     class Options
       CHALLENGE_LENGTH = 32
+
+      def self.from_json(json_string)
+        hash = JSON.parse(json_string)
+        from_hash(hash.to_snake_keys)
+      end
+
+      def self.from_hash(hash)
+        options = new(
+          timeout: hash["timeout"],
+          extensions: hash["extensions"],
+          **keyword_arguments_for_initialize(hash)
+        )
+        options.instance_variable_set(:@raw_challenge, WebAuthn.configuration.encoder.decode(hash["challenge"]))
+        options
+      end
+
+      class << self
+        alias_method :deserialize, :from_json
+      end
 
       attr_reader :timeout, :extensions
 
@@ -19,10 +39,20 @@ module WebAuthn
         encoder.encode(raw_challenge)
       end
 
+      def raw_challenge
+        @raw_challenge ||= SecureRandom.random_bytes(CHALLENGE_LENGTH)
+      end
+
       # Argument wildcard for Ruby on Rails controller automatic object JSON serialization
       def as_json(*)
         to_hash.to_camelback_keys
       end
+
+      def to_json(*_args)
+        as_json.to_json
+      end
+
+      alias_method :serialize, :to_json
 
       private
 
@@ -50,10 +80,6 @@ module WebAuthn
 
       def encoder
         WebAuthn.configuration.encoder
-      end
-
-      def raw_challenge
-        @raw_challenge ||= SecureRandom.random_bytes(CHALLENGE_LENGTH)
       end
 
       def default_timeout
