@@ -4,10 +4,6 @@ require "webauthn/public_key_credential/options"
 
 module WebAuthn
   class PublicKeyCredential
-    def self.get_options(options)
-      WebAuthn::PublicKeyCredential::RequestOptions.new(options)
-    end
-
     class RequestOptions < Options
       attr_accessor :rp_id, :allow, :user_verification
 

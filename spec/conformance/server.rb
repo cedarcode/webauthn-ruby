@@ -34,7 +34,7 @@ WebAuthn.configure do |config|
 end
 
 post "/attestation/options" do
-  create_options = WebAuthn::PublicKeyCredential.create_options(
+  create_options = WebAuthn::Credential.create_options(
     attestation: params["attestation"],
     authenticator_selection: params["authenticatorSelection"],
     exclude: Credential.registered_for(params["username"]).map(&:id),
@@ -53,7 +53,7 @@ post "/attestation/options" do
 end
 
 post "/attestation/result" do
-  public_key_credential = WebAuthn::PublicKeyCredential.from_create(params)
+  public_key_credential = WebAuthn::Credential.from_create(params)
 
   public_key_credential.verify(
     cookies["attestation_challenge"],
@@ -75,7 +75,7 @@ post "/attestation/result" do
 end
 
 post "/assertion/options" do
-  get_options = WebAuthn::PublicKeyCredential.get_options(
+  get_options = WebAuthn::Credential.get_options(
     allow: Credential.registered_for(params["username"]).map(&:id),
     extensions: params["extensions"],
     user_verification: params["userVerification"]
@@ -89,7 +89,7 @@ post "/assertion/options" do
 end
 
 post "/assertion/result" do
-  public_key_credential = WebAuthn::PublicKeyCredential.from_get(params)
+  public_key_credential = WebAuthn::Credential.from_get(params)
 
   user_credential = Credential.registered_for(cookies["assertion_username"]).detect do |uc|
     uc.id == public_key_credential.id

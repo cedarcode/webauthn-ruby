@@ -1,26 +1,10 @@
 # frozen_string_literal: true
 
 require "webauthn/encoder"
-require "webauthn/public_key_credential/creation_options"
-require "webauthn/public_key_credential/request_options"
 
 module WebAuthn
   class PublicKeyCredential
-    TYPE_PUBLIC_KEY = "public-key"
-
     attr_reader :type, :id, :raw_id, :response
-
-    # XXX: Keep or remove?
-    def self.from_create(credential)
-      require "webauthn/public_key_credential_with_attestation"
-      PublicKeyCredentialWithAttestation.from_client(credential)
-    end
-
-    # XXX: Keep or remove?
-    def self.from_get(credential)
-      require "webauthn/public_key_credential_with_assertion"
-      PublicKeyCredentialWithAssertion.from_client(credential)
-    end
 
     def self.from_client(credential)
       new(
