@@ -45,12 +45,20 @@ post "/attestation/options" do
   cookies["attestation_username"] = params["username"]
   cookies["attestation_challenge"] = create_options.challenge
 
+  if params["authenticatorSelection"] && params["authenticatorSelection"]["userVerification"]
+    cookies["attestation_user_verification"] = params["authenticatorSelection"]["userVerification"]
+  end
+
   render_ok(create_options.as_json)
 end
 
 post "/attestation/result" do
   public_key_credential = WebAuthn::PublicKeyCredential.from_create(params)
-  public_key_credential.verify(cookies["attestation_challenge"])
+
+  public_key_credential.verify(
+    cookies["attestation_challenge"],
+    user_verification: cookies["attestation_user_verification"] == "required"
+  )
 
   Credential.register(
     cookies["attestation_username"],
@@ -61,6 +69,7 @@ post "/attestation/result" do
 
   cookies["attestation_challenge"] = nil
   cookies["attestation_username"] = nil
+  cookies["attestation_user_verification"] = nil
 
   render_ok
 end
