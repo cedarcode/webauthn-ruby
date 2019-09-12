@@ -9,10 +9,15 @@ module WebAuthn
       WebAuthn::AuthenticatorAssertionResponse
     end
 
-    def verify(challenge, public_key:, sign_count:)
+    def verify(challenge, public_key:, sign_count:, user_verification: nil)
       super
 
-      response.verify(encoder.decode(challenge), public_key: encoder.decode(public_key), sign_count: sign_count)
+      response.verify(
+        encoder.decode(challenge),
+        public_key: encoder.decode(public_key),
+        sign_count: sign_count,
+        user_verification: user_verification
+      )
 
       true
     end
