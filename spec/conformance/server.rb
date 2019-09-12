@@ -42,25 +42,25 @@ post "/attestation/options" do
     user: { id: "1", name: params["username"], display_name: params["displayName"] }
   )
 
-  cookies["username"] = params["username"]
-  cookies["challenge"] = create_options.challenge
+  cookies["attestation_username"] = params["username"]
+  cookies["attestation_challenge"] = create_options.challenge
 
   render_ok(create_options.as_json)
 end
 
 post "/attestation/result" do
   public_key_credential = WebAuthn::PublicKeyCredential.from_create(params)
-  public_key_credential.verify(cookies["challenge"])
+  public_key_credential.verify(cookies["attestation_challenge"])
 
   Credential.register(
-    cookies["username"],
+    cookies["attestation_username"],
     id: public_key_credential.id,
     public_key: public_key_credential.public_key,
     sign_count: public_key_credential.sign_count,
   )
 
-  cookies["challenge"] = nil
-  cookies["username"] = nil
+  cookies["attestation_challenge"] = nil
+  cookies["attestation_username"] = nil
 
   render_ok
 end
@@ -72,9 +72,9 @@ post "/assertion/options" do
     user_verification: params["userVerification"]
   )
 
-  cookies["username"] = params["username"]
-  cookies["userVerification"] = params["userVerification"]
-  cookies["challenge"] = get_options.challenge
+  cookies["assertion_username"] = params["username"]
+  cookies["assertion_user_verification"] = params["userVerification"]
+  cookies["assertion_challenge"] = get_options.challenge
 
   render_ok(get_options.as_json)
 end
@@ -82,21 +82,21 @@ end
 post "/assertion/result" do
   public_key_credential = WebAuthn::PublicKeyCredential.from_get(params)
 
-  user_credential = Credential.registered_for(cookies["username"]).detect do |uc|
+  user_credential = Credential.registered_for(cookies["assertion_username"]).detect do |uc|
     uc.id == public_key_credential.id
   end
 
   public_key_credential.verify(
-    cookies["challenge"],
+    cookies["assertion_challenge"],
     public_key: user_credential.public_key,
     sign_count: user_credential.sign_count,
-    user_verification: cookies["userVerification"] == "required"
+    user_verification: cookies["assertion_user_verification"] == "required"
   )
 
   user_credential.sign_count = public_key_credential.sign_count
-  cookies["challenge"] = nil
-  cookies["username"] = nil
-  cookies["userVerification"] = nil
+  cookies["assertion_challenge"] = nil
+  cookies["assertion_username"] = nil
+  cookies["assertion_user_verification"] = nil
 
   render_ok
 end
