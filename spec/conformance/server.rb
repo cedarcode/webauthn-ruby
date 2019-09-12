@@ -53,18 +53,18 @@ post "/attestation/options" do
 end
 
 post "/attestation/result" do
-  public_key_credential = WebAuthn::Credential.from_create(params)
+  webauthn_credential = WebAuthn::Credential.from_create(params)
 
-  public_key_credential.verify(
+  webauthn_credential.verify(
     cookies["attestation_challenge"],
     user_verification: cookies["attestation_user_verification"] == "required"
   )
 
   Credential.register(
     cookies["attestation_username"],
-    id: public_key_credential.id,
-    public_key: public_key_credential.public_key,
-    sign_count: public_key_credential.sign_count,
+    id: webauthn_credential.id,
+    public_key: webauthn_credential.public_key,
+    sign_count: webauthn_credential.sign_count,
   )
 
   cookies["attestation_challenge"] = nil
@@ -89,20 +89,20 @@ post "/assertion/options" do
 end
 
 post "/assertion/result" do
-  public_key_credential = WebAuthn::Credential.from_get(params)
+  webauthn_credential = WebAuthn::Credential.from_get(params)
 
   user_credential = Credential.registered_for(cookies["assertion_username"]).detect do |uc|
-    uc.id == public_key_credential.id
+    uc.id == webauthn_credential.id
   end
 
-  public_key_credential.verify(
+  webauthn_credential.verify(
     cookies["assertion_challenge"],
     public_key: user_credential.public_key,
     sign_count: user_credential.sign_count,
     user_verification: cookies["assertion_user_verification"] == "required"
   )
 
-  user_credential.sign_count = public_key_credential.sign_count
+  user_credential.sign_count = webauthn_credential.sign_count
   cookies["assertion_challenge"] = nil
   cookies["assertion_username"] = nil
   cookies["assertion_user_verification"] = nil

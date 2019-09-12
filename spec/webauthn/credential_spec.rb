@@ -28,16 +28,15 @@ RSpec.describe "Credential" do
       let(:encoding) { :base64url }
 
       it "works" do
-        credential = client.create(challenge: Base64.urlsafe_decode64(challenge))
-        public_key_credential = WebAuthn::Credential.from_create(credential)
+        credential = WebAuthn::Credential.from_create(client.create(challenge: Base64.urlsafe_decode64(challenge)))
 
-        expect(public_key_credential.verify(challenge)).to be_truthy
+        expect(credential.verify(challenge)).to be_truthy
 
-        expect(public_key_credential.id).not_to be_empty
-        expect(public_key_credential.public_key).not_to be_empty
-        expect(public_key_credential.public_key.class).to eq(String)
-        expect(public_key_credential.public_key.encoding).not_to eq(Encoding::BINARY)
-        expect(public_key_credential.sign_count).to eq(0)
+        expect(credential.id).not_to be_empty
+        expect(credential.public_key).not_to be_empty
+        expect(credential.public_key.class).to eq(String)
+        expect(credential.public_key.encoding).not_to eq(Encoding::BINARY)
+        expect(credential.sign_count).to eq(0)
       end
     end
 
@@ -45,16 +44,15 @@ RSpec.describe "Credential" do
       let(:encoding) { :base64 }
 
       it "works" do
-        credential = client.create(challenge: Base64.strict_decode64(challenge))
-        public_key_credential = WebAuthn::Credential.from_create(credential)
+        credential = WebAuthn::Credential.from_create(client.create(challenge: Base64.strict_decode64(challenge)))
 
-        expect(public_key_credential.verify(challenge)).to be_truthy
+        expect(credential.verify(challenge)).to be_truthy
 
-        expect(public_key_credential.id).not_to be_empty
-        expect(public_key_credential.public_key).not_to be_empty
-        expect(public_key_credential.public_key.class).to eq(String)
-        expect(public_key_credential.public_key.encoding).not_to eq(Encoding::BINARY)
-        expect(public_key_credential.sign_count).to eq(0)
+        expect(credential.id).not_to be_empty
+        expect(credential.public_key).not_to be_empty
+        expect(credential.public_key.class).to eq(String)
+        expect(credential.public_key.encoding).not_to eq(Encoding::BINARY)
+        expect(credential.sign_count).to eq(0)
       end
     end
 
@@ -62,16 +60,15 @@ RSpec.describe "Credential" do
       let(:encoding) { false }
 
       it "works" do
-        credential = client.create(challenge: challenge)
-        public_key_credential = WebAuthn::Credential.from_create(credential)
+        credential = WebAuthn::Credential.from_create(client.create(challenge: challenge))
 
-        expect(public_key_credential.verify(challenge)).to be_truthy
+        expect(credential.verify(challenge)).to be_truthy
 
-        expect(public_key_credential.id).not_to be_empty
-        expect(public_key_credential.public_key).not_to be_empty
-        expect(public_key_credential.public_key.class).to eq(String)
-        expect(public_key_credential.public_key.encoding).to eq(Encoding::BINARY)
-        expect(public_key_credential.sign_count).to eq(0)
+        expect(credential.id).not_to be_empty
+        expect(credential.public_key).not_to be_empty
+        expect(credential.public_key.class).to eq(String)
+        expect(credential.public_key.encoding).to eq(Encoding::BINARY)
+        expect(credential.sign_count).to eq(0)
       end
     end
   end
@@ -83,14 +80,14 @@ RSpec.describe "Credential" do
 
     let(:client) { WebAuthn::FakeClient.new(origin, encoding: encoding) }
 
-    let(:public_key_credential_from_create) do
+    let(:credential_from_create) do
       WebAuthn::Credential.from_create(created_credential)
     end
 
     let(:created_credential) { client.create }
 
-    let(:public_key) { public_key_credential_from_create.public_key }
-    let(:sign_count) { public_key_credential_from_create.sign_count }
+    let(:public_key) { credential_from_create.public_key }
+    let(:sign_count) { credential_from_create.sign_count }
 
     before do
       WebAuthn.configuration.encoding = encoding
@@ -103,14 +100,13 @@ RSpec.describe "Credential" do
       let(:encoding) { :base64url }
 
       it "works" do
-        credential = client.get(challenge: Base64.urlsafe_decode64(challenge))
-        public_key_credential = WebAuthn::Credential.from_get(credential)
+        credential = WebAuthn::Credential.from_get(client.get(challenge: Base64.urlsafe_decode64(challenge)))
 
-        expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
+        expect(credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
 
-        expect(public_key_credential.id).not_to be_empty
-        expect(public_key_credential.user_handle).to be_nil
-        expect(public_key_credential.sign_count).to eq(1)
+        expect(credential.id).not_to be_empty
+        expect(credential.user_handle).to be_nil
+        expect(credential.sign_count).to eq(1)
       end
     end
 
@@ -118,14 +114,13 @@ RSpec.describe "Credential" do
       let(:encoding) { :base64 }
 
       it "works" do
-        credential = client.get(challenge: Base64.strict_decode64(challenge))
-        public_key_credential = WebAuthn::Credential.from_get(credential)
+        credential = WebAuthn::Credential.from_get(client.get(challenge: Base64.strict_decode64(challenge)))
 
-        expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
+        expect(credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
 
-        expect(public_key_credential.id).not_to be_empty
-        expect(public_key_credential.user_handle).to be_nil
-        expect(public_key_credential.sign_count).to eq(1)
+        expect(credential.id).not_to be_empty
+        expect(credential.user_handle).to be_nil
+        expect(credential.sign_count).to eq(1)
       end
     end
 
@@ -133,14 +128,13 @@ RSpec.describe "Credential" do
       let(:encoding) { false }
 
       it "works" do
-        credential = client.get(challenge: challenge)
-        public_key_credential = WebAuthn::Credential.from_get(credential)
+        credential = WebAuthn::Credential.from_get(client.get(challenge: challenge))
 
-        expect(public_key_credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
+        expect(credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
 
-        expect(public_key_credential.id).not_to be_empty
-        expect(public_key_credential.user_handle).to be_nil
-        expect(public_key_credential.sign_count).to eq(1)
+        expect(credential.id).not_to be_empty
+        expect(credential.user_handle).to be_nil
+        expect(credential.sign_count).to eq(1)
       end
     end
   end
