@@ -7,10 +7,6 @@ require "webauthn/public_key_credential/user_entity"
 
 module WebAuthn
   class PublicKeyCredential
-    def self.create_options(*args)
-      WebAuthn::PublicKeyCredential::CreationOptions.new(*args)
-    end
-
     class CreationOptions < Options
       attr_accessor(
         :attestation,

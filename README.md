@@ -136,7 +136,7 @@ end
 #### Initiation phase
 
 ```ruby
-create_options = WebAuthn::PublicKeyCredential.create_options(
+create_options = WebAuthn::Credential.create_options(
   user: { id: ..., name: ..., display_name: ... }
 )
 
@@ -201,7 +201,7 @@ end
 Assuming you have the previously stored Credential ID, now in variable `credential_id`
 
 ```ruby
-get_options = WebAuthn::PublicKeyCredential.get_options(allow: credential_id)
+get_options = WebAuthn::Credential.get_options(allow: credential_id)
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.

@@ -1,49 +1,17 @@
 # frozen_string_literal: true
 
-require "webauthn/authenticator_assertion_response"
-require "webauthn/authenticator_attestation_response"
 require "webauthn/encoder"
-require "webauthn/public_key_credential/creation_options"
-require "webauthn/public_key_credential/request_options"
 
 module WebAuthn
   class PublicKeyCredential
-    TYPE_PUBLIC_KEY = "public-key"
-
     attr_reader :type, :id, :raw_id, :response
 
-    def self.from_create(credential)
-      encoder = WebAuthn.configuration.encoder
-
+    def self.from_client(credential)
       new(
         type: credential["type"],
         id: credential["id"],
-        raw_id: encoder.decode(credential["rawId"]),
-        response: WebAuthn::AuthenticatorAttestationResponse.new(
-          attestation_object: encoder.decode(credential["response"]["attestationObject"]),
-          client_data_json: encoder.decode(credential["response"]["clientDataJSON"])
-        )
-      )
-    end
-
-    def self.from_get(credential)
-      encoder = WebAuthn.configuration.encoder
-
-      user_handle =
-        if credential["response"]["userHandle"]
-          encoder.decode(credential["response"]["userHandle"])
-        end
-
-      new(
-        type: credential["type"],
-        id: credential["id"],
-        raw_id: encoder.decode(credential["rawId"]),
-        response: WebAuthn::AuthenticatorAssertionResponse.new(
-          authenticator_data: encoder.decode(credential["response"]["authenticatorData"]),
-          client_data_json: encoder.decode(credential["response"]["clientDataJSON"]),
-          signature: encoder.decode(credential["response"]["signature"]),
-          user_handle: user_handle
-        )
+        raw_id: WebAuthn.configuration.encoder.decode(credential["rawId"]),
+        response: response_class.from_client(credential["response"])
       )
     end
 
@@ -54,41 +22,11 @@ module WebAuthn
       @response = response
     end
 
-    def verify(challenge, *args, **keyword_arguments)
-      # TODO: Avoid all these conditionals here by splitting PublicKeyCredential into two separate objects,
-      # one for attestation and one for assertion.
-      if keyword_arguments.key?(:public_key)
-        keyword_arguments[:public_key] = encoder.decode(keyword_arguments[:public_key])
-      end
-
+    def verify(*_args)
       valid_type? || raise("invalid type")
       valid_id? || raise("invalid id")
 
-      response.verify(encoder.decode(challenge), *args, **keyword_arguments)
-
       true
-    end
-
-    def public_key
-      if raw_public_key
-        encoder.encode(raw_public_key)
-      end
-    end
-
-    def raw_public_key
-      response&.authenticator_data&.credential&.public_key
-    end
-
-    def user_handle
-      if raw_user_handle
-        encoder.encode(raw_user_handle)
-      end
-    end
-
-    def raw_user_handle
-      if response.is_a?(WebAuthn::AuthenticatorAssertionResponse)
-        response.user_handle
-      end
     end
 
     def sign_count
