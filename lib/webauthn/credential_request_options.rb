@@ -6,7 +6,7 @@ module WebAuthn
   def self.credential_request_options
     warn(
       "DEPRECATION WARNING: `WebAuthn.credential_request_options` is deprecated."\
-      " Please use `WebAuthn::PublicKeyCredential.get_options` instead."
+      " Please use `WebAuthn::Credential.get_options` instead."
     )
 
     CredentialRequestOptions.new.to_h
