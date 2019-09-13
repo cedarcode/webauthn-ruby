@@ -16,7 +16,7 @@ module WebAuthn
       origin = fake_origin,
       token_binding: nil,
       authenticator: WebAuthn::FakeAuthenticator.new,
-      encoding: nil
+      encoding: WebAuthn.configuration.encoding
     )
       @origin = origin
       @token_binding = token_binding
