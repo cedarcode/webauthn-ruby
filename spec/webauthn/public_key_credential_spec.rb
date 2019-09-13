@@ -165,7 +165,7 @@ RSpec.describe "PublicKeyCredential" do
 
   describe ".from_get" do
     let(:challenge) do
-      WebAuthn::PublicKeyCredential.get_options({}).challenge
+      WebAuthn::PublicKeyCredential.get_options.challenge
     end
 
     let(:client) { WebAuthn::FakeClient.new(origin, encoding: encoding) }
