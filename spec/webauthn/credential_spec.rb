@@ -14,10 +14,10 @@ RSpec.describe "Credential" do
 
   describe ".from_create" do
     let(:challenge) do
-      WebAuthn::Credential.create_options(user: { id: "1", name: "User" }).challenge
+      WebAuthn::Credential.options_for_create(user: { id: "1", name: "User" }).challenge
     end
 
-    let(:client) { WebAuthn::FakeClient.new(origin, encoding: encoding) }
+    let(:client) { WebAuthn::FakeClient.new(origin) }
 
     before do
       WebAuthn.configuration.encoding = encoding
@@ -74,10 +74,10 @@ RSpec.describe "Credential" do
 
   describe ".from_get" do
     let(:challenge) do
-      WebAuthn::Credential.get_options.challenge
+      WebAuthn::Credential.options_for_get.challenge
     end
 
-    let(:client) { WebAuthn::FakeClient.new(origin, encoding: encoding) }
+    let(:client) { WebAuthn::FakeClient.new(origin) }
 
     let(:credential_from_create) do
       WebAuthn::Credential.from_create(created_credential)

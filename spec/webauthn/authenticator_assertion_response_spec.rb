@@ -7,7 +7,7 @@ require "webauthn/authenticator_assertion_response"
 require "webauthn/u2f_migrator"
 
 RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
-  let(:client) { WebAuthn::FakeClient.new(actual_origin) }
+  let(:client) { WebAuthn::FakeClient.new(actual_origin, encoding: false) }
 
   let!(:credential) { create_credential(client: client) }
   let(:credential_public_key) { credential[1] }
@@ -170,7 +170,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "tokenBinding validation" do
-    let(:client) { WebAuthn::FakeClient.new(actual_origin, token_binding: token_binding) }
+    let(:client) { WebAuthn::FakeClient.new(actual_origin, token_binding: token_binding, encoding: false) }
 
     context "it has stuff" do
       let(:token_binding) { { status: "supported" } }
