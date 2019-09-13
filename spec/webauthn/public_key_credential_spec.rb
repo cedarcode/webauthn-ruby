@@ -32,7 +32,7 @@ RSpec.describe "PublicKeyCredential" do
       )
     end
 
-    let(:client) { WebAuthn::FakeClient.new(origin) }
+    let(:client) { WebAuthn::FakeClient.new(origin, encoding: false) }
     let(:challenge) { Base64.urlsafe_encode64(raw_challenge) }
     let(:raw_challenge) { fake_challenge }
     let(:origin) { fake_origin }
