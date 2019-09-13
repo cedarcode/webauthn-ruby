@@ -136,7 +136,7 @@ end
 #### Initiation phase
 
 ```ruby
-create_options = WebAuthn::Credential.create_options(
+options = WebAuthn::Credential.options_for_create(
   user: { id: ..., name: ..., display_name: ... }
 )
 
@@ -144,14 +144,14 @@ create_options = WebAuthn::Credential.create_options(
 # for the verification phase.
 #
 # You can read it from the resulting options. E.g.:
-session[:webauthn_challenge] = create_options.challenge
+session[:webauthn_challenge] = options.challenge
 
-# Send `create_options` back to the browser, so that they can be used
-# to call `navigator.credentials.create({ "publicKey": createOptions })`
+# Send `options` back to the browser, so that they can be used
+# to call `navigator.credentials.create({ "publicKey": options })`
 #
-# You can call `create_options.as_json` to get a hash with a JSON representation if needed.
+# You can call `options.as_json` to get a hash with a JSON representation if needed.
 
-# If inside a Rails controller, `render json: create_options` will just work.
+# If inside a Rails controller, `render json: options` will just work.
 # I.e. it will encode and convert the options to JSON automatically.
 
 # For your frontend code, you might find @github/webauthn-json JS library useful.
@@ -201,20 +201,20 @@ end
 Assuming you have the previously stored Credential ID, now in variable `credential_id`
 
 ```ruby
-get_options = WebAuthn::Credential.get_options(allow: credential_id)
+options = WebAuthn::Credential.options_for_get(allow: credential_id)
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
 #
 # You can read it from the resulting options. E.g.:
-session[:webauthn_challenge] = get_options.challenge
+session[:webauthn_challenge] = options.challenge
 
-# Send `get_options` back to the browser, so that they can be used
-# to call `navigator.credentials.get({ "publicKey": getOptions })`
+# Send `options` back to the browser, so that they can be used
+# to call `navigator.credentials.get({ "publicKey": options })`
 
-# You can call `get_options.as_json` to get a hash with a JSON representation if needed.
+# You can call `options.as_json` to get a hash with a JSON representation if needed.
 
-# If inside a Rails controller, `render json: get_options` will just work.
+# If inside a Rails controller, `render json: options` will just work.
 # I.e. it will encode and convert the options to JSON automatically.
 
 # For your frontend code, you might find @github/webauthn-json JS library useful.
