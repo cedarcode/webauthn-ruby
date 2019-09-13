@@ -9,7 +9,7 @@ module WebAuthn
   def self.credential_creation_options(rp_name: nil, user_name: "web-user", display_name: "web-user", user_id: "1")
     warn(
       "DEPRECATION WARNING: `WebAuthn.credential_creation_options` is deprecated."\
-      " Please use `WebAuthn::Credential.create_options` instead."
+      " Please use `WebAuthn::Credential.options_for_create` instead."
     )
 
     CredentialCreationOptions.new(

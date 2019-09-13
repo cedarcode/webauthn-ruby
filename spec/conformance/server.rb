@@ -34,7 +34,7 @@ WebAuthn.configure do |config|
 end
 
 post "/attestation/options" do
-  create_options = WebAuthn::Credential.create_options(
+  options = WebAuthn::Credential.options_for_create(
     attestation: params["attestation"],
     authenticator_selection: params["authenticatorSelection"],
     exclude: Credential.registered_for(params["username"]).map(&:id),
@@ -43,13 +43,13 @@ post "/attestation/options" do
   )
 
   cookies["attestation_username"] = params["username"]
-  cookies["attestation_challenge"] = create_options.challenge
+  cookies["attestation_challenge"] = options.challenge
 
   if params["authenticatorSelection"] && params["authenticatorSelection"]["userVerification"]
     cookies["attestation_user_verification"] = params["authenticatorSelection"]["userVerification"]
   end
 
-  render_ok(create_options.as_json)
+  render_ok(options.as_json)
 end
 
 post "/attestation/result" do
@@ -75,7 +75,7 @@ post "/attestation/result" do
 end
 
 post "/assertion/options" do
-  get_options = WebAuthn::Credential.get_options(
+  options = WebAuthn::Credential.options_for_get(
     allow: Credential.registered_for(params["username"]).map(&:id),
     extensions: params["extensions"],
     user_verification: params["userVerification"]
@@ -83,9 +83,9 @@ post "/assertion/options" do
 
   cookies["assertion_username"] = params["username"]
   cookies["assertion_user_verification"] = params["userVerification"]
-  cookies["assertion_challenge"] = get_options.challenge
+  cookies["assertion_challenge"] = options.challenge
 
-  render_ok(get_options.as_json)
+  render_ok(options.as_json)
 end
 
 post "/assertion/result" do
