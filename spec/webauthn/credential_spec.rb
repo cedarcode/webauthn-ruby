@@ -2,7 +2,6 @@
 
 require "spec_helper"
 
-require "base64"
 require "webauthn/configuration"
 require "webauthn/credential"
 
@@ -28,7 +27,7 @@ RSpec.describe "Credential" do
       let(:encoding) { :base64url }
 
       it "works" do
-        credential = WebAuthn::Credential.from_create(client.create(challenge: Base64.urlsafe_decode64(challenge)))
+        credential = WebAuthn::Credential.from_create(client.create(challenge: challenge))
 
         expect(credential.verify(challenge)).to be_truthy
 
@@ -44,7 +43,7 @@ RSpec.describe "Credential" do
       let(:encoding) { :base64 }
 
       it "works" do
-        credential = WebAuthn::Credential.from_create(client.create(challenge: Base64.strict_decode64(challenge)))
+        credential = WebAuthn::Credential.from_create(client.create(challenge: challenge))
 
         expect(credential.verify(challenge)).to be_truthy
 
@@ -100,7 +99,7 @@ RSpec.describe "Credential" do
       let(:encoding) { :base64url }
 
       it "works" do
-        credential = WebAuthn::Credential.from_get(client.get(challenge: Base64.urlsafe_decode64(challenge)))
+        credential = WebAuthn::Credential.from_get(client.get(challenge: challenge))
 
         expect(credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
 
@@ -114,7 +113,7 @@ RSpec.describe "Credential" do
       let(:encoding) { :base64 }
 
       it "works" do
-        credential = WebAuthn::Credential.from_get(client.get(challenge: Base64.strict_decode64(challenge)))
+        credential = WebAuthn::Credential.from_get(client.get(challenge: challenge))
 
         expect(credential.verify(challenge, public_key: public_key, sign_count: sign_count)).to be_truthy
 
