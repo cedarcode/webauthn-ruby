@@ -33,7 +33,7 @@ module WebAuthn
     )
       rp_id ||= URI.parse(origin).host
 
-      client_data_json = data_json_for(:create, challenge)
+      client_data_json = data_json_for(:create, encoder.decode(challenge))
       client_data_hash = hashed(client_data_json)
 
       attestation_object = authenticator.make_credential(
@@ -65,7 +65,7 @@ module WebAuthn
     def get(challenge: fake_challenge, rp_id: nil, user_present: true, user_verified: false, sign_count: nil)
       rp_id ||= URI.parse(origin).host
 
-      client_data_json = data_json_for(:get, challenge)
+      client_data_json = data_json_for(:get, encoder.decode(challenge))
       client_data_hash = hashed(client_data_json)
 
       assertion = authenticator.get_assertion(
@@ -120,7 +120,7 @@ module WebAuthn
     end
 
     def fake_challenge
-      SecureRandom.random_bytes(32)
+      encoder.encode(SecureRandom.random_bytes(32))
     end
 
     def fake_origin
