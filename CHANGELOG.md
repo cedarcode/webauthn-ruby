@@ -1,5 +1,56 @@
 # Changelog
 
+## [v2.0.0.beta1] - 2019-09-16
+
+### Added
+
+- Smarter new public API methods:
+  - `WebAuthn.generate_user_id`
+  - `WebAuthn::Credential.options_for_create`
+  - `WebAuthn::Credential.options_for_get`
+  - `WebAuthn::Credential.from_create`
+  - `WebAuthn::Credential.from_get`
+  - All the above automatically handle encoding/decoding for necessary values. The specific encoding scheme can
+    be set (or even turned off) in `WebAutnn.configuration.encoding=`. Defaults to `:base64url`.
+- `WebAuthn::FakeClient#get` better fakes a real client by including `userHandle` in the returned hash.
+- Expose AAGUID and attestationCertificateKey for MDS lookup during attestation (@bdwater)
+
+### Changed
+
+- `WebAuthn::AuthenticatorAssertionResponse#verify` no longer accepts `allowed_credentials:` keyword argument.
+Please replace with `public_key:` and `sign_count:` keyword arguments. If you're not performing sign count
+verification, signal opt-out with `sign_count: false`.
+
+- `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by using camelBack string
+keys instead of snake_case symbol keys in the returned hash.
+- `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by not padding the
+returned base64url-encoded `id` value.
+
+### Deprecated
+
+- `WebAuthn.credential_creation_options` method. Please consider using `WebAuthn::Credential.options_for_create`.
+- `WebAuthn.credential_request_options` method. Please consider using `WebAuthn::Credential.options_for_get`.
+
+### Removed
+
+- `WebAuthn::AuthenticatorAssertionResponse.new` no longer accepts `credential_id`. No replacement needed, just don't
+pass it.
+
+### BREAKING CHANGES
+
+- `WebAuthn::AuthenticatorAssertionResponse.new` no longer accepts `credential_id`. No replacement needed, just don't
+pass it.
+
+- `WebAuthn::AuthenticatorAssertionResponse#verify` no longer accepts `allowed_credentials:` keyword argument.
+Please replace with `public_key:` and `sign_count:` keyword arguments. If you're not performing sign count
+verification, signal opt-out with `sign_count: false`.
+
+- `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by using camelBack string
+keys instead of snake_case symbol keys in the returned hash.
+
+- `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by not padding the
+returned base64url-encoded `id` value.
+
 ## [v1.18.0] - 2019-07-27
 
 ### Added
@@ -209,6 +260,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v2.0.0.beta1]: https://github.com/cedarcode/webauthn-ruby/compare/v1.18.0...v2.0.0.beta1/
 [v1.18.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.17.0...v1.18.0/
 [v1.17.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.16.0...v1.17.0/
 [v1.16.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.15.0...v1.16.0/
