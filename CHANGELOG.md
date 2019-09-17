@@ -21,8 +21,9 @@
 Please replace with `public_key:` and `sign_count:` keyword arguments. If you're not performing sign count
 verification, signal opt-out with `sign_count: false`.
 
-- `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by using camelBack string
-keys instead of snake_case symbol keys in the returned hash.
+- `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by using lowerCamelCase
+string keys instead of snake_case symbol keys in the returned hash.
+
 - `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by not padding the
 returned base64url-encoded `id` value.
 
@@ -45,8 +46,8 @@ pass it.
 Please replace with `public_key:` and `sign_count:` keyword arguments. If you're not performing sign count
 verification, signal opt-out with `sign_count: false`.
 
-- `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by using camelBack string
-keys instead of snake_case symbol keys in the returned hash.
+- `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by using lowerCamelCase
+string keys instead of snake_case symbol keys in the returned hash.
 
 - `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by not padding the
 returned base64url-encoded `id` value.
