@@ -127,7 +127,7 @@ WebAuthn.configure do |config|
   # used in your client-side (user agent) code before sending the credential to the server.
   # Supported values: `:base64url` (default), `:base64` or `false` to disable all encoding.
   #
-  # config.encoding = false
+  # config.encoding = :base64url
 end
 ```
 
