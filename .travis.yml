@@ -4,10 +4,9 @@ cache: bundler
 
 rvm:
   - ruby-head
-  - 2.7.0-preview1
-  - 2.6.4
-  - 2.5.6
-  - 2.4.7
+  - 2.6.5
+  - 2.5.7
+  - 2.4.9
   - 2.3.8
 
 gemfile:
@@ -20,7 +19,6 @@ matrix:
   fast_finish: true
   allow_failures:
     - rvm: ruby-head
-    - rvm: 2.7.0-preview1
     - gemfile: gemfiles/cose_head.gemfile
     - gemfile: gemfiles/openssl_head.gemfile
 
