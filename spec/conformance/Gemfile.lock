@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    webauthn (2.0.0.beta1)
+    webauthn (2.0.0)
       awrence (~> 1.1)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
