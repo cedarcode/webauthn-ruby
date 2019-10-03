@@ -13,7 +13,7 @@
   - All the above automatically handle encoding/decoding for necessary values. The specific encoding scheme can
     be set (or even turned off) in `WebAutnn.configuration.encoding=`. Defaults to `:base64url`.
 - `WebAuthn::FakeClient#get` better fakes a real client by including `userHandle` in the returned hash.
-- Expose AAGUID and attestationCertificateKey for MDS lookup during attestation (@bdwater)
+- Expose AAGUID and attestationCertificateKey for MDS lookup during attestation ([@bdewater])
 
 ### Changed
 
@@ -56,23 +56,23 @@ returned base64url-encoded `id` value.
 
 ### Added
 
-- Ability to migrate U2F credentials to WebAuthn ([#211](https://github.com/cedarcode/webauthn-ruby/pull/211)) (@bdewater + @jdongelmans)
-- Ability to skip attestation statement verification ([#219](https://github.com/cedarcode/webauthn-ruby/pull/219)) (@MaximeNdutiye)
-- Ability to configure default credential options timeout ([#243](https://github.com/cedarcode/webauthn-ruby/pull/243)) (@MaximeNdutiye)
+- Ability to migrate U2F credentials to WebAuthn ([#211](https://github.com/cedarcode/webauthn-ruby/pull/211)) ([@bdewater] + [@jdongelmans])
+- Ability to skip attestation statement verification ([#219](https://github.com/cedarcode/webauthn-ruby/pull/219)) ([@MaximeNdutiye])
+- Ability to configure default credential options timeout ([#243](https://github.com/cedarcode/webauthn-ruby/pull/243)) ([@MaximeNdutiye])
 - AttestedCredentialData presence verification ([#237](https://github.com/cedarcode/webauthn-ruby/pull/237))
 - FakeClient learns how to increment sign count ([#225](https://github.com/cedarcode/webauthn-ruby/pull/225))
 
 ### Fixed
 
-- Properly verify SafetyNet certificates from input ([#233](https://github.com/cedarcode/webauthn-ruby/pull/233)) (@bdewater)
-- FakeClient default origin URL ([#242](https://github.com/cedarcode/webauthn-ruby/pull/242)) (@kalebtesfay)
+- Properly verify SafetyNet certificates from input ([#233](https://github.com/cedarcode/webauthn-ruby/pull/233)) ([@bdewater])
+- FakeClient default origin URL ([#242](https://github.com/cedarcode/webauthn-ruby/pull/242)) ([@kalebtesfay])
 
 ## [v1.17.0] - 2019-06-18
 
 ### Added
 
-- Support ES384, ES512, PS384, PS512, RS384 and RS512 credentials. Off by default. Enable by adding any of them to `WebAuthn.configuration.algorithms` array. Thank you @bdewater.
-- Support [Signature Counter](https://www.w3.org/TR/webauthn/#signature-counter) verification. Thank you @bdewater.
+- Support ES384, ES512, PS384, PS512, RS384 and RS512 credentials. Off by default. Enable by adding any of them to `WebAuthn.configuration.algorithms` array ([@bdewater])
+- Support [Signature Counter](https://www.w3.org/TR/webauthn/#signature-counter) verification ([@bdewater])
 
 ## [v1.16.0] - 2019-06-13
 
@@ -80,7 +80,7 @@ returned base64url-encoded `id` value.
 
 - Ability to enforce [user verification](https://www.w3.org/TR/webauthn/#user-verification) with extra argument in the `#verify` method.
 - Support RS1 (RSA w/ SHA-1) credentials. Off by default. Enable by adding `"RS1"` to `WebAuthn.configuration.algorithms` array.
-- Support PS256 (RSA Probabilistic Signature Scheme w/ SHA-256) credentials. On by default. Thank you @bdewater.
+- Support PS256 (RSA Probabilistic Signature Scheme w/ SHA-256) credentials. On by default ([@bdewater])
 
 ## [v1.15.0] - 2019-05-16
 
@@ -102,11 +102,11 @@ returned base64url-encoded `id` value.
 - Verify 'none' attestation statement is really empty.
 - Verify 'packed' attestation statement certificates start/end dates.
 - Verify 'packed' attestation statement signature algorithm.
-- Verify 'fiod-u2f attestation statement AAGUID is zeroed out. Thank you @bdewater.
+- Verify 'fiod-u2f attestation statement AAGUID is zeroed out ([@bdewater])
 - Verify 'android-key' attestation statement signature algorithm.
 - Verify assertion response signature algorithm.
 - Verify collectedClientData.tokenBinding format.
-- `WebAuthn.credential_creation_options` now accept `rp_name`, `user_id`, `user_name` and `display_name` as keyword arguments. Thank you @bdewater.
+- `WebAuthn.credential_creation_options` now accept `rp_name`, `user_id`, `user_name` and `display_name` as keyword arguments ([@bdewater])
 
 ## [v1.12.0] - 2019-04-03
 
@@ -128,11 +128,11 @@ Note #2: You don't need to do any convesion before passing the public key in `Au
 
 ### Added
 
-- `WebAuthn::AuthenticatorAttestationResponse#verify` supports `android-key` attestation statements. Thank you @bdewater!
+- `WebAuthn::AuthenticatorAttestationResponse#verify` supports `android-key` attestation statements ([@bdewater])
 
 ### Fixed
 
-- Verify matching AAGUID if needed when verifying `packed` attestation statements. Thank you @bdewater!
+- Verify matching AAGUID if needed when verifying `packed` attestation statements ([@bdewater])
 
 ## [v1.10.0] - 2019-03-05
 
@@ -150,7 +150,7 @@ Note #2: You don't need to do any convesion before passing the public key in `Au
 
 ### Added
 
-- Make challenge validation inside `#valid?` method resistant to timing attacks. Thank you @tomek-bt!
+- Make challenge validation inside `#valid?` method resistant to timing attacks (@tomek-bt)
 - Support for ruby 2.6
 
 ### Changed
@@ -162,7 +162,7 @@ Note #2: You don't need to do any convesion before passing the public key in `Au
 ### Added
 
 - _Registration_ ceremony
-  - `WebAuthn::AuthenticatorAttestationResponse` exposes attestation type and trust path via `#attestation_type` and `#attestation_trust_path` methods. Thank you @bdewater!
+  - `WebAuthn::AuthenticatorAttestationResponse` exposes attestation type and trust path via `#attestation_type` and `#attestation_trust_path` methods ([@bdewater])
 
 ## [v1.6.0] - 2018-11-01
 
@@ -174,21 +174,21 @@ Note #2: You don't need to do any convesion before passing the public key in `Au
 
 ### Added
 
-- Works with ruby 2.3. Thank you @bdewater!
+- Works with ruby 2.3 ([@bdewater])
 
 ## [v1.4.0] - 2018-10-11
 
 ### Added
 
 - _Registration_ ceremony
-  - `WebAuthn::AuthenticatorAttestationResponse.valid?` supports `android-safetynet` attestation statements. Thank you @bdewater!
+  - `WebAuthn::AuthenticatorAttestationResponse.valid?` supports `android-safetynet` attestation statements ([@bdewater])
 
 ## [v1.3.0] - 2018-10-11
 
 ### Added
 
 - _Registration_ ceremony
-  - `WebAuthn::AuthenticatorAttestationResponse.valid?` supports `packed` attestation statements. Thank you @sorah!
+  - `WebAuthn::AuthenticatorAttestationResponse.valid?` supports `packed` attestation statements ([@sorah])
 
 ## [v1.2.0] - 2018-10-08
 
@@ -206,7 +206,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 ### Added
 
 - _Registration_ ceremony
-  - `WebAuthn::AuthenticatorAttestationResponse.valid?` optionally accepts rp_id. Thank you @sorah!
+  - `WebAuthn::AuthenticatorAttestationResponse.valid?` optionally accepts rp_id ([@sorah])
 - _Authentication_ ceremony
   - `WebAuthn::AuthenticatorAssertionResponse.valid?` optionally accepts rp_id.
 
@@ -283,3 +283,9 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [v1.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.2.0...v1.0.0/
 [v0.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.1.0...v0.2.0/
 [v0.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.0.0...v0.1.0/
+
+[@bdewater]: https://github.com/bdewater
+[@jdongelmans]: https://github.com/jdongelmans
+[@kalebtesfay]: https://github.com/kalebtesfay
+[@MaximeNdutiye]: https://github.com/MaximeNdutiye
+[@sorah]: https://github.com/sorah
