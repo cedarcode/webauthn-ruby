@@ -254,7 +254,93 @@ end
 
 ## API
 
-_Pending_
+#### `WebAuthn.generate_user_id`
+
+Generates a [WebAuthn User Handle](https://www.w3.org/TR/webauthn-2/#user-handle) that follows the WebAuthn spec recommendations.
+
+```ruby
+WebAuthn.generate_user_id # "lWoMZTGf_ml2RoY5qPwbwrkxrvTqWjGOxEoYBgxft3zG-LlrICvE-y8bxFi06zMyIOyNsJoWx4Fa2TOqoRmnxA"
+```
+
+#### `WebAuthn::Credential.options_for_create(options)`
+
+Helper method to build the necessary [PublicKeyCredentialCreationOptions](https://www.w3.org/TR/webauthn-2/#dictdef-publickeycredentialcreationoptions)
+to be used in the client-side code to call `navigator.credentials.create({ "publicKey": publicKeyCredentialCreationOptions })`.
+
+```ruby
+creation_options = WebAuthn::Credential.options_for_create(
+  user: { id: user.webauthn_id, name: user.name }
+  exclude: user.credentials.map { |c| c.webauthn_id }
+)
+
+# Store the newly generated challenge somewhere so you can have it
+# for the verification phase.
+session[:creation_challenge] = creation_options.challenge
+
+# Send `creation_options` back to the browser, so that they can be used
+# to call `navigator.credentials.create({ "publicKey": creationOptions })`
+#
+# You can call `creation_options.as_json` to get a ruby hash with a JSON representation if needed.
+
+# If inside a Rails controller, `render json: creation_options` will just work.
+# I.e. it will encode and convert the options to JSON automatically.
+```
+
+#### `WebAuthn::Credential.options_for_get([options])`
+
+Helper method to build the necessary [PublicKeyCredentialRequestOptions](https://www.w3.org/TR/webauthn-2/#dictdef-publickeycredentialrequestoptions)
+to be used in the client-side code to call `navigator.credentials.get({ "publicKey": publicKeyCredentialRequestOptions })`.
+
+```ruby
+request_options = WebAuthn::Credential.options_for_get(allow: user.credentials.map { |c| c.webauthn_id })
+
+# Store the newly generated challenge somewhere so you can have it
+# for the verification phase.
+session[:authentication_challenge] = request_options.challenge
+
+# Send `request_options` back to the browser, so that they can be used
+# to call `navigator.credentials.get({ "publicKey": requestOptions })`
+
+# You can call `request_options.as_json` to get a ruby hash with a JSON representation if needed.
+
+# If inside a Rails controller, `render json: request_options` will just work.
+# I.e. it will encode and convert the options to JSON automatically.
+```
+
+#### `WebAuthn::Credential.from_create(credential_create_result)`
+
+```ruby
+credential_with_attestation = WebAuthn::Credential.from_create(params[:publicKeyCredential])
+```
+
+#### `WebAuthn::Credential.from_get(credential_get_result)`
+
+```ruby
+credential_with_assertion = WebAuthn::Credential.from_get(params[:publicKeyCredential])
+```
+
+#### `PublicKeyCredentialWithAttestation#verify(challenge)`
+
+Verifies the created WebAuthn credential is [valid](https://www.w3.org/TR/webauthn-2/#sctn-registering-a-new-credential).
+
+```ruby
+credential_with_attestation.verify(session[:creation_challenge])
+```
+
+#### `PublicKeyCredentialWithAssertion#verify(challenge, public_key:, sign_count:)`
+
+Verifies the asserted WebAuthn credential is [valid](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion).
+
+Mainly, that the client provided a valid cryptographic signature for the corresponding stored credential public
+key, among other extra validations.
+
+```ruby
+credential_with_assertion.verify(
+  session[:authentication_challenge],
+  public_key: stored_credential.public_key,
+  sign_count: stored_credential.sign_count
+)
+```
 
 ## Attestation Statement Formats
 
