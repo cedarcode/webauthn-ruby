@@ -45,6 +45,10 @@ module AndroidSafetynet
       end
     end
 
+    def timestamp
+      Time.at(0, payload["timestampMs"], :millisecond)
+    end
+
     private
 
     def valid_nonce?(nonce)

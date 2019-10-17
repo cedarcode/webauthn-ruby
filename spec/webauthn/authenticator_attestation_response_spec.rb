@@ -216,7 +216,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-safetynet attestation" do
-    around(:each) { |example| fake_time(Time.new(2019, 8, 7), &example) }
+    around(:each) { |example| fake_time(Time.new(2019, 7, 7, 13, 16), &example) }
 
     let(:origin) { "https://7f41ac45.ngrok.io" }
 
