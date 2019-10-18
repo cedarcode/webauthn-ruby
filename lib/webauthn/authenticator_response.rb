@@ -34,7 +34,10 @@ module WebAuthn
       verify_item(:authenticator_data)
       verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
       verify_item(:user_presence)
-      verify_item(:user_verified, user_verification)
+
+      if user_verification
+        verify_item(:user_verified)
+      end
 
       true
     end
@@ -91,12 +94,8 @@ module WebAuthn
       authenticator_data.user_flagged?
     end
 
-    def valid_user_verified?(user_verification)
-      if user_verification
-        authenticator_data.user_verified?
-      else
-        true
-      end
+    def valid_user_verified?
+      authenticator_data.user_verified?
     end
 
     def rp_id_from_origin(expected_origin)
