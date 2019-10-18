@@ -10,6 +10,18 @@ require "byebug"
 use Rack::PostBodyContentTypeParser
 set show_exceptions: false
 
+# HACK: remove once safetynet attestation P-1 test certificate problem is fixed
+require 'webauthn/attestation_statement/android_safetynet'
+module WebAuthn
+  module AttestationStatement
+    class AndroidSafetynet < Base
+      def self.default_trust_store
+        nil
+      end
+    end
+  end
+end
+
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
 
 Credential = Struct.new(:id, :public_key, :sign_count) do
