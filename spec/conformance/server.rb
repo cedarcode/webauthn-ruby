@@ -31,6 +31,7 @@ WebAuthn.configure do |config|
   config.origin = "http://#{host}:#{settings.port}"
   config.rp_name = RP_NAME
   config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
+  config.silent_authentication = true
 end
 
 post "/attestation/options" do

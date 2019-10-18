@@ -26,12 +26,14 @@ module WebAuthn
     attr_accessor :rp_name
     attr_accessor :verify_attestation_statement
     attr_accessor :credential_options_timeout
+    attr_accessor :silent_authentication
 
     def initialize
       @algorithms = DEFAULT_ALGORITHMS.dup
       @encoding = WebAuthn::Encoder::STANDARD_ENCODING
       @verify_attestation_statement = true
       @credential_options_timeout = 120000
+      @silent_authentication = false
     end
 
     # This is the user-data encoder.
