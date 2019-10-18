@@ -71,7 +71,7 @@ module WebAuthn
     end
 
     def pub_key_cred_params
-      WebAuthn.configuration.algorithms.map do |alg_name|
+      configuration.algorithms.map do |alg_name|
         { type: "public-key", alg: COSE::Algorithm.by_name(alg_name).id }
       end
     end
