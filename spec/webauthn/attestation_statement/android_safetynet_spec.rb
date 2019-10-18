@@ -85,7 +85,7 @@ RSpec.describe "android-safetynet attestation" do
       let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest("something else")) }
 
       it "returns false" do
-        expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
       end
     end
 
@@ -93,7 +93,7 @@ RSpec.describe "android-safetynet attestation" do
       let(:cts_profile_match) { false }
 
       it "returns false" do
-        expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
       end
     end
 
@@ -101,7 +101,7 @@ RSpec.describe "android-safetynet attestation" do
       let(:timestamp) { Time.now + 60 }
 
       it "returns false" do
-        expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
       end
     end
 
@@ -109,7 +109,7 @@ RSpec.describe "android-safetynet attestation" do
       let(:timestamp) { Time.now - 60 }
 
       it "returns false" do
-        expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
       end
     end
   end
