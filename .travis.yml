@@ -22,9 +22,12 @@ matrix:
     - gemfile: gemfiles/cose_head.gemfile
     - gemfile: gemfiles/openssl_head.gemfile
 
+addons:
+  apt:
+    packages:
+      - libfaketime
+
 before_install:
-  - wget http://archive.ubuntu.com/ubuntu/pool/universe/f/faketime/libfaketime_0.9.7-3_amd64.deb
-  - sudo dpkg -i libfaketime_0.9.7-3_amd64.deb
   - gem install bundler -v "~> 2.0"
 
 before_script:
