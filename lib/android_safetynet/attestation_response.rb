@@ -46,7 +46,7 @@ module AndroidSafetynet
     end
 
     def timestamp
-      Time.at(0, payload["timestampMs"], :millisecond)
+      Time.at((payload["timestampMs"] / 1000.0).round)
     end
 
     private
