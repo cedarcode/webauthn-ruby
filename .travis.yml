@@ -32,5 +32,4 @@ before_install:
 
 before_script:
   - export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1
-  - export DONT_FAKE_MONOTONIC=1
   - export FAKETIME_NO_CACHE=1
