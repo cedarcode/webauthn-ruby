@@ -21,8 +21,8 @@ RSpec.describe "android-safetynet attestation" do
       )
     end
 
-    let(:payload) { { "nonce" => nonce, "ctsProfileMatch" => cts_profile_match, "timestampMs" => timestamp } }
-    let(:timestamp) { Time.now.to_i * 1000 }
+    let(:payload) { { "nonce" => nonce, "ctsProfileMatch" => cts_profile_match, "timestampMs" => timestamp * 1000 } }
+    let(:timestamp) { Time.now.to_i }
     let(:cts_profile_match) { true }
     let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)) }
     let(:attestation_key) { OpenSSL::PKey::RSA.new(2048) }
@@ -98,7 +98,7 @@ RSpec.describe "android-safetynet attestation" do
     end
 
     context "when timestampMs is set to future" do
-      let(:timestamp) { (Time.now.to_i + 60) * 1000 }
+      let(:timestamp) { Time.now.to_i + 60  }
 
       it "returns false" do
         expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
@@ -106,7 +106,7 @@ RSpec.describe "android-safetynet attestation" do
     end
 
     context "when timestampMs is older than a minute old" do
-      let(:timestamp) { (Time.now.to_i - 60) * 1000 }
+      let(:timestamp) { Time.now.to_i - 60 }
 
       it "returns false" do
         expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
