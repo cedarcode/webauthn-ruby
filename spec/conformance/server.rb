@@ -10,7 +10,7 @@ require "byebug"
 use Rack::PostBodyContentTypeParser
 set show_exceptions: false
 
-# HACK: remove once safetynet attestation P-1 test certificate problem is fixed
+# TODO: remove once safetynet attestation P-1 test certificate problem is fixed
 require 'webauthn/attestation_statement/android_safetynet'
 module WebAuthn
   module AttestationStatement
