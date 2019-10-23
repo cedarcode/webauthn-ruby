@@ -20,7 +20,7 @@ RSpec.describe "AttestationResponse" do
       )
     end
 
-    let(:payload) { { nonce: nonce } }
+    let(:payload) { { nonce: nonce, timestampMs: timestamp * 1000 } }
     let(:attestation_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
 
     let(:leaf_certificate) do
@@ -37,6 +37,7 @@ RSpec.describe "AttestationResponse" do
 
     let(:leaf_certificate_subject_common_name) { "attest.android.com" }
     let(:nonce) { rand(16).to_s }
+    let(:timestamp) { Time.now.to_i }
 
     it "returns true if everything's in place" do
       expect(attestation_response.verify(nonce)).to be_truthy

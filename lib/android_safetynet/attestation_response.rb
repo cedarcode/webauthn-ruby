@@ -13,11 +13,13 @@ module AndroidSafetynet
     class NonceMismatchError < VerificationError; end
     class SignatureError < VerificationError; end
     class ResponseMissingError < VerificationError; end
+    class TimestampError < VerificationError; end
 
     CERTIRICATE_CHAIN_HEADER = "x5c"
     VALID_SUBJECT_HOSTNAME = "attest.android.com"
     HEADERS_POSITION = 1
     PAYLOAD_POSITION = 0
+    LEEWAY = 60
 
     attr_reader :response
 
@@ -30,6 +32,7 @@ module AndroidSafetynet
         valid_nonce?(nonce) || raise(NonceMismatchError)
         valid_attestation_domain? || raise(LeafCertificateSubjectError)
         valid_signature? || raise(SignatureError)
+        valid_timestamp? || raise(TimestampError)
       else
         raise(ResponseMissingError)
       end
@@ -45,8 +48,9 @@ module AndroidSafetynet
       end
     end
 
-    def timestamp
-      Time.at((payload["timestampMs"] / 1000.0).round)
+    def valid_timestamp?
+      now = Time.now
+      Time.at((payload["timestampMs"] / 1000.0).round).between?(now - LEEWAY, now)
     end
 
     private

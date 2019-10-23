@@ -17,7 +17,6 @@ module WebAuthn
           valid_response?(authenticator_data, client_data_hash) &&
           valid_version? &&
           cts_profile_match? &&
-          valid_timestamp? &&
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_certificate]
       end
 
@@ -51,11 +50,6 @@ module WebAuthn
 
       def cts_profile_match?
         attestation_response.cts_profile_match?
-      end
-
-      def valid_timestamp?
-        now = Time.now
-        attestation_response.timestamp.between?(now - 60, now)
       end
 
       def signing_certificates
