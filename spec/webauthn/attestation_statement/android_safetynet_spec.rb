@@ -5,6 +5,7 @@ require "spec_helper"
 require "base64"
 require "jwt"
 require "openssl"
+require "timecop"
 require "webauthn/attestation_statement/android_safetynet"
 
 RSpec.describe "android-safetynet attestation" do
@@ -101,15 +102,19 @@ RSpec.describe "android-safetynet attestation" do
       let(:timestamp) { Time.now.to_i + 60 }
 
       it "returns false" do
-        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+        Timecop.freeze(Time.now) do
+          expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+        end
       end
     end
 
-    context "when timestampMs is older than a minute old" do
-      let(:timestamp) { Time.now.to_i - 60 }
+    context "when timestampMs is older than one minute" do
+      let(:timestamp) { Time.now.to_i - 61 }
 
       it "returns false" do
-        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+        Timecop.freeze(Time.now) do
+          expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+        end
       end
     end
   end
