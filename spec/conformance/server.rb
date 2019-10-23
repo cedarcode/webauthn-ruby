@@ -11,6 +11,7 @@ use Rack::PostBodyContentTypeParser
 set show_exceptions: false
 
 # TODO: remove once safetynet attestation P-1 test certificate problem is fixed
+# https://github.com/fido-alliance/conformance-tools-issues/issues/518
 require 'webauthn/attestation_statement/android_safetynet'
 module WebAuthn
   module AttestationStatement
