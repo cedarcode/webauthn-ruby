@@ -98,7 +98,7 @@ RSpec.describe "android-safetynet attestation" do
     end
 
     context "when timestampMs is set to future" do
-      let(:timestamp) { Time.now.to_i + 60  }
+      let(:timestamp) { Time.now.to_i + 60 }
 
       it "returns false" do
         expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
