@@ -102,7 +102,7 @@ RSpec.describe "android-safetynet attestation" do
       let(:timestamp) { Time.now.to_i + 60 }
 
       it "returns false" do
-        Timecop.freeze(Time.now) do
+        Timecop.freeze do
           expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
         end
       end
@@ -112,7 +112,7 @@ RSpec.describe "android-safetynet attestation" do
       let(:timestamp) { Time.now.to_i - 61 }
 
       it "returns false" do
-        Timecop.freeze(Time.now) do
+        Timecop.freeze do
           expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
         end
       end
