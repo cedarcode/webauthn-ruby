@@ -6,6 +6,7 @@ require "android_safetynet/attestation_response"
 require "base64"
 require "jwt"
 require "openssl"
+require "timecop"
 
 RSpec.describe "AttestationResponse" do
   context "#verify" do
@@ -88,6 +89,32 @@ RSpec.describe "AttestationResponse" do
           expect {
             attestation_response.verify(nonce)
           }.to raise_error(AndroidSafetynet::AttestationResponse::SignatureError)
+        end
+      end
+    end
+
+    context "when the tiemestamp is invalid" do
+      context "because it is set to future" do
+        let(:timestamp) { Time.now.to_i + 60 }
+
+        it "returns false" do
+          Timecop.freeze do
+            expect {
+              attestation_response.verify(nonce)
+            }.to raise_error(AndroidSafetynet::AttestationResponse::TimestampError)
+          end
+        end
+      end
+
+      context "because it is older than one minute" do
+        let(:timestamp) { Time.now.to_i - 61 }
+
+        it "returns false" do
+          Timecop.freeze do
+            expect {
+              attestation_response.verify(nonce)
+            }.to raise_error(AndroidSafetynet::AttestationResponse::TimestampError)
+          end
         end
       end
     end
