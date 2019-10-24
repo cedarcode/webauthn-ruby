@@ -28,6 +28,8 @@ module WebAuthn
 
       # FIXME: This should be a responsibility of AndroidSafetynet::AttestationResponse#verify
       def trusted_attestation_certificate?(trust_store)
+        return true if trust_store.nil?
+
         trust_store.verify(attestation_certificate, signing_certificates)
       end
 

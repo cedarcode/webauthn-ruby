@@ -21,7 +21,8 @@ RSpec.describe "android-safetynet attestation" do
       )
     end
 
-    let(:payload) { { "nonce" => nonce, "ctsProfileMatch" => cts_profile_match } }
+    let(:payload) { { "nonce" => nonce, "ctsProfileMatch" => cts_profile_match, "timestampMs" => timestamp * 1000 } }
+    let(:timestamp) { Time.now.to_i }
     let(:cts_profile_match) { true }
     let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)) }
     let(:attestation_key) { OpenSSL::PKey::RSA.new(2048) }
@@ -84,7 +85,7 @@ RSpec.describe "android-safetynet attestation" do
       let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest("something else")) }
 
       it "returns false" do
-        expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
       end
     end
 
@@ -92,7 +93,7 @@ RSpec.describe "android-safetynet attestation" do
       let(:cts_profile_match) { false }
 
       it "returns false" do
-        expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
       end
     end
   end

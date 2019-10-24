@@ -68,7 +68,7 @@ end
 # the FAKETIME_NO_CACHE=1 environment variable to work as expected for the test suite.
 def fake_time(time)
   old_time = ENV["FAKETIME"]
-  new_time = time.strftime("%Y-%m-%d %H:%M:%S")
+  new_time = time.localtime.strftime("%Y-%m-%d %H:%M:%S")
 
   begin
     ENV["FAKETIME"] = new_time
