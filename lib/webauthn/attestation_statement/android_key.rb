@@ -22,10 +22,18 @@ module WebAuthn
           all_applications_field_not_present? &&
           valid_authorization_list_origin? &&
           valid_authorization_list_purpose? &&
+          valid_attestation_chain? &&
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_certificate_chain]
       end
 
       private
+
+      def valid_attestation_chain?
+        trust_store = OpenSSL::X509::Store.new
+        trust_store.add_file(File.expand_path('android_key/root.pem', __dir__))
+
+        trust_store.verify(attestation_certificate, signing_certificates)
+      end
 
       def valid_signature?(authenticator_data, client_data_hash)
         WebAuthn::SignatureVerifier

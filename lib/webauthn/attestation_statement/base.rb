@@ -49,6 +49,10 @@ module WebAuthn
         end
       end
 
+      def signing_certificates
+        attestation_certificate_chain[1..-1]
+      end
+
       def attestation_certificate_chain
         @attestation_certificate_chain ||= raw_attestation_certificates&.map do |raw_certificate|
           OpenSSL::X509::Certificate.new(raw_certificate)
