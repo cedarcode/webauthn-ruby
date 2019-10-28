@@ -23,8 +23,8 @@ module WebAuthn
       private
 
       def valid_format?
-        !!(raw_attestation_certificates && signature) &&
-          raw_attestation_certificates.length == VALID_ATTESTATION_CERTIFICATE_COUNT
+        !!(raw_certificates && signature) &&
+          raw_certificates.length == VALID_ATTESTATION_CERTIFICATE_COUNT
       end
 
       def valid_certificate_public_key?

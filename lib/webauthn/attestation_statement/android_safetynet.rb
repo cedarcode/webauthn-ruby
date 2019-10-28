@@ -16,7 +16,7 @@ module WebAuthn
       end
 
       def attestation_certificate
-        attestation_response.certificate_chain[0]
+        attestation_response.leaf_certificate
       end
 
       private

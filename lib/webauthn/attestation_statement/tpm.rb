@@ -80,17 +80,13 @@ module WebAuthn
       end
 
       def attestation_type
-        if raw_attestation_certificates && !raw_ecdaa_key_id
+        if raw_certificates && !raw_ecdaa_key_id
           ATTESTATION_TYPE_ATTCA
-        elsif raw_ecdaa_key_id && !raw_attestation_certificates
+        elsif raw_ecdaa_key_id && !raw_certificates
           ATTESTATION_TYPE_ECDAA
         else
           raise "Attestation type invalid"
         end
-      end
-
-      def attestation_trust_path
-        attestation_certificate_chain
       end
     end
   end
