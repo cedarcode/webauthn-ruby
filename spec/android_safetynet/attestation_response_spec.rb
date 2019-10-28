@@ -40,6 +40,35 @@ RSpec.describe "AttestationResponse" do
     let(:nonce) { rand(16).to_s }
     let(:timestamp) { Time.now.to_i }
 
+    let(:trust_store) do
+      trust_store = OpenSSL::X509::Store.new
+      trust_store.add_cert(attestation_certificate)
+
+      trust_store
+    end
+
+    let(:attestation_certificate) do
+      now = Time.now
+
+      certificate = OpenSSL::X509::Certificate.new
+      certificate.not_before = now
+      certificate.not_after = now + 60
+      certificate.public_key = attestation_key
+
+      certificate.sign(attestation_key, OpenSSL::Digest::SHA256.new)
+
+      certificate
+    end
+
+    before do
+      @_original_trust_store = AndroidSafetynet::AttestationResponse.trust_store
+      AndroidSafetynet::AttestationResponse.trust_store = trust_store
+    end
+
+    after do
+      AndroidSafetynet::AttestationResponse.trust_store = @_original_trust_store
+    end
+
     it "returns true if everything's in place" do
       expect(attestation_response.verify(nonce)).to be_truthy
     end
@@ -116,6 +145,16 @@ RSpec.describe "AttestationResponse" do
             }.to raise_error(AndroidSafetynet::AttestationResponse::TimestampError)
           end
         end
+      end
+    end
+
+    context "when the attestation certificate is not trusted" do
+      let(:trust_store) { OpenSSL::X509::Store.new }
+
+      it "fails" do
+        expect {
+          attestation_response.verify(nonce)
+        }.to raise_error(AndroidSafetynet::AttestationResponse::TrustworthinessError)
       end
     end
   end
