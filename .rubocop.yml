@@ -1,3 +1,7 @@
+inherit_mode:
+  merge:
+    - AllowedNames
+
 AllCops:
   TargetRubyVersion: 2.3
   DisabledByDefault: true
@@ -23,6 +27,10 @@ Metrics/LineLength:
 
 Naming:
   Enabled: true
+
+Naming/UncommunicativeMethodParamName:
+  AllowedNames:
+    - rp
 
 Security:
   Enabled: true

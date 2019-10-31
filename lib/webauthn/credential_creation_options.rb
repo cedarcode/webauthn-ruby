@@ -6,8 +6,12 @@ require "webauthn/credential_rp_entity"
 require "webauthn/credential_user_entity"
 
 module WebAuthn
-  # TODO: make keyword arguments mandatory in next major version
   def self.credential_creation_options(rp_name: nil, user_name: "web-user", display_name: "web-user", user_id: "1")
+    warn(
+      "DEPRECATION WARNING: `WebAuthn.credential_creation_options` is deprecated."\
+      " Please use `WebAuthn::Credential.options_for_create` instead."
+    )
+
     CredentialCreationOptions.new(
       rp_name: rp_name, user_id: user_id, user_name: user_name, user_display_name: display_name
     ).to_h
@@ -67,7 +71,7 @@ module WebAuthn
     end
 
     def pub_key_cred_params
-      WebAuthn.configuration.algorithms.map do |alg_name|
+      configuration.algorithms.map do |alg_name|
         { type: "public-key", alg: COSE::Algorithm.by_name(alg_name).id }
       end
     end

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "base64"
 require "json"
 require "webauthn"
 require "sinatra"
@@ -12,6 +11,11 @@ require_relative "conformance_cache_store"
 
 use Rack::PostBodyContentTypeParser
 set show_exceptions: false
+
+# TODO: remove once safetynet attestation P-1 test certificate problem is fixed
+# https://github.com/fido-alliance/conformance-tools-issues/issues/518
+require 'android_safetynet/attestation_response'
+AndroidSafetynet::AttestationResponse.trust_store = nil
 
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
 UNACCEPTABLE_STATUSES = ["USER_VERIFICATION_BYPASS", "ATTESTATION_KEY_COMPROMISE", "USER_KEY_REMOTE_COMPROMISE",
@@ -28,10 +32,6 @@ Credential = Struct.new(:id, :public_key, :sign_count) do
   def self.registered_for(username)
     @credentials[username] || []
   end
-
-  def descriptor
-    { type: "public-key", id: id }
-  end
 end
 
 host = ENV["HOST"] || "localhost"
@@ -40,6 +40,7 @@ WebAuthn.configure do |config|
   config.origin = "http://#{host}:#{settings.port}"
   config.rp_name = RP_NAME
   config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
+  config.silent_authentication = true
   config.metadata_token = ""
   config.cache_backend = ConformanceCacheStore.new
   config.cache_backend.setup_authenticators
@@ -47,80 +48,81 @@ WebAuthn.configure do |config|
 end
 
 post "/attestation/options" do
-  options = WebAuthn::CredentialCreationOptions.new(
+  options = WebAuthn::Credential.options_for_create(
     attestation: params["attestation"],
     authenticator_selection: params["authenticatorSelection"],
-    exclude_credentials: Credential.registered_for(params["username"]).map(&:descriptor),
+    exclude: Credential.registered_for(params["username"]).map(&:id),
     extensions: params["extensions"],
-    user_id: "1",
-    user_name: params["username"],
-    user_display_name: params["displayName"]
-  ).to_h
+    user: { id: "1", name: params["username"], display_name: params["displayName"] }
+  )
 
-  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
+  cookies["attestation_username"] = params["username"]
+  cookies["attestation_challenge"] = options.challenge
 
-  cookies["username"] = params["username"]
-  cookies["challenge"] = options[:challenge]
+  if params["authenticatorSelection"] && params["authenticatorSelection"]["userVerification"]
+    cookies["attestation_user_verification"] = params["authenticatorSelection"]["userVerification"]
+  end
 
-  render_ok(options)
+  render_ok(options.as_json)
 end
 
 post "/attestation/result" do
-  public_key_credential = WebAuthn::PublicKeyCredential.from_create(params)
-  expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
-  public_key_credential.verify(expected_challenge)
+  webauthn_credential = WebAuthn::Credential.from_create(params)
+
+  webauthn_credential.verify(
+    cookies["attestation_challenge"],
+    user_verification: cookies["attestation_user_verification"] == "required"
+  )
 
   metadata_entry = public_key_credential.response.attestation_statement.metadata_entry
   verify_authenticator_status(metadata_entry)
 
   Credential.register(
-    cookies["username"],
-    id: public_key_credential.id,
-    public_key: public_key_credential.public_key,
-    sign_count: public_key_credential.sign_count,
+    cookies["attestation_username"],
+    id: webauthn_credential.id,
+    public_key: webauthn_credential.public_key,
+    sign_count: webauthn_credential.sign_count,
   )
 
-  cookies["challenge"] = nil
-  cookies["username"] = nil
+  cookies["attestation_challenge"] = nil
+  cookies["attestation_username"] = nil
+  cookies["attestation_user_verification"] = nil
 
   render_ok
 end
 
 post "/assertion/options" do
-  options = WebAuthn::CredentialRequestOptions.new(
-    allow_credentials: Credential.registered_for(params["username"]).map(&:descriptor),
+  options = WebAuthn::Credential.options_for_get(
+    allow: Credential.registered_for(params["username"]).map(&:id),
     extensions: params["extensions"],
     user_verification: params["userVerification"]
-  ).to_h
+  )
 
-  options[:challenge] = Base64.urlsafe_encode64(options[:challenge], padding: false)
+  cookies["assertion_username"] = params["username"]
+  cookies["assertion_user_verification"] = params["userVerification"]
+  cookies["assertion_challenge"] = options.challenge
 
-  cookies["username"] = params["username"]
-  cookies["userVerification"] = params["userVerification"]
-  cookies["challenge"] = options[:challenge]
-
-  render_ok(options)
+  render_ok(options.as_json)
 end
 
 post "/assertion/result" do
-  public_key_credential = WebAuthn::PublicKeyCredential.from_get(params)
-  expected_challenge = Base64.urlsafe_decode64(cookies["challenge"])
+  webauthn_credential = WebAuthn::Credential.from_get(params)
 
-  user_credential = Credential.registered_for(cookies["username"]).detect do |uc|
-    uc.id == public_key_credential.id
+  user_credential = Credential.registered_for(cookies["assertion_username"]).detect do |uc|
+    uc.id == webauthn_credential.id
   end
 
-  public_key_credential.verify(
-    expected_challenge,
+  webauthn_credential.verify(
+    cookies["assertion_challenge"],
     public_key: user_credential.public_key,
     sign_count: user_credential.sign_count,
-    user_verification: cookies["userVerification"] == "required"
+    user_verification: cookies["assertion_user_verification"] == "required"
   )
 
-  user_credential.sign_count = public_key_credential.sign_count
-  cookies["challenge"] = nil
-  cookies["username"] = nil
-  cookies["userVerification"] = nil
+  user_credential.sign_count = webauthn_credential.sign_count
+  cookies["assertion_challenge"] = nil
+  cookies["assertion_username"] = nil
+  cookies["assertion_user_verification"] = nil
 
   render_ok
 end

@@ -1,16 +1,16 @@
-dist: xenial
+dist: bionic
 language: ruby
 cache: bundler
 
 rvm:
   - ruby-head
-  - 2.7.0-preview1
-  - 2.6.3
-  - 2.5.5
-  - 2.4.6
+  - 2.6.5
+  - 2.5.7
+  - 2.4.9
   - 2.3.8
 
 gemfile:
+  - gemfiles/cose_head.gemfile
   - gemfiles/openssl_head.gemfile
   - gemfiles/openssl_2_1.gemfile
   - gemfiles/openssl_2_0.gemfile
@@ -19,15 +19,17 @@ matrix:
   fast_finish: true
   allow_failures:
     - rvm: ruby-head
-    - rvm: 2.7.0-preview1
+    - gemfile: gemfiles/cose_head.gemfile
     - gemfile: gemfiles/openssl_head.gemfile
 
+addons:
+  apt:
+    packages:
+      - libfaketime
+
 before_install:
-  - wget http://archive.ubuntu.com/ubuntu/pool/universe/f/faketime/libfaketime_0.9.7-3_amd64.deb
-  - sudo dpkg -i libfaketime_0.9.7-3_amd64.deb
   - gem install bundler -v "~> 2.0"
 
 before_script:
   - export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1
-  - export DONT_FAKE_MONOTONIC=1
   - export FAKETIME_NO_CACHE=1

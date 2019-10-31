@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "base64"
 require "openssl"
+require "securerandom"
 require "webauthn/authenticator_data"
 require "webauthn/encoder"
 require "webauthn/fake_authenticator"
@@ -16,7 +16,7 @@ module WebAuthn
       origin = fake_origin,
       token_binding: nil,
       authenticator: WebAuthn::FakeAuthenticator.new,
-      encoding: nil
+      encoding: WebAuthn.configuration.encoding
     )
       @origin = origin
       @token_binding = token_binding
@@ -33,7 +33,7 @@ module WebAuthn
     )
       rp_id ||= URI.parse(origin).host
 
-      client_data_json = data_json_for(:create, challenge)
+      client_data_json = data_json_for(:create, encoder.decode(challenge))
       client_data_hash = hashed(client_data_json)
 
       attestation_object = authenticator.make_credential(
@@ -53,7 +53,7 @@ module WebAuthn
 
       {
         "type" => "public-key",
-        "id" => Base64.urlsafe_encode64(id),
+        "id" => internal_encoder.encode(id),
         "rawId" => encoder.encode(id),
         "response" => {
           "attestationObject" => encoder.encode(attestation_object),
@@ -65,7 +65,7 @@ module WebAuthn
     def get(challenge: fake_challenge, rp_id: nil, user_present: true, user_verified: false, sign_count: nil)
       rp_id ||= URI.parse(origin).host
 
-      client_data_json = data_json_for(:get, challenge)
+      client_data_json = data_json_for(:get, encoder.decode(challenge))
       client_data_hash = hashed(client_data_json)
 
       assertion = authenticator.get_assertion(
@@ -78,12 +78,13 @@ module WebAuthn
 
       {
         "type" => "public-key",
-        "id" => Base64.urlsafe_encode64(assertion[:credential_id]),
+        "id" => internal_encoder.encode(assertion[:credential_id]),
         "rawId" => encoder.encode(assertion[:credential_id]),
         "response" => {
           "clientDataJSON" => encoder.encode(client_data_json),
           "authenticatorData" => encoder.encode(assertion[:authenticator_data]),
-          "signature" => encoder.encode(assertion[:signature])
+          "signature" => encoder.encode(assertion[:signature]),
+          "userHandle" => nil
         }
       }
     end
@@ -95,7 +96,7 @@ module WebAuthn
     def data_json_for(method, challenge)
       data = {
         type: type_for(method),
-        challenge: Base64.urlsafe_encode64(challenge, padding: false),
+        challenge: internal_encoder.encode(challenge),
         origin: origin
       }
 
@@ -110,12 +111,16 @@ module WebAuthn
       @encoder ||= WebAuthn::Encoder.new(encoding)
     end
 
+    def internal_encoder
+      WebAuthn.standard_encoder
+    end
+
     def hashed(data)
       OpenSSL::Digest::SHA256.digest(data)
     end
 
     def fake_challenge
-      SecureRandom.random_bytes(32)
+      encoder.encode(SecureRandom.random_bytes(32))
     end
 
     def fake_origin

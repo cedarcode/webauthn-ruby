@@ -8,12 +8,22 @@ require "webauthn/authenticator_data"
 require "webauthn/authenticator_response"
 require "webauthn/attestation_statement"
 require "webauthn/client_data"
+require "webauthn/encoder"
 
 module WebAuthn
   class AttestationStatementVerificationError < VerificationError; end
   class AttestedCredentialVerificationError < VerificationError; end
 
   class AuthenticatorAttestationResponse < AuthenticatorResponse
+    def self.from_client(response)
+      encoder = WebAuthn.configuration.encoder
+
+      new(
+        attestation_object: encoder.decode(response["attestationObject"]),
+        client_data_json: encoder.decode(response["clientDataJSON"])
+      )
+    end
+
     attr_reader :attestation_type, :attestation_trust_path
 
     def initialize(attestation_object:, **options)

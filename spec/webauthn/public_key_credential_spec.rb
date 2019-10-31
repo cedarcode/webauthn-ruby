@@ -6,12 +6,12 @@ require "base64"
 require "securerandom"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/configuration"
-require "webauthn/public_key_credential"
+require "webauthn/public_key_credential_with_attestation"
 
 RSpec.describe "PublicKeyCredential" do
   describe "#verify" do
     let(:public_key_credential) do
-      WebAuthn::PublicKeyCredential.new(
+      WebAuthn::PublicKeyCredentialWithAttestation.new(
         type: type,
         id: id,
         raw_id: raw_id,
@@ -24,7 +24,7 @@ RSpec.describe "PublicKeyCredential" do
     let(:raw_id) { SecureRandom.random_bytes(16) }
 
     let(:attestation_response) do
-      response = client.create(challenge: challenge)["response"]
+      response = client.create(challenge: raw_challenge)["response"]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
         attestation_object: response["attestationObject"],
@@ -32,8 +32,9 @@ RSpec.describe "PublicKeyCredential" do
       )
     end
 
-    let(:client) { WebAuthn::FakeClient.new(origin) }
-    let(:challenge) { fake_challenge }
+    let(:client) { WebAuthn::FakeClient.new(origin, encoding: false) }
+    let(:challenge) { Base64.urlsafe_encode64(raw_challenge) }
+    let(:raw_challenge) { fake_challenge }
     let(:origin) { fake_origin }
 
     before do
@@ -84,43 +85,12 @@ RSpec.describe "PublicKeyCredential" do
       end
     end
 
-    context "when response is invalid" do
+    context "when challenge is invalid" do
       it "fails" do
         expect {
-          public_key_credential.verify("another challenge")
+          public_key_credential.verify(Base64.urlsafe_encode64("another challenge"))
         }.to raise_error(WebAuthn::ChallengeVerificationError)
       end
-    end
-  end
-
-  describe ".from_create" do
-    it "works" do
-      client = WebAuthn::FakeClient.new(encoding: :base64url)
-      public_key_credential = WebAuthn::PublicKeyCredential.from_create(client.create)
-
-      expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
-      expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAttestationResponse)
-
-      expect(public_key_credential.id).not_to be_empty
-      expect(public_key_credential.public_key).not_to be_empty
-      expect(public_key_credential.sign_count).to eq(0)
-    end
-  end
-
-  describe ".from_get" do
-    it "works" do
-      client = WebAuthn::FakeClient.new(encoding: :base64url)
-      client.create
-
-      public_key_credential = WebAuthn::PublicKeyCredential.from_get(client.get)
-
-      expect(public_key_credential).to be_a(WebAuthn::PublicKeyCredential)
-      expect(public_key_credential.response).to be_a(WebAuthn::AuthenticatorAssertionResponse)
-
-      expect(public_key_credential.id).not_to be_empty
-      expect(public_key_credential.public_key).not_to be_empty
-      expect(public_key_credential.user_handle).to be_nil
-      expect(public_key_credential.sign_count).to eq(1)
     end
   end
 end

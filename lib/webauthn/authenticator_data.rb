@@ -57,7 +57,9 @@ module WebAuthn
     end
 
     def credential
-      attested_credential_data.credential
+      if attested_credential_data_included?
+        attested_credential_data.credential
+      end
     end
 
     def sign_count

@@ -21,7 +21,8 @@ RSpec.describe "android-safetynet attestation" do
       )
     end
 
-    let(:payload) { { "nonce" => nonce, "ctsProfileMatch" => cts_profile_match } }
+    let(:payload) { { "nonce" => nonce, "ctsProfileMatch" => cts_profile_match, "timestampMs" => timestamp * 1000 } }
+    let(:timestamp) { Time.now.to_i }
     let(:cts_profile_match) { true }
     let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)) }
     let(:attestation_key) { OpenSSL::PKey::RSA.new(2048) }
@@ -47,37 +48,20 @@ RSpec.describe "android-safetynet attestation" do
       ).serialize
     end
 
+    before do
+      @_original_trust_store = AndroidSafetynet::AttestationResponse.trust_store
+      AndroidSafetynet::AttestationResponse.trust_store = nil
+    end
+
+    after do
+      AndroidSafetynet::AttestationResponse.trust_store = @_original_trust_store
+    end
+
     let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }
     let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
 
-    let(:trust_store) do
-      trust_store = OpenSSL::X509::Store.new
-      trust_store.add_cert(attestation_certificate)
-
-      trust_store
-    end
-
-    let(:attestation_certificate) do
-      certificate = OpenSSL::X509::Certificate.new
-      certificate.not_before = Time.now
-      certificate.not_after = Time.now + 60
-      certificate.public_key = attestation_key
-
-      certificate.sign(attestation_key, OpenSSL::Digest::SHA256.new)
-
-      certificate
-    end
-
     it "returns true when everything's in place" do
-      expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_truthy
-    end
-
-    context "when the attestation certificate is not trusted" do
-      let(:trust_store) { OpenSSL::X509::Store.new }
-
-      it "returns false" do
-        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
-      end
+      expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
     end
 
     context "when nonce is not set to the base64 of the SHA256 of authData + clientDataHash" do

@@ -26,7 +26,7 @@ module WebAuthn
       end
 
       def valid?(_authenticator_data, _client_data_hash)
-        raise NotImpelementedError
+        raise NotImplementedError
       end
 
       def attestation_certificate

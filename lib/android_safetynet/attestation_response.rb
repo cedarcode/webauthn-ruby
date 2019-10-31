@@ -13,11 +13,22 @@ module AndroidSafetynet
     class NonceMismatchError < VerificationError; end
     class SignatureError < VerificationError; end
     class ResponseMissingError < VerificationError; end
+    class TimestampError < VerificationError; end
+    class TrustworthinessError < VerificationError; end
 
     CERTIRICATE_CHAIN_HEADER = "x5c"
     VALID_SUBJECT_HOSTNAME = "attest.android.com"
     HEADERS_POSITION = 1
     PAYLOAD_POSITION = 0
+    LEEWAY = 60
+
+    # FIXME: Should probably be limited to only roots published by Google
+    # See https://github.com/cedarcode/webauthn-ruby/issues/160#issuecomment-487941201
+    @trust_store = OpenSSL::X509::Store.new.tap { |trust_store| trust_store.set_default_paths }
+
+    class << self
+      attr_accessor :trust_store
+    end
 
     attr_reader :response
 
@@ -30,6 +41,8 @@ module AndroidSafetynet
         valid_nonce?(nonce) || raise(NonceMismatchError)
         valid_attestation_domain? || raise(LeafCertificateSubjectError)
         valid_signature? || raise(SignatureError)
+        valid_timestamp? || raise(TimestampError)
+        trustworthy? || raise(TrustworthinessError)
       else
         raise(ResponseMissingError)
       end
@@ -43,6 +56,11 @@ module AndroidSafetynet
       @certificate_chain ||= headers[CERTIRICATE_CHAIN_HEADER].map do |cert|
         OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
       end
+    end
+
+    def valid_timestamp?
+      now = Time.now
+      Time.at((payload["timestampMs"] / 1000.0).round).between?(now - LEEWAY, now)
     end
 
     private
@@ -65,8 +83,20 @@ module AndroidSafetynet
       false
     end
 
+    def trustworthy?
+      !trust_store || trust_store.verify(leaf_certificate, signing_certificates)
+    end
+
+    def trust_store
+      self.class.trust_store
+    end
+
     def leaf_certificate
       certificate_chain[0]
+    end
+
+    def signing_certificates
+      certificate_chain[1..-1]
     end
 
     def headers
