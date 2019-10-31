@@ -31,15 +31,56 @@ RSpec.describe "FidoU2f attestation" do
     let(:attestation_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
     let(:signature) { attestation_key.sign("SHA256", to_be_signed) }
 
+    let(:attestation_certificate_version) { 2 }
+    let(:attestation_certificate_subject) { "/C=UY/O=ACME/OU=Authenticator Attestation/CN=CN" }
+    let(:attestation_certificate_basic_constraints) { "CA:FALSE" }
+    let(:attestation_certificate_ski) { "0123456789abcdef0123456789abcdef01234567" }
+    let(:attestation_certificate_extensions) do
+      extension_factory = OpenSSL::X509::ExtensionFactory.new
+      [
+        extension_factory.create_extension("basicConstraints", attestation_certificate_basic_constraints, true),
+        extension_factory.create_extension("subjectKeyIdentifier", attestation_certificate_ski, false),
+      ]
+    end
+    let(:attestation_certificate_start_time) { Time.now }
+    let(:attestation_certificate_end_time) { Time.now + 60 }
     let(:attestation_certificate) do
       certificate = OpenSSL::X509::Certificate.new
-      certificate.not_before = Time.now
-      certificate.not_after = Time.now + 60
+      certificate.version = attestation_certificate_version
+      certificate.subject = OpenSSL::X509::Name.parse(attestation_certificate_subject)
+      certificate.issuer = root_certificate.subject
+      certificate.not_before = attestation_certificate_start_time
+      certificate.not_after = attestation_certificate_end_time
       certificate.public_key = attestation_key
+      certificate.extensions = attestation_certificate_extensions
 
-      certificate.sign(attestation_key, OpenSSL::Digest::SHA256.new)
+      certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
 
       certificate.to_der
+    end
+
+    let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:root_certificate_start_time) { Time.now }
+    let(:root_certificate_end_time) { Time.now + 60 }
+
+    let(:root_certificate) do
+      root_certificate = OpenSSL::X509::Certificate.new
+      root_certificate.version = attestation_certificate_version
+      root_certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
+      root_certificate.issuer = root_certificate.subject
+      root_certificate.public_key = root_key
+      root_certificate.not_before = root_certificate_start_time
+      root_certificate.not_after = root_certificate_end_time
+
+      extension_factory = OpenSSL::X509::ExtensionFactory.new
+      extension_factory.subject_certificate = root_certificate
+      extension_factory.issuer_certificate = root_certificate
+
+      root_certificate.extensions = [extension_factory.create_extension("basicConstraints", "CA:TRUE", true)]
+
+      root_certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
+
+      root_certificate
     end
 
     let(:statement) do
@@ -47,6 +88,32 @@ RSpec.describe "FidoU2f attestation" do
         "sig" => signature,
         "x5c" => [attestation_certificate]
       )
+    end
+
+    let(:metadata_statement_root_certificates) { [root_certificate] }
+    let(:metadata_attestation_certificate_key_ids) { [attestation_certificate_ski] }
+    let(:metadata_statement) do
+      statement = WebAuthn::Metadata::Statement.new
+      statement.attestation_certificate_key_identifiers = metadata_attestation_certificate_key_ids
+      statement.attestation_root_certificates = metadata_statement_root_certificates
+      statement
+    end
+    let(:metadata_statement_key) { "statement_#{attestation_certificate_ski}" }
+    let(:metadata_entry) do
+      entry = WebAuthn::Metadata::Entry.new
+      entry.attestation_certificate_key_identifiers = metadata_attestation_certificate_key_ids
+      entry
+    end
+    let(:metadata_toc_entries) { [metadata_entry] }
+    let(:metadata_toc) do
+      toc = WebAuthn::Metadata::TableOfContents.new
+      toc.entries = metadata_toc_entries
+      toc
+    end
+
+    before do
+      WebAuthn.configuration.cache_backend.write(metadata_statement_key, metadata_statement)
+      WebAuthn.configuration.cache_backend.write("metadata_toc", metadata_toc)
     end
 
     it "works if everything's fine" do
@@ -133,6 +200,18 @@ RSpec.describe "FidoU2f attestation" do
 
       it "fails" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+      end
+    end
+
+    context "when the metadata cannot verify the attestation statement" do
+      context "because the attestation certificate key identifier is completely unknown" do
+        let(:metadata_toc_entries) { [] }
+
+        it "fails" do
+          WebAuthn.configuration.cache_backend.delete(metadata_statement_key)
+
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        end
       end
     end
   end

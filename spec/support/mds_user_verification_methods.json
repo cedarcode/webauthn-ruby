@@ -1,0 +1,4 @@
+[
+  [ { "userVerification": 2, "baDesc": { "selfAttestedFAR": 0.00002, "maxTemplates": 5, "maxRetries": 5, "blockSlowdown": 0} }],
+  [ { "userVerification": 4, "caDesc": { "base": 10, "minLength": 4 } } ]
+]

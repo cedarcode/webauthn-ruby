@@ -62,6 +62,34 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
+    let(:attestation_certificate_key_id) { "f4b64a68c334e901b8e23c6e66e6866c31931f5d" }
+    let(:attestation_certificate_key_ids) { [attestation_certificate_key_id] }
+    let(:attestation_root_certificate) do
+      OpenSSL::X509::Certificate.new(File.read(File.join(__dir__, "..", "support", "feitian_ft_fido_0200.pem")))
+    end
+    let(:metadata_statement) do
+      statement = WebAuthn::Metadata::Statement.new
+      statement.attestation_certificate_key_identifiers = attestation_certificate_key_ids
+      statement.attestation_root_certificates = [attestation_root_certificate]
+      statement
+    end
+    let(:metadata_entry) do
+      entry = WebAuthn::Metadata::Entry.new
+      entry.attestation_certificate_key_identifiers = attestation_certificate_key_ids
+      entry
+    end
+    let(:metadata_toc_entries) { [metadata_entry] }
+    let(:metadata_toc) do
+      toc = WebAuthn::Metadata::TableOfContents.new
+      toc.entries = metadata_toc_entries
+      toc
+    end
+
+    before do
+      WebAuthn.configuration.cache_backend.write("statement_#{attestation_certificate_key_id}", metadata_statement)
+      WebAuthn.configuration.cache_backend.write("metadata_toc", metadata_toc)
+    end
+
     it "verifies" do
       expect(attestation_response.verify(original_challenge)).to be_truthy
     end
@@ -82,9 +110,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the attestation certificate key" do
-      expect(attestation_response.attestation_certificate_key).to(
-        eq("f4b64a68c334e901b8e23c6e66e6866c31931f5d")
-      )
+      expect(attestation_response.attestation_certificate_key_id).to eq(attestation_certificate_key_id)
     end
   end
 
@@ -148,6 +174,33 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
+    let(:aaguid) { "f8a011f3-8c0a-4d15-8006-17111f9edc7d" }
+    let(:attestation_root_certificate) do
+      OpenSSL::X509::Certificate.new(File.read(File.join(__dir__, "..", "support", "yubico_u2f_root.pem")))
+    end
+    let(:metadata_statement) do
+      statement = WebAuthn::Metadata::Statement.new
+      statement.aaguid = aaguid
+      statement.attestation_root_certificates = [attestation_root_certificate]
+      statement
+    end
+    let(:metadata_entry) do
+      entry = WebAuthn::Metadata::Entry.new
+      entry.aaguid = aaguid
+      entry
+    end
+    let(:metadata_toc_entries) { [metadata_entry] }
+    let(:metadata_toc) do
+      toc = WebAuthn::Metadata::TableOfContents.new
+      toc.entries = metadata_toc_entries
+      toc
+    end
+
+    before do
+      WebAuthn.configuration.cache_backend.write("statement_#{aaguid}", metadata_statement)
+      WebAuthn.configuration.cache_backend.write("metadata_toc", metadata_toc)
+    end
+
     it "verifies" do
       expect(attestation_response.verify(original_challenge)).to be_truthy
     end
@@ -168,7 +221,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the AAGUID" do
-      expect(attestation_response.aaguid).to eq("f8a011f3-8c0a-4d15-8006-17111f9edc7d")
+      expect(attestation_response.aaguid).to eq(aaguid)
     end
   end
 

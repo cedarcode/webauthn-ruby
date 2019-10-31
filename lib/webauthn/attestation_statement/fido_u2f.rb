@@ -17,7 +17,25 @@ module WebAuthn
           valid_credential_public_key?(authenticator_data.credential.public_key) &&
           valid_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
+          certificate_chain_trusted? &&
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, [attestation_certificate]]
+      end
+
+      def attestation_certificate_key_id
+        return @attestation_certificate_key_id if defined?(@attestation_certificate_key_id)
+
+        @attestation_certificate_key_id = begin
+          extension = attestation_certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
+          return if extension.nil? || extension.critical?
+
+          sequence = OpenSSL::ASN1.decode(extension.to_der)
+          octet_string = sequence.detect do |value|
+            value.tag_class == :UNIVERSAL && value.tag == OpenSSL::ASN1::OCTET_STRING
+          end
+          return unless octet_string
+
+          OpenSSL::ASN1.decode(octet_string.value).value.unpack("H*")[0]
+        end
       end
 
       private
@@ -51,6 +69,14 @@ module WebAuthn
           .verify(signature, verification_data(authenticator_data, client_data_hash))
       end
 
+      def certificate_chain_trusted?
+        find_metadata
+        return false unless metadata_statement
+
+        trust_store = build_trust_store(metadata_statement.attestation_root_certificates)
+        trust_store.verify(attestation_certificate, attestation_certificate_chain[1..-1])
+      end
+
       def verification_data(authenticator_data, client_data_hash)
         "\x00" +
           authenticator_data.rp_id_hash +
@@ -61,6 +87,14 @@ module WebAuthn
 
       def public_key_u2f(cose_key_data)
         PublicKey.new(cose_key_data)
+      end
+
+      def find_metadata
+        key_id = attestation_certificate_key_id
+        return unless key_id
+
+        @metadata_entry = metadata_store.fetch_entry(attestation_certificate_key_id: key_id)
+        @metadata_statement = metadata_store.fetch_statement(attestation_certificate_key_id: key_id)
       end
     end
   end

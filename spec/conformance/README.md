@@ -20,3 +20,6 @@ bundle exec ruby server.rb
 ```
 
 Configure the FIDO2 Test Tool to use the following server URL: `http://localhost:4567` and run any of the server tests.
+
+For running the Metadata Service Tests, click "Download server metadata" and store the file in the same directory as
+`server.rb` before starting the server.

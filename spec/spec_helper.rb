@@ -6,6 +6,8 @@ require "cbor"
 
 require "byebug"
 require "webauthn/fake_client"
+require_relative "support/test_cache_store"
+require "webmock/rspec"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -16,6 +18,12 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+
+  config.before do
+    WebAuthn.configure do |webauthn_config|
+      webauthn_config.cache_backend = TestCacheStore.new
+    end
   end
 
   config.after do
