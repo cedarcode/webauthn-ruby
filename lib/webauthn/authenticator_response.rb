@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "base64"
 require "webauthn/client_data"
 require "webauthn/error"
 require "webauthn/security_utils"
@@ -34,8 +33,14 @@ module WebAuthn
       verify_item(:origin, expected_origin)
       verify_item(:authenticator_data)
       verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
-      verify_item(:user_presence)
-      verify_item(:user_verified, user_verification)
+
+      if !WebAuthn.configuration.silent_authentication
+        verify_item(:user_presence)
+      end
+
+      if user_verification
+        verify_item(:user_verified)
+      end
 
       true
     end
@@ -73,7 +78,7 @@ module WebAuthn
     end
 
     def valid_challenge?(expected_challenge)
-      WebAuthn::SecurityUtils.secure_compare(Base64.urlsafe_decode64(client_data.challenge), expected_challenge)
+      WebAuthn::SecurityUtils.secure_compare(client_data.challenge, expected_challenge)
     end
 
     def valid_origin?(expected_origin)
@@ -92,12 +97,8 @@ module WebAuthn
       authenticator_data.user_flagged?
     end
 
-    def valid_user_verified?(user_verification)
-      if user_verification
-        authenticator_data.user_verified?
-      else
-        true
-      end
+    def valid_user_verified?
+      authenticator_data.user_verified?
     end
 
     def rp_id_from_origin(expected_origin)

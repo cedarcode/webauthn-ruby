@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+appraise "cose_head" do
+  gem "cose", git: "https://github.com/cedarcode/cose-ruby"
+end
+
 appraise "openssl_head" do
   gem "openssl", git: "https://github.com/ruby/openssl"
 end

@@ -2,6 +2,7 @@
 
 require "json"
 require "openssl"
+require "webauthn/encoder"
 require "webauthn/error"
 
 module WebAuthn
@@ -19,7 +20,7 @@ module WebAuthn
     end
 
     def challenge
-      data["challenge"]
+      WebAuthn.standard_encoder.decode(data["challenge"])
     end
 
     def origin

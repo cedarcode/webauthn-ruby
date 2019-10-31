@@ -11,7 +11,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   let(:original_challenge) { fake_challenge }
   let(:origin) { fake_origin }
 
-  let(:client) { WebAuthn::FakeClient.new(origin) }
+  let(:client) { WebAuthn::FakeClient.new(origin, encoding: false) }
   let(:attestation_response) do
     response = public_key_credential["response"]
 
@@ -40,9 +40,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       credential = attestation_response.credential
 
       expect(credential.id.class).to eq(String)
-      expect(credential.id.encoding).to eq(Encoding::ASCII_8BIT)
+      expect(credential.id.encoding).to eq(Encoding::BINARY)
       expect(credential.public_key.class).to eq(String)
-      expect(credential.public_key.encoding).to be(Encoding::ASCII_8BIT)
+      expect(credential.public_key.encoding).to be(Encoding::BINARY)
     end
   end
 
@@ -216,7 +216,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-safetynet attestation" do
-    around(:each) { |example| fake_time(Time.new(2019, 8, 7), &example) }
+    around(:each) { |example| fake_time(Time.utc(2019, 7, 7, 16, 16), &example) }
 
     let(:origin) { "https://7f41ac45.ngrok.io" }
 
@@ -313,7 +313,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_challenge) { fake_challenge }
 
     let(:attestation_response) do
-      client = WebAuthn::FakeClient.new(actual_origin)
+      client = WebAuthn::FakeClient.new(actual_origin, encoding: false)
       response = client.create(challenge: original_challenge)["response"]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
@@ -353,7 +353,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:original_challenge) { fake_challenge }
 
     let(:attestation_response) do
-      client = WebAuthn::FakeClient.new(origin)
+      client = WebAuthn::FakeClient.new(origin, encoding: false)
       response = client.create(challenge: original_challenge, rp_id: rp_id)["response"]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
@@ -406,7 +406,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   describe "tokenBinding validation" do
-    let(:client) { WebAuthn::FakeClient.new(origin, token_binding: token_binding) }
+    let(:client) { WebAuthn::FakeClient.new(origin, token_binding: token_binding, encoding: false) }
 
     context "it has stuff" do
       let(:token_binding) { { status: "supported" } }

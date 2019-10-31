@@ -65,10 +65,10 @@ end
 
 # Uses https://github.com/wolfcw/libfaketime/ to stub time. Unlike the Timecop gem this also works for C-extensions
 # such as OpenSSL. The library must be loaded per the libfaketime's README for the relevant operating system, and use
-# the DONT_FAKE_MONOTONIC=1 and FAKETIME_NO_CACHE=1 environment variables to work as expected for the test suite.
+# the FAKETIME_NO_CACHE=1 environment variable to work as expected for the test suite.
 def fake_time(time)
   old_time = ENV["FAKETIME"]
-  new_time = time.strftime("%Y-%m-%d %H:%M:%S")
+  new_time = time.localtime.strftime("%Y-%m-%d %H:%M:%S")
 
   begin
     ENV["FAKETIME"] = new_time
@@ -79,4 +79,12 @@ def fake_time(time)
   ensure
     ENV["FAKETIME"] = old_time
   end
+end
+
+# Borrowed from activesupport
+def silence_warnings
+  old_verbose, $VERBOSE = $VERBOSE, nil
+  yield
+ensure
+  $VERBOSE = old_verbose
 end

@@ -1,9 +1,9 @@
 __Note__: You are viewing the README for the development version of webauthn-ruby.
-For the current release version see https://github.com/cedarcode/webauthn-ruby/blob/1-stable/README.md.
+For the current release version see https://github.com/cedarcode/webauthn-ruby/blob/2-stable/README.md.
 
 # webauthn-ruby
 
-![banner](webauthn-ruby.png)
+![banner](assets/webauthn-ruby.png)
 
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
 [![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.org/cedarcode/webauthn-ruby)
@@ -108,11 +108,11 @@ WebAuthn.configure do |config|
   config.rp_name = "Example Inc."
 
   # Optionally configure a client timeout hint, in milliseconds.
-  # This hint specifies how long the browser should wait for an
-  # attestation or an assertion response.
+  # This hint specifies how long the browser should wait for any
+  # interaction with the user.
   # This hint may be overridden by the browser.
   # https://www.w3.org/TR/webauthn/#dom-publickeycredentialcreationoptions-timeout
-  config.credential_options_timeout = 120000
+  # config.credential_options_timeout = 120_000
 
   # You can optionally specify a different Relying Party ID
   # (https://www.w3.org/TR/webauthn/#relying-party-identifier)
@@ -122,80 +122,100 @@ WebAuthn.configure do |config|
   # the suffix "example.com"
   #
   # config.rp_id = "example.com"
+
+  # Configure preferred binary-to-text encoding scheme. This should match the encoding scheme
+  # used in your client-side (user agent) code before sending the credential to the server.
+  # Supported values: `:base64url` (default), `:base64` or `false` to disable all encoding.
+  #
+  # config.encoding = :base64url
+
+  # Possible values: "ES256", "ES384", "ES512", "PS256", "PS384", "PS512", "RS256", "RS384", "RS512", "RS1"
+  # Default: ["ES256", "PS256", "RS256"]
+  #
+  # config.algorithms << "ES384"
 end
 ```
 
-### Registration
+### Credential Registration
+
+> The ceremony where a user, a Relying Party, and the user’s client (containing at least one authenticator) work in concert to create a public key credential and associate it with the user’s Relying Party account. Note that this includes employing a test of user presence or user verification.
+> [[source](https://www.w3.org/TR/webauthn-2/#registration-ceremony)]
 
 #### Initiation phase
 
 ```ruby
-credential_creation_options = WebAuthn.credential_creation_options
+# Generate and store the WebAuthn User ID the first time the user registers a credential
+if !user.webauthn_id
+  user.update!(webauthn_id: WebAuthn.generate_user_id)
+end
+
+options = WebAuthn::Credential.options_for_create(
+  user: { id: user.webauthn_id, name: user.name }
+  exclude: user.credentials.map { |c| c.webauthn_id }
+)
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
-#
-# You can read it from the resulting options:
-credential_creation_options[:challenge]
+session[:creation_challenge] = options.challenge
 
-# Send `credential_creation_options` to the browser, so that they can be used
-# to call `navigator.credentials.create({ "publicKey": credentialCreationOptions })`
+# Send `options` back to the browser, so that they can be used
+# to call `navigator.credentials.create({ "publicKey": options })`
+#
+# You can call `options.as_json` to get a ruby hash with a JSON representation if needed.
+
+# If inside a Rails controller, `render json: options` will just work.
+# I.e. it will encode and convert the options to JSON automatically.
+
+# For your frontend code, you might find @github/webauthn-json npm package useful.
+# Especially for handling the necessary decoding of the options, and sending the
+# `PublicKeyCredential` object back to the server.
 ```
 
 #### Verification phase
 
 ```ruby
-# These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
-#
-# If the user-agent is a web browser, you would use some encoding algorithm to send what
-# `navigator.credentials.create` returned through the wire.
-#
-# Then you need to decode that data before passing it to the `#verify` method.
-#
-# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
-# on the user-agent encoded data before calling `#verify`
-attestation_object = "..."
-client_data_json = "..."
-
-attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
-  attestation_object: attestation_object,
-  client_data_json: client_data_json
-)
-
+# Assuming you're using @github/webauthn-json package to send the `PublicKeyCredential` object back
+# in params[:publicKeyCredential]:
+webauthn_credential = WebAuthn::Credential.from_create(params[:publicKeyCredential])
 
 begin
-  attestation_response.verify(expected_challenge)
+  webauthn_credential.verify(session[:creation_challenge])
 
-  # 1. Register the new user and
-  # 2. Keep Credential ID, Credential Public Key and Sign Count under storage
-  #    for future authentications
-  #    Access by invoking:
-  #      `attestation_response.credential.id`
-  #      `attestation_response.credential.public_key`
-  #      `attestation_response.authenticator_data.sign_count`
-rescue WebAuthn::VerificationError => e
+  # Store Credential ID, Credential Public Key and Sign Count for future authentications
+  user.credentials.create!(
+    webauthn_id: webauthn_credential.id,
+    public_key: webauthn_credential.public_key,
+    sign_count: webauthn_credential.sign_count
+  )
+rescue WebAuthn::Error => e
   # Handle error
 end
 ```
 
-### Authentication
+### Credential Authentication
+
+> The ceremony where a user, and the user’s client (containing at least one authenticator) work in concert to cryptographically prove to a Relying Party that the user controls the credential private key associated with a previously-registered public key credential (see Registration). Note that this includes a test of user presence or user verification. [[source](https://www.w3.org/TR/webauthn-2/#authentication-ceremony)]
 
 #### Initiation phase
 
-Assuming you have the previously stored Credential ID, now in variable `credential_id`
-
 ```ruby
-credential_request_options = WebAuthn.credential_request_options
-credential_request_options[:allowCredentials] << { id: credential_id, type: "public-key" }
+options = WebAuthn::Credential.options_for_get(allow: user.credentials.map { |c| c.webauthn_id })
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
-#
-# You can read it from the resulting options:
-credential_request_options[:challenge]
+session[:authentication_challenge] = options.challenge
 
-# Send `credential_request_options` to the browser, so that they can be used
-# to call `navigator.credentials.get({ "publicKey": credentialRequestOptions })`
+# Send `options` back to the browser, so that they can be used
+# to call `navigator.credentials.get({ "publicKey": options })`
+
+# You can call `options.as_json` to get a ruby hash with a JSON representation if needed.
+
+# If inside a Rails controller, `render json: options` will just work.
+# I.e. it will encode and convert the options to JSON automatically.
+
+# For your frontend code, you might find @github/webauthn-json npm package useful.
+# Especially for handling the necessary decoding of the options, and sending the
+# `PublicKeyCredential` object back to the server.
 ```
 
 #### Verification phase
@@ -205,38 +225,122 @@ interface returned by the browser to the stored `credential_id`. The correspondi
 attributes must be passed as keyword arguments to the `verify` method call.
 
 ```ruby
-# These should be ruby `String`s encoded as binary data, e.g. `Encoding:ASCII-8BIT`.
-#
-# If the user-agent is a web browser, you would use some encoding algorithm to send what
-# `navigator.credentials.get` returned through the wire.
-#
-# Then you need to decode that data before passing it to the `#verify` method.
-#
-# E.g. in https://github.com/cedarcode/webauthn-rails-demo-app we use `Base64.strict_decode64`
-# on the user-agent encoded data before calling `#verify`
-authenticator_data = "..."
-client_data_json = "..."
-signature = "..."
+# Assuming you're using @github/webauthn-json package to send the `PublicKeyCredential` object back
+# in params[:publicKeyCredential]:
+webauthn_credential = WebAuthn::Credential.from_get(params[:publicKeyCredential])
 
-assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-  authenticator_data: authenticator_data,
-  client_data_json: client_data_json,
-  signature: signature
-)
+stored_credential = user.credentials.find_by(webauthn_id: webauthn_credential.id)
 
-credential = "..."
 begin
-  assertion_response.verify(expected_challenge, public_key: credential.public_key, sign_count: credential.sign_count)
-  # Update the stored credential sign count with the value from `assertion_response.authenticator_data.sign_count`
-  # Sign in the user
-rescue WebAuthn::VerificationError => e
+  webauthn_credential.verify(
+    session[:authentication_challenge],
+    public_key: stored_credential.public_key,
+    sign_count: stored_credential.sign_count
+  )
+
+  # Update the stored credential sign count with the value from `webauthn_credential.sign_count`
+  stored_credential.update!(sign_count: webauthn_credential.sign_count)
+
+  # Continue with successful sign in or 2FA verification...
+
+rescue WebAuthn::SignCountVerificationError => e
+  # Cryptographic verification of the authenticator data succeeded, but the signature counter was less then or equal
+  # to the stored value. This can have several reasons and depending on your risk tolerance you can choose to fail or
+  # pass authentication. For more information see https://www.w3.org/TR/webauthn/#sign-counter
+rescue WebAuthn::Error => e
   # Handle error
 end
 ```
 
 ## API
 
-_Pending_
+#### `WebAuthn.generate_user_id`
+
+Generates a [WebAuthn User Handle](https://www.w3.org/TR/webauthn-2/#user-handle) that follows the WebAuthn spec recommendations.
+
+```ruby
+WebAuthn.generate_user_id # "lWoMZTGf_ml2RoY5qPwbwrkxrvTqWjGOxEoYBgxft3zG-LlrICvE-y8bxFi06zMyIOyNsJoWx4Fa2TOqoRmnxA"
+```
+
+#### `WebAuthn::Credential.options_for_create(options)`
+
+Helper method to build the necessary [PublicKeyCredentialCreationOptions](https://www.w3.org/TR/webauthn-2/#dictdef-publickeycredentialcreationoptions)
+to be used in the client-side code to call `navigator.credentials.create({ "publicKey": publicKeyCredentialCreationOptions })`.
+
+```ruby
+creation_options = WebAuthn::Credential.options_for_create(
+  user: { id: user.webauthn_id, name: user.name }
+  exclude: user.credentials.map { |c| c.webauthn_id }
+)
+
+# Store the newly generated challenge somewhere so you can have it
+# for the verification phase.
+session[:creation_challenge] = creation_options.challenge
+
+# Send `creation_options` back to the browser, so that they can be used
+# to call `navigator.credentials.create({ "publicKey": creationOptions })`
+#
+# You can call `creation_options.as_json` to get a ruby hash with a JSON representation if needed.
+
+# If inside a Rails controller, `render json: creation_options` will just work.
+# I.e. it will encode and convert the options to JSON automatically.
+```
+
+#### `WebAuthn::Credential.options_for_get([options])`
+
+Helper method to build the necessary [PublicKeyCredentialRequestOptions](https://www.w3.org/TR/webauthn-2/#dictdef-publickeycredentialrequestoptions)
+to be used in the client-side code to call `navigator.credentials.get({ "publicKey": publicKeyCredentialRequestOptions })`.
+
+```ruby
+request_options = WebAuthn::Credential.options_for_get(allow: user.credentials.map { |c| c.webauthn_id })
+
+# Store the newly generated challenge somewhere so you can have it
+# for the verification phase.
+session[:authentication_challenge] = request_options.challenge
+
+# Send `request_options` back to the browser, so that they can be used
+# to call `navigator.credentials.get({ "publicKey": requestOptions })`
+
+# You can call `request_options.as_json` to get a ruby hash with a JSON representation if needed.
+
+# If inside a Rails controller, `render json: request_options` will just work.
+# I.e. it will encode and convert the options to JSON automatically.
+```
+
+#### `WebAuthn::Credential.from_create(credential_create_result)`
+
+```ruby
+credential_with_attestation = WebAuthn::Credential.from_create(params[:publicKeyCredential])
+```
+
+#### `WebAuthn::Credential.from_get(credential_get_result)`
+
+```ruby
+credential_with_assertion = WebAuthn::Credential.from_get(params[:publicKeyCredential])
+```
+
+#### `PublicKeyCredentialWithAttestation#verify(challenge)`
+
+Verifies the created WebAuthn credential is [valid](https://www.w3.org/TR/webauthn-2/#sctn-registering-a-new-credential).
+
+```ruby
+credential_with_attestation.verify(session[:creation_challenge])
+```
+
+#### `PublicKeyCredentialWithAssertion#verify(challenge, public_key:, sign_count:)`
+
+Verifies the asserted WebAuthn credential is [valid](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion).
+
+Mainly, that the client provided a valid cryptographic signature for the corresponding stored credential public
+key, among other extra validations.
+
+```ruby
+credential_with_assertion.verify(
+  session[:authentication_challenge],
+  public_key: stored_credential.public_key,
+  sign_count: stored_credential.sign_count
+)
+```
 
 ## Attestation Statement Formats
 
