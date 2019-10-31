@@ -74,7 +74,7 @@ post "/attestation/result" do
     user_verification: cookies["attestation_user_verification"] == "required"
   )
 
-  metadata_entry = public_key_credential.response.attestation_statement.metadata_entry
+  metadata_entry = webauthn_credential.response.attestation_statement.metadata_entry
   verify_authenticator_status(metadata_entry)
 
   Credential.register(
