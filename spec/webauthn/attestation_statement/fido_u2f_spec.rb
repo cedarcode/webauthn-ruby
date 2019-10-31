@@ -72,6 +72,12 @@ RSpec.describe "FidoU2f attestation" do
       root_certificate.not_before = root_certificate_start_time
       root_certificate.not_after = root_certificate_end_time
 
+      extension_factory = OpenSSL::X509::ExtensionFactory.new
+      extension_factory.subject_certificate = root_certificate
+      extension_factory.issuer_certificate = root_certificate
+
+      root_certificate.extensions = [extension_factory.create_extension("basicConstraints", "CA:TRUE", true)]
+
       root_certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
 
       root_certificate
