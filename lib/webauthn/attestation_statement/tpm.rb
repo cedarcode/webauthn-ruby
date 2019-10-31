@@ -19,15 +19,18 @@ module WebAuthn
       OID_TCG_AT_TPM_VERSION = "2.23.133.2.3"
       OID_TCG_KP_AIK_CERTIFICATE = "2.23.133.8.3"
       TPM_V2 = "2.0"
+
       TCG_TRUST_STORE = begin
         store = OpenSSL::X509::Store.new
         path = File.expand_path(File.join(__dir__, "..", "..", "tpm", "certificates"))
-        Dir.glob("*.{cer,crt,der}", base: path) do |filename|
-          File.open(File.join(path, filename)) do |file|
+
+        Dir.glob("#{path}/*.{cer,crt,der}") do |filename|
+          File.open(filename) do |file|
             certificate = OpenSSL::X509::Certificate.new(file)
             store.add_cert(certificate)
           end
         end
+
         store
       end
 
