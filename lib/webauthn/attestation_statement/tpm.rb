@@ -2,6 +2,7 @@
 
 require "cose/algorithm"
 require "openssl"
+require "tpm/constants"
 require "webauthn/attestation_statement/base"
 require "webauthn/attestation_statement/tpm/cert_info"
 require "webauthn/attestation_statement/tpm/pub_area"
@@ -12,10 +13,28 @@ module WebAuthn
     class TPM < Base
       CERTIFICATE_V3 = 2
       CERTIFICATE_EMPTY_NAME = OpenSSL::X509::Name.new([]).freeze
+      CERTIFICATE_SAN_DIRECTORY_NAME = 4
+      OID_TCG_AT_TPM_MANUFACTURER = "2.23.133.2.1"
+      OID_TCG_AT_TPM_MODEL = "2.23.133.2.2"
+      OID_TCG_AT_TPM_VERSION = "2.23.133.2.3"
       OID_TCG_KP_AIK_CERTIFICATE = "2.23.133.8.3"
       TPM_V2 = "2.0"
 
-      def valid?(authenticator_data, client_data_hash)
+      TCG_TRUST_STORE = begin
+        store = OpenSSL::X509::Store.new
+        path = File.expand_path(File.join(__dir__, "..", "..", "tpm", "certificates"))
+
+        Dir.glob("#{path}/*.{cer,crt,der}") do |filename|
+          File.open(filename) do |file|
+            certificate = OpenSSL::X509::Certificate.new(file)
+            store.add_cert(certificate)
+          end
+        end
+
+        store
+      end
+
+      def valid?(authenticator_data, client_data_hash, trust_store: TCG_TRUST_STORE)
         case attestation_type
         when ATTESTATION_TYPE_ATTCA
           att_to_be_signed = authenticator_data.data + client_data_hash
@@ -26,6 +45,7 @@ module WebAuthn
             pub_area.valid?(authenticator_data.credential.public_key) &&
             cert_info.valid?(statement["pubArea"], OpenSSL::Digest.digest(cose_algorithm.hash, att_to_be_signed)) &&
             matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
+            certificate_chain_trusted?(trust_store) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
           raise(
@@ -48,15 +68,34 @@ module WebAuthn
 
         attestation_certificate.version == CERTIFICATE_V3 &&
           attestation_certificate.subject.eql?(CERTIFICATE_EMPTY_NAME) &&
-          certificate_in_use?(attestation_certificate) &&
+          valid_subject_alternative_name? &&
           extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == "CA:FALSE" &&
           extensions.find { |ext| ext.oid == "extendedKeyUsage" }&.value == OID_TCG_KP_AIK_CERTIFICATE
       end
 
-      def certificate_in_use?(certificate)
-        now = Time.now
+      def valid_subject_alternative_name?
+        extension = attestation_certificate.extensions.detect { |ext| ext.oid == "subjectAltName" }
+        return unless extension&.critical?
 
-        certificate.not_before < now && now < certificate.not_after
+        san_asn1 = OpenSSL::ASN1.decode(extension).find do |val|
+          val.tag_class == :UNIVERSAL && val.tag == OpenSSL::ASN1::OCTET_STRING
+        end
+        directory_name = OpenSSL::ASN1.decode(san_asn1.value).find do |val|
+          val.tag_class == :CONTEXT_SPECIFIC && val.tag == CERTIFICATE_SAN_DIRECTORY_NAME
+        end
+        name = OpenSSL::X509::Name.new(directory_name.value.first).to_a
+        manufacturer = name.assoc(OID_TCG_AT_TPM_MANUFACTURER).at(1)
+        model = name.assoc(OID_TCG_AT_TPM_MODEL).at(1)
+        version = name.assoc(OID_TCG_AT_TPM_VERSION).at(1)
+
+        ::TPM::VENDOR_IDS[manufacturer] && !model.empty? && !version.empty?
+      end
+
+      def certificate_chain_trusted?(trust_store)
+        store_context = OpenSSL::X509::StoreContext.new(
+          trust_store, attestation_certificate, attestation_certificate_chain
+        )
+        store_context.verify
       end
 
       def verification_data

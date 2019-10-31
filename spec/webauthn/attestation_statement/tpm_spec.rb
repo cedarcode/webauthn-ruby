@@ -31,19 +31,22 @@ RSpec.describe "TPM attestation statement" do
       let(:aik_certificate) do
         cert = OpenSSL::X509::Certificate.new
         cert.version = aik_certificate_version
+        cert.issuer = root_certificate.subject
         cert.subject = OpenSSL::X509::Name.parse(aik_certificate_subject)
         cert.not_before = aik_certificate_start_time
         cert.not_after = aik_certificate_end_time
         cert.public_key = aik
 
         extension_factory = OpenSSL::X509::ExtensionFactory.new
+        extension_factory.config = aik_certificate_san_config
 
         cert.extensions = [
           extension_factory.create_extension("basicConstraints", aik_certificate_basic_constraints, true),
-          extension_factory.create_extension("extendedKeyUsage", aik_certificate_extended_key_usage)
+          extension_factory.create_extension("extendedKeyUsage", aik_certificate_extended_key_usage),
+          extension_factory.create_extension("subjectAltName", "ASN1:SEQUENCE:dir_seq", aik_certificate_san_critical),
         ]
 
-        cert.sign(aik, OpenSSL::Digest::SHA256.new)
+        cert.sign(root_key, OpenSSL::Digest::SHA256.new)
 
         cert
       end
@@ -53,8 +56,61 @@ RSpec.describe "TPM attestation statement" do
       let(:aik_certificate_subject) { "" }
       let(:aik_certificate_basic_constraints) { "CA:FALSE" }
       let(:aik_certificate_extended_key_usage) { WebAuthn::AttestationStatement::TPM::OID_TCG_KP_AIK_CERTIFICATE }
+      let(:aik_certificate_san_critical) { true }
+      let(:aik_certificate_san_manufacturer) { "id:4E544300" }
+      let(:aik_certificate_san_model) { "TPM test model" }
+      let(:aik_certificate_san_version) { "id:42" }
+      let(:aik_certificate_san_config) do
+        OpenSSL::Config.parse(<<~OPENSSL_CONF)
+          [dir_seq]
+          seq = EXPLICIT:4,SEQUENCE:dir_seq_seq
+
+          [dir_seq_seq]
+          set = SET:dir_set
+
+          [dir_set]
+          seq.1 = SEQUENCE:dir_seq_1
+          seq.2 = SEQUENCE:dir_seq_2
+          seq.3 = SEQUENCE:dir_seq_3
+
+          [dir_seq_1]
+          oid=OID:2.23.133.2.1
+          str=UTF8:"#{aik_certificate_san_manufacturer}"
+
+          [dir_seq_2]
+          oid=OID:2.23.133.2.2
+          str=UTF8:"#{aik_certificate_san_model}"
+
+          [dir_seq_3]
+          oid=OID:2.23.133.2.3
+          str=UTF8:"#{aik_certificate_san_version}"
+        OPENSSL_CONF
+      end
       let(:aik_certificate_start_time) { Time.now }
       let(:aik_certificate_end_time) { Time.now + 60 }
+      let(:root_key) { OpenSSL::PKey::RSA.new(2048) }
+      let(:root_certificate_start_time) { Time.now }
+      let(:root_certificate_end_time) { Time.now + 60 }
+      let(:root_certificate) do
+        root_certificate = OpenSSL::X509::Certificate.new
+        root_certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
+        root_certificate.issuer = root_certificate.subject
+        root_certificate.public_key = root_key
+        root_certificate.not_before = root_certificate_start_time
+        root_certificate.not_after = root_certificate_end_time
+
+        extension_factory = OpenSSL::X509::ExtensionFactory.new
+        root_certificate.extensions = [extension_factory.create_extension("basicConstraints", "CA:TRUE", true)]
+
+        root_certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
+        root_certificate
+      end
+
+      let(:trust_store) do
+        trust_store = OpenSSL::X509::Store.new
+        trust_store.add_cert(root_certificate)
+        trust_store
+      end
 
       let(:signature) do
         aik.sign("SHA256", to_be_signed)
@@ -109,7 +165,15 @@ RSpec.describe "TPM attestation statement" do
       end
 
       it "works if everything's fine" do
-        expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+        expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_truthy
+      end
+
+      context "when the certificate chain is not trusted" do
+        let(:trust_store) { OpenSSL::X509::Store.new }
+
+        it "returns false" do
+          expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+        end
       end
 
       context "when EC algorithm" do
@@ -136,7 +200,7 @@ RSpec.describe "TPM attestation statement" do
         end
 
         it "works" do
-          expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+          expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_truthy
         end
 
         context "when pubArea is invalid" do
@@ -152,7 +216,7 @@ RSpec.describe "TPM attestation statement" do
             end
 
             it "returns false" do
-              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
             end
           end
 
@@ -168,7 +232,7 @@ RSpec.describe "TPM attestation statement" do
               end
 
               it "returns false" do
-                expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+                expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
               end
             end
 
@@ -183,7 +247,7 @@ RSpec.describe "TPM attestation statement" do
               end
 
               it "returns false" do
-                expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+                expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
               end
             end
 
@@ -198,7 +262,7 @@ RSpec.describe "TPM attestation statement" do
               end
 
               it "returns false" do
-                expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+                expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
               end
             end
           end
@@ -218,7 +282,7 @@ RSpec.describe "TPM attestation statement" do
         end
 
         it "works if everything's fine" do
-          expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+          expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_truthy
         end
       end
 
@@ -226,7 +290,7 @@ RSpec.describe "TPM attestation statement" do
         let(:tpm_version) { "1.2" }
 
         it "returns false" do
-          expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
         end
       end
 
@@ -241,7 +305,7 @@ RSpec.describe "TPM attestation statement" do
           end
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -257,7 +321,7 @@ RSpec.describe "TPM attestation statement" do
             end
 
             it "returns false" do
-              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
             end
           end
 
@@ -272,7 +336,7 @@ RSpec.describe "TPM attestation statement" do
             end
 
             it "returns false" do
-              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
             end
           end
 
@@ -287,7 +351,7 @@ RSpec.describe "TPM attestation statement" do
             end
 
             it "returns false" do
-              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
             end
           end
         end
@@ -298,7 +362,7 @@ RSpec.describe "TPM attestation statement" do
           let(:cert_info_magic) { ::TPM::GENERATED_VALUE + 1 }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -306,7 +370,7 @@ RSpec.describe "TPM attestation statement" do
           let(:cert_info_extra_data) { OpenSSL::Digest::SHA1.digest(att_to_be_signed) }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -317,7 +381,7 @@ RSpec.describe "TPM attestation statement" do
             end
 
             it "returns false" do
-              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
             end
           end
 
@@ -327,7 +391,7 @@ RSpec.describe "TPM attestation statement" do
             end
 
             it "returns false" do
-              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
             end
           end
         end
@@ -339,7 +403,7 @@ RSpec.describe "TPM attestation statement" do
 
           it "fails" do
             expect {
-              statement.valid?(authenticator_data, client_data_hash)
+              statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)
             }.to raise_error("Unsupported algorithm -258")
           end
         end
@@ -348,7 +412,7 @@ RSpec.describe "TPM attestation statement" do
           let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -356,7 +420,7 @@ RSpec.describe "TPM attestation statement" do
           let(:to_be_signed) { "other data".b }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -364,7 +428,7 @@ RSpec.describe "TPM attestation statement" do
           let(:signature) { "corrupted signature".b }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
       end
@@ -374,7 +438,7 @@ RSpec.describe "TPM attestation statement" do
           let(:aik_certificate_version) { 1 }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -382,7 +446,7 @@ RSpec.describe "TPM attestation statement" do
           let(:aik_certificate_subject) { "/CN=CN" }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -390,7 +454,7 @@ RSpec.describe "TPM attestation statement" do
           let(:aik_certificate_extended_key_usage) { "2.23.133.8.4" }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -398,7 +462,7 @@ RSpec.describe "TPM attestation statement" do
           let(:aik_certificate_basic_constraints) { "CA:TRUE" }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -406,7 +470,7 @@ RSpec.describe "TPM attestation statement" do
           let(:aik_certificate_start_time) { Time.now + 10 }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
           end
         end
 
@@ -414,7 +478,41 @@ RSpec.describe "TPM attestation statement" do
           let(:aik_certificate_end_time) { Time.now }
 
           it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+            expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+          end
+        end
+
+        context "when the subject alternative name is invalid" do
+          context "because the extension is not critical" do
+            let(:aik_certificate_san_critical) { false }
+
+            it "returns false" do
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+            end
+          end
+
+          context "because the manufacturer is unknown" do
+            let(:aik_certificate_san_manufacturer) { "id:F0000000" }
+
+            it "returns false" do
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+            end
+          end
+
+          context "because the model is blank" do
+            let(:aik_certificate_san_model) { "" }
+
+            it "returns false" do
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+            end
+          end
+
+          context "because the version is blank" do
+            let(:aik_certificate_san_version) { "" }
+
+            it "returns false" do
+              expect(statement.valid?(authenticator_data, client_data_hash, trust_store: trust_store)).to be_falsy
+            end
           end
         end
       end
