@@ -41,13 +41,7 @@ module WebAuthn
       end
 
       def attestation_trust_path
-        # FIXME: Change this to be the chain.
-        #
-        # The WebAuthn Level 1 spec said this needs to be just the attestation certificate.
-        # However, that was an error and it fixed on the Level 2 draft version.
-        #
-        # See https://github.com/w3c/webauthn/pull/1142
-        attestation_certificate
+        attestation_response.certificate_chain
       end
 
       def attestation_response

@@ -245,7 +245,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       attestation_response.valid?(original_challenge)
 
       expect(attestation_response.attestation_type).to eq("Basic")
-      expect(attestation_response.attestation_trust_path).to be_kind_of(OpenSSL::X509::Certificate)
+      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
     end
 
     it "returns the credential" do
