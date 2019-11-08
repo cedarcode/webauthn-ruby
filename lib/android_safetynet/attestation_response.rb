@@ -56,6 +56,12 @@ module AndroidSafetynet
       certificate_chain[0]
     end
 
+    def certificate_chain
+      @certificate_chain ||= headers[CERTIRICATE_CHAIN_HEADER].map do |cert|
+        OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
+      end
+    end
+
     def valid_timestamp?
       now = Time.now
       Time.at((payload["timestampMs"] / 1000.0).round).between?(now - LEEWAY, now)
@@ -87,12 +93,6 @@ module AndroidSafetynet
 
     def trust_store
       self.class.trust_store
-    end
-
-    def certificate_chain
-      @certificate_chain ||= headers[CERTIRICATE_CHAIN_HEADER].map do |cert|
-        OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
-      end
     end
 
     def signing_certificates
