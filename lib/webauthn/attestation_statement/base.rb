@@ -75,7 +75,9 @@ module WebAuthn
       end
 
       def attestation_trust_path
-        certificates
+        if certificates&.any?
+          certificates
+        end
       end
     end
   end

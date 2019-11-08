@@ -89,8 +89,8 @@ module WebAuthn
       end
 
       def attestation_type_and_trust_path
-        if certificates&.any?
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, certificates]
+        if attestation_trust_path
+          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, attestation_trust_path]
         else
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF, nil]
         end
