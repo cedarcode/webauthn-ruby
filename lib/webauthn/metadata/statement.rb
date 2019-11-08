@@ -44,10 +44,16 @@ module WebAuthn
       json_accessor("tcDisplay", Coercer::BitField.new(Constants::TRANSACTION_CONFIRMATION_DISPLAY_TYPES))
       json_accessor("tcDisplayContentType")
       json_accessor("tcDisplayPNGCharacteristics")
-      json_accessor("attestationRootCertificates", Coercer::Certificates)
+      json_accessor("attestationRootCertificates")
       json_accessor("ecdaaTrustAnchors")
       json_accessor("icon")
       json_accessor("supportedExtensions")
+
+      # Lazy load certificates for compatibility ActiveSupport::Cache. Can be removed once we require a version of
+      # OpenSSL which includes https://github.com/ruby/openssl/pull/281
+      def attestation_root_certificates
+        Coercer::Certificates.coerce(@attestation_root_certificates)
+      end
     end
   end
 end
