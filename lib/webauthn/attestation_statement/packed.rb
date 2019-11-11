@@ -30,12 +30,12 @@ module WebAuthn
       end
 
       def self_attestation?
-        !raw_attestation_certificates && !raw_ecdaa_key_id
+        !raw_certificates && !raw_ecdaa_key_id
       end
 
       def valid_format?
         algorithm && signature && (
-          [raw_attestation_certificates, raw_ecdaa_key_id].compact.size < 2
+          [raw_certificates, raw_ecdaa_key_id].compact.size < 2
         )
       end
 
@@ -46,15 +46,15 @@ module WebAuthn
       end
 
       def valid_certificate_chain?
-        if attestation_certificate_chain
-          attestation_certificate_chain[1..-1].all? { |c| certificate_in_use?(c) }
+        if certificate_chain
+          certificate_chain.all? { |c| certificate_in_use?(c) }
         else
           true
         end
       end
 
       def valid_ec_public_keys?(credential)
-        (attestation_certificate_chain&.map(&:public_key) || [credential.public_key_object])
+        (certificates&.map(&:public_key) || [credential.public_key_object])
           .select { |pkey| pkey.is_a?(OpenSSL::PKey::EC) }
           .all? { |pkey| pkey.check_key }
       end
@@ -89,8 +89,8 @@ module WebAuthn
       end
 
       def attestation_type_and_trust_path
-        if raw_attestation_certificates&.any?
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, attestation_certificate_chain]
+        if attestation_trust_path
+          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, attestation_trust_path]
         else
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF, nil]
         end

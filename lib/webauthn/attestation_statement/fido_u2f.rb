@@ -17,14 +17,14 @@ module WebAuthn
           valid_credential_public_key?(authenticator_data.credential.public_key) &&
           valid_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, [attestation_certificate]]
+          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, attestation_trust_path]
       end
 
       private
 
       def valid_format?
-        !!(raw_attestation_certificates && signature) &&
-          raw_attestation_certificates.length == VALID_ATTESTATION_CERTIFICATE_COUNT
+        !!(raw_certificates && signature) &&
+          raw_certificates.length == VALID_ATTESTATION_CERTIFICATE_COUNT
       end
 
       def valid_certificate_public_key?

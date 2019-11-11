@@ -22,7 +22,7 @@ module WebAuthn
           all_applications_field_not_present? &&
           valid_authorization_list_origin? &&
           valid_authorization_list_purpose? &&
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_certificate_chain]
+          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_trust_path]
       end
 
       private

@@ -52,10 +52,8 @@ module AndroidSafetynet
       payload["ctsProfileMatch"]
     end
 
-    def certificate_chain
-      @certificate_chain ||= headers[CERTIRICATE_CHAIN_HEADER].map do |cert|
-        OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
-      end
+    def leaf_certificate
+      certificate_chain[0]
     end
 
     def valid_timestamp?
@@ -91,8 +89,10 @@ module AndroidSafetynet
       self.class.trust_store
     end
 
-    def leaf_certificate
-      certificate_chain[0]
+    def certificate_chain
+      @certificate_chain ||= headers[CERTIRICATE_CHAIN_HEADER].map do |cert|
+        OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
+      end
     end
 
     def signing_certificates

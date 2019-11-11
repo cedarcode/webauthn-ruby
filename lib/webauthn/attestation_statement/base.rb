@@ -27,7 +27,13 @@ module WebAuthn
       end
 
       def attestation_certificate
-        attestation_certificate_chain&.first
+        certificates&.first
+      end
+
+      def certificate_chain
+        if certificates
+          certificates[1..-1]
+        end
       end
 
       private
@@ -46,8 +52,8 @@ module WebAuthn
         end
       end
 
-      def attestation_certificate_chain
-        @attestation_certificate_chain ||= raw_attestation_certificates&.map do |raw_certificate|
+      def certificates
+        @certificates ||= raw_certificates&.map do |raw_certificate|
           OpenSSL::X509::Certificate.new(raw_certificate)
         end
       end
@@ -56,7 +62,7 @@ module WebAuthn
         statement["alg"]
       end
 
-      def raw_attestation_certificates
+      def raw_certificates
         statement["x5c"]
       end
 
@@ -66,6 +72,12 @@ module WebAuthn
 
       def signature
         statement["sig"]
+      end
+
+      def attestation_trust_path
+        if certificates&.any?
+          certificates
+        end
       end
     end
   end
