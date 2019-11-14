@@ -109,7 +109,7 @@ module WebAuthn
           end
         end
 
-        trust_store.verify(@attestation_trust_path.first, @attestation_trust_path[1..-1])
+        trust_store.verify(leaf_certificate, signing_certificates)
       end
     end
 
@@ -125,6 +125,14 @@ module WebAuthn
     def acceptable_root_certificates
       # TODO: use attestation_certificate_key for FIDO U2F
       WebAuthn.configuration.acceptable_root_certificates.find(attestation_format, aaguid)
+    end
+
+    def signing_certificates
+      @attestation_trust_path[1..-1]
+    end
+
+    def leaf_certificate
+      @attestation_trust_path.first
     end
   end
 end
