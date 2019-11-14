@@ -10,8 +10,9 @@ require "byebug"
 use Rack::PostBodyContentTypeParser
 set show_exceptions: false
 
-# TODO: remove once safetynet attestation P-1 test certificate problem is fixed
-# https://github.com/fido-alliance/conformance-tools-issues/issues/518
+# Only check safetynet attestation trustworthiness as part of the WebAuthn
+# registration procedure (skip same check on safetynet attestation
+# response validation procedure)
 require 'android_safetynet/attestation_response'
 AndroidSafetynet::AttestationResponse.trust_store = nil
 
@@ -37,6 +38,7 @@ WebAuthn.configure do |config|
   config.rp_name = RP_NAME
   config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
   config.silent_authentication = true
+  config.acceptable_root_certificates = WebAuthn::FakeRootCertificatesStore.new
 end
 
 post "/attestation/options" do

@@ -12,6 +12,7 @@ require "webauthn/encoder"
 
 module WebAuthn
   class AttestationStatementVerificationError < VerificationError; end
+  class AttestationTrustworthinessVerificationError < VerificationError; end
   class AttestedCredentialVerificationError < VerificationError; end
 
   class AuthenticatorAttestationResponse < AuthenticatorResponse
@@ -36,7 +37,10 @@ module WebAuthn
       super
 
       verify_item(:attested_credential)
-      verify_item(:attestation_statement) if WebAuthn.configuration.verify_attestation_statement
+      if WebAuthn.configuration.verify_attestation_statement
+        verify_item(:attestation_statement)
+        verify_item(:attestation_trustworthiness)
+      end
 
       true
     end
@@ -90,6 +94,25 @@ module WebAuthn
       @attestation_type, @attestation_trust_path = attestation_statement.valid?(authenticator_data, client_data.hash)
     end
 
+    def valid_attestation_trustworthiness?
+      case @attestation_type
+      when WebAuthn::AttestationStatement::ATTESTATION_TYPE_NONE
+        WebAuthn.configuration.acceptable_attestation_types.include?(:None)
+      when WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF
+        WebAuthn.configuration.acceptable_attestation_types.include?(:Self)
+      else
+        return false unless WebAuthn.configuration.acceptable_attestation_types.include?(:Basic)
+
+        trust_store = OpenSSL::X509::Store.new.tap do |store|
+          acceptable_root_certificates.each do |cert|
+            store.add_cert(cert)
+          end
+        end
+
+        trust_store.verify(@attestation_trust_path.first, @attestation_trust_path[1..-1])
+      end
+    end
+
     def raw_subject_key_identifier(certificate)
       extension = certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
       return unless extension
@@ -97,6 +120,11 @@ module WebAuthn
       ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
       ext_value = ext_asn1.value.last
       OpenSSL::ASN1.decode(ext_value.value).value
+    end
+
+    def acceptable_root_certificates
+      # TODO: use attestation_certificate_key for FIDO U2F
+      WebAuthn.configuration.acceptable_root_certificates.find(attestation_format, aaguid)
     end
   end
 end
