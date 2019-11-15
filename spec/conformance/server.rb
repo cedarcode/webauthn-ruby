@@ -16,6 +16,8 @@ set show_exceptions: false
 require 'android_safetynet/attestation_response'
 AndroidSafetynet::AttestationResponse.trust_store = nil
 
+require_relative 'fake_root_certificates_store'
+
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
 
 Credential = Struct.new(:id, :public_key, :sign_count) do
