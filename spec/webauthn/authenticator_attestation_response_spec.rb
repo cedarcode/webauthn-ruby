@@ -220,13 +220,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     before(:each) do
       class TPMRootCertificatesStore
         def find(_format, _id)
-          path = File.expand_path(File.join(__dir__, '..', 'support', 'roots', 'tpm'))
-          certificates = []
-          Dir.glob("#{path}/*.{cer,crt,der}") do |filename|
-            certificates << OpenSSL::X509::Certificate.new(File.open(filename))
-          end
-
-          certificates
+          certificate_path = File.expand_path(
+                      File.join(__dir__, '..', 'support', 'roots', 'microsoft_tpm_root_certificate_authority_2014.cer'))
+          [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
           end
       end
 
