@@ -72,7 +72,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      WebAuthn.configure { |config| config.acceptable_root_certificates = FidoU2fRootCertificatesStore.new }
+      WebAuthn.configure { |config| config.attestation_root_certificates_store = FidoU2fRootCertificatesStore.new }
     end
 
     it "verifies" do
@@ -171,7 +171,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      WebAuthn.configure { |config| config.acceptable_root_certificates = PackedRootCertificatesStore.new }
+      WebAuthn.configure { |config| config.attestation_root_certificates_store = PackedRootCertificatesStore.new }
     end
 
     it "verifies" do
@@ -226,7 +226,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           end
       end
 
-      WebAuthn.configure { |config| config.acceptable_root_certificates = TPMRootCertificatesStore.new }
+      WebAuthn.configure { |config| config.attestation_root_certificates_store = TPMRootCertificatesStore.new }
     end
 
     it "verifies" do
@@ -281,7 +281,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      WebAuthn.configure { |config| config.acceptable_root_certificates = AndroidSafetynetRootCertificatesStore.new }
+      WebAuthn.configure { |config| config.attestation_root_certificates_store = AndroidSafetynetRootCertificatesStore.new }
     end
 
     it "verifies" do
@@ -335,7 +335,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      WebAuthn.configure { |config| config.acceptable_root_certificates = AndroidKeyRootCertificatesStore.new }
+      WebAuthn.configure { |config| config.attestation_root_certificates_store = AndroidKeyRootCertificatesStore.new }
     end
 
     it "verifies" do

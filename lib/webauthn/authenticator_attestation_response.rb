@@ -104,7 +104,7 @@ module WebAuthn
         return false unless WebAuthn.configuration.acceptable_attestation_types.include?(:Basic)
 
         trust_store = OpenSSL::X509::Store.new.tap do |store|
-          acceptable_root_certificates.each do |cert|
+          attestation_root_certificates_store.each do |cert|
             store.add_cert(cert)
           end
         end
@@ -122,9 +122,9 @@ module WebAuthn
       OpenSSL::ASN1.decode(ext_value.value).value
     end
 
-    def acceptable_root_certificates
+    def attestation_root_certificates_store
       # TODO: use attestation_certificate_key for FIDO U2F
-      WebAuthn.configuration.acceptable_root_certificates.find(attestation_format, aaguid)
+      WebAuthn.configuration.attestation_root_certificates_store.find(attestation_format, aaguid)
     end
 
     def signing_certificates

@@ -30,7 +30,7 @@ module WebAuthn
     attr_accessor :credential_options_timeout
     attr_accessor :silent_authentication
     attr_accessor :acceptable_attestation_types
-    attr_reader :acceptable_root_certificates
+    attr_reader :attestation_root_certificates_store
 
     def initialize
       @algorithms = DEFAULT_ALGORITHMS.dup
@@ -47,10 +47,10 @@ module WebAuthn
       @encoder ||= WebAuthn::Encoder.new(encoding)
     end
 
-    def acceptable_root_certificates=(store)
+    def attestation_root_certificates_store=(store)
       raise RootStoreNotSupportedError unless store.method(:find).arity == 2
 
-      @acceptable_root_certificates = store
+      @attestation_root_certificates_store = store
     end
   end
 end
