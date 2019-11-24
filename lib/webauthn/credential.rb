@@ -7,12 +7,12 @@ require "webauthn/public_key_credential_with_attestation"
 
 module WebAuthn
   module Credential
-    def self.options_for_create(*args)
-      WebAuthn::PublicKeyCredential::CreationOptions.new(*args)
+    def self.options_for_create(**keyword_arguments)
+      WebAuthn::PublicKeyCredential::CreationOptions.new(**keyword_arguments)
     end
 
-    def self.options_for_get(*args)
-      WebAuthn::PublicKeyCredential::RequestOptions.new(*args)
+    def self.options_for_get(**keyword_arguments)
+      WebAuthn::PublicKeyCredential::RequestOptions.new(**keyword_arguments)
     end
 
     def self.from_create(credential)

@@ -45,8 +45,8 @@ module WebAuthn
       true
     end
 
-    def valid?(*args)
-      verify(*args)
+    def valid?(*args, **keyword_arguments)
+      verify(*args, **keyword_arguments)
     rescue WebAuthn::VerificationError
       false
     end

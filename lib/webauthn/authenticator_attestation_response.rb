@@ -27,7 +27,7 @@ module WebAuthn
     attr_reader :attestation_type, :attestation_trust_path
 
     def initialize(attestation_object:, **options)
-      super(options)
+      super(**options)
 
       @attestation_object = attestation_object
     end

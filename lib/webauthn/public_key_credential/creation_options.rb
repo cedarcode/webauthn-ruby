@@ -42,14 +42,14 @@ module WebAuthn
             rp[:name] ||= configuration.rp_name
             rp[:id] ||= configuration.rp_id
 
-            RPEntity.new(rp)
+            RPEntity.new(**rp)
           else
             rp
           end
 
         @user =
           if user.is_a?(Hash)
-            UserEntity.new(user)
+            UserEntity.new(**user)
           else
             user
           end

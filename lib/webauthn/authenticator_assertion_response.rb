@@ -32,7 +32,7 @@ module WebAuthn
     attr_reader :user_handle
 
     def initialize(authenticator_data:, signature:, user_handle: nil, **options)
-      super(options)
+      super(**options)
 
       @authenticator_data_bytes = authenticator_data
       @signature = signature
