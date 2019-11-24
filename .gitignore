@@ -13,3 +13,5 @@
 /Gemfile.lock
 /gemfiles/*.gemfile.lock
 .byebug_history
+
+/spec/conformance/metadata.zip

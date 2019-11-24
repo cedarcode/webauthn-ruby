@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "bindata", "~> 2.4"
   spec.add_dependency "cbor", "~> 0.5.9"
   spec.add_dependency "cose", "~> 0.8.0"
+  spec.add_dependency "fido_metadata", "~> 0.3.0"
   spec.add_dependency "jwt", [">= 1.5", "< 3.0"]
   spec.add_dependency "openssl", "~> 2.0"
   spec.add_dependency "securecompare", "~> 1.0"

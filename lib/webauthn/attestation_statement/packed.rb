@@ -15,11 +15,11 @@ module WebAuthn
 
         valid_format? &&
           valid_algorithm?(authenticator_data.credential) &&
-          valid_certificate_chain? &&
           valid_ec_public_keys?(authenticator_data.credential) &&
           meet_certificate_requirement? &&
           matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
+          certificate_chain_trusted?(authenticator_data.attested_credential_data.aaguid) &&
           attestation_type_and_trust_path
       end
 
@@ -45,9 +45,12 @@ module WebAuthn
         end
       end
 
-      def valid_certificate_chain?
+      def certificate_chain_trusted?(aaguid)
         if certificate_chain
-          certificate_chain.all? { |c| certificate_in_use?(c) }
+          find_metadata(aaguid)
+          return false unless fido_metadata_statement
+
+          fido_metadata_statement.trust_store.verify(attestation_certificate, certificate_chain)
         else
           true
         end
@@ -65,18 +68,11 @@ module WebAuthn
           subject = attestation_certificate.subject.to_a
 
           attestation_certificate.version == 2 &&
-            certificate_in_use?(attestation_certificate) &&
             subject.assoc('OU')&.at(1) == "Authenticator Attestation" &&
             attestation_certificate.extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == 'CA:FALSE'
         else
           true
         end
-      end
-
-      def certificate_in_use?(certificate)
-        now = Time.now
-
-        certificate.not_before < now && now < certificate.not_after
       end
 
       def valid_signature?(authenticator_data, client_data_hash)

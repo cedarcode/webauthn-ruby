@@ -128,6 +128,11 @@ RSpec.describe "Packed attestation" do
         root_certificate.not_before = root_certificate_start_time
         root_certificate.not_after = root_certificate_end_time
 
+        extension_factory = OpenSSL::X509::ExtensionFactory.new
+        extension_factory.subject_certificate = root_certificate
+        extension_factory.issuer_certificate = root_certificate
+        root_certificate.extensions = [extension_factory.create_extension("basicConstraints", "CA:TRUE", true)]
+
         root_certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
 
         root_certificate
@@ -139,6 +144,31 @@ RSpec.describe "Packed attestation" do
           "sig" => signature,
           "x5c" => [attestation_certificate, root_certificate]
         )
+      end
+
+      let(:metadata_statement_root_certificates) { [root_certificate] }
+      let(:metadata_statement) do
+        statement = FidoMetadata::Statement.new
+        statement.aaguid = authenticator_data.attested_credential_data.aaguid
+        statement.attestation_root_certificates = metadata_statement_root_certificates
+        statement
+      end
+      let(:metadata_statement_key) { "statement_#{metadata_statement.aaguid}" }
+      let(:metadata_entry) do
+        entry = FidoMetadata::Entry.new
+        entry.aaguid = metadata_statement.aaguid
+        entry
+      end
+      let(:metadata_toc_entries) { [metadata_entry] }
+      let(:metadata_toc) do
+        toc = FidoMetadata::TableOfContents.new
+        toc.entries = metadata_toc_entries
+        toc
+      end
+
+      before do
+        WebAuthn.configuration.fido_metadata_cache_backend.write(metadata_statement_key, metadata_statement)
+        WebAuthn.configuration.fido_metadata_cache_backend.write("metadata_toc", metadata_toc)
       end
 
       it "works if everything's fine" do
@@ -236,6 +266,18 @@ RSpec.describe "Packed attestation" do
           let(:root_certificate_end_time) { Time.now }
 
           it "fails" do
+            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          end
+        end
+      end
+
+      context "when the metadata cannot verify the attestation statement" do
+        context "because the AAGUID is completely unknown" do
+          let(:metadata_toc_entries) { [] }
+
+          it "fails" do
+            WebAuthn.configuration.fido_metadata_cache_backend.delete(metadata_statement_key)
+
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
           end
         end

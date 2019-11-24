@@ -6,6 +6,8 @@ require "webauthn/credential_creation_options"
 require "webauthn/credential_request_options"
 require "webauthn/version"
 
+require "fido_metadata"
+
 module WebAuthn
   TYPE_PUBLIC_KEY = "public-key"
 

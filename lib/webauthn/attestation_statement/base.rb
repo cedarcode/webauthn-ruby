@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "fido_metadata"
 require "openssl"
 require "webauthn/authenticator_data/attested_credential_data"
 require "webauthn/error"
@@ -17,6 +18,8 @@ module WebAuthn
       class NotSupportedError < Error; end
 
       AAGUID_EXTENSION_OID = "1.3.6.1.4.1.45724.1.1.4"
+
+      attr_reader :fido_metadata_entry, :fido_metadata_statement
 
       def initialize(statement)
         @statement = statement
@@ -78,6 +81,15 @@ module WebAuthn
         if certificates&.any?
           certificates
         end
+      end
+
+      def fido_metadata_store
+        @fido_metadata_store ||= FidoMetadata::Store.new
+      end
+
+      def find_metadata(aaguid)
+        @fido_metadata_entry = fido_metadata_store.fetch_entry(aaguid: aaguid)
+        @fido_metadata_statement = fido_metadata_store.fetch_statement(aaguid: aaguid)
       end
     end
   end

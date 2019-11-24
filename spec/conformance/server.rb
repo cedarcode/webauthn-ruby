@@ -7,6 +7,8 @@ require "rack/contrib"
 require "sinatra/cookies"
 require "byebug"
 
+require_relative "conformance_cache_store"
+
 use Rack::PostBodyContentTypeParser
 set show_exceptions: false
 
@@ -16,6 +18,8 @@ require 'android_safetynet/attestation_response'
 AndroidSafetynet::AttestationResponse.trust_store = nil
 
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
+UNACCEPTABLE_STATUSES = ["USER_VERIFICATION_BYPASS", "ATTESTATION_KEY_COMPROMISE", "USER_KEY_REMOTE_COMPROMISE",
+                         "USER_KEY_PHYSICAL_COMPROMISE", "REVOKED"].freeze
 
 Credential = Struct.new(:id, :public_key, :sign_count) do
   @credentials = {}
@@ -37,6 +41,10 @@ WebAuthn.configure do |config|
   config.rp_name = RP_NAME
   config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
   config.silent_authentication = true
+  config.fido_metadata_token = ""
+  config.fido_metadata_cache_backend = ConformanceCacheStore.new
+  config.fido_metadata_cache_backend.setup_authenticators
+  config.fido_metadata_cache_backend.setup_metadata_store
 end
 
 post "/attestation/options" do
@@ -65,6 +73,9 @@ post "/attestation/result" do
     cookies["attestation_challenge"],
     user_verification: cookies["attestation_user_verification"] == "required"
   )
+
+  metadata_entry = webauthn_credential.response.attestation_statement.fido_metadata_entry
+  verify_authenticator_status(metadata_entry)
 
   Credential.register(
     cookies["attestation_username"],
@@ -132,4 +143,12 @@ end
 
 def render_error(message)
   JSON.dump(status: "error", errorMessage: message)
+end
+
+def verify_authenticator_status(entry)
+  return unless entry
+
+  raise("bad authenticator status") if entry.status_reports.any? do |status_report|
+    UNACCEPTABLE_STATUSES.include?(status_report.status)
+  end
 end

@@ -5,6 +5,7 @@ require "webauthn"
 require "cbor"
 
 require "byebug"
+require "fido_metadata/test_cache_store"
 require "webauthn/fake_client"
 
 RSpec.configure do |config|
@@ -16,6 +17,12 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+
+  config.before do
+    WebAuthn.configure do |webauthn_config|
+      webauthn_config.fido_metadata_cache_backend = FidoMetadata::TestCacheStore.new
+    end
   end
 
   config.after do
