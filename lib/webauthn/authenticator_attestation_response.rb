@@ -69,8 +69,10 @@ module WebAuthn
       end
     end
 
-    def attestation_certificate_key
-      raw_subject_key_identifier(attestation_statement.attestation_certificate)&.unpack("H*")&.[](0)
+    def attestation_certificate_key_id
+      if attestation_statement.respond_to?(:attestation_certificate_key_id)
+        attestation_statement.attestation_certificate_key_id
+      end
     end
 
     private
@@ -88,15 +90,6 @@ module WebAuthn
 
     def valid_attestation_statement?
       @attestation_type, @attestation_trust_path = attestation_statement.valid?(authenticator_data, client_data.hash)
-    end
-
-    def raw_subject_key_identifier(certificate)
-      extension = certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
-      return unless extension
-
-      ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
-      ext_value = ext_asn1.value.last
-      OpenSSL::ASN1.decode(ext_value.value).value
     end
   end
 end
