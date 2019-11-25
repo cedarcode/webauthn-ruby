@@ -44,7 +44,7 @@ module WebAuthn
             pub_area.valid?(authenticator_data.credential.public_key) &&
             cert_info.valid?(statement["pubArea"], OpenSSL::Digest.digest(cose_algorithm.hash, att_to_be_signed)) &&
             matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
-            certificate_chain_trusted?(trust_store) &&
+            certificate_chain_trusted?(trust_store, authenticator_data.attested_credential_data.aaguid) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
           raise(
@@ -90,7 +90,7 @@ module WebAuthn
         ::TPM::VENDOR_IDS[manufacturer] && !model.empty? && !version.empty?
       end
 
-      def certificate_chain_trusted?(trust_store)
+      def certificate_chain_trusted?(trust_store, _aaguid)
         store_context = OpenSSL::X509::StoreContext.new(trust_store, attestation_certificate, certificate_chain)
         store_context.verify
       end

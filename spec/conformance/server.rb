@@ -8,6 +8,7 @@ require "sinatra/cookies"
 require "byebug"
 
 require_relative "conformance_cache_store"
+require_relative "conformance_patches"
 
 use Rack::PostBodyContentTypeParser
 set show_exceptions: false
