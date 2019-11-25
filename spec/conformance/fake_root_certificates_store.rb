@@ -2,19 +2,14 @@
 
 module WebAuthn
   class FakeRootCertificatesStore
-    ROOT_CERTIFICATES =
-      begin
-        path = File.expand_path(File.join(__dir__, '..', 'support', 'fake_roots'))
-        certificates = []
-        Dir.glob("#{path}/*.pem") do |filename|
-          certificates << OpenSSL::X509::Certificate.new(File.open(filename))
-        end
-
-        certificates
+    def find(_format, id)
+      path = File.expand_path(File.join(__dir__, '..', 'support', 'fake_roots'))
+      certificates = []
+      Dir.glob("#{path}/#{id}*.pem") do |filename|
+        certificates << OpenSSL::X509::Certificate.new(File.open(filename))
       end
 
-    def find(_format, _id)
-      ROOT_CERTIFICATES
+      certificates
     end
   end
 end
