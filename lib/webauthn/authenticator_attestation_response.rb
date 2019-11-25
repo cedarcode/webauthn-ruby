@@ -123,8 +123,8 @@ module WebAuthn
     end
 
     def attestation_root_certificates_store
-      # TODO: use attestation_certificate_key for FIDO U2F
-      WebAuthn.configuration.attestation_root_certificates_store.find(attestation_format, aaguid)
+      id = aaguid || attestation_certificate_key
+      WebAuthn.configuration.attestation_root_certificates_store.find(attestation_format, id)
     end
 
     def signing_certificates
