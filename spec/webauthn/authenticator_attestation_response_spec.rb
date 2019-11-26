@@ -66,7 +66,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       class FidoU2fRootCertificatesStore
         def find(_format, _id)
           certificate_path = File.expand_path(
-                      File.join(__dir__, '..', 'support', 'roots', 'feitian_ft_fido_0200.pem')
+            File.join(__dir__, '..', 'support', 'roots', 'feitian_ft_fido_0200.pem')
           )
           [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
         end
@@ -221,9 +221,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       class TPMRootCertificatesStore
         def find(_format, _id)
           certificate_path = File.expand_path(
-                      File.join(__dir__, '..', 'support', 'roots', 'microsoft_tpm_root_certificate_authority_2014.cer'))
+            File.join(__dir__, '..', 'support', 'roots', 'microsoft_tpm_root_certificate_authority_2014.cer')
+          )
           [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
-          end
+        end
       end
 
       WebAuthn.configure { |config| config.attestation_root_certificates_store = TPMRootCertificatesStore.new }
@@ -281,7 +282,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      WebAuthn.configure { |config| config.attestation_root_certificates_store = AndroidSafetynetRootCertificatesStore.new }
+      WebAuthn.configure do |config|
+        config.attestation_root_certificates_store = AndroidSafetynetRootCertificatesStore.new
+      end
     end
 
     it "verifies" do
