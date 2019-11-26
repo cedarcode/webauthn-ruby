@@ -10,12 +10,6 @@ require "byebug"
 use Rack::PostBodyContentTypeParser
 set show_exceptions: false
 
-# Only check safetynet attestation trustworthiness as part of the WebAuthn
-# registration procedure (skip same check on safetynet attestation
-# response validation procedure)
-require 'android_safetynet/attestation_response'
-AndroidSafetynet::AttestationResponse.trust_store = nil
-
 require_relative 'fake_root_certificates_store'
 
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"

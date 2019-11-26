@@ -25,7 +25,7 @@ module WebAuthn
         nonce = Digest::SHA256.base64digest(authenticator_data.data + client_data_hash)
 
         begin
-          attestation_response.verify(nonce)
+          attestation_response.verify(nonce, trustworthiness: false)
         rescue ::AndroidSafetynet::AttestationResponse::VerificationError
           false
         end

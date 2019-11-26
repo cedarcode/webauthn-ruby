@@ -36,13 +36,15 @@ module AndroidSafetynet
       @response = response
     end
 
-    def verify(nonce)
+    def verify(nonce, trustworthiness: true)
       if response
         valid_nonce?(nonce) || raise(NonceMismatchError)
         valid_attestation_domain? || raise(LeafCertificateSubjectError)
         valid_signature? || raise(SignatureError)
         valid_timestamp? || raise(TimestampError)
-        trustworthy? || raise(TrustworthinessError)
+        trustworthy? || raise(TrustworthinessError) if trustworthiness
+
+        true
       else
         raise(ResponseMissingError)
       end
