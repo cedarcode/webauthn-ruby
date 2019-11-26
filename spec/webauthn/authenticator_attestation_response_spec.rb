@@ -309,7 +309,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-key attestation" do
-    let(:origin) { "http://localhost:8080" }
+    let(:origin) { seeds[:android_key_direct][:origin] }
 
     let(:original_challenge) do
       Base64.urlsafe_decode64(seeds[:android_key_direct][:credential_creation_options][:challenge])
@@ -326,7 +326,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     before(:each) do
       class AndroidKeyRootCertificatesStore
-        # Will faill until we get seeds with a real android-key attestation
         def find(_format, _id)
           certificate_path = File.expand_path(
             File.join(__dir__, '..', 'support', 'roots', 'android_key_root.pem')
