@@ -34,7 +34,7 @@ WebAuthn.configure do |config|
   config.rp_name = RP_NAME
   config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
   config.silent_authentication = true
-  config.attestation_root_certificates_store = WebAuthn::FakeRootCertificatesStore.new
+  config.attestation_root_certificates_store = FakeRootCertificatesStore.new
 end
 
 post "/attestation/options" do
