@@ -56,7 +56,7 @@ module WebAuthn
 
     def valid_signature?(webauthn_public_key)
       WebAuthn::SignatureVerifier
-        .new(webauthn_public_key.cose_key.alg, webauthn_public_key.pkey)
+        .new(webauthn_public_key.alg, webauthn_public_key.pkey)
         .verify(signature, authenticator_data_bytes + client_data.hash)
     end
 

@@ -67,4 +67,24 @@ RSpec.describe "PublicKey" do
       end
     end
   end
+
+  describe "#alg" do
+    let(:alg) { webauthn_public_key.alg }
+
+    context "when public key stored in uncompressed point format" do
+      let(:public_key) { uncompressed_point_public_key }
+
+      it "should return ES256 cose algorithm id" do
+        expect(alg).to eq(COSE::Algorithm.by_name("ES256").id)
+      end
+    end
+
+    context "when public key stored in cose format" do
+      let(:public_key) { cose_public_key }
+
+      it "should return cose algorithm id" do
+        expect(alg).to be_a(Integer)
+      end
+    end
+  end
 end

@@ -41,5 +41,9 @@ module WebAuthn
     def pkey
       @cose_key.to_pkey
     end
+
+    def alg
+      @cose_key.alg
+    end
   end
 end
