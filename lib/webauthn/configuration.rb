@@ -38,7 +38,7 @@ module WebAuthn
       @verify_attestation_statement = true
       @credential_options_timeout = 120000
       @silent_authentication = false
-      @acceptable_attestation_types = [:None, :Self, :Basic]
+      @acceptable_attestation_types = [:None, :Self, :Basic, :AttCA, :Basic_or_AttCA]
     end
 
     # This is the user-data encoder.

@@ -101,7 +101,7 @@ module WebAuthn
       when WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF
         WebAuthn.configuration.acceptable_attestation_types.include?(:Self)
       else
-        return false unless WebAuthn.configuration.acceptable_attestation_types.include?(:Basic)
+        return false unless WebAuthn.configuration.acceptable_attestation_types.include?(@attestation_type.to_sym)
 
         trust_store = OpenSSL::X509::Store.new.tap do |store|
           attestation_root_certificates_store.each do |cert|
