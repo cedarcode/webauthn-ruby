@@ -2,6 +2,7 @@
 
 require "openssl"
 require "webauthn/encoder"
+require "webauthn/error"
 
 module WebAuthn
   def self.configuration
@@ -13,7 +14,7 @@ module WebAuthn
   end
 
   class Configuration
-    class RootStoreNotSupportedError < StandardError; end
+    class RootStoreNotSupportedError < WebAuthn::Error; end
 
     def self.if_pss_supported(algorithm)
       OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss) ? algorithm : nil
