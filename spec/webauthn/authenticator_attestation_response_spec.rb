@@ -63,7 +63,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      class FidoU2fRootCertificatesStore
+      class FidoU2fRootCertificatesFinder
         def find(_format, _id)
           certificate_path = File.expand_path(
             File.join(__dir__, '..', 'support', 'roots', 'feitian_ft_fido_0200.pem')
@@ -72,7 +72,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      WebAuthn.configure { |config| config.attestation_root_certificates_store = FidoU2fRootCertificatesStore.new }
+      WebAuthn.configure { |config| config.attestation_root_certificates_finder = FidoU2fRootCertificatesFinder.new }
     end
 
     it "verifies" do
@@ -162,7 +162,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      class PackedRootCertificatesStore
+      class PackedRootCertificatesFinder
         def find(_format, _id)
           certificate_path = File.expand_path(
             File.join(__dir__, '..', 'support', 'roots', 'yubico_u2f_root.pem')
@@ -171,7 +171,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      WebAuthn.configure { |config| config.attestation_root_certificates_store = PackedRootCertificatesStore.new }
+      WebAuthn.configure { |config| config.attestation_root_certificates_finder = PackedRootCertificatesFinder.new }
     end
 
     it "verifies" do
@@ -218,7 +218,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      class TPMRootCertificatesStore
+      class TPMRootCertificatesFinder
         def find(_format, _id)
           certificate_path = File.expand_path(
             File.join(__dir__, '..', 'support', 'roots', 'microsoft_tpm_root_certificate_authority_2014.cer')
@@ -227,7 +227,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      WebAuthn.configure { |config| config.attestation_root_certificates_store = TPMRootCertificatesStore.new }
+      WebAuthn.configure { |config| config.attestation_root_certificates_finder = TPMRootCertificatesFinder.new }
     end
 
     it "verifies" do
@@ -273,7 +273,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      class AndroidSafetynetRootCertificatesStore
+      class AndroidSafetynetRootCertificatesFinder
         def find(_format, _id)
           certificate_path = File.expand_path(
             File.join(__dir__, '..', 'support', 'roots', 'android_safetynet_root.crt')
@@ -283,7 +283,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       end
 
       WebAuthn.configure do |config|
-        config.attestation_root_certificates_store = AndroidSafetynetRootCertificatesStore.new
+        config.attestation_root_certificates_finder = AndroidSafetynetRootCertificatesFinder.new
       end
     end
 
@@ -328,7 +328,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      class AndroidKeyRootCertificatesStore
+      class AndroidKeyRootCertificatesFinder
         def find(_format, _id)
           certificate_path = File.expand_path(
             File.join(__dir__, '..', 'support', 'roots', 'android_key_root.pem')
@@ -337,7 +337,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      WebAuthn.configure { |config| config.attestation_root_certificates_store = AndroidKeyRootCertificatesStore.new }
+      WebAuthn.configure { |config| config.attestation_root_certificates_finder = AndroidKeyRootCertificatesFinder.new }
     end
 
     it "verifies" do

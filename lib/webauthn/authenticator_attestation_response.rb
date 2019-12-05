@@ -103,13 +103,7 @@ module WebAuthn
       else
         return false unless WebAuthn.configuration.acceptable_attestation_types.include?(@attestation_type.to_sym)
 
-        trust_store = OpenSSL::X509::Store.new.tap do |store|
-          attestation_root_certificates_store.each do |cert|
-            store.add_cert(cert)
-          end
-        end
-
-        trust_store.verify(leaf_certificate, signing_certificates)
+        attestation_root_certificates_store.verify(leaf_certificate, signing_certificates)
       end
     end
 
@@ -124,7 +118,13 @@ module WebAuthn
 
     def attestation_root_certificates_store
       id = aaguid || attestation_certificate_key
-      WebAuthn.configuration.attestation_root_certificates_store.find(attestation_format, id)
+      certificates = WebAuthn.configuration.attestation_root_certificates_finder.find(attestation_format, id)
+
+      OpenSSL::X509::Store.new.tap do |store|
+        certificates.each do |cert|
+          store.add_cert(cert)
+        end
+      end
     end
 
     def signing_certificates

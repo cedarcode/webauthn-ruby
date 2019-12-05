@@ -4,7 +4,7 @@ require 'base64'
 require 'openssl'
 require 'zip'
 
-class FakeRootCertificatesStore
+class FakeRootCertificatesFinder
   def initialize
     metadata_filename = 'metadata.zip'
     puts("Please add the metadata file to #{__dir__}") unless File.exist?(metadata_filename)
