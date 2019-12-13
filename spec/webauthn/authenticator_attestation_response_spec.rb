@@ -72,7 +72,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finder = FidoU2fRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders = [FidoU2fRootCertificatesFinder.new]
     end
 
     it "verifies" do
@@ -171,7 +171,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finder = PackedRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders = [PackedRootCertificatesFinder.new]
     end
 
     it "verifies" do
@@ -227,7 +227,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finder = TPMRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders = [TPMRootCertificatesFinder.new]
     end
 
     it "verifies" do
@@ -282,7 +282,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finder = AndroidSafetynetRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders = [AndroidSafetynetRootCertificatesFinder.new]
     end
 
     it "verifies" do
@@ -335,7 +335,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finder = AndroidKeyRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders = [AndroidKeyRootCertificatesFinder.new]
     end
 
     it "verifies" do

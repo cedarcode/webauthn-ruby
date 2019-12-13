@@ -14,7 +14,7 @@ module WebAuthn
   end
 
   class Configuration
-    class RootStoreNotSupportedError < WebAuthn::Error; end
+    class RootCertificateFinderNotSupportedError < Error; end
 
     def self.if_pss_supported(algorithm)
       OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss) ? algorithm : nil
@@ -31,7 +31,7 @@ module WebAuthn
     attr_accessor :credential_options_timeout
     attr_accessor :silent_authentication
     attr_accessor :acceptable_attestation_types
-    attr_reader :attestation_root_certificates_finder
+    attr_reader :attestation_root_certificates_finders
 
     def initialize
       @algorithms = DEFAULT_ALGORITHMS.dup
@@ -40,6 +40,7 @@ module WebAuthn
       @credential_options_timeout = 120000
       @silent_authentication = false
       @acceptable_attestation_types = [:None, :Self, :Basic, :AttCA, :Basic_or_AttCA]
+      @attestation_root_certificates_finders = []
     end
 
     # This is the user-data encoder.
@@ -48,10 +49,18 @@ module WebAuthn
       @encoder ||= WebAuthn::Encoder.new(encoding)
     end
 
-    def attestation_root_certificates_finder=(finder)
-      raise RootStoreNotSupportedError unless finder.method(:find).arity == 2
+    def attestation_root_certificates_finders=(finders)
+      unless finders.class == Array
+        raise RootCertificateFinderNotSupportedError, "Expected an #{Array}, got #{finders.class}"
+      end
 
-      @attestation_root_certificates_finder = finder
+      finders.each do |finder|
+        unless finder.method(:find)
+          raise RootCertificateFinderNotSupportedError, "Finder must implement `find` method"
+        end
+      end
+
+      @attestation_root_certificates_finders = finders
     end
   end
 end

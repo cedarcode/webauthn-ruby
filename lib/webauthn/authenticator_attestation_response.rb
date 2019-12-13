@@ -117,8 +117,13 @@ module WebAuthn
     end
 
     def attestation_root_certificates_store
-      id = aaguid || attestation_certificate_key
-      certificates = WebAuthn.configuration.attestation_root_certificates_finder.find(attestation_format, id)
+      certificates = nil
+      WebAuthn.configuration.attestation_root_certificates_finders.each do |finder|
+        certificates = finder.find(attestation_format,
+                                   aaguid: aaguid,
+                                   attestation_certificate_key_id: attestation_certificate_key)
+        break if certificates.any?
+      end
 
       OpenSSL::X509::Store.new.tap do |store|
         certificates.each do |cert|

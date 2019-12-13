@@ -23,7 +23,8 @@ class FakeRootCertificatesFinder
     end
   end
 
-  def find(_format, id)
+  def find(_format, aaguid:, attestation_certificate_key_id:)
+    id = aaguid || attestation_certificate_key_id
     @root_certificates[id] || []
   end
 end
