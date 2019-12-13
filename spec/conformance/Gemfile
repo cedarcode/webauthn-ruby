@@ -5,6 +5,7 @@ source "https://rubygems.org"
 ruby "~> 2.6.0"
 
 gem "byebug"
+gem "fido_metadata", "~> 0.3.0"
 gem "rack-contrib"
 gem "rubyzip"
 gem "sinatra", "~> 2.0"

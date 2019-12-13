@@ -10,7 +10,8 @@ require "byebug"
 use Rack::PostBodyContentTypeParser
 set show_exceptions: false
 
-require_relative 'fake_root_certificates_store'
+require_relative 'mds_finder'
+require_relative 'conformance_cache_store'
 
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
 
@@ -34,8 +35,15 @@ WebAuthn.configure do |config|
   config.rp_name = RP_NAME
   config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
   config.silent_authentication = true
-  config.attestation_root_certificates_finders = [FakeRootCertificatesFinder.new]
 end
+
+mds_finder = WebAuthn::MDSFinder.new.tap do |mds|
+  mds.token = ""
+  mds.cache_backend = ConformanceCacheStore.new
+  mds.cache_backend.setup_authenticators
+end
+
+WebAuthn.configuration.attestation_root_certificates_finders = [mds_finder]
 
 post "/attestation/options" do
   options = WebAuthn::Credential.options_for_create(

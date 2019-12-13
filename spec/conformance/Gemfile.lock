@@ -20,6 +20,8 @@ GEM
     cbor (0.5.9.6)
     cose (0.8.0)
       cbor (~> 0.5.9)
+    fido_metadata (0.3.0)
+      jwt (~> 2.0)
     ipaddr (1.2.2)
     jwt (2.2.1)
     multi_json (1.13.1)
@@ -52,6 +54,7 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
+  fido_metadata (~> 0.3.0)
   rack-contrib
   rubyzip
   sinatra (~> 2.0)
