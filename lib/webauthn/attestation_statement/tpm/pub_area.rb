@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "cose/algorithm"
-require "cose/key"
+require "cose"
+require "cose/not_implemented_algorithm"
 require "tpm/constants"
 require "tpm/t_public"
 require "webauthn/attestation_statement/base"

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "cose/algorithm"
-require "cose/key"
+require "cose"
+require "cose/not_implemented_algorithm"
 require "openssl"
 require "webauthn/error"
 
@@ -24,10 +24,10 @@ module WebAuthn
 
     def verify(signature, verification_data, rsa_pss_salt_length: :digest)
       if rsa_pss?
-        public_key.verify_pss(cose_algorithm.hash, signature, verification_data,
-                              salt_length: rsa_pss_salt_length, mgf1_hash: cose_algorithm.hash)
+        public_key.verify_pss(cose_algorithm.hash_function, signature, verification_data,
+                              salt_length: rsa_pss_salt_length, mgf1_hash: cose_algorithm.hash_function)
       else
-        public_key.verify(cose_algorithm.hash, signature, verification_data)
+        public_key.verify(cose_algorithm.hash_function, signature, verification_data)
       end
     end
 
@@ -37,10 +37,24 @@ module WebAuthn
 
     def cose_algorithm
       case algorithm
-      when COSE::Algorithm
+      when COSE::Algorithm::Base
         algorithm
       else
         COSE::Algorithm.find(algorithm)
+      end
+    end
+
+    # This logic is a candidate to be moved to cose gem domain
+    def cose_key_type
+      case cose_algorithm
+      when COSE::Algorithm::ECDSA
+        COSE::Key::EC2::KTY_EC2
+      when COSE::Algorithm::RSAPSS
+        COSE::Key::RSA::KTY_RSA
+      when NotImplementedAlgorithm
+        cose_algorithm.kty
+      else
+        raise UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}"
       end
     end
 
@@ -53,7 +67,7 @@ module WebAuthn
         raise UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}"
       elsif !supported_algorithms.include?(cose_algorithm.name)
         raise UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}"
-      elsif !KTY_MAP[cose_algorithm.kty].include?(public_key.class)
+      elsif !KTY_MAP[cose_key_type].include?(public_key.class)
         raise("Incompatible algorithm and key")
       end
     end
