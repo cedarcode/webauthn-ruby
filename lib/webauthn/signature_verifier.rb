@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "cose"
-require "cose/not_implemented_algorithm"
+require "cose/rsassa_algorithm"
 require "openssl"
 require "webauthn/error"
 
@@ -49,10 +49,8 @@ module WebAuthn
       case cose_algorithm
       when COSE::Algorithm::ECDSA
         COSE::Key::EC2::KTY_EC2
-      when COSE::Algorithm::RSAPSS
+      when COSE::Algorithm::RSAPSS, RSASSAAlgorithm
         COSE::Key::RSA::KTY_RSA
-      when NotImplementedAlgorithm
-        cose_algorithm.kty
       else
         raise UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}"
       end
