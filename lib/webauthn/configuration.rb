@@ -39,7 +39,7 @@ module WebAuthn
       @verify_attestation_statement = true
       @credential_options_timeout = 120000
       @silent_authentication = false
-      @acceptable_attestation_types = [:None, :Self, :Basic, :AttCA, :Basic_or_AttCA]
+      @acceptable_attestation_types = ['None', 'Self', 'Basic', 'AttCA', 'Basic_or_AttCA']
       @attestation_root_certificates_finders = []
     end
 
