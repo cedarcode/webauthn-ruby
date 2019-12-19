@@ -23,7 +23,7 @@ RSpec.describe "PublicKey" do
       let(:public_key) { 'invalidinvalid' }
 
       it "should fail" do
-        expect { webauthn_public_key }.to raise_error(CBOR::MalformedFormatError)
+        expect { webauthn_public_key }.to raise_error(COSE::MalformedKeyError)
       end
     end
   end
