@@ -39,7 +39,7 @@ module WebAuthn
       verify_item(:attested_credential)
       if WebAuthn.configuration.verify_attestation_statement
         verify_item(:attestation_statement)
-        verify_item(:attestation_trustworthiness)
+        verify_item(:attestation_trustworthiness) if WebAuthn.configuration.attestation_root_certificates_finders.any?
       end
 
       true
