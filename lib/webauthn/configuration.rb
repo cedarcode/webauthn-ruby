@@ -13,9 +13,9 @@ module WebAuthn
     yield(configuration)
   end
 
-  class Configuration
-    class RootCertificateFinderNotSupportedError < Error; end
+  class RootCertificateFinderNotSupportedError < Error; end
 
+  class Configuration
     def self.if_pss_supported(algorithm)
       OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss) ? algorithm : nil
     end
