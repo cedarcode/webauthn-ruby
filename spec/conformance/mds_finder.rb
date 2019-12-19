@@ -13,12 +13,10 @@ module WebAuthn
 
     def find(_format, aaguid: nil, attestation_certificate_key_id: nil)
       metadata_statement =
-        begin
-          if aaguid
-            fido_metadata_store.fetch_statement(aaguid: aaguid)
-          else
-            fido_metadata_store.fetch_statement(attestation_certificate_key_id: attestation_certificate_key_id)
-          end
+        if aaguid
+          fido_metadata_store.fetch_statement(aaguid: aaguid)
+        else
+          fido_metadata_store.fetch_statement(attestation_certificate_key_id: attestation_certificate_key_id)
         end
 
       metadata_statement&.attestation_root_certificates || []
