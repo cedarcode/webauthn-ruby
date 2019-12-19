@@ -37,7 +37,7 @@ WebAuthn.configure do |config|
   config.silent_authentication = true
 end
 
-mds_finder = WebAuthn::MDSFinder.new.tap do |mds|
+mds_finder = MDSFinder.new.tap do |mds|
   mds.token = ""
   mds.cache_backend = ConformanceCacheStore.new
   mds.cache_backend.setup_authenticators
