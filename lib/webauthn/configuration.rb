@@ -55,7 +55,7 @@ module WebAuthn
       end
 
       finders.each do |finder|
-        unless finder.method(:find)
+        unless finder.respond_to?(:find)
           raise RootCertificateFinderNotSupportedError, "Finder must implement `find` method"
         end
       end
