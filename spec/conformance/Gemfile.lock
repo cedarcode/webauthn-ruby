@@ -26,7 +26,7 @@ GEM
     mustermann (1.0.3)
     openssl (2.1.2)
       ipaddr
-    rack (2.0.6)
+    rack (2.0.8)
     rack-contrib (2.1.0)
       rack (~> 2.0)
     rack-protection (2.0.5)
