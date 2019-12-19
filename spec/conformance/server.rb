@@ -43,7 +43,7 @@ mds_finder = WebAuthn::MDSFinder.new.tap do |mds|
   mds.cache_backend.setup_authenticators
 end
 
-WebAuthn.configuration.attestation_root_certificates_finders = [mds_finder]
+WebAuthn.configuration.attestation_root_certificates_finders = mds_finder
 
 post "/attestation/options" do
   options = WebAuthn::Credential.options_for_create(

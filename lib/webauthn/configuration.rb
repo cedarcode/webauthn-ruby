@@ -50,8 +50,8 @@ module WebAuthn
     end
 
     def attestation_root_certificates_finders=(finders)
-      unless finders.class == Array
-        raise RootCertificateFinderNotSupportedError, "Expected an #{Array}, got #{finders.class}"
+      if !finders.respond_to?(:each)
+        finders = [finders]
       end
 
       finders.each do |finder|
