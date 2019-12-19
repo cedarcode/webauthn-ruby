@@ -62,17 +62,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    class FidoU2fRootCertificatesFinder
-      def find(_format, _id)
-        certificate_path = File.expand_path(
-          File.join(__dir__, '..', 'support', 'roots', 'feitian_ft_fido_0200.pem')
-        )
-        [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
-      end
-    end
-
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finders = FidoU2fRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('feitian_ft_fido_0200.pem')
     end
 
     it "verifies" do
@@ -161,17 +152,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    class PackedRootCertificatesFinder
-      def find(_format, _id)
-        certificate_path = File.expand_path(
-          File.join(__dir__, '..', 'support', 'roots', 'yubico_u2f_root.pem')
-        )
-        [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
-      end
-    end
-
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finders = PackedRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('yubico_u2f_root.pem')
     end
 
     it "verifies" do
@@ -217,17 +199,9 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       end
     end
 
-    class TPMRootCertificatesFinder
-      def find(_format, _id)
-        certificate_path = File.expand_path(
-          File.join(__dir__, '..', 'support', 'roots', 'microsoft_tpm_root_certificate_authority_2014.cer')
-        )
-        [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
-      end
-    end
-
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finders = TPMRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders =
+        finder_for('microsoft_tpm_root_certificate_authority_2014.cer')
     end
 
     it "verifies" do
@@ -272,17 +246,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    class AndroidSafetynetRootCertificatesFinder
-      def find(_format, _id)
-        certificate_path = File.expand_path(
-          File.join(__dir__, '..', 'support', 'roots', 'android_safetynet_root.crt')
-        )
-        [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
-      end
-    end
-
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finders = AndroidSafetynetRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('android_safetynet_root.crt')
     end
 
     it "verifies" do
@@ -325,17 +290,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    class AndroidKeyRootCertificatesFinder
-      def find(_format, _id)
-        certificate_path = File.expand_path(
-          File.join(__dir__, '..', 'support', 'roots', 'android_key_root.pem')
-        )
-        [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
-      end
-    end
-
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finders = AndroidKeyRootCertificatesFinder.new
+      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('android_key_root.pem')
     end
 
     it "verifies" do

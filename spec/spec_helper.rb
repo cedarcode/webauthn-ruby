@@ -88,3 +88,21 @@ def silence_warnings
 ensure
   $VERBOSE = old_verbose
 end
+
+class RootCertificateFinder
+  def initialize(certificate_file)
+    @certificate_file = certificate_file
+  end
+
+  def find(*)
+    certificate_path = File.expand_path(
+      File.join(__dir__, 'support', 'roots', @certificate_file)
+    )
+
+    [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
+  end
+end
+
+def finder_for(certificate_file)
+  RootCertificateFinder.new(certificate_file)
+end
