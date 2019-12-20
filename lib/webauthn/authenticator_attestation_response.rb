@@ -121,7 +121,7 @@ module WebAuthn
           if certs.empty?
             finder.find(attestation_format: attestation_format,
                         aaguid: aaguid,
-                        attestation_certificate_key_id: attestation_certificate_key)
+                        attestation_certificate_key_id: attestation_certificate_key) || []
           end
         end
 
