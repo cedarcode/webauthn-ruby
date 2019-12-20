@@ -9,7 +9,7 @@ require "webauthn/signature_verifier"
 RSpec.describe "SignatureVerifier" do
   let(:signature) { key.sign(hash_algorithm, to_be_signed) }
   let(:to_be_signed) { "data" }
-  let(:hash_algorithm) { COSE::Algorithm.find(algorithm_id).hash }
+  let(:hash_algorithm) { COSE::Algorithm.find(algorithm_id).hash_function }
   let(:verifier) { WebAuthn::SignatureVerifier.new(algorithm_id, public_key) }
 
   context "ES256" do
