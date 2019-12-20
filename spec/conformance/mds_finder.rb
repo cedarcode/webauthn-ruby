@@ -10,7 +10,7 @@ class MDSFinder
   def_delegator :fido_metadata_configuration, :metadata_token, :token
   def_delegator :fido_metadata_configuration, :metadata_token=, :token=
 
-  def find(_format, aaguid: nil, attestation_certificate_key_id: nil)
+  def find(aaguid: nil, attestation_certificate_key_id: nil, **_args)
     metadata_statement =
       if aaguid
         fido_metadata_store.fetch_statement(aaguid: aaguid)
