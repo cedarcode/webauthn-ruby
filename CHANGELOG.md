@@ -1,5 +1,15 @@
 # Changelog
 
+## [v2.1.0] - ?
+
+### Added
+
+- [Experimental] Ability to assess the attestation trustworthiness during credential registration (@bdewater, @padulafacundo)
+- Ability to optionally enable 'silent authentication'
+- Minor improvements to 'android-safetynet' format validation (@padulafacundo)
+- Support ruby 2.7
+- `WebAuthn::PublicKey.deserialize` to convert stored credentials public keys into usable ruby object (@padulafacundo, @ssuttner)
+
 ## [v2.0.0] - 2019-10-03
 
 ### Added
@@ -261,6 +271,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v2.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.0.0...v2.1.0/
 [v2.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.18.0...v2.0.0/
 [v1.18.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.17.0...v1.18.0/
 [v1.17.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.16.0...v1.17.0/
@@ -289,3 +300,5 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@kalebtesfay]: https://github.com/kalebtesfay
 [@MaximeNdutiye]: https://github.com/MaximeNdutiye
 [@sorah]: https://github.com/sorah
+[@padulafacundo]: https://github.com/padulafacundo
+[@ssuttner]: https://github.com/ssuttner
