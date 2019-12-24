@@ -62,6 +62,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
+    before(:each) do
+      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('feitian_ft_fido_0200.pem')
+    end
+
     it "verifies" do
       expect(attestation_response.verify(original_challenge)).to be_truthy
     end
@@ -148,6 +152,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
+    before(:each) do
+      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('yubico_u2f_root.pem')
+    end
+
     it "verifies" do
       expect(attestation_response.verify(original_challenge)).to be_truthy
     end
@@ -189,6 +197,11 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       WebAuthn.configure do |config|
         config.algorithms.concat(%w(RS1))
       end
+    end
+
+    before(:each) do
+      WebAuthn.configuration.attestation_root_certificates_finders =
+        finder_for('microsoft_tpm_root_certificate_authority_2014.cer')
     end
 
     it "verifies" do
@@ -233,6 +246,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
+    before(:each) do
+      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('android_safetynet_root.crt')
+    end
+
     it "verifies" do
       expect(attestation_response.verify(original_challenge)).to be_truthy
     end
@@ -245,7 +262,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       attestation_response.valid?(original_challenge)
 
       expect(attestation_response.attestation_type).to eq("Basic")
-      expect(attestation_response.attestation_trust_path).to be_kind_of(OpenSSL::X509::Certificate)
+      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
     end
 
     it "returns the credential" do
@@ -258,7 +275,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-key attestation" do
-    let(:origin) { "http://localhost:8080" }
+    let(:origin) { seeds[:android_key_direct][:origin] }
 
     let(:original_challenge) do
       Base64.urlsafe_decode64(seeds[:android_key_direct][:credential_creation_options][:challenge])
@@ -271,6 +288,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         attestation_object: Base64.urlsafe_decode64(response[:attestation_object]),
         client_data_json: Base64.urlsafe_decode64(response[:client_data_json])
       )
+    end
+
+    before(:each) do
+      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('android_key_root.pem')
     end
 
     it "verifies" do
@@ -495,6 +516,72 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       end
 
       it "does not verify the attestation statement" do
+        expect(attestation_response.verify(original_challenge)).to be_truthy
+      end
+    end
+  end
+
+  describe "attestation root certificates" do
+    let(:origin) { "http://localhost:3000" }
+
+    let(:original_challenge) do
+      Base64.strict_decode64(
+        seeds[:security_key_packed_x5c][:credential_creation_options][:challenge]
+      )
+    end
+
+    let(:attestation_response) do
+      response = seeds[:security_key_packed_x5c][:authenticator_attestation_response]
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.strict_decode64(response[:attestation_object]),
+        client_data_json: Base64.strict_decode64(response[:client_data_json])
+      )
+    end
+
+    before do
+      WebAuthn.configuration.verify_attestation_statement = true
+    end
+
+    context "when finder has correct root certificate" do
+      before(:each) do
+        WebAuthn.configuration.attestation_root_certificates_finders = finder_for('yubico_u2f_root.pem')
+      end
+
+      it "verifies" do
+        expect(attestation_response.verify(original_challenge)).to be_truthy
+      end
+    end
+
+    context "when finder doesn't have correct certificate" do
+      before(:each) do
+        WebAuthn.configuration.attestation_root_certificates_finders = finder_for('incorrect_root.crt',
+                                                                                  return_empty: true)
+      end
+
+      it "doesn't verify" do
+        expect {
+          attestation_response.verify(original_challenge)
+        }.to raise_exception(WebAuthn::AttestationTrustworthinessVerificationError)
+      end
+    end
+
+    context "when there is more than one finder" do
+      before(:each) do
+        WebAuthn.configuration.attestation_root_certificates_finders = [
+          finder_for('incorrect_root.crt', return_empty: true),
+          finder_for('yubico_u2f_root.pem'),
+          finder_for('another_incorrect_root.crt')
+        ].flatten
+      end
+
+      it "verifies" do
+        expect(attestation_response.verify(original_challenge)).to be_truthy
+      end
+    end
+
+    context "when there are no finders" do
+      it "verifies" do
         expect(attestation_response.verify(original_challenge)).to be_truthy
       end
     end

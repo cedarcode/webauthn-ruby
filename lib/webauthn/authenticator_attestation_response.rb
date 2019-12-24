@@ -12,6 +12,7 @@ require "webauthn/encoder"
 
 module WebAuthn
   class AttestationStatementVerificationError < VerificationError; end
+  class AttestationTrustworthinessVerificationError < VerificationError; end
   class AttestedCredentialVerificationError < VerificationError; end
 
   class AuthenticatorAttestationResponse < AuthenticatorResponse
@@ -36,7 +37,10 @@ module WebAuthn
       super
 
       verify_item(:attested_credential)
-      verify_item(:attestation_statement) if WebAuthn.configuration.verify_attestation_statement
+      if WebAuthn.configuration.verify_attestation_statement
+        verify_item(:attestation_statement)
+        verify_item(:attestation_trustworthiness) if WebAuthn.configuration.attestation_root_certificates_finders.any?
+      end
 
       true
     end
@@ -90,6 +94,18 @@ module WebAuthn
       @attestation_type, @attestation_trust_path = attestation_statement.valid?(authenticator_data, client_data.hash)
     end
 
+    def valid_attestation_trustworthiness?
+      case @attestation_type
+      when WebAuthn::AttestationStatement::ATTESTATION_TYPE_NONE
+        WebAuthn.configuration.acceptable_attestation_types.include?('None')
+      when WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF
+        WebAuthn.configuration.acceptable_attestation_types.include?('Self')
+      else
+        WebAuthn.configuration.acceptable_attestation_types.include?(@attestation_type) &&
+          attestation_root_certificates_store.verify(leaf_certificate, signing_certificates)
+      end
+    end
+
     def raw_subject_key_identifier(certificate)
       extension = certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
       return unless extension
@@ -97,6 +113,33 @@ module WebAuthn
       ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
       ext_value = ext_asn1.value.last
       OpenSSL::ASN1.decode(ext_value.value).value
+    end
+
+    def attestation_root_certificates_store
+      certificates =
+        WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
+          if certs.empty?
+            finder.find(attestation_format: attestation_format,
+                        aaguid: aaguid,
+                        attestation_certificate_key_id: attestation_certificate_key) || []
+          else
+            certs
+          end
+        end
+
+      OpenSSL::X509::Store.new.tap do |store|
+        certificates.each do |cert|
+          store.add_cert(cert)
+        end
+      end
+    end
+
+    def signing_certificates
+      @attestation_trust_path[1..-1]
+    end
+
+    def leaf_certificate
+      @attestation_trust_path.first
     end
   end
 end

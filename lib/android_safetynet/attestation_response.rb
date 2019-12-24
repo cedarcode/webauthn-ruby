@@ -36,13 +36,15 @@ module AndroidSafetynet
       @response = response
     end
 
-    def verify(nonce)
+    def verify(nonce, trustworthiness: true)
       if response
         valid_nonce?(nonce) || raise(NonceMismatchError)
         valid_attestation_domain? || raise(LeafCertificateSubjectError)
         valid_signature? || raise(SignatureError)
         valid_timestamp? || raise(TimestampError)
-        trustworthy? || raise(TrustworthinessError)
+        trustworthy? || raise(TrustworthinessError) if trustworthiness
+
+        true
       else
         raise(ResponseMissingError)
       end
@@ -54,6 +56,12 @@ module AndroidSafetynet
 
     def leaf_certificate
       certificate_chain[0]
+    end
+
+    def certificate_chain
+      @certificate_chain ||= headers[CERTIRICATE_CHAIN_HEADER].map do |cert|
+        OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
+      end
     end
 
     def valid_timestamp?
@@ -87,12 +95,6 @@ module AndroidSafetynet
 
     def trust_store
       self.class.trust_store
-    end
-
-    def certificate_chain
-      @certificate_chain ||= headers[CERTIRICATE_CHAIN_HEADER].map do |cert|
-        OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
-      end
     end
 
     def signing_certificates
