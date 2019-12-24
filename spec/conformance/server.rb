@@ -13,6 +13,9 @@ set show_exceptions: false
 require_relative 'mds_finder'
 require_relative 'conformance_cache_store'
 
+require "tpm/constants"
+::TPM::VENDOR_IDS = ::TPM::VENDOR_IDS.merge("id:FFFFF1D0" => "FIDO Conformance Tools Fake TPM Manufacturer")
+
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
 
 Credential = Struct.new(:id, :public_key, :sign_count) do
