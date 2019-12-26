@@ -36,15 +36,13 @@ WebAuthn.configure do |config|
   config.rp_name = RP_NAME
   config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
   config.silent_authentication = true
+  config.attestation_root_certificates_finders =
+    MDSFinder.new.tap do |mds|
+      mds.token = ""
+      mds.cache_backend = ConformanceCacheStore.new
+      mds.cache_backend.setup_authenticators
+    end
 end
-
-mds_finder = MDSFinder.new.tap do |mds|
-  mds.token = ""
-  mds.cache_backend = ConformanceCacheStore.new
-  mds.cache_backend.setup_authenticators
-end
-
-WebAuthn.configuration.attestation_root_certificates_finders = mds_finder
 
 post "/attestation/options" do
   options = WebAuthn::Credential.options_for_create(
