@@ -40,12 +40,13 @@ Credential =
 
 host = ENV["HOST"] || "localhost"
 
-WebAuthn.configure do |config|
-  config.origin = "http://#{host}:#{settings.port}"
-  config.rp_name = RP_NAME
-  config.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
-  config.silent_authentication = true
-  config.attestation_root_certificates_finders =
+
+relying_party = WebAuthn::RelyingParty.new.tap do |rp|
+  rp.origin = "http://#{host}:#{settings.port}"
+  rp.name = RP_NAME
+  rp.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
+  rp.silent_authentication = true
+  rp.attestation_root_certificates_finders =
     MDSFinder.new.tap do |mds|
       mds.token = ""
       mds.cache_backend = ConformanceCacheStore.new
@@ -55,11 +56,9 @@ WebAuthn.configure do |config|
 end
 
 post "/attestation/options" do
-  options = WebAuthn::Credential.options_for_create(
-    attestation: params["attestation"],
-    authenticator_selection: params["authenticatorSelection"],
+  options = relying_party.options_for_registration(
+    params,
     exclude: Credential.registered_for(params["username"]).map(&:id),
-    extensions: params["extensions"],
     user: { id: "1", name: params["username"], display_name: params["displayName"] }
   )
 
@@ -74,9 +73,8 @@ post "/attestation/options" do
 end
 
 post "/attestation/result" do
-  webauthn_credential = WebAuthn::Credential.from_create(params)
-
-  webauthn_credential.verify(
+  webauthn_credential = relying_party.verify_registration(
+    params,
     cookies["attestation_challenge"],
     user_verification: cookies["attestation_user_verification"] == "required"
   )
@@ -106,10 +104,9 @@ post "/attestation/result" do
 end
 
 post "/assertion/options" do
-  options = WebAuthn::Credential.options_for_get(
-    allow: Credential.registered_for(params["username"]).map(&:id),
-    extensions: params["extensions"],
-    user_verification: params["userVerification"]
+  options = relying_party.options_for_authentication(
+    params,
+    allow: Credential.registered_for(params["username"]).map(&:id)
   )
 
   cookies["assertion_username"] = params["username"]
@@ -120,14 +117,21 @@ post "/assertion/options" do
 end
 
 post "/assertion/result" do
+<<<<<<< HEAD
   webauthn_credential = WebAuthn::Credential.from_get(params)
 
   user_credential =
     Credential.registered_for(cookies["assertion_username"]).detect do |uc|
       uc.id == webauthn_credential.id
     end
+=======
+  user_credential = Credential.registered_for(cookies["assertion_username"]).detect do |uc|
+    uc.id == params["id"]
+  end
+>>>>>>> WIP: Relying Party model
 
-  webauthn_credential.verify(
+  webauthn_credential = relying_party.verify_authentication(
+    params,
     cookies["assertion_challenge"],
     public_key: user_credential.public_key,
     sign_count: user_credential.sign_count,

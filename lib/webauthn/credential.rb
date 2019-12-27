@@ -4,6 +4,7 @@ require "webauthn/public_key_credential/creation_options"
 require "webauthn/public_key_credential/request_options"
 require "webauthn/public_key_credential_with_assertion"
 require "webauthn/public_key_credential_with_attestation"
+require "webauthn/relying_party"
 
 module WebAuthn
   module Credential
@@ -15,12 +16,12 @@ module WebAuthn
       WebAuthn::PublicKeyCredential::RequestOptions.new(**keyword_arguments)
     end
 
-    def self.from_create(credential)
-      WebAuthn::PublicKeyCredentialWithAttestation.from_client(credential)
+    def self.from_create(credential, relying_party: RelyingParty.new)
+      WebAuthn::PublicKeyCredentialWithAttestation.from_client(credential, relying_party: relying_party)
     end
 
-    def self.from_get(credential)
-      WebAuthn::PublicKeyCredentialWithAssertion.from_client(credential)
+    def self.from_get(credential, relying_party: RelyingParty.new)
+      WebAuthn::PublicKeyCredentialWithAssertion.from_client(credential, relying_party: relying_party)
     end
   end
 end
