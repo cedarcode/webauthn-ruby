@@ -342,7 +342,9 @@ credential_with_assertion.verify(
 )
 ```
 
-## Attestation Statement Formats
+## Attestation
+
+### Attestation Statement Format
 
 | Attestation Statement Format | Supported? |
 | -------- | :--------: |
@@ -356,7 +358,9 @@ credential_with_assertion.verify(
 | fido-u2f | Yes |
 | none | Yes |
 
-NOTE: Be aware that it is up to you to do "trust path validation" (steps 15 and 16 in [Registering a new credential](https://www.w3.org/TR/webauthn/#registering-a-new-credential)) if that's a requirement of your Relying Party policy. The gem doesn't perform that validation for you right now.
+### Attestation Types
+
+You can define what trust policy to enforce by setting `acceptable_attestation_types` config to a subset of `['None', 'Self', 'Basic', 'AttCA', 'Basic_or_AttCA']` and `attestation_root_certificates_finders` to an object that responds to `#find` and returns the corresponding root certificate for each registration. The `#find` method will be called passing keyword arguments `attesation_format`, `aaguid` and `attestation_certificate_key_id`.
 
 ## Testing Your Integration
 
