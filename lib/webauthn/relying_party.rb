@@ -94,6 +94,7 @@ module WebAuthn
         authenticator_selection: params["authenticatorSelection"],
         exclude: exclude,
         extensions: params["extensions"],
+        rp: to_hash,
         user: user
       )
     end
@@ -107,6 +108,7 @@ module WebAuthn
       WebAuthn::Credential.options_for_get(
         allow: allow,
         extensions: params["extensions"],
+        rp_id: id,
         user_verification: params["userVerification"]
       )
     end
@@ -119,6 +121,15 @@ module WebAuthn
         sign_count: sign_count,
         user_verification: user_verification
       )
+    end
+
+    private
+
+    def to_hash
+      {
+        id: id,
+        name: name
+      }
     end
   end
 end
