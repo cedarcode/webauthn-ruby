@@ -1,5 +1,17 @@
 # Changelog
 
+## [v2.1.0] - 2019-12-30
+
+### Added
+
+- Ability to convert stored credential public key back to a ruby object with `WebAuthn::PublicKey.deserialize(stored_public_key)`, included the validation during de-serialization ([@ssuttner], [@padulafacundo])
+- Improved TPM attestation validation by checking "Subject Alternative Name" ([@bdewater])
+- Improved SafetyNet attestation validation by checking timestamp ([@padulafacundo])
+- [EXPERIMENTAL] Ability to optionally "Assess the attestation trustworthiness" during registration by setting `acceptable_attestation_types` and `attestation_root_certificates_finders` configuration values ([@padulafacundo])
+- Ruby 2.7 support without warnings
+
+Note: Expect possible breaking changes for "EXPERIMENTAL" features.
+
 ## [v2.0.0] - 2019-10-03
 
 ### Added
@@ -261,6 +273,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v2.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.0.0...v2.1.0/
 [v2.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.18.0...v2.0.0/
 [v1.18.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.17.0...v1.18.0/
 [v1.17.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.16.0...v1.17.0/
@@ -289,3 +302,5 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@kalebtesfay]: https://github.com/kalebtesfay
 [@MaximeNdutiye]: https://github.com/MaximeNdutiye
 [@sorah]: https://github.com/sorah
+[@ssuttner]: https://github.com/ssuttner
+[@padulafacundo]: https://github.com/padulafacundo
