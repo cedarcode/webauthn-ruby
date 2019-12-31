@@ -7,9 +7,9 @@ require "jwt"
 require "openssl"
 require "webauthn/attestation_statement/android_safetynet"
 
-RSpec.describe "android-safetynet attestation" do
+RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
   describe "#valid?" do
-    let(:statement) { WebAuthn::AttestationStatement::AndroidSafetynet.new("ver" => version, "response" => response) }
+    let(:statement) { described_class.new("ver" => version, "response" => response) }
     let(:version) { "2.0" }
 
     let(:response) do
@@ -21,8 +21,10 @@ RSpec.describe "android-safetynet attestation" do
       )
     end
 
-    let(:payload) { { "nonce" => nonce, "ctsProfileMatch" => cts_profile_match, "timestampMs" => timestamp * 1000 } }
-    let(:timestamp) { Time.now.to_i }
+    let(:payload) do
+      { "nonce" => nonce, "ctsProfileMatch" => cts_profile_match, "timestampMs" => timestamp.to_i * 1000 }
+    end
+    let(:timestamp) { Time.now }
     let(:cts_profile_match) { true }
     let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)) }
     let(:attestation_key) { OpenSSL::PKey::RSA.new(2048) }
@@ -32,10 +34,33 @@ RSpec.describe "android-safetynet attestation" do
       certificate.subject = OpenSSL::X509::Name.new([["CN", "attest.android.com"]])
       certificate.not_before = Time.now
       certificate.not_after = Time.now + 60
-      certificate.public_key = attestation_key
+      certificate.issuer = root_certificate.subject
+      certificate.public_key = attestation_key.public_key
+      certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
+      certificate
+    end
 
-      certificate.sign(attestation_key, OpenSSL::Digest::SHA256.new)
+    let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:root_certificate_start_time) { Time.now }
+    let(:root_certificate_end_time) { Time.now + 60 }
 
+    let(:root_certificate) do
+      certificate = OpenSSL::X509::Certificate.new
+      certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
+      certificate.issuer = certificate.subject
+      certificate.public_key = root_key
+      certificate.not_before = root_certificate_start_time
+      certificate.not_after = root_certificate_end_time
+
+      extension_factory = OpenSSL::X509::ExtensionFactory.new
+      extension_factory.subject_certificate = certificate
+      extension_factory.issuer_certificate = certificate
+      certificate.extensions = [
+        extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
+        extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true),
+      ]
+
+      certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
       certificate
     end
 
@@ -49,12 +74,7 @@ RSpec.describe "android-safetynet attestation" do
     end
 
     before do
-      @_original_trust_store = AndroidSafetynet::AttestationResponse.trust_store
-      AndroidSafetynet::AttestationResponse.trust_store = nil
-    end
-
-    after do
-      AndroidSafetynet::AttestationResponse.trust_store = @_original_trust_store
+      allow(statement).to receive(:attestation_root_certificates).and_return([root_certificate])
     end
 
     let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }

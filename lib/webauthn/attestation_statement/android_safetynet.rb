@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "android_safetynet/attestation_response"
+require "safety_net_attestation"
 require "openssl"
 require "webauthn/attestation_statement/base"
 
@@ -16,7 +16,7 @@ module WebAuthn
       end
 
       def attestation_certificate
-        attestation_response.leaf_certificate
+        attestation_trust_path.first
       end
 
       private
@@ -25,8 +25,8 @@ module WebAuthn
         nonce = Digest::SHA256.base64digest(authenticator_data.data + client_data_hash)
 
         begin
-          attestation_response.verify(nonce, trustworthiness: false)
-        rescue ::AndroidSafetynet::AttestationResponse::VerificationError
+          attestation_response.verify(nonce, trusted_certificates: attestation_root_certificates, time: time)
+        rescue SafetyNetAttestation::Error
           false
         end
       end
@@ -40,12 +40,21 @@ module WebAuthn
         attestation_response.cts_profile_match?
       end
 
+      # SafetyNetAttestation returns full chain including root, WebAuthn expects only the x5c certificates
       def attestation_trust_path
-        attestation_response.certificate_chain
+        attestation_response.certificate_chain[0..-2]
       end
 
       def attestation_response
-        @attestation_response ||= ::AndroidSafetynet::AttestationResponse.new(statement["response"])
+        @attestation_response ||= SafetyNetAttestation::Statement.new(statement["response"])
+      end
+
+      def attestation_root_certificates
+        SafetyNetAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
+      end
+
+      def time
+        Time.now
       end
     end
   end

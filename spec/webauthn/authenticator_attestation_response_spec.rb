@@ -229,7 +229,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-safetynet attestation" do
-    around(:each) { |example| fake_time(Time.utc(2019, 7, 7, 16, 16), &example) }
+    let(:time) { Time.utc(2019, 7, 7, 16, 15, 11) }
 
     let(:origin) { "https://7f41ac45.ngrok.io" }
 
@@ -247,7 +247,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before(:each) do
-      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('android_safetynet_root.crt')
+      allow(attestation_response.attestation_statement).to receive(:time).and_return(time)
+      allow(attestation_response).to receive(:attestation_root_certificates_store).and_wrap_original do |m, *args|
+        store = m.call(*args)
+        store.time = time
+        store
+      end
     end
 
     it "verifies" do

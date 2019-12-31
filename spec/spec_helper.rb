@@ -63,24 +63,6 @@ def key_bytes(public_key)
   public_key.to_bn.to_s(2)
 end
 
-# Uses https://github.com/wolfcw/libfaketime/ to stub time. Unlike the Timecop gem this also works for C-extensions
-# such as OpenSSL. The library must be loaded per the libfaketime's README for the relevant operating system, and use
-# the FAKETIME_NO_CACHE=1 environment variable to work as expected for the test suite.
-def fake_time(time)
-  old_time = ENV["FAKETIME"]
-  new_time = time.localtime.strftime("%Y-%m-%d %H:%M:%S")
-
-  begin
-    ENV["FAKETIME"] = new_time
-    current = Time.now.strftime("%Y-%m-%d %H:%M:%S")
-    skip("libfaketime not preloaded? current time is #{current} expected #{new_time}") if current != new_time
-
-    yield
-  ensure
-    ENV["FAKETIME"] = old_time
-  end
-end
-
 # Borrowed from activesupport
 def silence_warnings
   old_verbose, $VERBOSE = $VERBOSE, nil
