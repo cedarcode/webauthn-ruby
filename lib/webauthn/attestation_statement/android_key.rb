@@ -1,25 +1,18 @@
 # frozen_string_literal: true
 
+require "android_key_attestation"
 require "openssl"
-require "webauthn/attestation_statement/android_key/key_description"
 require "webauthn/attestation_statement/base"
-require "webauthn/security_utils"
 require "webauthn/signature_verifier"
 
 module WebAuthn
   module AttestationStatement
     class AndroidKey < Base
-      EXTENSION_DATA_OID = "1.3.6.1.4.1.11129.2.1.17"
-
-      # https://android.googlesource.com/platform/hardware/libhardware/+/master/include/hardware/keymaster_defs.h
-      KM_ORIGIN_GENERATED = 0
-      KM_PURPOSE_SIGN = 2
-
       def valid?(authenticator_data, client_data_hash)
         valid_signature?(authenticator_data, client_data_hash) &&
           matching_public_key?(authenticator_data) &&
           valid_attestation_challenge?(client_data_hash) &&
-          all_applications_field_not_present? &&
+          all_applications_fields_not_set? &&
           valid_authorization_list_origin? &&
           valid_authorization_list_purpose? &&
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_trust_path]
@@ -38,36 +31,33 @@ module WebAuthn
       end
 
       def valid_attestation_challenge?(client_data_hash)
-        WebAuthn::SecurityUtils.secure_compare(key_description.attestation_challenge, client_data_hash)
+        android_key_attestation.verify_challenge(client_data_hash)
+      rescue AndroidKeyAttestation::ChallengeMismatchError
+        false
       end
 
-      def all_applications_field_not_present?
-        tee_enforced.all_applications.nil? && software_enforced.all_applications.nil?
+      def all_applications_fields_not_set?
+        !tee_enforced.all_applications && !software_enforced.all_applications
       end
 
       def valid_authorization_list_origin?
-        tee_enforced.origin == KM_ORIGIN_GENERATED || software_enforced.origin == KM_ORIGIN_GENERATED
+        tee_enforced.origin == :generated || software_enforced.origin == :generated
       end
 
       def valid_authorization_list_purpose?
-        tee_enforced.purpose == KM_PURPOSE_SIGN || software_enforced.purpose == KM_PURPOSE_SIGN
+        tee_enforced.purpose == [:sign] || software_enforced.purpose == [:sign]
       end
 
       def tee_enforced
-        key_description.tee_enforced
+        android_key_attestation.tee_enforced
       end
 
       def software_enforced
-        key_description.software_enforced
+        android_key_attestation.software_enforced
       end
 
-      def key_description
-        @key_description ||= begin
-          extension_data = attestation_certificate.extensions.detect { |ext| ext.oid == EXTENSION_DATA_OID }
-          raw_key_description = OpenSSL::ASN1.decode(extension_data).value.last
-
-          KeyDescription.new(OpenSSL::ASN1.decode(raw_key_description.value).value)
-        end
+      def android_key_attestation
+        @android_key_attestation ||= AndroidKeyAttestation::Statement.new(*certificates)
       end
     end
   end
