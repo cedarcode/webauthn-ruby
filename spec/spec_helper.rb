@@ -72,8 +72,8 @@ ensure
 end
 
 class RootCertificateFinder
-  def initialize(certificate_file, return_empty)
-    @certificate_file = certificate_file
+  def initialize(certificate, return_empty)
+    @certificate = certificate
     @return_empty = return_empty
   end
 
@@ -81,11 +81,14 @@ class RootCertificateFinder
     if @return_empty
       []
     else
-      certificate_path = File.expand_path(
-        File.join(__dir__, 'support', 'roots', @certificate_file)
-      )
-
-      [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
+      if @certificate.is_a?(OpenSSL::X509::Certificate)
+        [@certificate]
+      else
+        certificate_path = File.expand_path(
+          File.join(__dir__, 'support', 'roots', @certificate)
+        )
+        [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
+      end
     end
   end
 end
