@@ -555,8 +555,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     context "when finder doesn't have correct certificate" do
       before(:each) do
-        WebAuthn.configuration.attestation_root_certificates_finders = finder_for('incorrect_root.crt',
-                                                                                  return_empty: true)
+        WebAuthn.configuration.attestation_root_certificates_finders = finder_for(
+          'incorrect_root.crt',
+          return_empty: true
+        )
       end
 
       it "doesn't verify" do

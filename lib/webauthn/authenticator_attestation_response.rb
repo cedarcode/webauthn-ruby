@@ -119,9 +119,11 @@ module WebAuthn
       certificates =
         WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
           if certs.empty?
-            finder.find(attestation_format: attestation_format,
-                        aaguid: aaguid,
-                        attestation_certificate_key_id: attestation_certificate_key) || []
+            finder.find(
+              attestation_format: attestation_format,
+              aaguid: aaguid,
+              attestation_certificate_key_id: attestation_certificate_key
+            ) || []
           else
             certs
           end

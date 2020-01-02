@@ -17,6 +17,12 @@ Gemspec:
 Layout:
   Enabled: true
 
+Layout/FirstMethodArgumentLineBreak:
+  Enabled: true
+
+Layout/MultilineMethodArgumentLineBreaks:
+  Enabled: true
+
 Lint:
   Enabled: true
 
