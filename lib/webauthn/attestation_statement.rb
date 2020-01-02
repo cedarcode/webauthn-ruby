@@ -28,7 +28,7 @@ module WebAuthn
       ATTESTATION_FORMAT_TPM => WebAuthn::AttestationStatement::TPM
     }.freeze
 
-    def self.from(format, statement, relying_party: RelyingParty.new)
+    def self.from(format, statement, relying_party: WebAuthn.configuration.relying_party)
       klass = FORMAT_TO_CLASS[format]
 
       if klass

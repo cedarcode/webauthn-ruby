@@ -16,11 +16,11 @@ module WebAuthn
       WebAuthn::PublicKeyCredential::RequestOptions.new(**keyword_arguments)
     end
 
-    def self.from_create(credential, relying_party: WebAuthn.configuration)
+    def self.from_create(credential, relying_party: WebAuthn.configuration.relying_party)
       WebAuthn::PublicKeyCredentialWithAttestation.from_client(credential, relying_party: relying_party)
     end
 
-    def self.from_get(credential, relying_party: WebAuthn.configuration)
+    def self.from_get(credential, relying_party: WebAuthn.configuration.relying_party)
       WebAuthn::PublicKeyCredentialWithAssertion.from_client(credential, relying_party: relying_party)
     end
   end

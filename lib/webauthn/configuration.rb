@@ -37,11 +37,9 @@ module WebAuthn
                    :attestation_root_certificates_finders,
                    :attestation_root_certificates_finders=,
                    :encoder,
-                   :encoder=,
-                   :id,
-                   :id=,
-                   :name,
-                   :name=
+                   :encoder=
+
+    attr_reader :relying_party
 
     def initialize
       @relying_party = RelyingParty.new
