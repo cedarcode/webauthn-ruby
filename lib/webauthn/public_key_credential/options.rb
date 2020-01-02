@@ -10,8 +10,9 @@ module WebAuthn
 
       attr_reader :timeout, :extensions
 
-      def initialize(timeout: default_timeout, extensions: nil)
-        @timeout = timeout
+      def initialize(timeout: nil, extensions: nil, relying_party: RelyingParty.new)
+        @relying_party = relying_party
+        @timeout = timeout || default_timeout
         @extensions = extensions
       end
 
@@ -49,7 +50,7 @@ module WebAuthn
       end
 
       def encoder
-        WebAuthn.configuration.encoder
+        configuration.encoder
       end
 
       def raw_challenge
@@ -61,7 +62,7 @@ module WebAuthn
       end
 
       def configuration
-        WebAuthn.configuration
+        @relying_party
       end
 
       def as_public_key_descriptors(ids)

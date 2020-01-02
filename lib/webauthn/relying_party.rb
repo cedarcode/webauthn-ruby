@@ -1,14 +1,31 @@
 # frozen_string_literal: true
 
+require "openssl"
 require "webauthn/credential"
+require "webauthn/encoder"
+require "webauthn/error"
 
 module WebAuthn
+  class RootCertificateFinderNotSupportedError < Error; end
+
   class RelyingParty
+    def self.if_pss_supported(algorithm)
+      OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss) ? algorithm : nil
+    end
+
+    DEFAULT_ALGORITHMS = ["ES256", if_pss_supported("PS256"), "RS256"].compact.freeze
+
     def initialize(
-      algorithms: nil, encoding: nil, origin: nil, id: nil, name: nil,
-      verify_attestation_statement: nil, credential_options_timeout: nil,
-      silent_authentication: nil, acceptable_attestation_types: nil,
-      attestation_root_certificates_finders: nil
+      algorithms: DEFAULT_ALGORITHMS.dup,
+      encoding: WebAuthn::Encoder::STANDARD_ENCODING,
+      origin: nil,
+      id: nil,
+      name: nil,
+      verify_attestation_statement: true,
+      credential_options_timeout: 120000,
+      silent_authentication: false,
+      acceptable_attestation_types: ['None', 'Self', 'Basic', 'AttCA', 'Basic_or_AttCA'],
+      attestation_root_certificates_finders: []
     )
       @algorithms = algorithms
       @encoding = encoding
@@ -22,48 +39,21 @@ module WebAuthn
       @attestation_root_certificates_finders = attestation_root_certificates_finders
     end
 
-    attr_writer :algorithms, :encoding, :origin, :id, :name,
-                :verify_attestation_statement, :credential_options_timeout,
-                :silent_authentication, :acceptable_attestation_types
+    attr_accessor :algorithms, :encoding, :origin, :id, :name,
+                  :verify_attestation_statement, :credential_options_timeout,
+                  :silent_authentication, :acceptable_attestation_types
 
-    def algorithms
-      @algorithms || WebAuthn.configuration.algorithms
-    end
+    attr_reader :attestation_root_certificates_finders
 
-    def encoding
-      @encoding || WebAuthn.configuration.encoding
-    end
+    alias rp_name  name
+    alias rp_name= name=
+    alias rp_id    id
+    alias rp_id=   id=
 
-    def origin
-      @origin || WebAuthn.configuration.origin
-    end
-
-    def id
-      @id || WebAuthn.configuration.rp_id
-    end
-
-    def name
-      @name || WebAuthn.configuration.rp_name
-    end
-
-    def verify_attestation_statement
-      @verify_attestation_statement || WebAuthn.configuration.verify_attestation_statement
-    end
-
-    def credential_options_timeout
-      @credential_options_timeout || WebAuthn.configuration.credential_options_timeout
-    end
-
-    def silent_authentication
-      @silent_authentication || WebAuthn.configuration.silent_authentication
-    end
-
-    def acceptable_attestation_types
-      @acceptable_attestation_types || WebAuthn.configuration.acceptable_attestation_types
-    end
-
-    def attestation_root_certificates_finders
-      @attestation_root_certificates_finders || WebAuthn.configuration.attestation_root_certificates_finders
+    # This is the user-data encoder.
+    # Used to decode user input and to encode data provided to the user.
+    def encoder
+      @encoder ||= WebAuthn::Encoder.new(encoding)
     end
 
     def attestation_root_certificates_finders=(finders)
@@ -80,21 +70,13 @@ module WebAuthn
       @attestation_root_certificates_finders = finders
     end
 
-    def generate_user_id
-      WebAuthn.generate_user_id
-    end
-
-    def encoder
-      @encoder ||= WebAuthn::Encoder.new(encoding)
-    end
-
     def options_for_registration(params, user:, exclude:)
       WebAuthn::Credential.options_for_create(
         attestation: params["attestation"],
         authenticator_selection: params["authenticatorSelection"],
         exclude: exclude,
         extensions: params["extensions"],
-        rp: to_hash,
+        relying_party: self,
         user: user
       )
     end
@@ -108,7 +90,7 @@ module WebAuthn
       WebAuthn::Credential.options_for_get(
         allow: allow,
         extensions: params["extensions"],
-        rp_id: id,
+        relying_party: self,
         user_verification: params["userVerification"]
       )
     end
@@ -121,15 +103,6 @@ module WebAuthn
         sign_count: sign_count,
         user_verification: user_verification
       )
-    end
-
-    private
-
-    def to_hash
-      {
-        id: id,
-        name: name
-      }
     end
   end
 end
