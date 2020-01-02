@@ -6,7 +6,7 @@ module WebAuthn
   class PublicKeyCredential
     attr_reader :type, :id, :raw_id, :client_extension_outputs, :response
 
-    def self.from_client(credential, relying_party: RelyingParty.new)
+    def self.from_client(credential, relying_party: WebAuthn.configuration)
       new(
         type: credential["type"],
         id: credential["id"],

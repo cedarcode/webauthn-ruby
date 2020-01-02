@@ -18,7 +18,7 @@ module WebAuthn
   class AuthenticatorAttestationResponse < AuthenticatorResponse
     extend Forwardable
 
-    def self.from_client(response, relying_party: RelyingParty.new)
+    def self.from_client(response, relying_party: WebAuthn.configuration.relying_party)
       encoder = relying_party.encoder
 
       new(
@@ -30,7 +30,7 @@ module WebAuthn
 
     attr_reader :attestation_type, :attestation_trust_path, :relying_party
 
-    def initialize(attestation_object:, relying_party: RelyingParty.new, **options)
+    def initialize(attestation_object:, relying_party: WebAuthn.configuration, **options)
       super(**options)
 
       @attestation_object_bytes = attestation_object

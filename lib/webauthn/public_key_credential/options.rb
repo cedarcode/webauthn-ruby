@@ -10,7 +10,7 @@ module WebAuthn
 
       attr_reader :timeout, :extensions
 
-      def initialize(timeout: nil, extensions: nil, relying_party: RelyingParty.new)
+      def initialize(timeout: nil, extensions: nil, relying_party: WebAuthn.configuration)
         @relying_party = relying_party
         @timeout = timeout || default_timeout
         @extensions = extensions
