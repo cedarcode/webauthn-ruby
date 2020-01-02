@@ -20,6 +20,9 @@ Layout:
 Layout/FirstMethodArgumentLineBreak:
   Enabled: true
 
+Layout/MultilineAssignmentLayout:
+  Enabled: true
+
 Layout/MultilineMethodArgumentLineBreaks:
   Enabled: true
 

@@ -66,12 +66,14 @@ module WebAuthn
         extension = attestation_certificate.extensions.detect { |ext| ext.oid == "subjectAltName" }
         return unless extension&.critical?
 
-        san_asn1 = OpenSSL::ASN1.decode(extension).find do |val|
-          val.tag_class == :UNIVERSAL && val.tag == OpenSSL::ASN1::OCTET_STRING
-        end
-        directory_name = OpenSSL::ASN1.decode(san_asn1.value).find do |val|
-          val.tag_class == :CONTEXT_SPECIFIC && val.tag == CERTIFICATE_SAN_DIRECTORY_NAME
-        end
+        san_asn1 =
+          OpenSSL::ASN1.decode(extension).find do |val|
+            val.tag_class == :UNIVERSAL && val.tag == OpenSSL::ASN1::OCTET_STRING
+          end
+        directory_name =
+          OpenSSL::ASN1.decode(san_asn1.value).find do |val|
+            val.tag_class == :CONTEXT_SPECIFIC && val.tag == CERTIFICATE_SAN_DIRECTORY_NAME
+          end
         name = OpenSSL::X509::Name.new(directory_name.value.first).to_a
         manufacturer = name.assoc(OID_TCG_AT_TPM_MANUFACTURER).at(1)
         model = name.assoc(OID_TCG_AT_TPM_MODEL).at(1)

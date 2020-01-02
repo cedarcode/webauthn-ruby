@@ -53,9 +53,10 @@ module WebAuthn
       end
 
       def certificates
-        @certificates ||= raw_certificates&.map do |raw_certificate|
-          OpenSSL::X509::Certificate.new(raw_certificate)
-        end
+        @certificates ||=
+          raw_certificates&.map do |raw_certificate|
+            OpenSSL::X509::Certificate.new(raw_certificate)
+          end
       end
 
       def algorithm

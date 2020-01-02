@@ -59,9 +59,10 @@ module AndroidSafetynet
     end
 
     def certificate_chain
-      @certificate_chain ||= headers[CERTIRICATE_CHAIN_HEADER].map do |cert|
-        OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
-      end
+      @certificate_chain ||=
+        headers[CERTIRICATE_CHAIN_HEADER].map do |cert|
+          OpenSSL::X509::Certificate.new(Base64.strict_decode64(cert))
+        end
     end
 
     def valid_timestamp?
