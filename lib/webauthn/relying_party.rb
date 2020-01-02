@@ -45,11 +45,6 @@ module WebAuthn
 
     attr_reader :attestation_root_certificates_finders
 
-    alias rp_name  name
-    alias rp_name= name=
-    alias rp_id    id
-    alias rp_id=   id=
-
     # This is the user-data encoder.
     # Used to decode user input and to encode data provided to the user.
     def encoder

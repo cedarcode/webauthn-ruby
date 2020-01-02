@@ -22,10 +22,6 @@ module WebAuthn
                    :encoding=,
                    :origin,
                    :origin=,
-                   :rp_id,
-                   :rp_id=,
-                   :rp_name,
-                   :rp_name=,
                    :verify_attestation_statement,
                    :verify_attestation_statement=,
                    :credential_options_timeout,
@@ -43,6 +39,22 @@ module WebAuthn
 
     def initialize
       @relying_party = RelyingParty.new
+    end
+
+    def rp_name
+      relying_party.name
+    end
+
+    def rp_name=(name)
+      relying_party.name = name
+    end
+
+    def rp_id
+      relying_party.id
+    end
+
+    def rp_id=(id)
+      relying_party.id = id
     end
   end
 end
