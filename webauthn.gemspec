@@ -22,9 +22,11 @@ Gem::Specification.new do |spec|
     "source_code_uri" => "https://github.com/cedarcode/webauthn-ruby"
   }
 
-  spec.files = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features|assets)/})
-  end
+  spec.files =
+    `git ls-files -z`.split("\x0").reject do |f|
+      f.match(%r{^(test|spec|features|assets)/})
+    end
+
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
@@ -45,5 +47,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "byebug", "~> 11.0"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.8"
-  spec.add_development_dependency "rubocop", "0.75.0"
+  spec.add_development_dependency "rubocop", "0.78.0"
 end
