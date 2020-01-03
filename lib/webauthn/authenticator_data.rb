@@ -68,7 +68,7 @@ module WebAuthn
 
     def attested_credential_data
       @attested_credential_data ||=
-        AttestedCredentialData.new(data_at(attested_credential_data_position))
+        AttestedCredentialData.deserialize(data_at(attested_credential_data_position))
     end
 
     def extension_data

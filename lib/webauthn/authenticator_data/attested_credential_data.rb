@@ -4,13 +4,20 @@ require "cose/key"
 
 module WebAuthn
   class AuthenticatorData
-    class AttestedCredentialData
+    class AttestedCredentialData < BinData::Record
       AAGUID_LENGTH = 16
       ZEROED_AAGUID = 0.chr * AAGUID_LENGTH
 
       ID_LENGTH_LENGTH = 2
 
-      UINT16_BIG_ENDIAN_FORMAT = "n*"
+      endian :big
+
+      count_bytes_remaining :data_length
+      string :raw_aaguid, length: AAGUID_LENGTH
+      bit16 :id_length
+      string :id, read_length: :id_length
+      count_bytes_remaining :remaining_bytes_length
+      string :remaining_bytes, length: :remaining_bytes_length
 
       # FIXME: use keyword_init when we dropped Ruby 2.4 support
       Credential = Struct.new(:id, :public_key) do
@@ -19,16 +26,12 @@ module WebAuthn
         end
       end
 
-      def initialize(data)
-        @data = data
+      def self.deserialize(data)
+        read(data)
       end
 
       def valid?
-        data.length >= AAGUID_LENGTH + ID_LENGTH_LENGTH && valid_credential_public_key?
-      end
-
-      def raw_aaguid
-        data_at(0, AAGUID_LENGTH)
+        data_length >= AAGUID_LENGTH + ID_LENGTH_LENGTH && valid_credential_public_key?
       end
 
       def aaguid
@@ -37,20 +40,18 @@ module WebAuthn
 
       def credential
         @credential ||=
-          if id
+          if valid?
             Credential.new(id, public_key)
           end
       end
 
       def length
         if valid?
-          public_key_position + public_key_length
+          AAGUID_LENGTH + ID_LENGTH_LENGTH + id_length + public_key_length
         end
       end
 
       private
-
-      attr_reader :data
 
       def valid_credential_public_key?
         cose_key = COSE::Key.deserialize(public_key)
@@ -58,41 +59,13 @@ module WebAuthn
         !!cose_key.alg
       end
 
-      def id
-        if valid?
-          data_at(id_position, id_length)
-        end
-      end
-
       def public_key
-        @public_key ||= data_at(public_key_position, public_key_length)
-      end
-
-      def id_position
-        id_length_position + ID_LENGTH_LENGTH
-      end
-
-      def id_length
-        @id_length ||= data_at(id_length_position, ID_LENGTH_LENGTH).unpack(UINT16_BIG_ENDIAN_FORMAT)[0]
-      end
-
-      def id_length_position
-        AAGUID_LENGTH
-      end
-
-      def public_key_position
-        id_position + id_length
+        remaining_bytes[0..public_key_length - 1]
       end
 
       def public_key_length
         @public_key_length ||=
-          CBOR.encode(CBOR::Unpacker.new(StringIO.new(data_at(public_key_position))).each.first).length
-      end
-
-      def data_at(position, length = nil)
-        length ||= data.size - position
-
-        data[position..(position + length - 1)]
+          CBOR.encode(CBOR::Unpacker.new(StringIO.new(remaining_bytes)).each.first).length
       end
     end
   end
