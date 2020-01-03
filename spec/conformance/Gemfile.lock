@@ -7,8 +7,8 @@ PATH
       bindata (~> 2.4)
       cbor (~> 0.5.9)
       cose (~> 0.10.0)
-      jwt (>= 1.5, < 3.0)
       openssl (~> 2.0)
+      safety_net_attestation (~> 0.4.0)
       securecompare (~> 1.0)
 
 GEM
@@ -38,6 +38,8 @@ GEM
       rack
     ruby2_keywords (0.0.1)
     rubyzip (2.0.0)
+    safety_net_attestation (0.4.0)
+      jwt (~> 2.0)
     securecompare (1.0.0)
     sinatra (2.0.8.1)
       mustermann (~> 1.0)
