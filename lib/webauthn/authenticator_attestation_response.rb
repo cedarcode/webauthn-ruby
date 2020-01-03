@@ -30,7 +30,7 @@ module WebAuthn
 
     attr_reader :attestation_type, :attestation_trust_path
 
-    def initialize(attestation_object:, relying_party: WebAuthn.configuration.relying_party, **options)
+    def initialize(attestation_object:, **options)
       super(**options)
 
       @attestation_object_bytes = attestation_object
@@ -65,7 +65,7 @@ module WebAuthn
 
     private
 
-    attr_reader :attestation_object, :relying_party
+    attr_reader :relying_party
 
     def type
       WebAuthn::TYPES[:create]

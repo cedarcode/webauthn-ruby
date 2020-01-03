@@ -29,17 +29,12 @@ module WebAuthn
 
     attr_reader :user_handle
 
-    def initialize(authenticator_data:,
-                   signature:,
-                   user_handle: nil,
-                   relying_party: WebAuthn.configuration.relying_party,
-                   **options)
+    def initialize(authenticator_data:, signature:, user_handle: nil, **options)
       super(**options)
 
       @authenticator_data_bytes = authenticator_data
       @signature = signature
       @user_handle = user_handle
-      @relying_party = relying_party
     end
 
     def verify(expected_challenge, expected_origin = nil, public_key:, sign_count:, user_verification: nil, rp_id: nil)
@@ -56,7 +51,7 @@ module WebAuthn
 
     private
 
-    attr_reader :authenticator_data_bytes, :signature, :relying_party
+    attr_reader :authenticator_data_bytes, :signature
 
     def valid_signature?(webauthn_public_key)
       webauthn_public_key.verify(signature, authenticator_data_bytes + client_data.hash)

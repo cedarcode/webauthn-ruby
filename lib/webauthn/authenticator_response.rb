@@ -20,8 +20,9 @@ module WebAuthn
   class UserVerifiedVerificationError < VerificationError; end
 
   class AuthenticatorResponse
-    def initialize(client_data_json:)
+    def initialize(client_data_json:, relying_party: WebAuthn.configuration.relying_party)
       @client_data_json = client_data_json
+      @relying_party = relying_party
     end
 
     def verify(expected_challenge, expected_origin = nil, user_verification: nil, rp_id: nil)
@@ -58,7 +59,7 @@ module WebAuthn
 
     private
 
-    attr_reader :client_data_json
+    attr_reader :client_data_json, :relying_party
 
     def verify_item(item, *args)
       if send("valid_#{item}?", *args)
