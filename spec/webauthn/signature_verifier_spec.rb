@@ -63,7 +63,7 @@ RSpec.describe "SignatureVerifier" do
   end
 
   context "PS256" do
-    before do
+    before(:all) do
       unless OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
         skip "Ruby OpenSSL gem #{OpenSSL::VERSION} do not support RSASSA-PSS"
       end

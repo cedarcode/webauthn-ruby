@@ -270,7 +270,7 @@ RSpec.describe "TPM attestation statement" do
       end
 
       context "when RSA PSS algorithm" do
-        before do
+        before(:all) do
           unless OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
             skip "Ruby OpenSSL gem #{OpenSSL::VERSION} do not support RSASSA-PSS"
           end
