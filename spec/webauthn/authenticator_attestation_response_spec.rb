@@ -182,6 +182,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   context "when TPM attestation" do
     let(:origin) { seeds[:tpm][:origin] }
+    let(:time) { Time.utc(2019, 8, 13, 22, 6) }
     let(:challenge) { Base64.strict_decode64(seeds[:tpm][:credential_creation_options][:challenge]) }
 
     let(:attestation_response) do
@@ -202,6 +203,13 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     before(:each) do
       WebAuthn.configuration.attestation_root_certificates_finders =
         finder_for('microsoft_tpm_root_certificate_authority_2014.cer')
+
+      allow(attestation_response.attestation_statement).to receive(:time).and_return(time)
+      allow(attestation_response).to receive(:attestation_root_certificates_store).and_wrap_original do |m, *args|
+        store = m.call(*args)
+        store.time = time
+        store
+      end
     end
 
     it "verifies" do

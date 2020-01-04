@@ -41,4 +41,13 @@ module TPM
     "id:57454300" => "Winbond",
     "id:524F4343" => "Fuzhou Rockchip",
   }.freeze
+
+  # https://docs.microsoft.com/en-us/windows-server/security/guarded-fabric-shielded-vm/guarded-fabric-install-trusted-tpm-root-certificates
+  ROOT_CERTIFICATES =
+    begin
+      pattern = File.expand_path(File.join(__dir__, "certificates", "*.*"))
+      Dir.glob(pattern).map do |filename|
+        File.open(filename) { |file| OpenSSL::X509::Certificate.new(file) }
+      end
+    end
 end

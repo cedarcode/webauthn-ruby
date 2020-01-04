@@ -34,6 +34,7 @@ module WebAuthn
               OpenSSL::Digest.digest(cose_algorithm.hash_function, att_to_be_signed)
             ) &&
             matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
+            certificate_chain_trusted? &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
           raise(
@@ -57,7 +58,6 @@ module WebAuthn
         attestation_certificate.version == CERTIFICATE_V3 &&
           attestation_certificate.subject.eql?(CERTIFICATE_EMPTY_NAME) &&
           valid_subject_alternative_name? &&
-          certificate_in_use?(attestation_certificate) &&
           extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == "CA:FALSE" &&
           extensions.find { |ext| ext.oid == "extendedKeyUsage" }&.value == OID_TCG_KP_AIK_CERTIFICATE
       end
@@ -82,10 +82,17 @@ module WebAuthn
         ::TPM::VENDOR_IDS[manufacturer] && !model.empty? && !version.empty?
       end
 
-      def certificate_in_use?(certificate)
-        now = Time.now
+      def attestation_root_certificates
+        ::TPM::ROOT_CERTIFICATES
+      end
 
-        certificate.not_before < now && now < certificate.not_after
+      def certificate_chain_trusted?
+        store = OpenSSL::X509::Store.new
+        attestation_root_certificates.each do |cert|
+          store.add_cert(cert)
+        end
+
+        store.verify(attestation_certificate, certificate_chain)
       end
 
       def verification_data
