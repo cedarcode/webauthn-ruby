@@ -128,6 +128,14 @@ RSpec.describe "Packed attestation" do
         root_certificate.not_before = root_certificate_start_time
         root_certificate.not_after = root_certificate_end_time
 
+        extension_factory = OpenSSL::X509::ExtensionFactory.new
+        extension_factory.subject_certificate = root_certificate
+        extension_factory.issuer_certificate = root_certificate
+        root_certificate.extensions = [
+          extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
+          extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true),
+        ]
+
         root_certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
 
         root_certificate
@@ -139,6 +147,10 @@ RSpec.describe "Packed attestation" do
           "sig" => signature,
           "x5c" => [attestation_certificate, root_certificate]
         )
+      end
+
+      before do
+        WebAuthn.configuration.attestation_root_certificates_finders = finder_for(root_certificate)
       end
 
       it "works if everything's fine" do
@@ -234,6 +246,19 @@ RSpec.describe "Packed attestation" do
 
         context "because a cert has expired" do
           let(:root_certificate_end_time) { Time.now }
+
+          it "fails" do
+            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+          end
+        end
+
+        context "when finder doesn't have correct certificate" do
+          before(:each) do
+            WebAuthn.configuration.attestation_root_certificates_finders = finder_for(
+              'incorrect_root.crt',
+              return_empty: true
+            )
+          end
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

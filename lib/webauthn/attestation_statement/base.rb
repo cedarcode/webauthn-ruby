@@ -80,6 +80,46 @@ module WebAuthn
           certificates
         end
       end
+
+      def attestation_format
+        raise NotImplementedError
+      end
+
+      def valid_certificate_chain?(attestation_type, aaguid: nil, attestation_certificate_key_id: nil)
+        case attestation_type
+          when WebAuthn::AttestationStatement::ATTESTATION_TYPE_NONE
+            WebAuthn.configuration.acceptable_attestation_types.include?('None')
+          when WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF
+            WebAuthn.configuration.acceptable_attestation_types.include?('Self')
+          else
+            WebAuthn.configuration.acceptable_attestation_types.include?(attestation_type) &&
+              attestation_root_certificates_store(
+                aaguid: aaguid,
+                attestation_certificate_key_id: attestation_certificate_key_id
+              ).verify(attestation_certificate, attestation_trust_path)
+        end
+      end
+
+      def attestation_root_certificates_store(aaguid: nil, attestation_certificate_key_id: nil)
+        certificates =
+          WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
+            if certs.empty?
+              finder.find(
+                attestation_format: attestation_format,
+                aaguid: aaguid,
+                attestation_certificate_key_id: attestation_certificate_key_id
+              ) || []
+            else
+              certs
+            end
+          end
+
+        OpenSSL::X509::Store.new.tap do |store|
+          certificates.each do |cert|
+            store.add_cert(cert)
+          end
+        end
+      end
     end
   end
 end
