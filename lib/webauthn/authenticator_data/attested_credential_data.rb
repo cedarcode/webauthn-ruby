@@ -20,8 +20,8 @@ module WebAuthn
       string :raw_aaguid, length: AAGUID_LENGTH
       bit16 :id_length
       string :id, read_length: :id_length
-      count_bytes_remaining :remaining_bytes_length
-      string :remaining_bytes, length: :remaining_bytes_length
+      count_bytes_remaining :trailing_bytes_length
+      string :trailing_bytes, length: :trailing_bytes_length
 
       # FIXME: use keyword_init when we dropped Ruby 2.4 support
       Credential = Struct.new(:id, :public_key) do
@@ -66,12 +66,12 @@ module WebAuthn
       end
 
       def public_key
-        remaining_bytes[0..public_key_length - 1]
+        trailing_bytes[0..public_key_length - 1]
       end
 
       def public_key_length
         @public_key_length ||=
-          CBOR.encode(CBOR::Unpacker.new(StringIO.new(remaining_bytes)).each.first).length
+          CBOR.encode(CBOR::Unpacker.new(StringIO.new(trailing_bytes)).each.first).length
       end
     end
   end
