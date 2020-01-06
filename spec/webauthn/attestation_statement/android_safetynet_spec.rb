@@ -39,7 +39,7 @@ RSpec.describe "android-safetynet attestation" do
       certificate
     end
 
-    let(:authenticator_data) { WebAuthn::AuthenticatorData.new(authenticator_data_bytes) }
+    let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
 
     let(:authenticator_data_bytes) do
       WebAuthn::FakeAuthenticator::AuthenticatorData.new(

@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
+require "bindata"
 require "cose/key"
+require "webauthn/error"
 
 module WebAuthn
-  class AuthenticatorData
+  class AuthenticatorData < BinData::Record
     class AttestedCredentialData < BinData::Record
+      class AttestedCredentialDataFormatError < WebAuthn::Error; end
+
       AAGUID_LENGTH = 16
       ZEROED_AAGUID = 0.chr * AAGUID_LENGTH
 
@@ -28,10 +32,12 @@ module WebAuthn
 
       def self.deserialize(data)
         read(data)
+      rescue EOFError
+        raise AttestedCredentialFormatError
       end
 
       def valid?
-        data_length >= AAGUID_LENGTH + ID_LENGTH_LENGTH && valid_credential_public_key?
+        valid_credential_public_key?
       end
 
       def aaguid

@@ -17,7 +17,7 @@ RSpec.describe WebAuthn::AuthenticatorData do
   let(:user_present) { true }
   let(:user_verified) { false }
 
-  let(:authenticator_data) { described_class.new(serialized_authenticator_data) }
+  let(:authenticator_data) { described_class.deserialize(serialized_authenticator_data) }
 
   describe "#valid?" do
     it "returns true" do
@@ -33,7 +33,7 @@ RSpec.describe WebAuthn::AuthenticatorData do
         extensions: nil
       ).serialize
 
-      authenticator_data = WebAuthn::AuthenticatorData.new(data + CBOR.encode("k" => "v"))
+      authenticator_data = WebAuthn::AuthenticatorData.deserialize(data + CBOR.encode("k" => "v"))
 
       expect(authenticator_data.valid?).to be_falsy
     end

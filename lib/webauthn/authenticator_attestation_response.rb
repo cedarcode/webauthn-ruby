@@ -55,7 +55,7 @@ module WebAuthn
     end
 
     def authenticator_data
-      @authenticator_data ||= WebAuthn::AuthenticatorData.new(attestation["authData"])
+      @authenticator_data ||= WebAuthn::AuthenticatorData.deserialize(attestation["authData"])
     end
 
     def attestation_format

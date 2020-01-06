@@ -39,7 +39,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     it "returns the credential" do
       credential = attestation_response.credential
 
-      expect(credential.id.class).to eq(String)
+      expect(credential.id.class).to eq(BinData::String)
       expect(credential.id.encoding).to eq(Encoding::BINARY)
       expect(credential.public_key.class).to eq(String)
       expect(credential.public_key.encoding).to be(Encoding::BINARY)

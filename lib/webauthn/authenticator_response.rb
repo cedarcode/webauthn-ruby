@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "webauthn/authenticator_data"
 require "webauthn/client_data"
 require "webauthn/error"
 require "webauthn/security_utils"
@@ -91,6 +92,8 @@ module WebAuthn
 
     def valid_authenticator_data?
       authenticator_data.valid?
+    rescue WebAuthn::AuthenticatorDataFormatError
+      false
     end
 
     def valid_user_presence?
