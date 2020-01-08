@@ -46,15 +46,11 @@ module WebAuthn
     end
 
     def aaguid
-      raw_aaguid = authenticator_data.attested_credential_data.raw_aaguid
-
-      unless raw_aaguid == WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
-        authenticator_data.attested_credential_data.aaguid
-      end
+      authenticator_data.aaguid
     end
 
     def certificate_key
-      raw_subject_key_identifier(attestation_statement.attestation_certificate)&.unpack("H*")&.[](0)
+      attestation_statement.certificate_key
     end
 
     private
@@ -94,15 +90,6 @@ module WebAuthn
           certs
         end
       end
-    end
-
-    def raw_subject_key_identifier(certificate)
-      extension = certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
-      return unless extension
-
-      ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
-      ext_value = ext_asn1.value.last
-      OpenSSL::ASN1.decode(ext_value.value).value
     end
 
     def configuration

@@ -40,6 +40,10 @@ module WebAuthn
         end
       end
 
+      def certificate_key
+        raw_subject_key_identifier&.unpack("H*")&.[](0)
+      end
+
       private
 
       attr_reader :statement
@@ -83,6 +87,15 @@ module WebAuthn
         if certificates&.any?
           certificates
         end
+      end
+
+      def raw_subject_key_identifier
+        extension = attestation_certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
+        return unless extension
+
+        ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
+        ext_value = ext_asn1.value.last
+        OpenSSL::ASN1.decode(ext_value.value).value
       end
     end
   end

@@ -79,6 +79,14 @@ module WebAuthn
       @flags ||= data_at(flags_position, FLAGS_LENGTH).unpack("b*")[0]
     end
 
+    def aaguid
+      raw_aaguid = attested_credential_data.raw_aaguid
+
+      unless raw_aaguid == WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
+        attested_credential_data.aaguid
+      end
+    end
+
     private
 
     def valid_length?
