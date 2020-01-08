@@ -12,6 +12,10 @@ module WebAuthn
           false
         end
       end
+
+      def format
+        ATTESTATION_FORMAT_NONE
+      end
     end
   end
 end

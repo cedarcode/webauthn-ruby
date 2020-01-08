@@ -26,6 +26,10 @@ module WebAuthn
         raise NotImplementedError
       end
 
+      def format
+        raise NotImplementedError
+      end
+
       def attestation_certificate
         certificates&.first
       end
