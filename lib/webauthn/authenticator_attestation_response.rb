@@ -68,9 +68,11 @@ module WebAuthn
       attestation.aaguid
     end
 
-    def attestation_certificate_key
-      attestation.certificate_key
+    def attestation_certificate_key_id
+      attestation.certificate_key_id
     end
+
+    alias_method :attestation_certificate_key, :attestation_certificate_key_id
 
     private
 

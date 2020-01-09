@@ -49,8 +49,8 @@ module WebAuthn
       authenticator_data.aaguid
     end
 
-    def certificate_key
-      attestation_statement.certificate_key
+    def certificate_key_id
+      attestation_statement.certificate_key_id
     end
 
     private
@@ -84,7 +84,7 @@ module WebAuthn
           finder.find(
             attestation_format: attestation_statement.format,
             aaguid: aaguid,
-            attestation_certificate_key_id: certificate_key
+            attestation_certificate_key_id: certificate_key_id
           ) || []
         else
           certs

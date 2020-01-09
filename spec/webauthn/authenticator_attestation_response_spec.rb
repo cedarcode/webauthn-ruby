@@ -86,7 +86,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the attestation certificate key" do
-      expect(attestation_response.attestation_certificate_key).to(
+      expect(attestation_response.attestation_certificate_key_id).to(
         eq("f4b64a68c334e901b8e23c6e66e6866c31931f5d")
       )
     end
