@@ -75,7 +75,7 @@ module WebAuthn
     def attested_credential_data
       @attested_credential_data ||=
         AttestedCredentialData.deserialize(trailing_bytes)
-    rescue AttestedCredentialDataError
+    rescue AttestedCredentialDataFormatError
       raise AuthenticatorDataFormatError
     end
 

@@ -5,9 +5,10 @@ require "cose/key"
 require "webauthn/error"
 
 module WebAuthn
+  class AttestedCredentialDataFormatError < WebAuthn::Error; end
+
   class AuthenticatorData < BinData::Record
     class AttestedCredentialData < BinData::Record
-      class AttestedCredentialDataFormatError < WebAuthn::Error; end
 
       AAGUID_LENGTH = 16
       ZEROED_AAGUID = 0.chr * AAGUID_LENGTH
@@ -33,7 +34,7 @@ module WebAuthn
       def self.deserialize(data)
         read(data)
       rescue EOFError
-        raise AttestedCredentialFormatError
+        raise AttestedCredentialDataFormatError
       end
 
       def valid?
