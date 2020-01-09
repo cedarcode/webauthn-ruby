@@ -16,7 +16,6 @@ module WebAuthn
 
       endian :big
 
-      count_bytes_remaining :data_length
       string :raw_aaguid, length: AAGUID_LENGTH
       bit16 :id_length
       string :id, read_length: :id_length
