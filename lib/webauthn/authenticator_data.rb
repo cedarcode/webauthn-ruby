@@ -83,6 +83,14 @@ module WebAuthn
       @extension_data ||= CBOR.decode(raw_extension_data)
     end
 
+    def aaguid
+      raw_aaguid = attested_credential_data.raw_aaguid
+
+      unless raw_aaguid == WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
+        attested_credential_data.aaguid
+      end
+    end
+
     private
 
     def valid_length?

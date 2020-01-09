@@ -16,18 +16,19 @@ require_relative "conformance_patches"
 
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
 
-Credential = Struct.new(:id, :public_key, :sign_count) do
-  @credentials = {}
+Credential =
+  Struct.new(:id, :public_key, :sign_count) do
+    @credentials = {}
 
-  def self.register(username, id:, public_key:, sign_count:)
-    @credentials[username] ||= []
-    @credentials[username] << Credential.new(id, public_key, sign_count)
-  end
+    def self.register(username, id:, public_key:, sign_count:)
+      @credentials[username] ||= []
+      @credentials[username] << Credential.new(id, public_key, sign_count)
+    end
 
-  def self.registered_for(username)
-    @credentials[username] || []
+    def self.registered_for(username)
+      @credentials[username] || []
+    end
   end
-end
 
 host = ENV["HOST"] || "localhost"
 
@@ -102,9 +103,10 @@ end
 post "/assertion/result" do
   webauthn_credential = WebAuthn::Credential.from_get(params)
 
-  user_credential = Credential.registered_for(cookies["assertion_username"]).detect do |uc|
-    uc.id == webauthn_credential.id
-  end
+  user_credential =
+    Credential.registered_for(cookies["assertion_username"]).detect do |uc|
+      uc.id == webauthn_credential.id
+    end
 
   webauthn_credential.verify(
     cookies["assertion_challenge"],

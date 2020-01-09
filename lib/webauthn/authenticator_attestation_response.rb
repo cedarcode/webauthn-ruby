@@ -4,9 +4,8 @@ require "cbor"
 require "uri"
 require "openssl"
 
-require "webauthn/authenticator_data"
+require "webauthn/attestation"
 require "webauthn/authenticator_response"
-require "webauthn/attestation_statement"
 require "webauthn/client_data"
 require "webauthn/encoder"
 
@@ -50,32 +49,30 @@ module WebAuthn
     end
 
     def attestation_statement
-      @attestation_statement ||=
-        WebAuthn::AttestationStatement.from(attestation["fmt"], attestation["attStmt"])
+      attestation.attestation_statement
     end
 
     def authenticator_data
-      @authenticator_data ||= WebAuthn::AuthenticatorData.deserialize(attestation["authData"])
+      attestation.authenticator_data
     end
 
     def attestation_format
-      attestation["fmt"]
+      attestation.attestation_format
     end
 
     def attestation
-      @attestation ||= CBOR.decode(attestation_object)
+      @attestation ||= WebAuthn::Attestation.deserialize(attestation_object)
     end
 
     def aaguid
-      raw_aaguid = authenticator_data.attested_credential_data.raw_aaguid
-      unless raw_aaguid == WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
-        authenticator_data.attested_credential_data.aaguid
-      end
+      attestation.aaguid
     end
 
-    def attestation_certificate_key
-      raw_subject_key_identifier(attestation_statement.attestation_certificate)&.unpack("H*")&.[](0)
+    def attestation_certificate_key_id
+      attestation.certificate_key_id
     end
+
+    alias_method :attestation_certificate_key, :attestation_certificate_key_id
 
     private
 
@@ -86,60 +83,15 @@ module WebAuthn
     end
 
     def valid_attested_credential?
-      authenticator_data.attested_credential_data_included? &&
-        authenticator_data.attested_credential_data.valid?
+      attestation.valid_attested_credential?
     end
 
     def valid_attestation_statement?
-      @attestation_type, @attestation_trust_path = attestation_statement.valid?(authenticator_data, client_data.hash)
+      @attestation_type, @attestation_trust_path = attestation.valid_attestation_statement?(client_data.hash)
     end
 
     def valid_attestation_trustworthiness?
-      case @attestation_type
-      when WebAuthn::AttestationStatement::ATTESTATION_TYPE_NONE
-        WebAuthn.configuration.acceptable_attestation_types.include?('None')
-      when WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF
-        WebAuthn.configuration.acceptable_attestation_types.include?('Self')
-      else
-        WebAuthn.configuration.acceptable_attestation_types.include?(@attestation_type) &&
-          attestation_root_certificates_store.verify(leaf_certificate, signing_certificates)
-      end
-    end
-
-    def raw_subject_key_identifier(certificate)
-      extension = certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
-      return unless extension
-
-      ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
-      ext_value = ext_asn1.value.last
-      OpenSSL::ASN1.decode(ext_value.value).value
-    end
-
-    def attestation_root_certificates_store
-      certificates =
-        WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
-          if certs.empty?
-            finder.find(attestation_format: attestation_format,
-                        aaguid: aaguid,
-                        attestation_certificate_key_id: attestation_certificate_key) || []
-          else
-            certs
-          end
-        end
-
-      OpenSSL::X509::Store.new.tap do |store|
-        certificates.each do |cert|
-          store.add_cert(cert)
-        end
-      end
-    end
-
-    def signing_certificates
-      @attestation_trust_path[1..-1]
-    end
-
-    def leaf_certificate
-      @attestation_trust_path.first
+      attestation.trustworthy?
     end
   end
 end

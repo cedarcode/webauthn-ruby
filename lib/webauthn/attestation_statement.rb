@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+require "webauthn/attestation_statement/android_key"
+require "webauthn/attestation_statement/android_safetynet"
+require "webauthn/attestation_statement/fido_u2f"
+require "webauthn/attestation_statement/none"
+require "webauthn/attestation_statement/packed"
+require "webauthn/attestation_statement/tpm"
 require "webauthn/error"
 
 module WebAuthn
@@ -16,22 +22,16 @@ module WebAuthn
     def self.from(format, statement)
       case format
       when ATTESTATION_FORMAT_NONE
-        require "webauthn/attestation_statement/none"
         WebAuthn::AttestationStatement::None.new(statement)
       when ATTESTATION_FORMAT_FIDO_U2F
-        require "webauthn/attestation_statement/fido_u2f"
         WebAuthn::AttestationStatement::FidoU2f.new(statement)
       when ATTESTATION_FORMAT_PACKED
-        require "webauthn/attestation_statement/packed"
         WebAuthn::AttestationStatement::Packed.new(statement)
       when ATTESTATION_FORMAT_ANDROID_SAFETYNET
-        require "webauthn/attestation_statement/android_safetynet"
         WebAuthn::AttestationStatement::AndroidSafetynet.new(statement)
       when ATTESTATION_FORMAT_ANDROID_KEY
-        require "webauthn/attestation_statement/android_key"
         WebAuthn::AttestationStatement::AndroidKey.new(statement)
       when ATTESTATION_FORMAT_TPM
-        require "webauthn/attestation_statement/tpm"
         WebAuthn::AttestationStatement::TPM.new(statement)
       else
         raise FormatNotSupportedError, "Unsupported attestation format '#{format}'"

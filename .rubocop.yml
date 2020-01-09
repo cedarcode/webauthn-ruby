@@ -17,18 +17,27 @@ Gemspec:
 Layout:
   Enabled: true
 
-Lint:
+Layout/FirstMethodArgumentLineBreak:
   Enabled: true
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
   Exclude:
     - spec/support/seeds.rb
 
+Layout/MultilineAssignmentLayout:
+  Enabled: true
+
+Layout/MultilineMethodArgumentLineBreaks:
+  Enabled: true
+
+Lint:
+  Enabled: true
+
 Naming:
   Enabled: true
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   AllowedNames:
     - rp
 
@@ -146,7 +155,13 @@ Style/RedundantException:
 Style/RedundantFreeze:
   Enabled: true
 
+Style/RedundantInterpolation:
+  Enabled: true
+
 Style/RedundantParentheses:
+  Enabled: true
+
+Style/RedundantPercentQ:
   Enabled: true
 
 Style/RedundantReturn:
@@ -180,12 +195,6 @@ Style/TrailingMethodEndStatement:
   Enabled: true
 
 Style/TrivialAccessors:
-  Enabled: true
-
-Style/UnneededInterpolation:
-  Enabled: true
-
-Style/UnneededPercentQ:
   Enabled: true
 
 Style/UnpackFirst:

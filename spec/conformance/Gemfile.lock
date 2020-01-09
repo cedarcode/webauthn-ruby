@@ -1,18 +1,20 @@
 PATH
   remote: ../..
   specs:
-    webauthn (2.0.0)
+    webauthn (2.1.0)
+      android_key_attestation (~> 0.2.0)
       awrence (~> 1.1)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
       cose (~> 0.10.0)
-      jwt (>= 1.5, < 3.0)
       openssl (~> 2.0)
+      safety_net_attestation (~> 0.4.0)
       securecompare (~> 1.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
+    android_key_attestation (0.2.0)
     awrence (1.1.0)
     backports (3.15.0)
     bindata (2.4.4)
@@ -25,27 +27,31 @@ GEM
     ipaddr (1.2.2)
     jwt (2.2.1)
     multi_json (1.14.1)
-    mustermann (1.0.3)
+    mustermann (1.1.0)
+      ruby2_keywords (~> 0.0.1)
     openssl (2.1.2)
       ipaddr
     rack (2.0.8)
     rack-contrib (2.1.0)
       rack (~> 2.0)
-    rack-protection (2.0.7)
+    rack-protection (2.0.8.1)
       rack
+    ruby2_keywords (0.0.1)
     rubyzip (2.0.0)
+    safety_net_attestation (0.4.0)
+      jwt (~> 2.0)
     securecompare (1.0.0)
-    sinatra (2.0.7)
+    sinatra (2.0.8.1)
       mustermann (~> 1.0)
       rack (~> 2.0)
-      rack-protection (= 2.0.7)
+      rack-protection (= 2.0.8.1)
       tilt (~> 2.0)
-    sinatra-contrib (2.0.7)
+    sinatra-contrib (2.0.8.1)
       backports (>= 2.8.2)
       multi_json
       mustermann (~> 1.0)
-      rack-protection (= 2.0.7)
-      sinatra (= 2.0.7)
+      rack-protection (= 2.0.8.1)
+      sinatra (= 2.0.8.1)
       tilt (~> 2.0)
     tilt (2.0.10)
 

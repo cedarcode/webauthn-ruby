@@ -54,7 +54,7 @@ RSpec.describe "TPM attestation statement" do
       let(:aik_certificate_version) { 2 }
       let(:aik_certificate_subject) { "" }
       let(:aik_certificate_basic_constraints) { "CA:FALSE" }
-      let(:aik_certificate_extended_key_usage) { WebAuthn::AttestationStatement::TPM::OID_TCG_KP_AIK_CERTIFICATE }
+      let(:aik_certificate_extended_key_usage) { ::TPM::EKCertificate::OID_TCG_KP_AIK_CERTIFICATE }
       let(:aik_certificate_san_critical) { true }
       let(:aik_certificate_san_manufacturer) { "id:4E544300" }
       let(:aik_certificate_san_model) { "TPM test model" }

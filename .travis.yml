@@ -23,14 +23,5 @@ matrix:
     - gemfile: gemfiles/cose_head.gemfile
     - gemfile: gemfiles/openssl_head.gemfile
 
-addons:
-  apt:
-    packages:
-      - libfaketime
-
 before_install:
   - gem install bundler -v "~> 2.0"
-
-before_script:
-  - export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/faketime/libfaketime.so.1
-  - export FAKETIME_NO_CACHE=1
