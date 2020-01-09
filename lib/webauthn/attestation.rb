@@ -45,6 +45,10 @@ module WebAuthn
       end
     end
 
+    def credential
+      authenticator_data.credential
+    end
+
     def aaguid
       authenticator_data.aaguid
     end

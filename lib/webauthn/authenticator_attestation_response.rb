@@ -45,7 +45,7 @@ module WebAuthn
     end
 
     def credential
-      authenticator_data.credential
+      attestation.credential
     end
 
     def attestation_statement
