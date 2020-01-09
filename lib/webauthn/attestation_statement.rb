@@ -19,22 +19,22 @@ module WebAuthn
     ATTESTATION_FORMAT_ANDROID_KEY = "android-key"
     ATTESTATION_FORMAT_TPM = "tpm"
 
+    FORMAT_TO_CLASS = {
+      ATTESTATION_FORMAT_NONE => WebAuthn::AttestationStatement::None,
+      ATTESTATION_FORMAT_FIDO_U2F => WebAuthn::AttestationStatement::FidoU2f,
+      ATTESTATION_FORMAT_PACKED => WebAuthn::AttestationStatement::Packed,
+      ATTESTATION_FORMAT_ANDROID_SAFETYNET => WebAuthn::AttestationStatement::AndroidSafetynet,
+      ATTESTATION_FORMAT_ANDROID_KEY => WebAuthn::AttestationStatement::AndroidKey,
+      ATTESTATION_FORMAT_TPM => WebAuthn::AttestationStatement::TPM
+    }.freeze
+
     def self.from(format, statement)
-      case format
-      when ATTESTATION_FORMAT_NONE
-        WebAuthn::AttestationStatement::None.new(statement)
-      when ATTESTATION_FORMAT_FIDO_U2F
-        WebAuthn::AttestationStatement::FidoU2f.new(statement)
-      when ATTESTATION_FORMAT_PACKED
-        WebAuthn::AttestationStatement::Packed.new(statement)
-      when ATTESTATION_FORMAT_ANDROID_SAFETYNET
-        WebAuthn::AttestationStatement::AndroidSafetynet.new(statement)
-      when ATTESTATION_FORMAT_ANDROID_KEY
-        WebAuthn::AttestationStatement::AndroidKey.new(statement)
-      when ATTESTATION_FORMAT_TPM
-        WebAuthn::AttestationStatement::TPM.new(statement)
+      klass = FORMAT_TO_CLASS[format]
+
+      if klass
+        klass.new(statement)
       else
-        raise FormatNotSupportedError, "Unsupported attestation format '#{format}'"
+        raise(FormatNotSupportedError, "Unsupported attestation format '#{format}'")
       end
     end
   end

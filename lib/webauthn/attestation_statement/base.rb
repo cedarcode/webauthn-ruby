@@ -27,7 +27,7 @@ module WebAuthn
       end
 
       def format
-        raise NotImplementedError
+        WebAuthn::AttestationStatement::FORMAT_TO_CLASS.key(self.class)
       end
 
       def attestation_certificate

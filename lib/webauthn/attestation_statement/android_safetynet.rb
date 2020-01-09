@@ -15,10 +15,6 @@ module WebAuthn
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_trust_path]
       end
 
-      def format
-        ATTESTATION_FORMAT_ANDROID_SAFETYNET
-      end
-
       def attestation_certificate
         attestation_trust_path.first
       end

@@ -22,10 +22,6 @@ module WebAuthn
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, attestation_trust_path]
       end
 
-      def format
-        ATTESTATION_FORMAT_FIDO_U2F
-      end
-
       private
 
       def valid_format?

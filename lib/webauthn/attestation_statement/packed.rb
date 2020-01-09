@@ -23,10 +23,6 @@ module WebAuthn
           attestation_type_and_trust_path
       end
 
-      def format
-        ATTESTATION_FORMAT_PACKED
-      end
-
       private
 
       def valid_algorithm?(credential)
