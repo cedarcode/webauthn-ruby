@@ -43,6 +43,10 @@ module WebAuthn
         end
       end
 
+      def format
+        ATTESTATION_FORMAT_TPM
+      end
+
       private
 
       def valid_signature?

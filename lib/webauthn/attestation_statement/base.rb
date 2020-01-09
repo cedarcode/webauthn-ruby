@@ -26,6 +26,10 @@ module WebAuthn
         raise NotImplementedError
       end
 
+      def format
+        raise NotImplementedError
+      end
+
       def attestation_certificate
         certificates&.first
       end
@@ -34,6 +38,10 @@ module WebAuthn
         if certificates
           certificates[1..-1]
         end
+      end
+
+      def certificate_key_id
+        raw_subject_key_identifier&.unpack("H*")&.[](0)
       end
 
       private
@@ -79,6 +87,15 @@ module WebAuthn
         if certificates&.any?
           certificates
         end
+      end
+
+      def raw_subject_key_identifier
+        extension = attestation_certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
+        return unless extension
+
+        ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
+        ext_value = ext_asn1.value.last
+        OpenSSL::ASN1.decode(ext_value.value).value
       end
     end
   end

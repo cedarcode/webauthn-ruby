@@ -18,6 +18,10 @@ module WebAuthn
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_trust_path]
       end
 
+      def format
+        ATTESTATION_FORMAT_ANDROID_KEY
+      end
+
       private
 
       def valid_signature?(authenticator_data, client_data_hash)
