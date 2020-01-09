@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "cbor"
+require "forwardable"
 require "uri"
 require "openssl"
 
@@ -44,33 +45,20 @@ module WebAuthn
       true
     end
 
-    def credential
-      attestation.credential
-    end
-
-    def attestation_statement
-      attestation.attestation_statement
-    end
-
-    def authenticator_data
-      attestation.authenticator_data
-    end
-
-    def attestation_format
-      attestation.attestation_format
-    end
-
     def attestation
       @attestation ||= WebAuthn::Attestation.deserialize(attestation_object)
     end
 
-    def aaguid
-      attestation.aaguid
-    end
+    extend Forwardable
 
-    def attestation_certificate_key_id
-      attestation.certificate_key_id
-    end
+    def_delegators(
+      :attestation,
+      :aaguid,
+      :attestation_statement,
+      :attestation_certificate_key_id,
+      :authenticator_data,
+      :credential
+    )
 
     alias_method :attestation_certificate_key, :attestation_certificate_key_id
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "cbor"
+require "forwardable"
 require "openssl"
 require "webauthn/attestation_statement"
 require "webauthn/authenticator_data"
@@ -45,17 +46,10 @@ module WebAuthn
       end
     end
 
-    def credential
-      authenticator_data.credential
-    end
+    extend Forwardable
 
-    def aaguid
-      authenticator_data.aaguid
-    end
-
-    def certificate_key_id
-      attestation_statement.certificate_key_id
-    end
+    def_delegators :authenticator_data, :credential, :aaguid
+    def_delegators :attestation_statement, :attestation_certificate_key_id
 
     private
 
@@ -88,7 +82,7 @@ module WebAuthn
           finder.find(
             attestation_format: attestation_statement.format,
             aaguid: aaguid,
-            attestation_certificate_key_id: certificate_key_id
+            attestation_certificate_key_id: attestation_certificate_key_id
           ) || []
         else
           certs
