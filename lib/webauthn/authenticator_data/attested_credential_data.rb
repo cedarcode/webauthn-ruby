@@ -9,7 +9,6 @@ module WebAuthn
 
   class AuthenticatorData < BinData::Record
     class AttestedCredentialData < BinData::Record
-
       AAGUID_LENGTH = 16
       ZEROED_AAGUID = 0.chr * AAGUID_LENGTH
 
