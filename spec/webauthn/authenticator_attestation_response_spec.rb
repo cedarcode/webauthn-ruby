@@ -36,6 +36,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       expect(attestation_response.valid?(original_challenge)).to be_truthy
     end
 
+    # TODO: let FakeClient#create recieve a fixed credential
+    # https://github.com/cedarcode/webauthn-ruby/pull/302#discussion_r365338434
     it "returns the credential" do
       credential = attestation_response.credential
 
