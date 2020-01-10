@@ -14,7 +14,7 @@ require "tpm/t_public"
 RSpec.describe "TPM attestation statement" do
   describe "#valid?" do
     context "AttCA attestation" do
-      let(:authenticator_data) { WebAuthn::AuthenticatorData.new(authenticator_data_bytes) }
+      let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
 
       let(:authenticator_data_bytes) do
         WebAuthn::FakeAuthenticator::AuthenticatorData.new(

@@ -11,7 +11,7 @@ RSpec.describe "none attestation" do
       aaguid: 0.chr * 16,
     ).serialize
   end
-  let(:authenticator_data) { WebAuthn::AuthenticatorData.new(authenticator_data_bytes) }
+  let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
 
   describe "#valid?" do
     it "returns true if the statement is an empty map" do

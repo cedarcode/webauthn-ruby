@@ -14,7 +14,7 @@ module WebAuthn
 
     def self.from_map(map)
       new(
-        authenticator_data: WebAuthn::AuthenticatorData.new(map["authData"]),
+        authenticator_data: WebAuthn::AuthenticatorData.deserialize(map["authData"]),
         attestation_statement: WebAuthn::AttestationStatement.from(map["fmt"], map["attStmt"])
       )
     end

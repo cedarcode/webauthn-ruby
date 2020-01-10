@@ -47,7 +47,7 @@ module WebAuthn
     end
 
     def authenticator_data
-      @authenticator_data ||= WebAuthn::AuthenticatorData.new(authenticator_data_bytes)
+      @authenticator_data ||= WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes)
     end
 
     private
