@@ -41,11 +41,13 @@ RSpec.describe WebAuthn::AuthenticatorData do
 
   describe "#rp_id_hash" do
     subject { authenticator_data.rp_id_hash }
+
     it { is_expected.to eq(rp_id_hash) }
   end
 
   describe "#sign_count" do
     subject { authenticator_data.sign_count }
+
     it { is_expected.to eq(42) }
   end
 
@@ -54,11 +56,13 @@ RSpec.describe WebAuthn::AuthenticatorData do
 
     context "when UP flag is set" do
       let(:user_present) { true }
+
       it { is_expected.to be_truthy }
     end
 
     context "when UP flag is not set" do
       let(:user_present) { false }
+
       it { is_expected.to be_falsy }
     end
   end

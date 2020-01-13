@@ -64,7 +64,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    before(:each) do
+    before do
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('feitian_ft_fido_0200.pem')
     end
 
@@ -154,7 +154,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    before(:each) do
+    before do
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('yubico_u2f_root.pem')
     end
 
@@ -199,9 +199,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       WebAuthn.configure do |config|
         config.algorithms.concat(%w(RS1))
       end
-    end
 
-    before(:each) do
       WebAuthn.configuration.attestation_root_certificates_finders =
         finder_for('microsoft_tpm_root_certificate_authority_2014.cer')
     end
@@ -248,7 +246,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    before(:each) do
+    before do
       allow(attestation_response.attestation_statement).to receive(:time).and_return(time)
       allow(attestation_response).to receive(:attestation_root_certificates_store).and_wrap_original do |m, *args|
         store = m.call(*args)
@@ -297,7 +295,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    before(:each) do
+    before do
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('android_key_root.pem')
     end
 
@@ -552,7 +550,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     context "when finder has correct root certificate" do
-      before(:each) do
+      before do
         WebAuthn.configuration.attestation_root_certificates_finders = finder_for('yubico_u2f_root.pem')
       end
 
@@ -562,7 +560,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     context "when finder doesn't have correct certificate" do
-      before(:each) do
+      before do
         WebAuthn.configuration.attestation_root_certificates_finders = finder_for(
           'incorrect_root.crt',
           return_empty: true
@@ -577,7 +575,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     context "when there is more than one finder" do
-      before(:each) do
+      before do
         WebAuthn.configuration.attestation_root_certificates_finders = [
           finder_for('incorrect_root.crt', return_empty: true),
           finder_for('yubico_u2f_root.pem'),
