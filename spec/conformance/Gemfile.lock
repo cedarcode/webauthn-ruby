@@ -10,6 +10,7 @@ PATH
       openssl (~> 2.0)
       safety_net_attestation (~> 0.4.0)
       securecompare (~> 1.0)
+      tpm-key_attestation (~> 0.6.0)
 
 GEM
   remote: https://rubygems.org/
@@ -31,6 +32,7 @@ GEM
       ruby2_keywords (~> 0.0.1)
     openssl (2.1.2)
       ipaddr
+    openssl-signature_algorithm (0.3.0)
     rack (2.0.8)
     rack-contrib (2.1.0)
       rack (~> 2.0)
@@ -54,6 +56,9 @@ GEM
       sinatra (= 2.0.8.1)
       tilt (~> 2.0)
     tilt (2.0.10)
+    tpm-key_attestation (0.6.0)
+      bindata (~> 2.4)
+      openssl-signature_algorithm (~> 0.3.0)
 
 PLATFORMS
   ruby
