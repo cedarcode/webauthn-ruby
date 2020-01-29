@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "cose"
-require "cose/rsassa_algorithm"
+require "cose/rsapkcs1_algorithm"
 require "openssl"
 require "webauthn/error"
 
@@ -22,18 +22,10 @@ module WebAuthn
       validate
     end
 
-    def verify(signature, verification_data, rsa_pss_salt_length: :digest)
-      if rsa_pss?
-        public_key.verify_pss(
-          cose_algorithm.hash_function,
-          signature,
-          verification_data,
-          salt_length: rsa_pss_salt_length,
-          mgf1_hash: cose_algorithm.hash_function
-        )
-      else
-        public_key.verify(cose_algorithm.hash_function, signature, verification_data)
-      end
+    def verify(signature, verification_data)
+      cose_algorithm.verify(public_key, signature, verification_data)
+    rescue COSE::Error
+      false
     end
 
     private
@@ -54,15 +46,11 @@ module WebAuthn
       case cose_algorithm
       when COSE::Algorithm::ECDSA
         COSE::Key::EC2::KTY_EC2
-      when COSE::Algorithm::RSAPSS, RSASSAAlgorithm
+      when COSE::Algorithm::RSAPSS, RSAPKCS1Algorithm
         COSE::Key::RSA::KTY_RSA
       else
         raise UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}"
       end
-    end
-
-    def rsa_pss?
-      cose_algorithm.name.start_with?("PS")
     end
 
     def validate
