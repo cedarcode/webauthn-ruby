@@ -88,30 +88,25 @@ RSpec.describe "TPM attestation statement" do
       let(:aik_certificate_start_time) { Time.now }
       let(:aik_certificate_end_time) { Time.now + 60 }
 
-      let(:signature) do
-        aik.sign("SHA256", to_be_signed)
-      end
-
-      let(:to_be_signed) { cert_info }
+      let(:signature) { aik.sign("SHA256", cert_info) }
 
       let(:cert_info) do
         s_attest = ::TPM::SAttest.new
-        s_attest.magic = cert_info_magic
+        s_attest.magic = ::TPM::GENERATED_VALUE
         s_attest.attested_type = ::TPM::ST_ATTEST_CERTIFY
         s_attest.extra_data.buffer = cert_info_extra_data
-        s_attest.attested.name.buffer = cert_info_attested_name
+        s_attest.attested.name.buffer = [name_alg].pack("n") + OpenSSL::Digest::SHA1.digest(pub_area)
 
         s_attest.to_binary_s
       end
 
-      let(:cert_info_magic) { ::TPM::GENERATED_VALUE }
-      let(:cert_info_extra_data) { OpenSSL::Digest::SHA256.digest(att_to_be_signed) }
-      let(:cert_info_attested_name) { [::TPM::ALG_SHA1].pack("n") + OpenSSL::Digest::SHA1.digest(pub_area) }
-      let(:att_to_be_signed) { authenticator_data_bytes + client_data_hash }
+      let(:cert_info_extra_data) { OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash) }
+      let(:name_alg) { ::TPM::ALG_SHA1 }
 
       let(:pub_area) do
         t_public = ::TPM::TPublic.new
         t_public.alg_type = ::TPM::ALG_RSA
+        t_public.name_alg = name_alg
         t_public.parameters = pub_area_parameters
         t_public.unique.buffer = credential_key.params["n"].to_s(2)
 
@@ -152,6 +147,7 @@ RSpec.describe "TPM attestation statement" do
         let(:pub_area) do
           t_public = ::TPM::TPublic.new
           t_public.alg_type = ::TPM::ALG_ECC
+          t_public.name_alg = name_alg
           t_public.parameters = pub_area_parameters
           t_public.unique.buffer = credential_key.public_key.to_bn.to_s(2)[1..-1]
 
@@ -176,6 +172,7 @@ RSpec.describe "TPM attestation statement" do
             let(:pub_area) do
               t_public = ::TPM::TPublic.new
               t_public.alg_type = ::TPM::ALG_ECC
+              t_public.name_alg = name_alg
               t_public.parameters = pub_area_parameters
               t_public.unique.buffer =
                 OpenSSL::PKey::EC.generate("prime256v1").generate_key.public_key.to_bn.to_s(2)[1..-1]
@@ -246,7 +243,7 @@ RSpec.describe "TPM attestation statement" do
 
         let(:algorithm) { -37 }
         let(:signature) do
-          aik.sign_pss("SHA256", to_be_signed, salt_length: :max, mgf1_hash: "SHA256")
+          aik.sign_pss("SHA256", cert_info, salt_length: :max, mgf1_hash: "SHA256")
         end
 
         it "works if everything's fine" do
@@ -267,6 +264,7 @@ RSpec.describe "TPM attestation statement" do
           let(:pub_area) do
             t_public = ::TPM::TPublic.new
             t_public.alg_type = ::TPM::ALG_RSA
+            t_public.name_alg = name_alg
             t_public.unique.buffer = OpenSSL::PKey::RSA.new(2048).params["n"].to_s(2)
 
             t_public.to_binary_s
@@ -325,79 +323,19 @@ RSpec.describe "TPM attestation statement" do
         end
       end
 
-      context "when certInfo is invalid" do
-        context "because magic is not TPM_GENERATED_VALUE" do
-          let(:cert_info_magic) { ::TPM::GENERATED_VALUE + 1 }
+      context "when extraData is not the concatenation of auth data + client data hash" do
+        let(:cert_info_extra_data) { OpenSSL::Digest::SHA256.digest(authenticator_data_bytes) }
 
-          it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
-          end
-        end
-
-        context "because extraData is the hash of attToBeSigned but not using the algorithm from 'alg'" do
-          let(:cert_info_extra_data) { OpenSSL::Digest::SHA1.digest(att_to_be_signed) }
-
-          it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
-          end
-        end
-
-        context "because attested name is not a valid Name for pubArea" do
-          context "because it was hashed on different data" do
-            let(:cert_info_attested_name) do
-              [::TPM::ALG_SHA1].pack("n") + OpenSSL::Digest::SHA1.digest(pub_area + "X")
-            end
-
-            it "returns false" do
-              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
-            end
-          end
-
-          context "because it was hashed with a different algorithm" do
-            let(:cert_info_attested_name) do
-              [::TPM::ALG_SHA1].pack("n") + OpenSSL::Digest::SHA256.digest(pub_area)
-            end
-
-            it "returns false" do
-              expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
-            end
-          end
+        it "returns false" do
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
         end
       end
 
       context "when signature is invalid" do
-        context "because is signed with a different alg" do
-          let(:algorithm) { -258 }
+        let(:signature) { "corrupted signature".b }
 
-          it "fails" do
-            expect {
-              statement.valid?(authenticator_data, client_data_hash)
-            }.to raise_error("Unsupported algorithm -258")
-          end
-        end
-
-        context "because it was signed with an incorrect key" do
-          let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
-
-          it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
-          end
-        end
-
-        context "because it was signed over different data" do
-          let(:to_be_signed) { "other data".b }
-
-          it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
-          end
-        end
-
-        context "because it is nonsense" do
-          let(:signature) { "corrupted signature".b }
-
-          it "returns false" do
-            expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
-          end
+        it "returns false" do
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
         end
       end
 
