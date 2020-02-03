@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/cedarcode/tpm-key_attestation.git
+  revision: 8993e189b4bd8eb9695e482b50f1449f2bc02f0c
+  specs:
+    tpm-key_attestation (0.6.0)
+      bindata (~> 2.4)
+      openssl-signature_algorithm (~> 0.3.0)
+
 PATH
   remote: ../..
   specs:
@@ -57,9 +65,6 @@ GEM
       sinatra (= 2.0.8.1)
       tilt (~> 2.0)
     tilt (2.0.10)
-    tpm-key_attestation (0.6.0)
-      bindata (~> 2.4)
-      openssl-signature_algorithm (~> 0.3.0)
 
 PLATFORMS
   ruby
@@ -71,6 +76,7 @@ DEPENDENCIES
   rubyzip
   sinatra (~> 2.0)
   sinatra-contrib
+  tpm-key_attestation!
   webauthn!
 
 RUBY VERSION
