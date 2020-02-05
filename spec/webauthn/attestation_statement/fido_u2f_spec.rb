@@ -82,6 +82,8 @@ RSpec.describe "FidoU2f attestation" do
     context "when the attested credential public key is invalid" do
       context "because the coordinates are longer than expected" do
         let(:credential_public_key) do
+          WebAuthn.configuration.algorithms << "ES384"
+
           OpenSSL::PKey::EC.new("secp384r1").generate_key.public_key
         end
 
