@@ -22,7 +22,7 @@ module WebAuthn
       count_bytes_remaining :trailing_bytes_length
       string :trailing_bytes, length: :trailing_bytes_length
 
-      # FIXME: use keyword_init when we dropped Ruby 2.4 support
+      # TODO: use keyword_init when we dropped Ruby 2.4 support
       Credential =
         Struct.new(:id, :public_key) do
           def public_key_object
