@@ -483,6 +483,18 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         }.to raise_exception(WebAuthn::AttestedCredentialVerificationError)
       end
     end
+
+    context "when credential algorithm is not what expected" do
+      before do
+        WebAuthn.configuration.algorithms = ["RS256"]
+      end
+
+      it "doesn't verify" do
+        expect {
+          attestation_response.verify(original_challenge, origin)
+        }.to raise_exception(WebAuthn::AuthenticatorDataVerificationError)
+      end
+    end
   end
 
   describe "attestation statement verification" do

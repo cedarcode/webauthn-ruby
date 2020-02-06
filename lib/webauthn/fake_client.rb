@@ -46,7 +46,10 @@ module WebAuthn
 
       id =
         if attested_credential_data
-          WebAuthn::AuthenticatorData.deserialize(CBOR.decode(attestation_object)["authData"]).credential.id
+          WebAuthn::AuthenticatorData
+            .deserialize(CBOR.decode(attestation_object)["authData"])
+            .attested_credential_data
+            .id
         else
           "id-for-pk-without-attested-credential-data"
         end

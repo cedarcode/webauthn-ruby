@@ -40,7 +40,11 @@ RSpec.describe "Packed attestation" do
       end
 
       context "when credential public key algorithm doesn't match" do
-        let(:credential_key) { OpenSSL::PKey::EC.new("secp521r1").generate_key }
+        let(:credential_key) do
+          WebAuthn.configuration.algorithms << "ES512"
+
+          OpenSSL::PKey::EC.new("secp521r1").generate_key
+        end
 
         it "fails" do
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
