@@ -50,11 +50,13 @@ RSpec.describe "AndroidKey attestation" do
     end
 
     let(:attestation_certificate_extensions) do
-      [OpenSSL::X509::Extension.new("1.3.6.1.4.1.11129.2.1.17", attestation_certificate_extension, true)]
+      [OpenSSL::X509::Extension.new("1.3.6.1.4.1.11129.2.1.17", attestation_certificate_extension, false)]
     end
 
     let(:attestation_certificate) do
       certificate = OpenSSL::X509::Certificate.new
+      certificate.subject = OpenSSL::X509::Name.new([["CN", "Fake Attestation"]])
+      certificate.issuer = root_certificate.subject
       certificate.not_before = Time.now
       certificate.not_after = Time.now + 60
       certificate.public_key = attestation_key
@@ -64,7 +66,7 @@ RSpec.describe "AndroidKey attestation" do
       extension_factory.issuer_certificate = certificate
       certificate.extensions = attestation_certificate_extensions
 
-      certificate.sign(attestation_key, OpenSSL::Digest::SHA256.new)
+      certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
 
       certificate.to_der
     end
@@ -75,6 +77,38 @@ RSpec.describe "AndroidKey attestation" do
         "sig" => signature,
         "x5c" => [attestation_certificate]
       )
+    end
+
+    let(:root_key) {  OpenSSL::PKey::EC.new("prime256v1").generate_key }
+
+    let(:root_certificate) do
+      certificate = OpenSSL::X509::Certificate.new
+      certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
+      certificate.issuer = certificate.subject
+      certificate.not_before = Time.now
+      certificate.not_after = Time.now + 60
+      certificate.public_key = root_key
+
+      extension_factory = OpenSSL::X509::ExtensionFactory.new
+      extension_factory.subject_certificate = certificate
+      extension_factory.issuer_certificate = certificate
+
+      certificate.extensions = [
+        extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
+        extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true)
+      ]
+
+      certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
+
+      certificate
+    end
+
+    let(:google_certificates) { [root_certificate] }
+
+    before do
+      silence_warnings do
+        AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES = google_certificates
+      end
     end
 
     it "works if everything's fine" do
@@ -183,6 +217,36 @@ RSpec.describe "AndroidKey attestation" do
         it "fails" do
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
         end
+      end
+    end
+
+    context "when the attestation certificate is not signed by Google" do
+      let(:google_certificates) do
+        root_key = OpenSSL::PKey::EC.new("prime256v1").generate_key
+
+        certificate = OpenSSL::X509::Certificate.new
+        certificate.subject = OpenSSL::X509::Name.new([["CN", "Fake CA"]])
+        certificate.issuer = certificate.subject
+        certificate.not_before = Time.now
+        certificate.not_after = Time.now + 60
+        certificate.public_key = root_key
+
+        extension_factory = OpenSSL::X509::ExtensionFactory.new
+        extension_factory.subject_certificate = certificate
+        extension_factory.issuer_certificate = certificate
+
+        certificate.extensions = [
+          extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
+          extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true)
+        ]
+
+        certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
+
+        [certificate]
+      end
+
+      it "fails" do
+        expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
       end
     end
   end

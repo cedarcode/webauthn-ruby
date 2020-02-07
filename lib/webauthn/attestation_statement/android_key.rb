@@ -15,6 +15,7 @@ module WebAuthn
           all_applications_fields_not_set? &&
           valid_authorization_list_origin? &&
           valid_authorization_list_purpose? &&
+          valid_certificate_chain? &&
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_trust_path]
       end
 
@@ -33,6 +34,12 @@ module WebAuthn
       def valid_attestation_challenge?(client_data_hash)
         android_key_attestation.verify_challenge(client_data_hash)
       rescue AndroidKeyAttestation::ChallengeMismatchError
+        false
+      end
+
+      def valid_certificate_chain?
+        android_key_attestation.verify_certificate_chain(root_certificates: AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES)
+      rescue AndroidKeyAttestation::CertificateVerificationError
         false
       end
 
