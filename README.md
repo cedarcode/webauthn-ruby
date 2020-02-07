@@ -64,6 +64,7 @@ Known conformant pairs are, for example:
 - Google Chrome for Android 70+ and Android's Fingerprint-based platform authenticator
 - Microsoft Edge and Windows 10 platform authenticator
 - Mozilla Firefox for Desktop and Yubico's Security Key roaming authenticator via USB
+- Safari in iOS 13.3+ and YubiKey 5 NFC via NFC
 
 For a detailed picture about what is conformant and what not, you can refer to:
 

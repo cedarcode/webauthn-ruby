@@ -3,9 +3,8 @@
 require "cose/algorithm"
 require "openssl"
 require "tpm/ek_certificate"
+require "tpm/key_attestation"
 require "webauthn/attestation_statement/base"
-require "webauthn/attestation_statement/tpm/cert_info"
-require "webauthn/attestation_statement/tpm/pub_area"
 require "webauthn/signature_verifier"
 
 module WebAuthn
@@ -13,19 +12,31 @@ module WebAuthn
     class TPM < Base
       TPM_V2 = "2.0"
 
+      # https://docs.microsoft.com/en-us/windows-server/security/guarded-fabric-shielded-vm/guarded-fabric-install-trusted-tpm-root-certificates
+      ROOT_CERTIFICATES =
+        begin
+          pattern = File.expand_path(File.join(__dir__, "../../tpm/certificates", "*.*"))
+          Dir.glob(pattern).map do |filename|
+            File.open(filename) { |file| OpenSSL::X509::Certificate.new(file) }
+          end
+        end
+
+      COSE_ALG_TO_TPM = {
+        "RS1" => { signature: ::TPM::ALG_RSASSA, hash: ::TPM::ALG_SHA1 },
+        "RS256" => { signature: ::TPM::ALG_RSASSA, hash: ::TPM::ALG_SHA256 },
+        "PS256" => { signature: ::TPM::ALG_RSAPSS, hash: ::TPM::ALG_SHA256 },
+        "ES256" => { signature: ::TPM::ALG_ECDSA, hash: ::TPM::ALG_SHA256 },
+      }.freeze
+
       def valid?(authenticator_data, client_data_hash)
         case attestation_type
         when ATTESTATION_TYPE_ATTCA
-          att_to_be_signed = authenticator_data.data + client_data_hash
-
           ver == TPM_V2 &&
-            valid_signature? &&
-            valid_attestation_certificate? &&
-            pub_area.valid?(authenticator_data.credential.public_key) &&
-            cert_info.valid?(
-              statement["pubArea"],
-              OpenSSL::Digest.digest(cose_algorithm.hash_function, att_to_be_signed)
+            valid_key_attestation?(
+              authenticator_data.data + client_data_hash,
+              authenticator_data.credential.public_key_object
             ) &&
+            valid_attestation_certificate? &&
             matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
             certificate_chain_trusted? &&
             [attestation_type, attestation_trust_path]
@@ -39,18 +50,23 @@ module WebAuthn
 
       private
 
-      def valid_signature?
-        WebAuthn::SignatureVerifier
-          .new(algorithm, attestation_certificate.public_key)
-          .verify(signature, verification_data, rsa_pss_salt_length: :auto)
-      end
+      def valid_key_attestation?(certified_extra_data, key)
+        key_attestation =
+          ::TPM::KeyAttestation.new(
+            statement["certInfo"],
+            signature,
+            statement["pubArea"],
+            attestation_certificate.public_key,
+            OpenSSL::Digest.digest(cose_algorithm.hash_function, certified_extra_data),
+            signature_algorithm: tpm_algorithm[:signature],
+            hash_algorithm: tpm_algorithm[:hash]
+          )
 
-      def valid_attestation_certificate?
-        ek_certificate.conformant? && ek_certificate.empty_subject?
+        key_attestation.valid? && key_attestation.key.to_pem == key.to_pem
       end
 
       def attestation_root_certificates
-        ::TPM::ROOT_CERTIFICATES
+        ROOT_CERTIFICATES
       end
 
       def certificate_chain_trusted?
@@ -62,16 +78,12 @@ module WebAuthn
         store.verify(attestation_certificate, certificate_chain)
       end
 
-      def verification_data
-        statement["certInfo"]
+      def tpm_algorithm
+        COSE_ALG_TO_TPM[cose_algorithm.name] || raise("Unsupported algorithm #{cose_algorithm.name}")
       end
 
-      def cert_info
-        @cert_info ||= CertInfo.new(statement["certInfo"])
-      end
-
-      def pub_area
-        @pub_area ||= PubArea.new(statement["pubArea"])
+      def valid_attestation_certificate?
+        ek_certificate.conformant? && ek_certificate.empty_subject?
       end
 
       def ver

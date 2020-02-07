@@ -115,8 +115,7 @@ module WebAuthn
         case credential[:public_key]
         when OpenSSL::PKey::RSA
           key = COSE::Key::RSA.from_pkey(credential[:public_key])
-          # FIXME: Remove once writer in cose
-          key.instance_variable_set(:@alg, -257)
+          key.alg = -257
         when OpenSSL::PKey::EC::Point
           alg = {
             COSE::Key::Curve.by_name("P-256").id => -7,
@@ -125,8 +124,7 @@ module WebAuthn
           }
 
           key = COSE::Key::EC2.from_pkey(credential[:public_key])
-          # FIXME: Remove once writer in cose
-          key.instance_variable_set(:@alg, alg[key.crv])
+          key.alg = alg[key.crv]
 
         end
 

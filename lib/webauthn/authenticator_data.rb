@@ -41,9 +41,9 @@ module WebAuthn
     end
 
     def valid?
-      valid_length? &&
-        (!attested_credential_data_included? || attested_credential_data.valid?) &&
-        (!extension_data_included? || extension_data)
+      (!attested_credential_data_included? || attested_credential_data.valid?) &&
+        (!extension_data_included? || extension_data) &&
+        valid_length?
     end
 
     def user_flagged?

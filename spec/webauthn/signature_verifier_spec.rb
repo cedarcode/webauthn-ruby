@@ -94,14 +94,6 @@ RSpec.describe "SignatureVerifier" do
       end
     end
 
-    context "when salt length is not equal to the hash function output" do
-      let(:signature) { key.sign_pss(hash_algorithm, to_be_signed, salt_length: :max, mgf1_hash: hash_algorithm) }
-
-      it "fails" do
-        expect(verifier.verify(signature, to_be_signed)).to be_falsy
-      end
-    end
-
     context "when it is valid but in an EC context" do
       let(:public_key) do
         pkey = OpenSSL::PKey::EC.new("prime256v1")

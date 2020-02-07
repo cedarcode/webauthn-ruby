@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/cedarcode/tpm-key_attestation.git
+  revision: 8993e189b4bd8eb9695e482b50f1449f2bc02f0c
+  specs:
+    tpm-key_attestation (0.6.0)
+      bindata (~> 2.4)
+      openssl-signature_algorithm (~> 0.3.0)
+
 PATH
   remote: ../..
   specs:
@@ -6,10 +14,11 @@ PATH
       awrence (~> 1.1)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
-      cose (~> 0.10.0)
+      cose (~> 0.11.0)
       openssl (~> 2.0)
       safety_net_attestation (~> 0.4.0)
       securecompare (~> 1.0)
+      tpm-key_attestation (~> 0.6.0)
 
 GEM
   remote: https://rubygems.org/
@@ -20,8 +29,9 @@ GEM
     bindata (2.4.4)
     byebug (11.0.1)
     cbor (0.5.9.6)
-    cose (0.10.0)
+    cose (0.11.0)
       cbor (~> 0.5.9)
+      openssl-signature_algorithm (~> 0.3.0)
     fido_metadata (0.3.0)
       jwt (~> 2.0)
     ipaddr (1.2.2)
@@ -31,6 +41,7 @@ GEM
       ruby2_keywords (~> 0.0.1)
     openssl (2.1.2)
       ipaddr
+    openssl-signature_algorithm (0.3.0)
     rack (2.0.8)
     rack-contrib (2.1.0)
       rack (~> 2.0)
@@ -65,6 +76,7 @@ DEPENDENCIES
   rubyzip
   sinatra (~> 2.0)
   sinatra-contrib
+  tpm-key_attestation!
   webauthn!
 
 RUBY VERSION
