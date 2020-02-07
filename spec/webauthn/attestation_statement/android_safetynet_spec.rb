@@ -41,16 +41,14 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     end
 
     let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
-    let(:root_certificate_start_time) { Time.now }
-    let(:root_certificate_end_time) { Time.now + 60 }
 
     let(:root_certificate) do
       certificate = OpenSSL::X509::Certificate.new
       certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
       certificate.issuer = certificate.subject
       certificate.public_key = root_key
-      certificate.not_before = root_certificate_start_time
-      certificate.not_after = root_certificate_end_time
+      certificate.not_before = Time.now
+      certificate.not_after = Time.now + 60
 
       extension_factory = OpenSSL::X509::ExtensionFactory.new
       extension_factory.subject_certificate = certificate

@@ -93,7 +93,6 @@ RSpec.describe "Packed attestation" do
       let(:attestation_certificate_version) { 2 }
       let(:attestation_certificate_subject) { "/C=UY/O=ACME/OU=Authenticator Attestation/CN=CN" }
       let(:attestation_certificate_basic_constraints) { "CA:FALSE" }
-      let(:attestation_certificate_aaguid) { authenticator_data.attested_credential_data.raw_aaguid }
       let(:attestation_certificate_start_time) { Time.now }
       let(:attestation_certificate_end_time) { Time.now + 60 }
 
