@@ -119,9 +119,9 @@ def create_root_certificate(key)
   certificate
 end
 
-def issue_certificate(ca_certificate, ca_key, key)
+def issue_certificate(ca_certificate, ca_key, key, name: nil)
   certificate = OpenSSL::X509::Certificate.new
-  common_name = "Cert-#{rand(1_000_000)}"
+  common_name = name || "Cert-#{rand(1_000_000)}"
 
   certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
   certificate.issuer = ca_certificate.subject

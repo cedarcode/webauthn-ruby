@@ -30,39 +30,11 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     let(:attestation_key) { OpenSSL::PKey::RSA.new(2048) }
 
     let(:leaf_certificate) do
-      certificate = OpenSSL::X509::Certificate.new
-      certificate.subject = OpenSSL::X509::Name.new([["CN", "attest.android.com"]])
-      certificate.not_before = Time.now
-      certificate.not_after = Time.now + 60
-      certificate.issuer = root_certificate.subject
-      certificate.public_key = attestation_key.public_key
-      certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
-      certificate
+      issue_certificate(root_certificate, root_key, attestation_key, name: "attest.android.com")
     end
 
     let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
-    let(:root_certificate_start_time) { Time.now }
-    let(:root_certificate_end_time) { Time.now + 60 }
-
-    let(:root_certificate) do
-      certificate = OpenSSL::X509::Certificate.new
-      certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
-      certificate.issuer = certificate.subject
-      certificate.public_key = root_key
-      certificate.not_before = root_certificate_start_time
-      certificate.not_after = root_certificate_end_time
-
-      extension_factory = OpenSSL::X509::ExtensionFactory.new
-      extension_factory.subject_certificate = certificate
-      extension_factory.issuer_certificate = certificate
-      certificate.extensions = [
-        extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
-        extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true),
-      ]
-
-      certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
-      certificate
-    end
+    let(:root_certificate) { create_root_certificate(root_key) }
 
     let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
 
@@ -76,8 +48,15 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }
     let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
 
-    before do
-      allow(statement).to receive(:attestation_root_certificates).and_return([root_certificate])
+    let(:google_certificates) { [root_certificate] }
+
+    around do |example|
+      silence_warnings do
+        original_google_certificates = SafetyNetAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
+        SafetyNetAttestation::Statement::GOOGLE_ROOT_CERTIFICATES = google_certificates
+        example.run
+        SafetyNetAttestation::Statement::GOOGLE_ROOT_CERTIFICATES = original_google_certificates
+      end
     end
 
     it "returns true when everything's in place" do
@@ -97,6 +76,22 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
 
       it "returns false" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+      end
+    end
+
+    context "when the attestation certificate is not signed by Google" do
+      let(:google_certificates) do
+        [create_root_certificate(OpenSSL::PKey::EC.new("prime256v1").generate_key)]
+      end
+
+      it "fails" do
+        expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+      end
+
+      it "returns true if they are configured" do
+        WebAuthn.configuration.attestation_root_certificates_finders = finder_for(root_certificate)
+
+        expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
       end
     end
   end

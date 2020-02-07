@@ -25,7 +25,7 @@ module WebAuthn
         nonce = Digest::SHA256.base64digest(authenticator_data.data + client_data_hash)
 
         begin
-          attestation_response.verify(nonce, trusted_certificates: attestation_root_certificates, time: time)
+          attestation_response.verify(nonce, trusted_certificates: root_certificates, time: time)
         rescue SafetyNetAttestation::Error
           false
         end
@@ -49,8 +49,14 @@ module WebAuthn
         @attestation_response ||= SafetyNetAttestation::Statement.new(statement["response"])
       end
 
-      def attestation_root_certificates
-        SafetyNetAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
+      def root_certificates
+        certs = super
+
+        if certs.empty?
+          SafetyNetAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
+        else
+          certs
+        end
       end
 
       def time
