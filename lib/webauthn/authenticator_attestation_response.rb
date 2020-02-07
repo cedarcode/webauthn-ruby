@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require "cbor"
+require "forwardable"
 require "uri"
 require "openssl"
 
-require "webauthn/authenticator_data"
+require "webauthn/attestation"
 require "webauthn/authenticator_response"
-require "webauthn/attestation_statement"
 require "webauthn/client_data"
 require "webauthn/encoder"
 
@@ -45,37 +45,22 @@ module WebAuthn
       true
     end
 
-    def credential
-      authenticator_data.credential
-    end
-
-    def attestation_statement
-      @attestation_statement ||=
-        WebAuthn::AttestationStatement.from(attestation["fmt"], attestation["attStmt"])
-    end
-
-    def authenticator_data
-      @authenticator_data ||= WebAuthn::AuthenticatorData.new(attestation["authData"])
-    end
-
-    def attestation_format
-      attestation["fmt"]
-    end
-
     def attestation
-      @attestation ||= CBOR.decode(attestation_object)
+      @attestation ||= WebAuthn::Attestation.deserialize(attestation_object)
     end
 
-    def aaguid
-      raw_aaguid = authenticator_data.attested_credential_data.raw_aaguid
-      unless raw_aaguid == WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
-        authenticator_data.attested_credential_data.aaguid
-      end
-    end
+    extend Forwardable
 
-    def attestation_certificate_key
-      raw_subject_key_identifier(attestation_statement.attestation_certificate)&.unpack("H*")&.[](0)
-    end
+    def_delegators(
+      :attestation,
+      :aaguid,
+      :attestation_statement,
+      :attestation_certificate_key_id,
+      :authenticator_data,
+      :credential
+    )
+
+    alias_method :attestation_certificate_key, :attestation_certificate_key_id
 
     private
 
@@ -86,29 +71,11 @@ module WebAuthn
     end
 
     def valid_attested_credential?
-      authenticator_data.attested_credential_data_included? &&
-        authenticator_data.attested_credential_data.valid?
+      attestation.valid_attested_credential?
     end
 
     def valid_attestation_statement?
-      @attestation_type, @attestation_trust_path = attestation_statement.valid?(authenticator_data, client_data.hash)
-    end
-
-    def raw_subject_key_identifier(certificate)
-      extension = certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
-      return unless extension
-
-      ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
-      ext_value = ext_asn1.value.last
-      OpenSSL::ASN1.decode(ext_value.value).value
-    end
-
-    def signing_certificates
-      @attestation_trust_path[1..-1]
-    end
-
-    def leaf_certificate
-      @attestation_trust_path.first
+      @attestation_type, @attestation_trust_path = attestation.valid_attestation_statement?(client_data.hash)
     end
   end
 end

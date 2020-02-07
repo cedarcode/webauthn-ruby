@@ -18,7 +18,7 @@ RSpec.describe "Packed attestation" do
       ).serialize
     end
 
-    let(:authenticator_data) { WebAuthn::AuthenticatorData.new(authenticator_data_bytes) }
+    let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
     let(:to_be_signed) { authenticator_data.data + client_data_hash }
 
     context "self attestation" do
@@ -253,7 +253,7 @@ RSpec.describe "Packed attestation" do
         end
 
         context "when finder doesn't have correct certificate" do
-          before(:each) do
+          before do
             WebAuthn.configuration.attestation_root_certificates_finders = finder_for(
               'incorrect_root.crt',
               return_empty: true

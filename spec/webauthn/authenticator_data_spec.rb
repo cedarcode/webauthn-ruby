@@ -17,7 +17,7 @@ RSpec.describe WebAuthn::AuthenticatorData do
   let(:user_present) { true }
   let(:user_verified) { false }
 
-  let(:authenticator_data) { described_class.new(serialized_authenticator_data) }
+  let(:authenticator_data) { described_class.deserialize(serialized_authenticator_data) }
 
   describe "#valid?" do
     it "returns true" do
@@ -33,7 +33,7 @@ RSpec.describe WebAuthn::AuthenticatorData do
         extensions: nil
       ).serialize
 
-      authenticator_data = WebAuthn::AuthenticatorData.new(data + CBOR.encode("k" => "v"))
+      authenticator_data = WebAuthn::AuthenticatorData.deserialize(data + CBOR.encode("k" => "v"))
 
       expect(authenticator_data.valid?).to be_falsy
     end
@@ -41,11 +41,13 @@ RSpec.describe WebAuthn::AuthenticatorData do
 
   describe "#rp_id_hash" do
     subject { authenticator_data.rp_id_hash }
+
     it { is_expected.to eq(rp_id_hash) }
   end
 
   describe "#sign_count" do
     subject { authenticator_data.sign_count }
+
     it { is_expected.to eq(42) }
   end
 
@@ -54,11 +56,13 @@ RSpec.describe WebAuthn::AuthenticatorData do
 
     context "when UP flag is set" do
       let(:user_present) { true }
+
       it { is_expected.to be_truthy }
     end
 
     context "when UP flag is not set" do
       let(:user_present) { false }
+
       it { is_expected.to be_falsy }
     end
   end

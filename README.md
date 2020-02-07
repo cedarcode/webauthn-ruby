@@ -360,7 +360,7 @@ credential_with_assertion.verify(
 
 ### Attestation Types
 
-You can define what trust policy to enforce by setting `acceptable_attestation_types` config to a subset of `['None', 'Self', 'Basic', 'AttCA', 'Basic_or_AttCA']` and `attestation_root_certificates_finders` to an object that responds to `#find` and returns the corresponding root certificate for each registration. The `#find` method will be called passing keyword arguments `attesation_format`, `aaguid` and `attestation_certificate_key_id`.
+You can define what trust policy to enforce by setting `acceptable_attestation_types` config to a subset of `['None', 'Self', 'Basic', 'AttCA', 'Basic_or_AttCA']` and `attestation_root_certificates_finders` to an object that responds to `#find` and returns the corresponding root certificate for each registration. The `#find` method will be called passing keyword arguments `attestation_format`, `aaguid` and `attestation_certificate_key_id`.
 
 ## Testing Your Integration
 

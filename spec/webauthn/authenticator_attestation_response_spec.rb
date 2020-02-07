@@ -36,10 +36,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       expect(attestation_response.valid?(original_challenge)).to be_truthy
     end
 
+    # TODO: let FakeClient#create recieve a fixed credential
+    # https://github.com/cedarcode/webauthn-ruby/pull/302#discussion_r365338434
     it "returns the credential" do
       credential = attestation_response.credential
 
-      expect(credential.id.class).to eq(String)
+      expect(credential.id.class).to eq(BinData::String)
       expect(credential.id.encoding).to eq(Encoding::BINARY)
       expect(credential.public_key.class).to eq(String)
       expect(credential.public_key.encoding).to be(Encoding::BINARY)
@@ -62,7 +64,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    before(:each) do
+    before do
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('feitian_ft_fido_0200.pem')
     end
 
@@ -86,7 +88,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     it "returns the attestation certificate key" do
-      expect(attestation_response.attestation_certificate_key).to(
+      expect(attestation_response.attestation_certificate_key_id).to(
         eq("f4b64a68c334e901b8e23c6e66e6866c31931f5d")
       )
     end
@@ -152,7 +154,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    before(:each) do
+    before do
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('yubico_u2f_root.pem')
     end
 
@@ -198,9 +200,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       WebAuthn.configure do |config|
         config.algorithms.concat(%w(RS1))
       end
-    end
 
-    before(:each) do
       WebAuthn.configuration.attestation_root_certificates_finders =
         finder_for('microsoft_tpm_root_certificate_authority_2014.cer')
 
@@ -254,7 +254,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    before(:each) do
+    before do
       allow(attestation_response.attestation_statement).to receive(:time).and_return(time)
       allow(attestation_response).to receive(:attestation_root_certificates_store).and_wrap_original do |m, *args|
         store = m.call(*args)
@@ -303,7 +303,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    before(:each) do
+    before do
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('android_key_root.pem')
     end
 
@@ -510,7 +510,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before do
-      attestation_response.attestation["attStmt"]["sig"] = "corrupted signature".b
+      attestation_response.attestation.attestation_statement.instance_variable_get(:@statement)["sig"] =
+        "corrupted signature".b
     end
 
     context "when verification is set to true" do

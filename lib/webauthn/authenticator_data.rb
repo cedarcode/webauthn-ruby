@@ -1,27 +1,44 @@
 # frozen_string_literal: true
 
+require "bindata"
 require "webauthn/authenticator_data/attested_credential_data"
+require "webauthn/error"
 
 module WebAuthn
-  class AuthenticatorData
-    RP_ID_HASH_POSITION = 0
+  class AuthenticatorDataFormatError < WebAuthn::Error; end
 
+  class AuthenticatorData < BinData::Record
     RP_ID_HASH_LENGTH = 32
     FLAGS_LENGTH = 1
     SIGN_COUNT_LENGTH = 4
 
-    SIGN_COUNT_POSITION = RP_ID_HASH_LENGTH + FLAGS_LENGTH
+    endian :big
 
-    USER_PRESENT_FLAG_POSITION = 0
-    USER_VERIFIED_FLAG_POSITION = 2
-    ATTESTED_CREDENTIAL_DATA_INCLUDED_FLAG_POSITION = 6
-    EXTENSION_DATA_INCLUDED_FLAG_POSITION = 7
+    count_bytes_remaining :data_length
+    string :rp_id_hash, length: RP_ID_HASH_LENGTH
+    struct :flags do
+      bit1 :extension_data_included
+      bit1 :attested_credential_data_included
+      bit1 :reserved_for_future_use_4
+      bit1 :reserved_for_future_use_3
+      bit1 :reserved_for_future_use_2
+      bit1 :user_verified
+      bit1 :reserved_for_future_use_1
+      bit1 :user_present
+    end
+    bit32 :sign_count
+    count_bytes_remaining :trailing_bytes_length
+    string :trailing_bytes, length: :trailing_bytes_length
 
-    def initialize(data)
-      @data = data
+    def self.deserialize(data)
+      read(data)
+    rescue EOFError
+      raise AuthenticatorDataFormatError
     end
 
-    attr_reader :data
+    def data
+      to_binary_s
+    end
 
     def valid?
       valid_length? &&
@@ -34,26 +51,19 @@ module WebAuthn
     end
 
     def user_present?
-      flags[USER_PRESENT_FLAG_POSITION] == "1"
+      flags.user_present == 1
     end
 
     def user_verified?
-      flags[USER_VERIFIED_FLAG_POSITION] == "1"
+      flags.user_verified == 1
     end
 
     def attested_credential_data_included?
-      flags[ATTESTED_CREDENTIAL_DATA_INCLUDED_FLAG_POSITION] == "1"
+      flags.attested_credential_data_included == 1
     end
 
     def extension_data_included?
-      flags[EXTENSION_DATA_INCLUDED_FLAG_POSITION] == "1"
-    end
-
-    def rp_id_hash
-      @rp_id_hash ||=
-        if valid?
-          data_at(RP_ID_HASH_POSITION, RP_ID_HASH_LENGTH)
-        end
+      flags.extension_data_included == 1
     end
 
     def credential
@@ -62,35 +72,39 @@ module WebAuthn
       end
     end
 
-    def sign_count
-      @sign_count ||= data_at(SIGN_COUNT_POSITION, SIGN_COUNT_LENGTH).unpack('L>')[0]
-    end
-
     def attested_credential_data
       @attested_credential_data ||=
-        AttestedCredentialData.new(data_at(attested_credential_data_position))
+        AttestedCredentialData.deserialize(trailing_bytes)
+    rescue AttestedCredentialDataFormatError
+      raise AuthenticatorDataFormatError
     end
 
     def extension_data
       @extension_data ||= CBOR.decode(raw_extension_data)
     end
 
-    def flags
-      @flags ||= data_at(flags_position, FLAGS_LENGTH).unpack("b*")[0]
+    def aaguid
+      raw_aaguid = attested_credential_data.raw_aaguid
+
+      unless raw_aaguid == WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
+        attested_credential_data.aaguid
+      end
     end
 
     private
 
     def valid_length?
-      data.length == base_length + attested_credential_data_length + extension_data_length
+      data_length == base_length + attested_credential_data_length + extension_data_length
     end
 
     def raw_extension_data
-      data_at(extension_data_position)
-    end
-
-    def attested_credential_data_position
-      base_length
+      if extension_data_included?
+        if attested_credential_data_included?
+          trailing_bytes[attested_credential_data.length..-1]
+        else
+          trailing_bytes.snapshot
+        end
+      end
     end
 
     def attested_credential_data_length
@@ -109,22 +123,8 @@ module WebAuthn
       end
     end
 
-    def extension_data_position
-      base_length + attested_credential_data_length
-    end
-
     def base_length
       RP_ID_HASH_LENGTH + FLAGS_LENGTH + SIGN_COUNT_LENGTH
-    end
-
-    def flags_position
-      RP_ID_HASH_LENGTH
-    end
-
-    def data_at(position, length = nil)
-      length ||= data.size - position
-
-      data[position..(position + length - 1)]
     end
   end
 end

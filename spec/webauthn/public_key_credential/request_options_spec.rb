@@ -64,7 +64,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::RequestOptions do
     expect(hash[:allowCredentials]).to eq([{ type: "public-key", id: "credential-id", transports: ["usb", "nfc"] }])
     expect(hash[:userVerification]).to eq("required")
     expect(hash[:extensions]).to eq(whatever: "whatever")
-    expect(hash[:challenge]).to be
+    expect(hash[:challenge]).to be_truthy
   end
 
   it "accepts shorthand for allow_credentials" do

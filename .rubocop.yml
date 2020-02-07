@@ -1,3 +1,6 @@
+require:
+  - rubocop-rspec
+
 inherit_mode:
   merge:
     - AllowedNames
@@ -35,6 +38,42 @@ Lint:
   Enabled: true
 
 Naming:
+  Enabled: true
+
+RSpec/Be:
+  Enabled: true
+
+RSpec/EmptyExampleGroup:
+  Enabled: true
+
+RSpec/EmptyLineAfterExample:
+  Enabled: true
+
+RSpec/EmptyLineAfterExampleGroup:
+  Enabled: true
+
+RSpec/EmptyLineAfterFinalLet:
+  Enabled: true
+
+RSpec/EmptyLineAfterHook:
+  Enabled: true
+
+RSpec/EmptyLineAfterSubject:
+  Enabled: true
+
+RSpec/HookArgument:
+  Enabled: true
+
+RSpec/LeadingSubject:
+  Enabled: true
+
+RSpec/NamedSubject:
+  Enabled: true
+
+RSpec/ScatteredLet:
+  Enabled: true
+
+RSpec/ScatteredSetup:
   Enabled: true
 
 Naming/MethodParameterName:

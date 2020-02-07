@@ -20,7 +20,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
       raw_data = raw_attested_credential_data(public_key: CBOR.encode(""))
 
       attested_credential_data =
-        WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
+        WebAuthn::AuthenticatorData::AttestedCredentialData.deserialize(raw_data)
 
       expect { attested_credential_data.valid? }.to raise_error(COSE::UnknownKeyType)
       expect { attested_credential_data.credential }.to raise_error(COSE::UnknownKeyType)
@@ -30,7 +30,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
       raw_data = raw_attested_credential_data(public_key: fake_cose_credential_key(algorithm: nil))
 
       attested_credential_data =
-        WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
+        WebAuthn::AuthenticatorData::AttestedCredentialData.deserialize(raw_data)
 
       expect(attested_credential_data.valid?).to be_falsy
       expect(attested_credential_data.credential).to eq(nil)
@@ -38,7 +38,7 @@ RSpec.describe WebAuthn::AuthenticatorData::AttestedCredentialData do
 
     it "returns true if all data is present" do
       raw_data = raw_attested_credential_data(id: "this-is-a-credential-id")
-      attested_credential_data = WebAuthn::AuthenticatorData::AttestedCredentialData.new(raw_data)
+      attested_credential_data = WebAuthn::AuthenticatorData::AttestedCredentialData.deserialize(raw_data)
 
       expect(attested_credential_data.valid?).to be_truthy
       expect(attested_credential_data.credential.id).to eq("this-is-a-credential-id")

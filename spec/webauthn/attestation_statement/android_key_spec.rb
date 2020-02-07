@@ -18,7 +18,7 @@ RSpec.describe "AndroidKey attestation" do
       ).serialize
     end
 
-    let(:authenticator_data) { WebAuthn::AuthenticatorData.new(authenticator_data_bytes) }
+    let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
     let(:to_be_signed) { authenticator_data.data + client_data_hash }
 
     let(:algorithm) { -7 }

@@ -64,7 +64,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
       certificate
     end
 
-    let(:authenticator_data) { WebAuthn::AuthenticatorData.new(authenticator_data_bytes) }
+    let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
 
     let(:authenticator_data_bytes) do
       WebAuthn::FakeAuthenticator::AuthenticatorData.new(
@@ -73,12 +73,12 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
       ).serialize
     end
 
+    let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }
+    let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
+
     before do
       allow(statement).to receive(:attestation_root_certificates).and_return([root_certificate])
     end
-
-    let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }
-    let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
 
     it "returns true when everything's in place" do
       expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy

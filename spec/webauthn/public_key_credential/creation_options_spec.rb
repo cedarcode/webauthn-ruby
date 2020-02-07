@@ -146,7 +146,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
     )
     expect(hash[:attestation]).to eq("direct")
     expect(hash[:extensions]).to eq(whatever: "whatever")
-    expect(hash[:challenge]).to be
+    expect(hash[:challenge]).to be_truthy
   end
 
   it "accepts shorthand for exclude_credentials" do
