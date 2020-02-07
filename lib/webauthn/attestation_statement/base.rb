@@ -89,10 +89,6 @@ module WebAuthn
         end
       end
 
-      def attestation_format
-        raise NotImplementedError
-      end
-
       def valid_certificate_chain?(attestation_type, aaguid: nil, attestation_certificate_key_id: nil)
         case attestation_type
         when WebAuthn::AttestationStatement::ATTESTATION_TYPE_NONE
@@ -113,7 +109,7 @@ module WebAuthn
           WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
             if certs.empty?
               finder.find(
-                attestation_format: attestation_format,
+                attestation_format: format,
                 aaguid: aaguid,
                 attestation_certificate_key_id: attestation_certificate_key_id
               ) || []
