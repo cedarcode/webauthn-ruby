@@ -83,9 +83,12 @@ RSpec.describe "AndroidKey attestation" do
     let(:root_certificate) { create_root_certificate(root_key) }
     let(:google_certificates) { [root_certificate] }
 
-    before do
+    around do |example|
       silence_warnings do
+        original_google_certificates = AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
         AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES = google_certificates
+        example.run
+        AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES = original_google_certificates
       end
     end
 
