@@ -89,23 +89,7 @@ RSpec.describe "TPM attestation statement" do
       let(:aik_certificate_start_time) { Time.now }
       let(:aik_certificate_end_time) { Time.now + 60 }
       let(:root_key) { OpenSSL::PKey::RSA.new(2048) }
-      let(:root_certificate_start_time) { Time.now }
-      let(:root_certificate_end_time) { Time.now + 60 }
-      let(:root_certificate) do
-        root_certificate = OpenSSL::X509::Certificate.new
-        root_certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
-        root_certificate.issuer = root_certificate.subject
-        root_certificate.public_key = root_key
-        root_certificate.not_before = root_certificate_start_time
-        root_certificate.not_after = root_certificate_end_time
-
-        extension_factory = OpenSSL::X509::ExtensionFactory.new
-        root_certificate.extensions = [extension_factory.create_extension("basicConstraints", "CA:TRUE", true)]
-
-        root_certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
-        root_certificate
-      end
-
+      let(:root_certificate) { create_root_certificate(root_key) }
       let(:signature) { aik.sign("SHA256", cert_info) }
 
       let(:cert_info) do
@@ -153,21 +137,34 @@ RSpec.describe "TPM attestation statement" do
         )
       end
 
-      before do
-        allow(statement).to receive(:attestation_root_certificates).and_return([root_certificate])
+      let(:tpm_certificates) { [root_certificate] }
+
+      around do |example|
+        silence_warnings do
+          original_tpm_certificates = WebAuthn::AttestationStatement::TPM::ROOT_CERTIFICATES
+          WebAuthn::AttestationStatement::TPM::ROOT_CERTIFICATES = tpm_certificates
+          example.run
+          WebAuthn::AttestationStatement::TPM::ROOT_CERTIFICATES = original_tpm_certificates
+        end
       end
 
       it "works if everything's fine" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
       end
 
-      context "when the certificate chain is not trusted" do
-        before do
-          allow(statement).to receive(:attestation_root_certificates).and_return([])
+      context "when the attestation certificate is not signed by a TPM" do
+        let(:tpm_certificates) do
+          [create_root_certificate(OpenSSL::PKey::RSA.new(2048))]
         end
 
-        it "returns false" do
+        it "fails" do
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        end
+
+        it "returns true if they are configured" do
+          WebAuthn.configuration.attestation_root_certificates_finders = finder_for(root_certificate)
+
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
         end
       end
 

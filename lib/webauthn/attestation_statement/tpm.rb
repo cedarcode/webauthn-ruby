@@ -65,13 +65,19 @@ module WebAuthn
         key_attestation.valid? && key_attestation.key.to_pem == key.to_pem
       end
 
-      def attestation_root_certificates
-        ROOT_CERTIFICATES
+      def root_certificates
+        certs = super
+
+        if certs.empty?
+          ROOT_CERTIFICATES
+        else
+          certs
+        end
       end
 
       def certificate_chain_trusted?
         store = OpenSSL::X509::Store.new
-        attestation_root_certificates.each do |cert|
+        root_certificates.each do |cert|
           store.add_cert(cert)
         end
 
