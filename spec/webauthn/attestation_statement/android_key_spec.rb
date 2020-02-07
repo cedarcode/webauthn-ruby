@@ -79,7 +79,7 @@ RSpec.describe "AndroidKey attestation" do
       )
     end
 
-    let(:root_key) {  OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
 
     let(:root_certificate) do
       certificate = OpenSSL::X509::Certificate.new

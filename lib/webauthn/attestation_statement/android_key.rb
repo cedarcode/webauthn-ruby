@@ -38,7 +38,8 @@ module WebAuthn
       end
 
       def valid_certificate_chain?
-        android_key_attestation.verify_certificate_chain(root_certificates: AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES)
+        android_key_attestation
+          .verify_certificate_chain(root_certificates: AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES)
       rescue AndroidKeyAttestation::CertificateVerificationError
         false
       end
