@@ -94,3 +94,40 @@ end
 def finder_for(certificate_file, return_empty: false)
   RootCertificateFinder.new(certificate_file, return_empty)
 end
+
+def create_root_certificate(key)
+  certificate = OpenSSL::X509::Certificate.new
+
+  certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
+  certificate.issuer = certificate.subject
+  certificate.public_key = root_key
+  certificate.not_before = Time.now
+  certificate.not_after = Time.now + 60
+
+  extension_factory = OpenSSL::X509::ExtensionFactory.new
+  extension_factory.subject_certificate = certificate
+  extension_factory.issuer_certificate = certificate
+
+  certificate.extensions = [
+    extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
+    extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true),
+  ]
+
+  certificate.sign(key, OpenSSL::Digest::SHA256.new)
+
+  certificate
+end
+
+def issue_certificate(ca_certificate, ca_key, key)
+  certificate = OpenSSL::X509::Certificate.new
+
+  certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-cert/CN=Fake Cert")
+  certificate.issuer = ca_certificate.subject
+  certificate.not_before = Time.now
+  certificate.not_after = Time.now + 60
+  certificate.public_key = key
+
+  certificate.sign(ca_key, OpenSSL::Digest::SHA256.new)
+
+  certificate
+end

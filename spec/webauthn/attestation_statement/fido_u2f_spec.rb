@@ -32,14 +32,7 @@ RSpec.describe "FidoU2f attestation" do
     let(:signature) { attestation_key.sign("SHA256", to_be_signed) }
 
     let(:attestation_certificate) do
-      certificate = OpenSSL::X509::Certificate.new
-      certificate.not_before = Time.now
-      certificate.not_after = Time.now + 60
-      certificate.public_key = attestation_key
-
-      certificate.sign(attestation_key, OpenSSL::Digest::SHA256.new)
-
-      certificate.to_der
+      issue_certificate(root_certificate, root_key, attestation_key).to_der
     end
 
     let(:statement) do
@@ -47,6 +40,16 @@ RSpec.describe "FidoU2f attestation" do
         "sig" => signature,
         "x5c" => [attestation_certificate]
       )
+    end
+
+    let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+
+    let(:root_certificate) do
+      create_root_certificate(root_key)
+    end
+
+    before do
+      WebAuthn.configuration.attestation_root_certificates_finders = finder_for(root_certificate)
     end
 
     it "works if everything's fine" do
@@ -135,6 +138,21 @@ RSpec.describe "FidoU2f attestation" do
 
       it "fails" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+      end
+    end
+
+    context "when the certificate chain is invalid" do
+      context "when finder doesn't have correct certificate" do
+        before do
+          WebAuthn.configuration.attestation_root_certificates_finders = finder_for(
+            nil,
+            return_empty: true
+          )
+        end
+
+        it "returns false" do
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        end
       end
     end
   end
