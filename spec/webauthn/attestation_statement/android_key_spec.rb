@@ -80,29 +80,7 @@ RSpec.describe "AndroidKey attestation" do
     end
 
     let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
-
-    let(:root_certificate) do
-      certificate = OpenSSL::X509::Certificate.new
-      certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
-      certificate.issuer = certificate.subject
-      certificate.not_before = Time.now
-      certificate.not_after = Time.now + 60
-      certificate.public_key = root_key
-
-      extension_factory = OpenSSL::X509::ExtensionFactory.new
-      extension_factory.subject_certificate = certificate
-      extension_factory.issuer_certificate = certificate
-
-      certificate.extensions = [
-        extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
-        extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true)
-      ]
-
-      certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
-
-      certificate
-    end
-
+    let(:root_certificate) { create_root_certificate(root_key) }
     let(:google_certificates) { [root_certificate] }
 
     before do
@@ -222,31 +200,17 @@ RSpec.describe "AndroidKey attestation" do
 
     context "when the attestation certificate is not signed by Google" do
       let(:google_certificates) do
-        root_key = OpenSSL::PKey::EC.new("prime256v1").generate_key
-
-        certificate = OpenSSL::X509::Certificate.new
-        certificate.subject = OpenSSL::X509::Name.new([["CN", "Fake CA"]])
-        certificate.issuer = certificate.subject
-        certificate.not_before = Time.now
-        certificate.not_after = Time.now + 60
-        certificate.public_key = root_key
-
-        extension_factory = OpenSSL::X509::ExtensionFactory.new
-        extension_factory.subject_certificate = certificate
-        extension_factory.issuer_certificate = certificate
-
-        certificate.extensions = [
-          extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
-          extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true)
-        ]
-
-        certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
-
-        [certificate]
+        [create_root_certificate(OpenSSL::PKey::EC.new("prime256v1").generate_key)]
       end
 
       it "fails" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+      end
+
+      it "returns true if they are configured" do
+        WebAuthn.configuration.attestation_root_certificates_finders = finder_for(root_certificate)
+
+        expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
       end
     end
   end

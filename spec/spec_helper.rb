@@ -97,8 +97,9 @@ end
 
 def create_root_certificate(key)
   certificate = OpenSSL::X509::Certificate.new
+  common_name = "Root-#{rand(1_000_000)}"
 
-  certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
+  certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
   certificate.issuer = certificate.subject
   certificate.public_key = root_key
   certificate.not_before = Time.now
@@ -120,8 +121,9 @@ end
 
 def issue_certificate(ca_certificate, ca_key, key)
   certificate = OpenSSL::X509::Certificate.new
+  common_name = "Cert-#{rand(1_000_000)}"
 
-  certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-cert/CN=Fake Cert")
+  certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
   certificate.issuer = ca_certificate.subject
   certificate.not_before = Time.now
   certificate.not_after = Time.now + 60

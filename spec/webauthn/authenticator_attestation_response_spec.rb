@@ -306,8 +306,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before do
-      skip("To be fixed once acceptable certificates can be configured for android-key")
-
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('android_key_root.pem')
     end
 

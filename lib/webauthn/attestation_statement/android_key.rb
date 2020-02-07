@@ -38,8 +38,7 @@ module WebAuthn
       end
 
       def valid_certificate_chain?
-        android_key_attestation
-          .verify_certificate_chain(root_certificates: AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES)
+        android_key_attestation.verify_certificate_chain(root_certificates: root_certificates)
       rescue AndroidKeyAttestation::CertificateVerificationError
         false
       end
@@ -62,6 +61,16 @@ module WebAuthn
 
       def software_enforced
         android_key_attestation.software_enforced
+      end
+
+      def root_certificates
+        certs = super
+
+        if certs.empty?
+          AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
+        else
+          certs
+        end
       end
 
       def android_key_attestation

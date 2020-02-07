@@ -105,22 +105,26 @@ module WebAuthn
       end
 
       def attestation_root_certificates_store(aaguid: nil, attestation_certificate_key_id: nil)
-        certificates =
-          WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
-            if certs.empty?
-              finder.find(
-                attestation_format: format,
-                aaguid: aaguid,
-                attestation_certificate_key_id: attestation_certificate_key_id
-              ) || []
-            else
-              certs
-            end
-          end
-
         OpenSSL::X509::Store.new.tap do |store|
-          certificates.each do |cert|
+          root_certificates(
+            aaguid: aaguid,
+            attestation_certificate_key_id: attestation_certificate_key_id
+          ).each do |cert|
             store.add_cert(cert)
+          end
+        end
+      end
+
+      def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
+        WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
+          if certs.empty?
+            finder.find(
+              attestation_format: format,
+              aaguid: aaguid,
+              attestation_certificate_key_id: attestation_certificate_key_id
+            ) || []
+          else
+            certs
           end
         end
       end
