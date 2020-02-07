@@ -15,7 +15,7 @@ module WebAuthn
           all_applications_fields_not_set? &&
           valid_authorization_list_origin? &&
           valid_authorization_list_purpose? &&
-          valid_certificate_chain? &&
+          valid_certificate_chain?(authenticator_data.aaguid) &&
           [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_trust_path]
       end
 
@@ -37,8 +37,8 @@ module WebAuthn
         false
       end
 
-      def valid_certificate_chain?
-        android_key_attestation.verify_certificate_chain(root_certificates: root_certificates)
+      def valid_certificate_chain?(aaguid)
+        android_key_attestation.verify_certificate_chain(root_certificates: root_certificates(aaguid: aaguid))
       rescue AndroidKeyAttestation::CertificateVerificationError
         false
       end
@@ -63,7 +63,7 @@ module WebAuthn
         android_key_attestation.software_enforced
       end
 
-      def root_certificates
+      def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
         certs = super
 
         if certs.empty?

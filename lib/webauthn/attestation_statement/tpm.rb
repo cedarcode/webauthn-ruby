@@ -38,7 +38,7 @@ module WebAuthn
             ) &&
             valid_attestation_certificate? &&
             matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
-            certificate_chain_trusted? &&
+            valid_certificate_chain?(attestation_type, aaguid: authenticator_data.aaguid) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
           raise(
@@ -65,7 +65,7 @@ module WebAuthn
         key_attestation.valid? && key_attestation.key.to_pem == key.to_pem
       end
 
-      def root_certificates
+      def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
         certs = super
 
         if certs.empty?
@@ -73,15 +73,6 @@ module WebAuthn
         else
           certs
         end
-      end
-
-      def certificate_chain_trusted?
-        store = OpenSSL::X509::Store.new
-        root_certificates.each do |cert|
-          store.add_cert(cert)
-        end
-
-        store.verify(attestation_certificate, certificate_chain)
       end
 
       def tpm_algorithm
