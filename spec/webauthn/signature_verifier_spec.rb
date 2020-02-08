@@ -38,7 +38,7 @@ RSpec.describe "SignatureVerifier" do
 
     context "when it is valid but in an RSA context" do
       let(:public_key) { key.public_key }
-      let(:key) { OpenSSL::PKey::RSA.new(2048) }
+      let(:key) { create_rsa_key }
 
       it "fails" do
         expect { verifier.verify(signature, to_be_signed) }.to raise_error("Incompatible algorithm and key")
@@ -72,7 +72,7 @@ RSpec.describe "SignatureVerifier" do
     let(:signature) { key.sign_pss(hash_algorithm, to_be_signed, salt_length: :digest, mgf1_hash: hash_algorithm) }
     let(:algorithm_id) { -37 }
     let(:public_key) { key.public_key }
-    let(:key) { OpenSSL::PKey::RSA.new(2048) }
+    let(:key) { create_rsa_key }
 
     it "works" do
       expect(verifier.verify(signature, to_be_signed)).to be_truthy
@@ -111,9 +111,7 @@ RSpec.describe "SignatureVerifier" do
 
     context "when it was signed with a different key" do
       let(:signature) do
-        OpenSSL::PKey::RSA
-          .new(2048)
-          .sign_pss(hash_algorithm, to_be_signed, salt_length: :digest, mgf1_hash: hash_algorithm)
+        create_rsa_key.sign_pss(hash_algorithm, to_be_signed, salt_length: :digest, mgf1_hash: hash_algorithm)
       end
 
       it "fails" do
@@ -133,7 +131,7 @@ RSpec.describe "SignatureVerifier" do
   context "RS256" do
     let(:algorithm_id) { -257 }
     let(:public_key) { key.public_key }
-    let(:key) { OpenSSL::PKey::RSA.new(2048) }
+    let(:key) { create_rsa_key }
 
     it "works" do
       expect(verifier.verify(signature, to_be_signed)).to be_truthy
@@ -163,7 +161,7 @@ RSpec.describe "SignatureVerifier" do
     end
 
     context "when it was signed with a different key" do
-      let(:signature) { OpenSSL::PKey::RSA.new(2048).sign(hash_algorithm, to_be_signed) }
+      let(:signature) { create_rsa_key.sign(hash_algorithm, to_be_signed) }
 
       it "fails" do
         expect(verifier.verify(signature, to_be_signed)).to be_falsy
@@ -188,7 +186,7 @@ RSpec.describe "SignatureVerifier" do
   context "RS1" do
     let(:algorithm_id) { -65535 }
     let(:public_key) { key.public_key }
-    let(:key) { OpenSSL::PKey::RSA.new(2048) }
+    let(:key) { create_rsa_key }
 
     before do
       WebAuthn.configuration.algorithms << "RS1"
@@ -222,7 +220,7 @@ RSpec.describe "SignatureVerifier" do
     end
 
     context "when it was signed with a different key" do
-      let(:signature) { OpenSSL::PKey::RSA.new(2048).sign(hash_algorithm, to_be_signed) }
+      let(:signature) { create_rsa_key.sign(hash_algorithm, to_be_signed) }
 
       it "fails" do
         expect(verifier.verify(signature, to_be_signed)).to be_falsy

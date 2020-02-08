@@ -32,7 +32,7 @@ RSpec.describe "Packed attestation" do
 
       context "when RSA algorithm" do
         let(:algorithm) { -257 }
-        let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }
+        let(:credential_key) { create_rsa_key }
 
         it "works" do
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy

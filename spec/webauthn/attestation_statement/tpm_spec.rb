@@ -23,8 +23,8 @@ RSpec.describe "TPM attestation statement" do
         ).serialize
       end
 
-      let(:credential_key) { OpenSSL::PKey::RSA.new(credential_key_length) }
-      let(:credential_key_length) { 2048 }
+      let(:credential_key) { create_rsa_key }
+      let(:credential_key_length) { credential_key.n.num_bits }
       let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
       let(:algorithm) { -257 }
 
@@ -50,7 +50,7 @@ RSpec.describe "TPM attestation statement" do
         cert
       end
 
-      let(:aik) { OpenSSL::PKey::RSA.new(2048) }
+      let(:aik) { create_rsa_key }
       let(:aik_certificate_version) { 2 }
       let(:aik_certificate_subject) { "" }
       let(:aik_certificate_basic_constraints) { "CA:FALSE" }
@@ -265,7 +265,7 @@ RSpec.describe "TPM attestation statement" do
             t_public = ::TPM::TPublic.new
             t_public.alg_type = ::TPM::ALG_RSA
             t_public.name_alg = name_alg
-            t_public.unique.buffer = OpenSSL::PKey::RSA.new(2048).params["n"].to_s(2)
+            t_public.unique.buffer = create_rsa_key.params["n"].to_s(2)
 
             t_public.to_binary_s
           end

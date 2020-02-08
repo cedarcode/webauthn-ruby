@@ -108,7 +108,7 @@ RSpec.describe "FidoU2f attestation" do
       end
 
       context "because it is not of the correct type" do
-        let(:attestation_key) { OpenSSL::PKey::RSA.new(2048) }
+        let(:attestation_key) { create_rsa_key }
 
         it "fails" do
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
