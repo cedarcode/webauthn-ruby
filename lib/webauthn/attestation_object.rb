@@ -7,7 +7,7 @@ require "webauthn/attestation_statement"
 require "webauthn/authenticator_data"
 
 module WebAuthn
-  class Attestation
+  class AttestationObject
     def self.deserialize(attestation_object)
       from_map(CBOR.decode(attestation_object))
     end
