@@ -95,6 +95,12 @@ def finder_for(certificate_file, return_empty: false)
   RootCertificateFinder.new(certificate_file, return_empty)
 end
 
+def create_rsa_key
+  key_bits = 1024 # NOTE: Use 2048 or more in real life! We use 1024 here just for making the test fast.
+
+  OpenSSL::PKey::RSA.new(key_bits)
+end
+
 def create_root_certificate(key)
   certificate = OpenSSL::X509::Certificate.new
   common_name = "Root-#{rand(1_000_000)}"

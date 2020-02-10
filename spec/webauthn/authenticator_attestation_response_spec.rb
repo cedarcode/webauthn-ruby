@@ -524,7 +524,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before do
-      attestation_response.attestation.attestation_statement.instance_variable_get(:@statement)["sig"] =
+      attestation_response.attestation_statement.instance_variable_get(:@statement)["sig"] =
         "corrupted signature".b
     end
 

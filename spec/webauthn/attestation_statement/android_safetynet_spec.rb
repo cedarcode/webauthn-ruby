@@ -27,7 +27,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     let(:timestamp) { Time.now }
     let(:cts_profile_match) { true }
     let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)) }
-    let(:attestation_key) { OpenSSL::PKey::RSA.new(2048) }
+    let(:attestation_key) { create_rsa_key }
 
     let(:leaf_certificate) do
       issue_certificate(root_certificate, root_key, attestation_key, name: "attest.android.com")
@@ -35,7 +35,6 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
 
     let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
     let(:root_certificate) { create_root_certificate(root_key) }
-
     let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
 
     let(:authenticator_data_bytes) do
@@ -45,7 +44,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
       ).serialize
     end
 
-    let(:credential_key) { OpenSSL::PKey::RSA.new(2048) }
+    let(:credential_key) { create_rsa_key }
     let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
 
     let(:google_certificates) { [root_certificate] }
