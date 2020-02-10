@@ -43,6 +43,9 @@ Naming:
 RSpec/Be:
   Enabled: true
 
+RSpec/BeforeAfterAll:
+  Enabled: true
+
 RSpec/EmptyExampleGroup:
   Enabled: true
 
