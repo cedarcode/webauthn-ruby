@@ -32,7 +32,7 @@ module WebAuthn
       klass = FORMAT_TO_CLASS[format]
 
       if klass
-        klass.new(statement, relying_party: relying_party)
+        klass.new(statement, relying_party)
       else
         raise(FormatNotSupportedError, "Unsupported attestation format '#{format}'")
       end
