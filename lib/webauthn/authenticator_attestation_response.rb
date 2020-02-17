@@ -65,7 +65,7 @@ module WebAuthn
 
     private
 
-    attr_reader :relying_party
+    attr_reader :attestation_object_bytes, :relying_party
 
     def type
       WebAuthn::TYPES[:create]
