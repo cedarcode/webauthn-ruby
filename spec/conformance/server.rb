@@ -117,18 +117,12 @@ post "/assertion/options" do
 end
 
 post "/assertion/result" do
-<<<<<<< HEAD
   webauthn_credential = WebAuthn::Credential.from_get(params)
 
   user_credential =
     Credential.registered_for(cookies["assertion_username"]).detect do |uc|
       uc.id == webauthn_credential.id
     end
-=======
-  user_credential = Credential.registered_for(cookies["assertion_username"]).detect do |uc|
-    uc.id == params["id"]
-  end
->>>>>>> WIP: Relying Party model
 
   webauthn_credential = relying_party.verify_authentication(
     params,
