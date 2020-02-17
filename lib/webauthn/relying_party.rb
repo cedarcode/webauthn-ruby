@@ -39,9 +39,15 @@ module WebAuthn
       @attestation_root_certificates_finders = attestation_root_certificates_finders
     end
 
-    attr_accessor :algorithms, :encoding, :origin, :id, :name,
-                  :verify_attestation_statement, :credential_options_timeout,
-                  :silent_authentication, :acceptable_attestation_types
+    attr_accessor :algorithms,
+                  :encoding,
+                  :origin,
+                  :id,
+                  :name,
+                  :verify_attestation_statement,
+                  :credential_options_timeout,
+                  :silent_authentication,
+                  :acceptable_attestation_types
 
     attr_reader :attestation_root_certificates_finders
 
