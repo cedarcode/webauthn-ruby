@@ -1,10 +1,4 @@
 GIT
-  remote: https://github.com/bdewater/android_key_attestation.git
-  revision: a9926e7b50221e77af94fe9b1f593d0a2cb31de5
-  specs:
-    android_key_attestation (0.2.0)
-
-GIT
   remote: https://github.com/cedarcode/tpm-key_attestation.git
   revision: 8993e189b4bd8eb9695e482b50f1449f2bc02f0c
   specs:
@@ -16,7 +10,7 @@ PATH
   remote: ../..
   specs:
     webauthn (2.1.0)
-      android_key_attestation (~> 0.2.0)
+      android_key_attestation (~> 0.3.0)
       awrence (~> 1.1)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
@@ -29,6 +23,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    android_key_attestation (0.3.0)
     awrence (1.1.0)
     backports (3.15.0)
     bindata (2.4.4)
@@ -75,7 +70,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  android_key_attestation!
   byebug
   fido_metadata (~> 0.3.0)
   rack-contrib

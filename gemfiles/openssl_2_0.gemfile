@@ -2,7 +2,6 @@
 
 source "https://rubygems.org"
 
-gem "android_key_attestation", git: "https://github.com/bdewater/android_key_attestation"
 gem "openssl", "~> 2.0.0"
 
 gemspec path: "../"
