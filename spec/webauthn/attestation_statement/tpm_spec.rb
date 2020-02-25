@@ -55,7 +55,7 @@ RSpec.describe "TPM attestation statement" do
       let(:aik_certificate_version) { 2 }
       let(:aik_certificate_subject) { "" }
       let(:aik_certificate_basic_constraints) { "CA:FALSE" }
-      let(:aik_certificate_extended_key_usage) { ::TPM::EKCertificate::OID_TCG_KP_AIK_CERTIFICATE }
+      let(:aik_certificate_extended_key_usage) { ::TPM::AIKCertificate::OID_TCG_KP_AIK_CERTIFICATE }
       let(:aik_certificate_san_critical) { true }
       let(:aik_certificate_san_manufacturer) { "id:4E544300" }
       let(:aik_certificate_san_model) { "TPM test model" }
@@ -97,7 +97,8 @@ RSpec.describe "TPM attestation statement" do
         s_attest.magic = ::TPM::GENERATED_VALUE
         s_attest.attested_type = ::TPM::ST_ATTEST_CERTIFY
         s_attest.extra_data.buffer = cert_info_extra_data
-        s_attest.attested.name.buffer = [name_alg].pack("n") + OpenSSL::Digest::SHA1.digest(pub_area)
+        s_attest.attested.name.name.hash_alg = name_alg
+        s_attest.attested.name.name.digest = OpenSSL::Digest::SHA1.digest(pub_area)
 
         s_attest.to_binary_s
       end
@@ -141,10 +142,10 @@ RSpec.describe "TPM attestation statement" do
 
       around do |example|
         silence_warnings do
-          original_tpm_certificates = WebAuthn::AttestationStatement::TPM::ROOT_CERTIFICATES
-          WebAuthn::AttestationStatement::TPM::ROOT_CERTIFICATES = tpm_certificates
+          original_tpm_certificates = ::TPM::KeyAttestation::ROOT_CERTIFICATES
+          ::TPM::KeyAttestation::ROOT_CERTIFICATES = tpm_certificates
           example.run
-          WebAuthn::AttestationStatement::TPM::ROOT_CERTIFICATES = original_tpm_certificates
+          ::TPM::KeyAttestation::ROOT_CERTIFICATES = original_tpm_certificates
         end
       end
 
