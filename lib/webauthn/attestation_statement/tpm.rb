@@ -28,6 +28,7 @@ module WebAuthn
               authenticator_data.aaguid
             ) &&
             matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
+            trustworthy?(aaguid: authenticator_data.aaguid) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
           raise(
@@ -53,6 +54,11 @@ module WebAuthn
           )
 
         key_attestation.valid? && key_attestation.key && key_attestation.key.to_pem == key.to_pem
+      end
+
+      def valid_certificate_chain?(**_)
+        # Already performed as part of #valid_key_attestation?
+        true
       end
 
       def default_root_certificates

@@ -19,7 +19,7 @@ module WebAuthn
           meet_certificate_requirement? &&
           matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
-          valid_certificate_chain?(aaguid: authenticator_data.aaguid) &&
+          trustworthy?(aaguid: authenticator_data.aaguid) &&
           [attestation_type, attestation_trust_path]
       end
 

@@ -13,6 +13,12 @@ module WebAuthn
     ATTESTATION_TYPE_ECDAA = "ECDAA"
     ATTESTATION_TYPE_BASIC_OR_ATTCA = "Basic_or_AttCA"
 
+    ATTESTATION_TYPES_WITH_ROOT = [
+      ATTESTATION_TYPE_BASIC,
+      ATTESTATION_TYPE_BASIC_OR_ATTCA,
+      ATTESTATION_TYPE_ATTCA
+    ].freeze
+
     class Base
       class NotSupportedError < Error; end
 
@@ -89,19 +95,20 @@ module WebAuthn
         end
       end
 
-      def valid_certificate_chain?(aaguid: nil, attestation_certificate_key_id: nil)
-        case attestation_type
-        when WebAuthn::AttestationStatement::ATTESTATION_TYPE_NONE
-          WebAuthn.configuration.acceptable_attestation_types.include?('None')
-        when WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF
-          WebAuthn.configuration.acceptable_attestation_types.include?('Self')
+      def trustworthy?(aaguid: nil, attestation_certificate_key_id: nil)
+        if ATTESTATION_TYPES_WITH_ROOT.include?(attestation_type)
+          configuration.acceptable_attestation_types.include?(attestation_type) &&
+            valid_certificate_chain?(aaguid: aaguid, attestation_certificate_key_id: attestation_certificate_key_id)
         else
-          WebAuthn.configuration.acceptable_attestation_types.include?(attestation_type) &&
-            attestation_root_certificates_store(
-              aaguid: aaguid,
-              attestation_certificate_key_id: attestation_certificate_key_id
-            ).verify(attestation_certificate, attestation_trust_path)
+          configuration.acceptable_attestation_types.include?(attestation_type)
         end
+      end
+
+      def valid_certificate_chain?(aaguid: nil, attestation_certificate_key_id: nil)
+        attestation_root_certificates_store(
+          aaguid: aaguid,
+          attestation_certificate_key_id: attestation_certificate_key_id
+        ).verify(attestation_certificate, attestation_trust_path)
       end
 
       def attestation_root_certificates_store(aaguid: nil, attestation_certificate_key_id: nil)
@@ -117,7 +124,7 @@ module WebAuthn
 
       def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
         root_certificates =
-          WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
+          configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
             if certs.empty?
               finder.find(
                 attestation_format: format,
@@ -143,6 +150,10 @@ module WebAuthn
         ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
         ext_value = ext_asn1.value.last
         OpenSSL::ASN1.decode(ext_value.value).value
+      end
+
+      def configuration
+        WebAuthn.configuration
       end
     end
   end

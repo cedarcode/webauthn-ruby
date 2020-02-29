@@ -12,7 +12,8 @@ module WebAuthn
         valid_response?(authenticator_data, client_data_hash) &&
           valid_version? &&
           cts_profile_match? &&
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_trust_path]
+          trustworthy?(aaguid: authenticator_data.aaguid) &&
+          [attestation_type, attestation_trust_path]
       end
 
       def attestation_certificate
@@ -39,6 +40,15 @@ module WebAuthn
 
       def cts_profile_match?
         attestation_response.cts_profile_match?
+      end
+
+      def valid_certificate_chain?(**_)
+        # Already performed as part of #valid_response?
+        true
+      end
+
+      def attestation_type
+        WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC
       end
 
       # SafetyNetAttestation returns full chain including root, WebAuthn expects only the x5c certificates
