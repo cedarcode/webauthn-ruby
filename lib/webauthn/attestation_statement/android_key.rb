@@ -63,14 +63,8 @@ module WebAuthn
         android_key_attestation.software_enforced
       end
 
-      def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
-        certs = super
-
-        if certs.empty?
-          AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
-        else
-          certs
-        end
+      def default_root_certificates
+        AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
       end
 
       def android_key_attestation

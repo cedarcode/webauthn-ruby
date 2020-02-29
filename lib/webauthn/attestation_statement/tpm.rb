@@ -55,14 +55,8 @@ module WebAuthn
         key_attestation.valid? && key_attestation.key && key_attestation.key.to_pem == key.to_pem
       end
 
-      def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
-        certs = super
-
-        if certs.empty?
-          ::TPM::KeyAttestation::ROOT_CERTIFICATES
-        else
-          certs
-        end
+      def default_root_certificates
+        ::TPM::KeyAttestation::ROOT_CERTIFICATES
       end
 
       def tpm_algorithm

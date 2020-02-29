@@ -116,16 +116,23 @@ module WebAuthn
       end
 
       def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
-        WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
-          if certs.empty?
-            finder.find(
-              attestation_format: format,
-              aaguid: aaguid,
-              attestation_certificate_key_id: attestation_certificate_key_id
-            ) || []
-          else
-            certs
+        root_certificates =
+          WebAuthn.configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
+            if certs.empty?
+              finder.find(
+                attestation_format: format,
+                aaguid: aaguid,
+                attestation_certificate_key_id: attestation_certificate_key_id
+              ) || []
+            else
+              certs
+            end
           end
+
+        if root_certificates.empty? && respond_to?(:default_root_certificates, true)
+          default_root_certificates
+        else
+          root_certificates
         end
       end
 

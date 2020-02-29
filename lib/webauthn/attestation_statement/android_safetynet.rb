@@ -50,14 +50,8 @@ module WebAuthn
         @attestation_response ||= SafetyNetAttestation::Statement.new(statement["response"])
       end
 
-      def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
-        certs = super
-
-        if certs.empty?
-          SafetyNetAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
-        else
-          certs
-        end
+      def default_root_certificates
+        SafetyNetAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
       end
 
       def time
