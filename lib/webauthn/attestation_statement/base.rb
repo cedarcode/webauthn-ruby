@@ -89,7 +89,7 @@ module WebAuthn
         end
       end
 
-      def valid_certificate_chain?(attestation_type, aaguid: nil, attestation_certificate_key_id: nil)
+      def valid_certificate_chain?(aaguid: nil, attestation_certificate_key_id: nil)
         case attestation_type
         when WebAuthn::AttestationStatement::ATTESTATION_TYPE_NONE
           WebAuthn.configuration.acceptable_attestation_types.include?('None')
