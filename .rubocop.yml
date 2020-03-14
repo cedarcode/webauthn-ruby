@@ -89,9 +89,6 @@ Security:
 Style/BlockComments:
   Enabled: true
 
-Style/BracesAroundHashParameters:
-  Enabled: true
-
 Style/CaseEquality:
   Enabled: true
 
