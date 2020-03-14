@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    webauthn (2.1.0)
+    webauthn (2.2.0)
       android_key_attestation (~> 0.3.0)
       awrence (~> 1.1)
       bindata (~> 2.4)
