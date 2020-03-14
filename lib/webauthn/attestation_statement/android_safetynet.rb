@@ -12,7 +12,8 @@ module WebAuthn
         valid_response?(authenticator_data, client_data_hash) &&
           valid_version? &&
           cts_profile_match? &&
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_trust_path]
+          trustworthy?(aaguid: authenticator_data.aaguid) &&
+          [attestation_type, attestation_trust_path]
       end
 
       def attestation_certificate
@@ -25,7 +26,8 @@ module WebAuthn
         nonce = Digest::SHA256.base64digest(authenticator_data.data + client_data_hash)
 
         begin
-          attestation_response.verify(nonce, trusted_certificates: attestation_root_certificates, time: time)
+          attestation_response
+            .verify(nonce, trusted_certificates: root_certificates(aaguid: authenticator_data.aaguid), time: time)
         rescue SafetyNetAttestation::Error
           false
         end
@@ -40,6 +42,15 @@ module WebAuthn
         attestation_response.cts_profile_match?
       end
 
+      def valid_certificate_chain?(**_)
+        # Already performed as part of #valid_response?
+        true
+      end
+
+      def attestation_type
+        WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC
+      end
+
       # SafetyNetAttestation returns full chain including root, WebAuthn expects only the x5c certificates
       def attestation_trust_path
         attestation_response.certificate_chain[0..-2]
@@ -49,7 +60,7 @@ module WebAuthn
         @attestation_response ||= SafetyNetAttestation::Statement.new(statement["response"])
       end
 
-      def attestation_root_certificates
+      def default_root_certificates
         SafetyNetAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
       end
 

@@ -19,7 +19,8 @@ module WebAuthn
           valid_credential_public_key?(authenticator_data.credential.public_key) &&
           valid_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, attestation_trust_path]
+          trustworthy?(attestation_certificate_key_id: attestation_certificate_key_id) &&
+          [attestation_type, attestation_trust_path]
       end
 
       private
@@ -63,6 +64,10 @@ module WebAuthn
 
       def public_key_u2f(cose_key_data)
         PublicKey.new(cose_key_data)
+      end
+
+      def attestation_type
+        WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA
       end
     end
   end

@@ -15,12 +15,12 @@ module WebAuthn
 
         valid_format? &&
           valid_algorithm?(authenticator_data.credential) &&
-          valid_certificate_chain? &&
           valid_ec_public_keys?(authenticator_data.credential) &&
           meet_certificate_requirement? &&
           matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
           valid_signature?(authenticator_data, client_data_hash) &&
-          attestation_type_and_trust_path
+          trustworthy?(aaguid: authenticator_data.aaguid) &&
+          [attestation_type, attestation_trust_path]
       end
 
       private
@@ -45,14 +45,6 @@ module WebAuthn
         end
       end
 
-      def valid_certificate_chain?
-        if certificate_chain
-          certificate_chain.all? { |c| certificate_in_use?(c) }
-        else
-          true
-        end
-      end
-
       def valid_ec_public_keys?(credential)
         (certificates&.map(&:public_key) || [credential.public_key_object])
           .select { |pkey| pkey.is_a?(OpenSSL::PKey::EC) }
@@ -65,18 +57,11 @@ module WebAuthn
           subject = attestation_certificate.subject.to_a
 
           attestation_certificate.version == 2 &&
-            certificate_in_use?(attestation_certificate) &&
             subject.assoc('OU')&.at(1) == "Authenticator Attestation" &&
             attestation_certificate.extensions.find { |ext| ext.oid == 'basicConstraints' }&.value == 'CA:FALSE'
         else
           true
         end
-      end
-
-      def certificate_in_use?(certificate)
-        now = Time.now
-
-        certificate.not_before < now && now < certificate.not_after
       end
 
       def valid_signature?(authenticator_data, client_data_hash)
@@ -88,11 +73,11 @@ module WebAuthn
         signature_verifier.verify(signature, authenticator_data.data + client_data_hash)
       end
 
-      def attestation_type_and_trust_path
+      def attestation_type
         if attestation_trust_path
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA, attestation_trust_path]
+          WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA # FIXME: use metadata if available
         else
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF, nil]
+          WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF
         end
       end
     end

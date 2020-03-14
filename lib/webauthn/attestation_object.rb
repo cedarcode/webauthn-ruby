@@ -32,66 +32,12 @@ module WebAuthn
     end
 
     def valid_attestation_statement?(client_data_hash)
-      @type, @trust_path = attestation_statement.valid?(authenticator_data, client_data_hash)
-    end
-
-    def trustworthy?
-      case type
-      when WebAuthn::AttestationStatement::ATTESTATION_TYPE_NONE
-        acceptable_types.include?('None')
-      when WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF
-        acceptable_types.include?('Self')
-      else
-        acceptable_types.include?(type) && root_store.verify(subject_certificate, intermediate_certificates)
-      end
+      attestation_statement.valid?(authenticator_data, client_data_hash)
     end
 
     extend Forwardable
 
     def_delegators :authenticator_data, :credential, :aaguid
     def_delegators :attestation_statement, :attestation_certificate_key_id
-
-    private
-
-    attr_reader :type, :trust_path
-
-    def acceptable_types
-      configuration.acceptable_attestation_types
-    end
-
-    def subject_certificate
-      trust_path[0]
-    end
-
-    def intermediate_certificates
-      trust_path[1..-1]
-    end
-
-    def root_store
-      @root_store ||=
-        OpenSSL::X509::Store.new.tap do |store|
-          root_certificates.each do |certificate|
-            store.add_cert(certificate)
-          end
-        end
-    end
-
-    def root_certificates
-      configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
-        if certs.empty?
-          finder.find(
-            attestation_format: attestation_statement.format,
-            aaguid: aaguid,
-            attestation_certificate_key_id: attestation_certificate_key_id
-          ) || []
-        else
-          certs
-        end
-      end
-    end
-
-    def configuration
-      WebAuthn.configuration
-    end
   end
 end

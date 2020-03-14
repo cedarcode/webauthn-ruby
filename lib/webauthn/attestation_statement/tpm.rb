@@ -2,7 +2,6 @@
 
 require "cose/algorithm"
 require "openssl"
-require "tpm/ek_certificate"
 require "tpm/key_attestation"
 require "webauthn/attestation_statement/base"
 require "webauthn/signature_verifier"
@@ -25,10 +24,11 @@ module WebAuthn
           ver == TPM_V2 &&
             valid_key_attestation?(
               authenticator_data.data + client_data_hash,
-              authenticator_data.credential.public_key_object
+              authenticator_data.credential.public_key_object,
+              authenticator_data.aaguid
             ) &&
-            valid_attestation_certificate? &&
             matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
+            trustworthy?(aaguid: authenticator_data.aaguid) &&
             [attestation_type, attestation_trust_path]
         when ATTESTATION_TYPE_ECDAA
           raise(
@@ -40,27 +40,33 @@ module WebAuthn
 
       private
 
-      def valid_key_attestation?(certified_extra_data, key)
+      def valid_key_attestation?(certified_extra_data, key, aaguid)
         key_attestation =
           ::TPM::KeyAttestation.new(
             statement["certInfo"],
             signature,
             statement["pubArea"],
-            attestation_certificate.public_key,
+            certificates,
             OpenSSL::Digest.digest(cose_algorithm.hash_function, certified_extra_data),
             signature_algorithm: tpm_algorithm[:signature],
-            hash_algorithm: tpm_algorithm[:hash]
+            hash_algorithm: tpm_algorithm[:hash],
+            root_certificates: root_certificates(aaguid: aaguid)
           )
 
-        key_attestation.valid? && key_attestation.key.to_pem == key.to_pem
+        key_attestation.valid? && key_attestation.key && key_attestation.key.to_pem == key.to_pem
+      end
+
+      def valid_certificate_chain?(**_)
+        # Already performed as part of #valid_key_attestation?
+        true
+      end
+
+      def default_root_certificates
+        ::TPM::KeyAttestation::ROOT_CERTIFICATES
       end
 
       def tpm_algorithm
         COSE_ALG_TO_TPM[cose_algorithm.name] || raise("Unsupported algorithm #{cose_algorithm.name}")
-      end
-
-      def valid_attestation_certificate?
-        ek_certificate.conformant? && ek_certificate.empty_subject?
       end
 
       def ver
@@ -79,10 +85,6 @@ module WebAuthn
         else
           raise "Attestation type invalid"
         end
-      end
-
-      def ek_certificate
-        @ek_certificate ||= ::TPM::EKCertificate.from_der(raw_certificates.first)
       end
     end
   end

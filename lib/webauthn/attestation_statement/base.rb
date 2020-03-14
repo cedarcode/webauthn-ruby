@@ -13,6 +13,12 @@ module WebAuthn
     ATTESTATION_TYPE_ECDAA = "ECDAA"
     ATTESTATION_TYPE_BASIC_OR_ATTCA = "Basic_or_AttCA"
 
+    ATTESTATION_TYPES_WITH_ROOT = [
+      ATTESTATION_TYPE_BASIC,
+      ATTESTATION_TYPE_BASIC_OR_ATTCA,
+      ATTESTATION_TYPE_ATTCA
+    ].freeze
+
     class Base
       class NotSupportedError < Error; end
 
@@ -89,6 +95,54 @@ module WebAuthn
         end
       end
 
+      def trustworthy?(aaguid: nil, attestation_certificate_key_id: nil)
+        if ATTESTATION_TYPES_WITH_ROOT.include?(attestation_type)
+          configuration.acceptable_attestation_types.include?(attestation_type) &&
+            valid_certificate_chain?(aaguid: aaguid, attestation_certificate_key_id: attestation_certificate_key_id)
+        else
+          configuration.acceptable_attestation_types.include?(attestation_type)
+        end
+      end
+
+      def valid_certificate_chain?(aaguid: nil, attestation_certificate_key_id: nil)
+        attestation_root_certificates_store(
+          aaguid: aaguid,
+          attestation_certificate_key_id: attestation_certificate_key_id
+        ).verify(attestation_certificate, attestation_trust_path)
+      end
+
+      def attestation_root_certificates_store(aaguid: nil, attestation_certificate_key_id: nil)
+        OpenSSL::X509::Store.new.tap do |store|
+          root_certificates(
+            aaguid: aaguid,
+            attestation_certificate_key_id: attestation_certificate_key_id
+          ).each do |cert|
+            store.add_cert(cert)
+          end
+        end
+      end
+
+      def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
+        root_certificates =
+          configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
+            if certs.empty?
+              finder.find(
+                attestation_format: format,
+                aaguid: aaguid,
+                attestation_certificate_key_id: attestation_certificate_key_id
+              ) || []
+            else
+              certs
+            end
+          end
+
+        if root_certificates.empty? && respond_to?(:default_root_certificates, true)
+          default_root_certificates
+        else
+          root_certificates
+        end
+      end
+
       def raw_subject_key_identifier
         extension = attestation_certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
         return unless extension
@@ -96,6 +150,10 @@ module WebAuthn
         ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
         ext_value = ext_asn1.value.last
         OpenSSL::ASN1.decode(ext_value.value).value
+      end
+
+      def configuration
+        WebAuthn.configuration
       end
     end
   end

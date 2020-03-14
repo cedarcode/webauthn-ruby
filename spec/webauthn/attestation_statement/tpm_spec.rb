@@ -31,6 +31,7 @@ RSpec.describe "TPM attestation statement" do
       let(:aik_certificate) do
         cert = OpenSSL::X509::Certificate.new
         cert.version = aik_certificate_version
+        cert.issuer = root_certificate.subject
         cert.subject = OpenSSL::X509::Name.parse(aik_certificate_subject)
         cert.not_before = aik_certificate_start_time
         cert.not_after = aik_certificate_end_time
@@ -45,7 +46,7 @@ RSpec.describe "TPM attestation statement" do
           extension_factory.create_extension("subjectAltName", "ASN1:SEQUENCE:dir_seq", aik_certificate_san_critical),
         ]
 
-        cert.sign(aik, OpenSSL::Digest::SHA256.new)
+        cert.sign(root_key, OpenSSL::Digest::SHA256.new)
 
         cert
       end
@@ -54,7 +55,7 @@ RSpec.describe "TPM attestation statement" do
       let(:aik_certificate_version) { 2 }
       let(:aik_certificate_subject) { "" }
       let(:aik_certificate_basic_constraints) { "CA:FALSE" }
-      let(:aik_certificate_extended_key_usage) { ::TPM::EKCertificate::OID_TCG_KP_AIK_CERTIFICATE }
+      let(:aik_certificate_extended_key_usage) { ::TPM::AIKCertificate::OID_TCG_KP_AIK_CERTIFICATE }
       let(:aik_certificate_san_critical) { true }
       let(:aik_certificate_san_manufacturer) { "id:4E544300" }
       let(:aik_certificate_san_model) { "TPM test model" }
@@ -87,7 +88,8 @@ RSpec.describe "TPM attestation statement" do
       end
       let(:aik_certificate_start_time) { Time.now }
       let(:aik_certificate_end_time) { Time.now + 60 }
-
+      let(:root_key) { OpenSSL::PKey::RSA.new(2048) }
+      let(:root_certificate) { create_root_certificate(root_key) }
       let(:signature) { aik.sign("SHA256", cert_info) }
 
       let(:cert_info) do
@@ -95,7 +97,8 @@ RSpec.describe "TPM attestation statement" do
         s_attest.magic = ::TPM::GENERATED_VALUE
         s_attest.attested_type = ::TPM::ST_ATTEST_CERTIFY
         s_attest.extra_data.buffer = cert_info_extra_data
-        s_attest.attested.name.buffer = [name_alg].pack("n") + OpenSSL::Digest::SHA1.digest(pub_area)
+        s_attest.attested.name.name.hash_alg = name_alg
+        s_attest.attested.name.name.digest = OpenSSL::Digest::SHA1.digest(pub_area)
 
         s_attest.to_binary_s
       end
@@ -135,8 +138,35 @@ RSpec.describe "TPM attestation statement" do
         )
       end
 
+      let(:tpm_certificates) { [root_certificate] }
+
+      around do |example|
+        silence_warnings do
+          original_tpm_certificates = ::TPM::KeyAttestation::ROOT_CERTIFICATES
+          ::TPM::KeyAttestation::ROOT_CERTIFICATES = tpm_certificates
+          example.run
+          ::TPM::KeyAttestation::ROOT_CERTIFICATES = original_tpm_certificates
+        end
+      end
+
       it "works if everything's fine" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+      end
+
+      context "when the attestation certificate is not signed by a TPM" do
+        let(:tpm_certificates) do
+          [create_root_certificate(OpenSSL::PKey::RSA.new(2048))]
+        end
+
+        it "fails" do
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
+        end
+
+        it "returns true if they are configured" do
+          WebAuthn.configuration.attestation_root_certificates_finders = finder_for(root_certificate)
+
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+        end
       end
 
       context "when EC algorithm" do

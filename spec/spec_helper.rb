@@ -72,19 +72,20 @@ ensure
 end
 
 class RootCertificateFinder
-  def initialize(certificate_file, return_empty)
-    @certificate_file = certificate_file
+  def initialize(certificate, return_empty)
+    @certificate = certificate
     @return_empty = return_empty
   end
 
   def find(*)
     if @return_empty
       []
+    elsif @certificate.is_a?(OpenSSL::X509::Certificate)
+      [@certificate]
     else
       certificate_path = File.expand_path(
-        File.join(__dir__, 'support', 'roots', @certificate_file)
+        File.join(__dir__, 'support', 'roots', @certificate)
       )
-
       [OpenSSL::X509::Certificate.new(File.read(certificate_path))]
     end
   end
@@ -98,4 +99,43 @@ def create_rsa_key
   key_bits = 1024 # NOTE: Use 2048 or more in real life! We use 1024 here just for making the test fast.
 
   OpenSSL::PKey::RSA.new(key_bits)
+end
+
+def create_root_certificate(key)
+  certificate = OpenSSL::X509::Certificate.new
+  common_name = "Root-#{rand(1_000_000)}"
+
+  certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
+  certificate.issuer = certificate.subject
+  certificate.public_key = root_key
+  certificate.not_before = Time.now
+  certificate.not_after = Time.now + 60
+
+  extension_factory = OpenSSL::X509::ExtensionFactory.new
+  extension_factory.subject_certificate = certificate
+  extension_factory.issuer_certificate = certificate
+
+  certificate.extensions = [
+    extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
+    extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true),
+  ]
+
+  certificate.sign(key, OpenSSL::Digest::SHA256.new)
+
+  certificate
+end
+
+def issue_certificate(ca_certificate, ca_key, key, name: nil)
+  certificate = OpenSSL::X509::Certificate.new
+  common_name = name || "Cert-#{rand(1_000_000)}"
+
+  certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
+  certificate.issuer = ca_certificate.subject
+  certificate.not_before = Time.now
+  certificate.not_after = Time.now + 60
+  certificate.public_key = key
+
+  certificate.sign(ca_key, OpenSSL::Digest::SHA256.new)
+
+  certificate
 end

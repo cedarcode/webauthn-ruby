@@ -39,7 +39,6 @@ module WebAuthn
       verify_item(:attested_credential)
       if WebAuthn.configuration.verify_attestation_statement
         verify_item(:attestation_statement)
-        verify_item(:attestation_trustworthiness) if WebAuthn.configuration.attestation_root_certificates_finders.any?
       end
 
       true
@@ -76,10 +75,6 @@ module WebAuthn
 
     def valid_attestation_statement?
       @attestation_type, @attestation_trust_path = attestation_object.valid_attestation_statement?(client_data.hash)
-    end
-
-    def valid_attestation_trustworthiness?
-      attestation_object.trustworthy?
     end
   end
 end

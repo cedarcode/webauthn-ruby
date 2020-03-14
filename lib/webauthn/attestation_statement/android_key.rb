@@ -15,7 +15,8 @@ module WebAuthn
           all_applications_fields_not_set? &&
           valid_authorization_list_origin? &&
           valid_authorization_list_purpose? &&
-          [WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC, attestation_trust_path]
+          trustworthy?(aaguid: authenticator_data.aaguid) &&
+          [attestation_type, attestation_trust_path]
       end
 
       private
@@ -33,6 +34,12 @@ module WebAuthn
       def valid_attestation_challenge?(client_data_hash)
         android_key_attestation.verify_challenge(client_data_hash)
       rescue AndroidKeyAttestation::ChallengeMismatchError
+        false
+      end
+
+      def valid_certificate_chain?(aaguid: nil, **_)
+        android_key_attestation.verify_certificate_chain(root_certificates: root_certificates(aaguid: aaguid))
+      rescue AndroidKeyAttestation::CertificateVerificationError
         false
       end
 
@@ -54,6 +61,14 @@ module WebAuthn
 
       def software_enforced
         android_key_attestation.software_enforced
+      end
+
+      def attestation_type
+        WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC
+      end
+
+      def default_root_certificates
+        AndroidKeyAttestation::Statement::GOOGLE_ROOT_CERTIFICATES
       end
 
       def android_key_attestation
