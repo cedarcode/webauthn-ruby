@@ -16,6 +16,14 @@ require_relative "conformance_patches"
 
 RP_NAME = "webauthn-ruby #{WebAuthn::VERSION} conformance test server"
 
+UNACCEPTABLE_STATUSES = [
+  "USER_VERIFICATION_BYPASS",
+  "ATTESTATION_KEY_COMPROMISE",
+  "USER_KEY_REMOTE_COMPROMISE",
+  "USER_KEY_PHYSICAL_COMPROMISE",
+  "REVOKED"
+].freeze
+
 Credential =
   Struct.new(:id, :public_key, :sign_count) do
     @credentials = {}
@@ -42,6 +50,7 @@ WebAuthn.configure do |config|
       mds.token = ""
       mds.cache_backend = ConformanceCacheStore.new
       mds.cache_backend.setup_authenticators
+      mds.cache_backend.setup_metadata_store
     end
 end
 
@@ -71,6 +80,16 @@ post "/attestation/result" do
     cookies["attestation_challenge"],
     user_verification: cookies["attestation_user_verification"] == "required"
   )
+
+  if (aaguid = webauthn_credential.response.aaguid)
+    metadata_entry = fido_metadata_store.fetch_entry(aaguid: aaguid)
+
+    if metadata_entry
+      if metadata_entry.status_reports.any? { |status_report| UNACCEPTABLE_STATUSES.include?(status_report.status) }
+        raise("bad authenticator status")
+      end
+    end
+  end
 
   Credential.register(
     cookies["attestation_username"],
@@ -139,4 +158,8 @@ end
 
 def render_error(message)
   JSON.dump(status: "error", errorMessage: message)
+end
+
+def fido_metadata_store
+  @fido_metadata_store ||= FidoMetadata::Store.new
 end

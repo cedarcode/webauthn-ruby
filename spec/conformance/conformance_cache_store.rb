@@ -17,4 +17,45 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
       write("statement_#{identifier}", statement)
     end
   end
+
+  def setup_metadata_store
+    puts("Setting up metadata store TOC")
+
+    response = Net::HTTP.post(
+      URI("https://fidoalliance.co.nz/mds/getEndpoints"),
+      { endpoint: WebAuthn.configuration.origin }.to_json,
+      FidoMetadata::Client::DEFAULT_HEADERS
+    )
+
+    response.value
+    possible_endpoints = JSON.parse(response.body)["result"]
+
+    client = FidoMetadata::Client.new(nil)
+
+    json =
+      possible_endpoints.each_with_index do |uri, index|
+        begin
+          puts("Trying endpoint #{index}: #{uri}")
+          break client.download_toc(URI(uri), trusted_certs: conformance_certificates)
+        rescue FidoMetadata::Client::DataIntegrityError, JWT::VerificationError, Net::HTTPFatalError
+          nil
+        end
+      end
+
+    if json.is_a?(Hash) && json.keys == ["legalHeader", "no", "nextUpdate", "entries"]
+      puts("TOC setup done!")
+      toc = FidoMetadata::TableOfContents.from_json(json)
+      write("metadata_toc", toc)
+    else
+      puts("Unable to setup TOC!")
+    end
+  end
+
+  private
+
+  def conformance_certificates
+    file = File.read(File.join(__dir__, "MDSROOT.crt"))
+
+    [OpenSSL::X509::Certificate.new(file)]
+  end
 end
