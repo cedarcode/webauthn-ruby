@@ -21,6 +21,10 @@ class RSAPKCS1Algorithm < COSE::Algorithm::SignatureAlgorithm
     OpenSSL::SignatureAlgorithm::RSAPKCS1
   end
 
+  def valid_key?(key)
+    to_cose_key(key).is_a?(COSE::Key::RSA)
+  end
+
   def to_pkey(key)
     case key
     when COSE::Key::RSA
