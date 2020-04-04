@@ -4,10 +4,10 @@ cache: bundler
 
 rvm:
   - ruby-head
-  - 2.7.0
-  - 2.6.5
-  - 2.5.7
-  - 2.4.9
+  - 2.7.1
+  - 2.6.6
+  - 2.5.8
+  - 2.4.10
 
 gemfile:
   - gemfiles/cose_head.gemfile
