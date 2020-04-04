@@ -8,6 +8,8 @@ require "webauthn/authenticator_data"
 
 module WebAuthn
   class AttestationObject
+    extend Forwardable
+
     def self.deserialize(attestation_object)
       from_map(CBOR.decode(attestation_object))
     end
@@ -34,8 +36,6 @@ module WebAuthn
     def valid_attestation_statement?(client_data_hash)
       attestation_statement.valid?(authenticator_data, client_data_hash)
     end
-
-    extend Forwardable
 
     def_delegators :authenticator_data, :credential, :aaguid
     def_delegators :attestation_statement, :attestation_certificate_key_id

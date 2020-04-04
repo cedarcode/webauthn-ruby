@@ -16,6 +16,8 @@ module WebAuthn
   class AttestedCredentialVerificationError < VerificationError; end
 
   class AuthenticatorAttestationResponse < AuthenticatorResponse
+    extend Forwardable
+
     def self.from_client(response)
       encoder = WebAuthn.configuration.encoder
 
@@ -47,8 +49,6 @@ module WebAuthn
     def attestation_object
       @attestation_object ||= WebAuthn::AttestationObject.deserialize(attestation_object_bytes)
     end
-
-    extend Forwardable
 
     def_delegators(
       :attestation_object,

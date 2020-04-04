@@ -20,6 +20,9 @@ Gemspec:
 Layout:
   Enabled: true
 
+Layout/ClassStructure:
+  Enabled: true
+
 Layout/FirstMethodArgumentLineBreak:
   Enabled: true
 
