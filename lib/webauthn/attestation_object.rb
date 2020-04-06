@@ -10,7 +10,7 @@ module WebAuthn
   class AttestationObject
     extend Forwardable
 
-    def self.deserialize(attestation_object)
+    def self.deserialize(attestation_object, relying_party)
       from_map(CBOR.decode(attestation_object), relying_party)
     end
 
