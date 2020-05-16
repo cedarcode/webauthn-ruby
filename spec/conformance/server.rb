@@ -40,20 +40,20 @@ Credential =
 
 host = ENV["HOST"] || "localhost"
 
-relying_party =
-  WebAuthn::RelyingParty.new.tap do |rp|
-    rp.origin = "http://#{host}:#{settings.port}"
-    rp.name = RP_NAME
-    rp.algorithms.concat(%w(ES384 ES512 PS384 PS512 RS384 RS512 RS1))
-    rp.silent_authentication = true
-    rp.attestation_root_certificates_finders =
-      MDSFinder.new.tap do |mds|
-        mds.token = ""
-        mds.cache_backend = ConformanceCacheStore.new
-        mds.cache_backend.setup_authenticators
-        mds.cache_backend.setup_metadata_store
-      end
-  end
+mds_finder = MDSFinder.new.tap do |mds|
+  mds.token = ""
+  mds.cache_backend = ConformanceCacheStore.new("http://#{host}:#{settings.port}")
+  mds.cache_backend.setup_authenticators
+  mds.cache_backend.setup_metadata_store
+end
+
+relying_party = WebAuthn::RelyingParty.new(
+  origin: "http://#{host}:#{settings.port}",
+  name: RP_NAME,
+  algorithms: %w(ES256 ES384 ES512 PS256 PS384 PS512 RS256 RS384 RS512 RS1),
+  silent_authentication: true,
+  attestation_root_certificates_finders: mds_finder
+)
 
 post "/attestation/options" do
   options = relying_party.options_for_registration(
