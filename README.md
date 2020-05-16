@@ -66,11 +66,10 @@ Known conformant pairs are, for example:
 - Mozilla Firefox for Desktop and Yubico's Security Key roaming authenticator via USB
 - Safari in iOS 13.3+ and YubiKey 5 NFC via NFC
 
-For a detailed picture about what is conformant and what not, you can refer to:
+For a complete list:
 
-- [apowers313/fido2-webauthn-status](https://github.com/apowers313/fido2-webauthn-status)
-- [FIDO certified products](https://fidoalliance.org/certification/fido-certified-products)
-
+- User Agents (Clients): [Can I Use: Web Authentication API](https://caniuse.com/#search=webauthn)
+- Authenticators: [FIDO certified products](https://fidoalliance.org/certification/fido-certified-products) (search for Type=Authenticator and Specification=FIDO2)
 
 ## Install
 
