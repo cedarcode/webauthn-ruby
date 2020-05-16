@@ -36,7 +36,7 @@ module WebAuthn
       @credential_options_timeout = credential_options_timeout
       @silent_authentication = silent_authentication
       @acceptable_attestation_types = acceptable_attestation_types
-      @attestation_root_certificates_finders = attestation_root_certificates_finders
+      self.attestation_root_certificates_finders = attestation_root_certificates_finders
     end
 
     attr_accessor :algorithms,
