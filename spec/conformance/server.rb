@@ -57,7 +57,9 @@ relying_party = WebAuthn::RelyingParty.new(
 
 post "/attestation/options" do
   options = relying_party.options_for_registration(
-    params,
+    attestation: params["attestation"],
+    authenticator_selection: params["authenticatorSelection"],
+    extensions: params["extensions"],
     exclude: Credential.registered_for(params["username"]).map(&:id),
     user: { id: "1", name: params["username"], display_name: params["displayName"] }
   )
@@ -105,7 +107,8 @@ end
 
 post "/assertion/options" do
   options = relying_party.options_for_authentication(
-    params,
+    extensions: params["extensions"],
+    user_verification: params["userVerification"],
     allow: Credential.registered_for(params["username"]).map(&:id)
   )
 

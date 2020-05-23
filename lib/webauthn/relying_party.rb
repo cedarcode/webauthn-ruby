@@ -71,33 +71,27 @@ module WebAuthn
       @attestation_root_certificates_finders = finders
     end
 
-    def options_for_registration(params, user:, exclude:)
+    def options_for_registration(**keyword_arguments)
       WebAuthn::Credential.options_for_create(
-        attestation: params["attestation"],
-        authenticator_selection: params["authenticatorSelection"],
-        exclude: exclude,
-        extensions: params["extensions"],
-        relying_party: self,
-        user: user
+        **keyword_arguments,
+        relying_party: self
       )
     end
 
-    def verify_registration(params, challenge, user_verification: nil)
-      credential = WebAuthn::Credential.from_create(params, relying_party: self)
+    def verify_registration(raw_credential, challenge, user_verification: nil)
+      credential = WebAuthn::Credential.from_create(raw_credential, relying_party: self)
       credential if credential.verify(challenge, user_verification: user_verification)
     end
 
-    def options_for_authentication(params, allow:)
+    def options_for_authentication(**keyword_arguments)
       WebAuthn::Credential.options_for_get(
-        allow: allow,
-        extensions: params["extensions"],
-        relying_party: self,
-        user_verification: params["userVerification"]
+        **keyword_arguments,
+        relying_party: self
       )
     end
 
-    def verify_authentication(params, challenge, public_key:, sign_count:, user_verification:)
-      credential = WebAuthn::Credential.from_get(params, relying_party: self)
+    def verify_authentication(raw_credential, challenge, public_key:, sign_count:, user_verification: nil)
+      credential = WebAuthn::Credential.from_get(raw_credential, relying_party: self)
       credential if credential.verify(
         challenge,
         public_key: public_key,
