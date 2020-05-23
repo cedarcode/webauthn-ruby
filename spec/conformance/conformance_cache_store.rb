@@ -6,12 +6,6 @@ require "zip"
 
 class ConformanceCacheStore < FidoMetadata::TestCacheStore
   FILENAME = "metadata.zip"
-  attr_reader :origin
-
-  def initialize(origin)
-    super()
-    @origin = origin
-  end
 
   def setup_authenticators
     puts("#{FILENAME} not found, this will affect Metadata Service Test results.") unless File.exist?(FILENAME)
@@ -24,12 +18,12 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
     end
   end
 
-  def setup_metadata_store
+  def setup_metadata_store(endpoint)
     puts("Setting up metadata store TOC")
 
     response = Net::HTTP.post(
       URI("https://fidoalliance.co.nz/mds/getEndpoints"),
-      { endpoint: origin }.to_json,
+      { endpoint: endpoint }.to_json,
       FidoMetadata::Client::DEFAULT_HEADERS
     )
 

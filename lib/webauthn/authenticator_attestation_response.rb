@@ -40,7 +40,6 @@ module WebAuthn
     def verify(expected_challenge, expected_origin = nil, user_verification: nil, rp_id: nil)
       super
 
-      verify_item(:credential_algorithm)
       verify_item(:attested_credential)
       if relying_party.verify_attestation_statement
         verify_item(:attestation_statement)
@@ -72,12 +71,9 @@ module WebAuthn
       WebAuthn::TYPES[:create]
     end
 
-    def valid_credential_algorithm?
-      relying_party.algorithms.include?(authenticator_data.credential.algorithm)
-    end
-
     def valid_attested_credential?
-      attestation_object.valid_attested_credential?
+      attestation_object.valid_attested_credential? &&
+        relying_party.algorithms.include?(authenticator_data.credential.algorithm)
     end
 
     def valid_attestation_statement?
