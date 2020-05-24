@@ -4,7 +4,6 @@ require "cose/algorithm"
 require "openssl"
 require "tpm/key_attestation"
 require "webauthn/attestation_statement/base"
-require "webauthn/signature_verifier"
 
 module WebAuthn
   module AttestationStatement
