@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require "webauthn/attestation_statement/fido_u2f/public_key"
-require "cose/key"
+require "cose"
 require "cose/algorithm"
+require "cose/key"
+require "cose/rsapkcs1_algorithm"
+require "webauthn/attestation_statement/fido_u2f/public_key"
 
 module WebAuthn
   class PublicKey
@@ -44,6 +46,18 @@ module WebAuthn
 
     def alg
       @cose_key.alg
+    end
+
+    def verify(signature, verification_data)
+      cose_algorithm.verify(pkey, signature, verification_data)
+    rescue
+      false
+    end
+
+    private
+
+    def cose_algorithm
+      @cose_algorithm ||= COSE::Algorithm.find(alg)
     end
   end
 end

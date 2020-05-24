@@ -3,7 +3,6 @@
 require "webauthn/authenticator_data"
 require "webauthn/authenticator_response"
 require "webauthn/encoder"
-require "webauthn/signature_verifier"
 require "webauthn/public_key"
 
 module WebAuthn
@@ -54,9 +53,7 @@ module WebAuthn
     attr_reader :authenticator_data_bytes, :signature
 
     def valid_signature?(webauthn_public_key)
-      WebAuthn::SignatureVerifier
-        .new(webauthn_public_key.alg, webauthn_public_key.pkey)
-        .verify(signature, authenticator_data_bytes + client_data.hash)
+      webauthn_public_key.verify(signature, authenticator_data_bytes + client_data.hash)
     end
 
     def valid_sign_count?(stored_sign_count)

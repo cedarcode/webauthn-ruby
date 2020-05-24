@@ -87,4 +87,80 @@ RSpec.describe "PublicKey" do
       end
     end
   end
+
+  describe "#verify" do
+    context "when public key stored in uncompressed point format" do
+      let(:public_key) { uncompressed_point_public_key }
+
+      context "when signature was signed with public key" do
+        let(:signature) do
+          Base64.strict_decode64(seeds[:u2f_migration][:assertion][:response][:signature])
+        end
+        let(:authenticator_data) do
+          Base64.strict_decode64(seeds[:u2f_migration][:assertion][:response][:authenticator_data])
+        end
+        let(:client_data_hash) do
+          WebAuthn::ClientData.new(
+            Base64.strict_decode64(seeds[:u2f_migration][:assertion][:response][:client_data_json])
+          ).hash
+        end
+        let(:verification_data) { authenticator_data + client_data_hash }
+
+        it "should verify" do
+          expect(
+            webauthn_public_key.verify(signature, verification_data)
+          ).to be_truthy
+        end
+      end
+    end
+
+    context "when public key stored in cose format" do
+      let(:signature) { key.sign(hash_algorithm, to_be_signed) }
+      let(:to_be_signed) { "data" }
+      let(:hash_algorithm) do
+        COSE::Algorithm.find("ES256").hash_function
+      end
+      let(:cose_key) do
+        cose_key = COSE::Key::EC2.from_pkey(key.public_key)
+        cose_key.alg = -7
+
+        cose_key
+      end
+      let(:key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+      let(:webauthn_public_key) { WebAuthn::PublicKey.new(cose_key: cose_key) }
+
+      it "works" do
+        expect(webauthn_public_key.verify(signature, to_be_signed)).to be_truthy
+      end
+
+      context "when it was signed using a different hash algorithm" do
+        let(:hash_algorithm) { "SHA1" }
+
+        it "fails" do
+          expect(webauthn_public_key.verify(signature, to_be_signed)).to be_falsy
+        end
+      end
+
+      context "when it was signed with a different key" do
+        let(:signature) do
+          OpenSSL::PKey::EC.new("prime256v1").generate_key.sign(
+            hash_algorithm,
+            to_be_signed
+          )
+        end
+
+        it "fails" do
+          expect(webauthn_public_key.verify(signature, to_be_signed)).to be_falsy
+        end
+      end
+
+      context "because it was signed over different data" do
+        let(:signature) { key.sign(hash_algorithm, "different data") }
+
+        it "fails" do
+          expect(webauthn_public_key.verify(signature, to_be_signed)).to be_falsy
+        end
+      end
+    end
+  end
 end
