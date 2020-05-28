@@ -10,7 +10,6 @@ module WebAuthn
     ATTESTATION_TYPE_BASIC = "Basic"
     ATTESTATION_TYPE_SELF = "Self"
     ATTESTATION_TYPE_ATTCA = "AttCA"
-    ATTESTATION_TYPE_ECDAA = "ECDAA"
     ATTESTATION_TYPE_BASIC_OR_ATTCA = "Basic_or_AttCA"
 
     ATTESTATION_TYPES_WITH_ROOT = [
@@ -79,10 +78,6 @@ module WebAuthn
 
       def raw_certificates
         statement["x5c"]
-      end
-
-      def raw_ecdaa_key_id
-        statement["ecdaaKeyId"]
       end
 
       def signature

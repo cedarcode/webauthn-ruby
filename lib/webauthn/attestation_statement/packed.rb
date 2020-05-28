@@ -6,13 +6,10 @@ require "webauthn/signature_verifier"
 
 module WebAuthn
   # Implements https://www.w3.org/TR/2018/CR-webauthn-20180807/#packed-attestation
-  # ECDAA attestation is unsupported.
   module AttestationStatement
     class Packed < Base
       # Follows "Verification procedure"
       def valid?(authenticator_data, client_data_hash)
-        check_unsupported_feature
-
         valid_format? &&
           valid_algorithm?(authenticator_data.credential) &&
           valid_ec_public_keys?(authenticator_data.credential) &&
@@ -30,19 +27,11 @@ module WebAuthn
       end
 
       def self_attestation?
-        !raw_certificates && !raw_ecdaa_key_id
+        !raw_certificates
       end
 
       def valid_format?
-        algorithm && signature && (
-          [raw_certificates, raw_ecdaa_key_id].compact.size < 2
-        )
-      end
-
-      def check_unsupported_feature
-        if raw_ecdaa_key_id
-          raise NotSupportedError, "ecdaaKeyId of the packed attestation format is not implemented yet"
-        end
+        algorithm && signature
       end
 
       def valid_ec_public_keys?(credential)

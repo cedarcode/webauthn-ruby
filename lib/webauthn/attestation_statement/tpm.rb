@@ -19,23 +19,16 @@ module WebAuthn
       }.freeze
 
       def valid?(authenticator_data, client_data_hash)
-        case attestation_type
-        when ATTESTATION_TYPE_ATTCA
+        attestation_type == ATTESTATION_TYPE_ATTCA &&
           ver == TPM_V2 &&
-            valid_key_attestation?(
-              authenticator_data.data + client_data_hash,
-              authenticator_data.credential.public_key_object,
-              authenticator_data.aaguid
-            ) &&
-            matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
-            trustworthy?(aaguid: authenticator_data.aaguid) &&
-            [attestation_type, attestation_trust_path]
-        when ATTESTATION_TYPE_ECDAA
-          raise(
-            WebAuthn::AttestationStatement::Base::NotSupportedError,
-            "Attestation type ECDAA is not supported"
-          )
-        end
+          valid_key_attestation?(
+            authenticator_data.data + client_data_hash,
+            authenticator_data.credential.public_key_object,
+            authenticator_data.aaguid
+          ) &&
+          matching_aaguid?(authenticator_data.attested_credential_data.raw_aaguid) &&
+          trustworthy?(aaguid: authenticator_data.aaguid) &&
+          [attestation_type, attestation_trust_path]
       end
 
       private
@@ -78,10 +71,8 @@ module WebAuthn
       end
 
       def attestation_type
-        if raw_certificates && !raw_ecdaa_key_id
+        if raw_certificates
           ATTESTATION_TYPE_ATTCA
-        elsif raw_ecdaa_key_id && !raw_certificates
-          ATTESTATION_TYPE_ECDAA
         else
           raise "Attestation type invalid"
         end

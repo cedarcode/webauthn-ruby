@@ -269,20 +269,5 @@ RSpec.describe "Packed attestation" do
         end
       end
     end
-
-    context "ECDAA" do
-      let(:statement) do
-        WebAuthn::AttestationStatement::Packed.new("alg" => -260, "sig" => "signature".b, "ecdaaKeyId" => "key-id".b)
-      end
-
-      it "tells the user it's not yet supported" do
-        expect {
-          statement.valid?(authenticator_data, client_data_hash)
-        }.to raise_error(
-          WebAuthn::AttestationStatement::Base::NotSupportedError,
-          "ecdaaKeyId of the packed attestation format is not implemented yet"
-        )
-      end
-    end
   end
 end
