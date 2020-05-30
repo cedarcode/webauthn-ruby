@@ -86,7 +86,7 @@ RSpec.describe "TPM attestation statement" do
           str=UTF8:"#{aik_certificate_san_version}"
         OPENSSL_CONF
       end
-      let(:aik_certificate_start_time) { Time.now }
+      let(:aik_certificate_start_time) { Time.now - 1 }
       let(:aik_certificate_end_time) { Time.now + 60 }
       let(:root_key) { OpenSSL::PKey::RSA.new(2048) }
       let(:root_certificate) { create_root_certificate(root_key) }
@@ -411,7 +411,7 @@ RSpec.describe "TPM attestation statement" do
         end
 
         context "because it has expired" do
-          let(:aik_certificate_end_time) { Time.now }
+          let(:aik_certificate_end_time) { Time.now - 1 }
 
           it "returns false" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
