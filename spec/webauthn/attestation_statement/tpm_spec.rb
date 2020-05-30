@@ -454,28 +454,6 @@ RSpec.describe "TPM attestation statement" do
       end
     end
 
-    context "ECDAA attestation" do
-      let(:statement) do
-        WebAuthn::AttestationStatement::TPM.new(
-          "ver" => "2.0",
-          "alg" => -260,
-          "ecdaaKeyId" => "ecdaa-key-id",
-          "sig" => "sig",
-          "certInfo" => "cert-info",
-          "pubArea" => "pub-area"
-        )
-      end
-
-      it "tells the user it's not yet supported" do
-        expect {
-          statement.valid?("authenticator-data", "client-data-hash")
-        }.to raise_error(
-          WebAuthn::AttestationStatement::Base::NotSupportedError,
-          "Attestation type ECDAA is not supported"
-        )
-      end
-    end
-
     context "when attestation type is not specified" do
       let(:statement) do
         WebAuthn::AttestationStatement::TPM.new(
