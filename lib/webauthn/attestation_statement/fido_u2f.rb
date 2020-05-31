@@ -4,7 +4,6 @@ require "cose"
 require "openssl"
 require "webauthn/attestation_statement/base"
 require "webauthn/attestation_statement/fido_u2f/public_key"
-require "webauthn/signature_verifier"
 
 module WebAuthn
   module AttestationStatement
@@ -48,10 +47,14 @@ module WebAuthn
         attested_credential_data_aaguid == WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
       end
 
-      def valid_signature?(authenticator_data, client_data_hash)
-        WebAuthn::SignatureVerifier
-          .new(VALID_ATTESTATION_CERTIFICATE_ALGORITHM, certificate_public_key)
-          .verify(signature, verification_data(authenticator_data, client_data_hash))
+      def cose_algorithm
+        return @cose_algorithm unless @cose_algorithm.nil?
+
+        if configuration.algorithms.include?(VALID_ATTESTATION_CERTIFICATE_ALGORITHM.name)
+          @cose_algorithm = VALID_ATTESTATION_CERTIFICATE_ALGORITHM
+        else
+          raise(UnsupportedAlgorithm, "Unsupported algorithm #{VALID_ATTESTATION_CERTIFICATE_ALGORITHM}")
+        end
       end
 
       def verification_data(authenticator_data, client_data_hash)

@@ -2,7 +2,6 @@
 
 require "openssl"
 require "webauthn/attestation_statement/base"
-require "webauthn/signature_verifier"
 
 module WebAuthn
   # Implements https://www.w3.org/TR/2018/CR-webauthn-20180807/#packed-attestation
@@ -53,21 +52,20 @@ module WebAuthn
         end
       end
 
-      def valid_signature?(authenticator_data, client_data_hash)
-        signature_verifier = WebAuthn::SignatureVerifier.new(
-          algorithm,
-          attestation_certificate&.public_key || authenticator_data.credential.public_key_object
-        )
-
-        signature_verifier.verify(signature, authenticator_data.data + client_data_hash)
-      end
-
       def attestation_type
         if attestation_trust_path
           WebAuthn::AttestationStatement::ATTESTATION_TYPE_BASIC_OR_ATTCA # FIXME: use metadata if available
         else
           WebAuthn::AttestationStatement::ATTESTATION_TYPE_SELF
         end
+      end
+
+      def valid_signature?(authenticator_data, client_data_hash)
+        super(
+          authenticator_data,
+          client_data_hash,
+          attestation_certificate&.public_key || authenticator_data.credential.public_key_object
+        )
       end
     end
   end

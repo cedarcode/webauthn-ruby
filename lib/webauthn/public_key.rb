@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "cose"
 require "cose/algorithm"
 require "cose/key"
 require "cose/rsapkcs1_algorithm"

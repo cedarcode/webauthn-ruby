@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "cose/algorithm"
+require "cose/error"
+require "cose/rsapkcs1_algorithm"
 require "openssl"
 require "webauthn/authenticator_data/attested_credential_data"
 require "webauthn/error"
@@ -19,6 +22,7 @@ module WebAuthn
     ].freeze
 
     class Base
+      class UnsupportedAlgorithm < Error; end
       class NotSupportedError < Error; end
 
       AAGUID_EXTENSION_OID = "1.3.6.1.4.1.45724.1.1.4"
@@ -145,6 +149,32 @@ module WebAuthn
         ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
         ext_value = ext_asn1.value.last
         OpenSSL::ASN1.decode(ext_value.value).value
+      end
+
+      def valid_signature?(authenticator_data, client_data_hash, public_key = nil)
+        public_key ||= attestation_certificate.public_key
+
+        raise("Incompatible algorithm and key") unless cose_algorithm.compatible_key?(public_key)
+
+        cose_algorithm.verify(
+          public_key,
+          signature,
+          verification_data(authenticator_data, client_data_hash)
+        )
+      rescue COSE::Error
+        false
+      end
+
+      def verification_data(authenticator_data, client_data_hash)
+        authenticator_data.data + client_data_hash
+      end
+
+      def cose_algorithm
+        @cose_algorithm ||=
+          COSE::Algorithm.find(algorithm).tap do |alg|
+            alg && configuration.algorithms.include?(alg.name) ||
+              raise(UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}")
+          end
       end
 
       def configuration

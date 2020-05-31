@@ -3,7 +3,6 @@
 require "android_key_attestation"
 require "openssl"
 require "webauthn/attestation_statement/base"
-require "webauthn/signature_verifier"
 
 module WebAuthn
   module AttestationStatement
@@ -20,12 +19,6 @@ module WebAuthn
       end
 
       private
-
-      def valid_signature?(authenticator_data, client_data_hash)
-        WebAuthn::SignatureVerifier
-          .new(algorithm, attestation_certificate.public_key)
-          .verify(signature, authenticator_data.data + client_data_hash)
-      end
 
       def matching_public_key?(authenticator_data)
         attestation_certificate.public_key.to_der == authenticator_data.credential.public_key_object.to_der
