@@ -93,7 +93,7 @@ RSpec.describe "Packed attestation" do
       let(:attestation_certificate_version) { 2 }
       let(:attestation_certificate_subject) { "/C=UY/O=ACME/OU=Authenticator Attestation/CN=CN" }
       let(:attestation_certificate_basic_constraints) { "CA:FALSE" }
-      let(:attestation_certificate_start_time) { Time.now }
+      let(:attestation_certificate_start_time) { Time.now - 1 }
       let(:attestation_certificate_end_time) { Time.now + 60 }
 
       let(:attestation_certificate) do
@@ -119,7 +119,7 @@ RSpec.describe "Packed attestation" do
       end
 
       let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
-      let(:root_certificate_start_time) { Time.now }
+      let(:root_certificate_start_time) { Time.now - 1 }
       let(:root_certificate_end_time) { Time.now + 60 }
 
       let(:root_certificate) do
@@ -230,7 +230,7 @@ RSpec.describe "Packed attestation" do
         end
 
         context "because it has expired" do
-          let(:attestation_certificate_end_time) { Time.now }
+          let(:attestation_certificate_end_time) { Time.now - 1 }
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
@@ -248,7 +248,7 @@ RSpec.describe "Packed attestation" do
         end
 
         context "because a cert has expired" do
-          let(:root_certificate_end_time) { Time.now }
+          let(:root_certificate_end_time) { Time.now - 1 }
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

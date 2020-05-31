@@ -57,7 +57,7 @@ RSpec.describe "AndroidKey attestation" do
       certificate = OpenSSL::X509::Certificate.new
       certificate.subject = OpenSSL::X509::Name.new([["CN", "Fake Attestation"]])
       certificate.issuer = root_certificate.subject
-      certificate.not_before = Time.now
+      certificate.not_before = Time.now - 1
       certificate.not_after = Time.now + 60
       certificate.public_key = attestation_key
 
