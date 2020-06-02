@@ -92,5 +92,23 @@ RSpec.describe "PublicKeyCredential" do
         }.to raise_error(WebAuthn::ChallengeVerificationError)
       end
     end
+
+    context "when clientExtensionResults is received" do
+      let(:public_key_credential) do
+        WebAuthn::PublicKeyCredentialWithAttestation.new(
+          type: type,
+          id: id,
+          raw_id: raw_id,
+          client_extension_outputs: { "appid" => "true" },
+          response: attestation_response
+        )
+      end
+
+      it "works" do
+        expect(public_key_credential.verify(challenge)).to be_truthy
+
+        expect(public_key_credential.client_extension_outputs).to eq({ "appid" => "true" })
+      end
+    end
   end
 end
