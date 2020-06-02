@@ -32,7 +32,11 @@ module WebAuthn
     end
 
     def sign_count
-      response&.authenticator_data&.sign_count
+      authenticator_data&.sign_count
+    end
+
+    def authenticator_extension_outputs
+      authenticator_data.extension_data if authenticator_data&.extension_data_included?
     end
 
     private
@@ -43,6 +47,10 @@ module WebAuthn
 
     def valid_id?
       raw_id && id && raw_id == WebAuthn.standard_encoder.decode(id)
+    end
+
+    def authenticator_data
+      response&.authenticator_data
     end
 
     def encoder

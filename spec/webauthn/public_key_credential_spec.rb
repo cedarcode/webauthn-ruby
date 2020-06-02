@@ -110,5 +110,50 @@ RSpec.describe "PublicKeyCredential" do
         expect(public_key_credential.client_extension_outputs).to eq({ "appid" => "true" })
       end
     end
+
+    context "when authentication extension input" do
+      context "is not received" do
+        let(:attestation_response) do
+          allow_any_instance_of(WebAuthn::FakeAuthenticator::AuthenticatorData)
+            .to receive(:extensions)
+            .and_return(nil)
+
+          response = client.create(challenge: raw_challenge)["response"]
+
+          WebAuthn::AuthenticatorAttestationResponse.new(
+            attestation_object: response["attestationObject"],
+            client_data_json: response["clientDataJSON"]
+          )
+        end
+
+        it "works" do
+          expect(public_key_credential.verify(challenge)).to be_truthy
+
+          expect(public_key_credential.authenticator_extension_outputs).to be_nil
+        end
+      end
+
+      context "is received" do
+        let(:attestation_response) do
+          allow_any_instance_of(WebAuthn::FakeAuthenticator::AuthenticatorData)
+            .to receive(:extensions)
+            .and_return({ "txAuthSimple" => "Could you please verify yourself?" })
+
+          response = client.create(challenge: raw_challenge)["response"]
+
+          WebAuthn::AuthenticatorAttestationResponse.new(
+            attestation_object: response["attestationObject"],
+            client_data_json: response["clientDataJSON"]
+          )
+        end
+
+        it "works" do
+          expect(public_key_credential.verify(challenge)).to be_truthy
+
+          expect(public_key_credential.authenticator_extension_outputs)
+            .to eq({ "txAuthSimple" => "Could you please verify yourself?" })
+        end
+      end
+    end
   end
 end
