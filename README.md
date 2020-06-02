@@ -150,7 +150,7 @@ if !user.webauthn_id
 end
 
 options = WebAuthn::Credential.options_for_create(
-  user: { id: user.webauthn_id, name: user.name }
+  user: { id: user.webauthn_id, name: user.name },
   exclude: user.credentials.map { |c| c.webauthn_id }
 )
 
