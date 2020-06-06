@@ -1,5 +1,11 @@
 # Changelog
 
+## [v2.2.1] - 2020-06-06
+
+### Fixed
+
+- Fixed compatibility with OpenSSL-C (libssl) v1.0.2 ([@santiagorodriguez96])
+
 ## [v2.2.0] - 2020-03-14
 
 ### Added
@@ -282,6 +288,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v2.2.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.2.0...v2.2.1/
 [v2.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.1.0...v2.2.0/
 [v2.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.0.0...v2.1.0/
 [v2.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.18.0...v2.0.0/
@@ -314,3 +321,4 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@sorah]: https://github.com/sorah
 [@ssuttner]: https://github.com/ssuttner
 [@padulafacundo]: https://github.com/padulafacundo
+[@santiagorodriguez96]: https://github.com/santiagorodriguez96
