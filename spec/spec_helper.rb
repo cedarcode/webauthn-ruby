@@ -23,16 +23,33 @@ RSpec.configure do |config|
   end
 end
 
-def create_credential(client: WebAuthn::FakeClient.new, rp_id: nil)
-  rp_id ||= URI.parse(client.origin).host
+def create_credential(
+  client: WebAuthn::FakeClient.new,
+  rp_id: nil,
+  relying_party: WebAuthn.configuration.relying_party
+)
+  rp_id ||= relying_party.id || URI.parse(client.origin).host
 
   create_result = client.create(rp_id: rp_id)
+
+  attestation_object = if client.encoding
+    relying_party.encoder.decode(create_result["response"]["attestationObject"])
+  else
+    create_result["response"]["attestationObject"]
+  end
+
+  client_data_json = if client.encoding
+    relying_party.encoder.decode(create_result["response"]["clientDataJSON"])
+  else
+    create_result["response"]["clientDataJSON"]
+  end
 
   credential_public_key =
     WebAuthn::AuthenticatorAttestationResponse
     .new(
-      attestation_object: create_result["response"]["attestationObject"],
-      client_data_json: create_result["response"]["clientDataJSON"]
+      attestation_object: attestation_object,
+      client_data_json: client_data_json,
+      relying_party: relying_party
     )
     .credential
     .public_key

@@ -79,8 +79,11 @@ module WebAuthn
     end
 
     def verify_registration(raw_credential, challenge, user_verification: nil)
-      credential = WebAuthn::Credential.from_create(raw_credential, relying_party: self)
-      credential if credential.verify(challenge, user_verification: user_verification)
+      webauthn_credential = WebAuthn::Credential.from_create(raw_credential, relying_party: self)
+
+      if webauthn_credential.verify(challenge, user_verification: user_verification)
+        webauthn_credential
+      end
     end
 
     def options_for_authentication(**keyword_arguments)
@@ -90,14 +93,19 @@ module WebAuthn
       )
     end
 
-    def verify_authentication(raw_credential, challenge, public_key:, sign_count:, user_verification: nil)
-      credential = WebAuthn::Credential.from_get(raw_credential, relying_party: self)
-      credential if credential.verify(
+    def verify_authentication(raw_credential, challenge, user_verification: nil, &block)
+      webauthn_credential = WebAuthn::Credential.from_get(raw_credential, relying_party: self)
+
+      stored_credential = yield(webauthn_credential)
+
+      if webauthn_credential.verify(
         challenge,
-        public_key: public_key,
-        sign_count: sign_count,
+        public_key: stored_credential.public_key,
+        sign_count: stored_credential.sign_count,
         user_verification: user_verification
       )
+        webauthn_credential
+      end
     end
   end
 end
