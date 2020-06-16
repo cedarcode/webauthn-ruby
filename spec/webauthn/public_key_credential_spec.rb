@@ -114,11 +114,7 @@ RSpec.describe "PublicKeyCredential" do
     context "when authentication extension input" do
       context "is not received" do
         let(:attestation_response) do
-          allow_any_instance_of(WebAuthn::FakeAuthenticator::AuthenticatorData)
-            .to receive(:extensions)
-            .and_return(nil)
-
-          response = client.create(challenge: raw_challenge)["response"]
+          response = client.create(challenge: raw_challenge, extensions: nil)["response"]
 
           WebAuthn::AuthenticatorAttestationResponse.new(
             attestation_object: response["attestationObject"],
@@ -135,11 +131,10 @@ RSpec.describe "PublicKeyCredential" do
 
       context "is received" do
         let(:attestation_response) do
-          allow_any_instance_of(WebAuthn::FakeAuthenticator::AuthenticatorData)
-            .to receive(:extensions)
-            .and_return({ "txAuthSimple" => "Could you please verify yourself?" })
-
-          response = client.create(challenge: raw_challenge)["response"]
+          response = client.create(
+            challenge: raw_challenge,
+            extensions: { "txAuthSimple" => "Could you please verify yourself?" }
+          )["response"]
 
           WebAuthn::AuthenticatorAttestationResponse.new(
             attestation_object: response["attestationObject"],

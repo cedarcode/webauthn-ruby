@@ -29,7 +29,8 @@ module WebAuthn
       rp_id: nil,
       user_present: true,
       user_verified: false,
-      attested_credential_data: true
+      attested_credential_data: true,
+      extensions: nil
     )
       rp_id ||= URI.parse(origin).host
 
@@ -41,7 +42,8 @@ module WebAuthn
         client_data_hash: client_data_hash,
         user_present: user_present,
         user_verified: user_verified,
-        attested_credential_data: attested_credential_data
+        attested_credential_data: attested_credential_data,
+        extensions: extensions
       )
 
       id =
@@ -58,6 +60,7 @@ module WebAuthn
         "type" => "public-key",
         "id" => internal_encoder.encode(id),
         "rawId" => encoder.encode(id),
+        "clientExtensionResults" => extensions,
         "response" => {
           "attestationObject" => encoder.encode(attestation_object),
           "clientDataJSON" => encoder.encode(client_data_json)
@@ -65,7 +68,12 @@ module WebAuthn
       }
     end
 
-    def get(challenge: fake_challenge, rp_id: nil, user_present: true, user_verified: false, sign_count: nil)
+    def get(challenge: fake_challenge,
+            rp_id: nil,
+            user_present: true,
+            user_verified: false,
+            sign_count: nil,
+            extensions: nil)
       rp_id ||= URI.parse(origin).host
 
       client_data_json = data_json_for(:get, encoder.decode(challenge))
@@ -77,12 +85,14 @@ module WebAuthn
         user_present: user_present,
         user_verified: user_verified,
         sign_count: sign_count,
+        extensions: extensions
       )
 
       {
         "type" => "public-key",
         "id" => internal_encoder.encode(assertion[:credential_id]),
         "rawId" => encoder.encode(assertion[:credential_id]),
+        "clientExtensionResults" => extensions,
         "response" => {
           "clientDataJSON" => encoder.encode(client_data_json),
           "authenticatorData" => encoder.encode(assertion[:authenticator_data]),

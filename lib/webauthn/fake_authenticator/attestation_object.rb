@@ -14,7 +14,8 @@ module WebAuthn
         user_present: true,
         user_verified: false,
         attested_credential_data: true,
-        sign_count: 0
+        sign_count: 0,
+        extensions: nil
       )
         @client_data_hash = client_data_hash
         @rp_id_hash = rp_id_hash
@@ -24,6 +25,7 @@ module WebAuthn
         @user_verified = user_verified
         @attested_credential_data = attested_credential_data
         @sign_count = sign_count
+        @extensions = extensions
       end
 
       def serialize
@@ -44,7 +46,8 @@ module WebAuthn
         :user_present,
         :user_verified,
         :attested_credential_data,
-        :sign_count
+        :sign_count,
+        :extensions
       )
 
       def authenticator_data
@@ -60,7 +63,8 @@ module WebAuthn
               credential: credential_data,
               user_present: user_present,
               user_verified: user_verified,
-              sign_count: 0
+              sign_count: 0,
+              extensions: extensions
             )
           end
       end

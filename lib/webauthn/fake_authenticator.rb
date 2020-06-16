@@ -18,7 +18,8 @@ module WebAuthn
       user_present: true,
       user_verified: false,
       attested_credential_data: true,
-      sign_count: nil
+      sign_count: nil,
+      extensions: nil
     )
       credential_id, credential_key, credential_sign_count = new_credential
       sign_count ||= credential_sign_count
@@ -37,7 +38,8 @@ module WebAuthn
         user_present: user_present,
         user_verified: user_verified,
         attested_credential_data: attested_credential_data,
-        sign_count: sign_count
+        sign_count: sign_count,
+        extensions: extensions
       ).serialize
     end
 
@@ -47,7 +49,8 @@ module WebAuthn
       user_present: true,
       user_verified: false,
       aaguid: AuthenticatorData::AAGUID,
-      sign_count: nil
+      sign_count: nil,
+      extensions: nil
     )
       credential_options = credentials[rp_id]
 
@@ -63,6 +66,7 @@ module WebAuthn
           aaguid: aaguid,
           credential: nil,
           sign_count: sign_count || credential_sign_count,
+          extensions: extensions
         ).serialize
 
         signature = credential_key.sign("SHA256", authenticator_data + client_data_hash)
