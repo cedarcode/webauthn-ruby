@@ -16,7 +16,8 @@ module WebAuthn
         encoder.decode(challenge),
         public_key: encoder.decode(public_key),
         sign_count: sign_count,
-        user_verification: user_verification
+        user_verification: user_verification,
+        rp_id: client_extension_outputs[:appid] ? domain.to_s : domain.host
       )
 
       true
@@ -30,6 +31,14 @@ module WebAuthn
 
     def raw_user_handle
       response.user_handle
+    end
+
+    private
+
+    def domain
+      expected_origin ||= WebAuthn.configuration.origin || raise("Unspecified expected origin")
+
+      URI.parse(expected_origin)
     end
   end
 end

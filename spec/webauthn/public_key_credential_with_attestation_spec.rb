@@ -8,7 +8,7 @@ require "webauthn/authenticator_attestation_response"
 require "webauthn/configuration"
 require "webauthn/public_key_credential_with_attestation"
 
-RSpec.describe "PublicKeyCredential" do
+RSpec.describe "PublicKeyCredentialWithAttestation" do
   describe "#verify" do
     let(:public_key_credential) do
       WebAuthn::PublicKeyCredentialWithAttestation.new(
@@ -108,7 +108,7 @@ RSpec.describe "PublicKeyCredential" do
         it "works" do
           expect(public_key_credential.verify(challenge)).to be_truthy
 
-          expect(public_key_credential.client_extension_outputs).to be_nil
+          expect(public_key_credential.client_extension_outputs).to be_empty
         end
       end
 

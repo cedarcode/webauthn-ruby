@@ -20,7 +20,7 @@ module WebAuthn
       @type = type
       @id = id
       @raw_id = raw_id
-      @client_extension_outputs = client_extension_outputs
+      @client_extension_outputs = client_extension_outputs || {}
       @response = response
     end
 
