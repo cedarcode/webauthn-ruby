@@ -93,21 +93,41 @@ RSpec.describe "PublicKeyCredential" do
       end
     end
 
-    context "when clientExtensionResults is received" do
-      let(:public_key_credential) do
-        WebAuthn::PublicKeyCredentialWithAttestation.new(
-          type: type,
-          id: id,
-          raw_id: raw_id,
-          client_extension_outputs: { "appid" => "true" },
-          response: attestation_response
-        )
+    context "when clientExtensionResults" do
+      context "are not received" do
+        let(:public_key_credential) do
+          WebAuthn::PublicKeyCredentialWithAttestation.new(
+            type: type,
+            id: id,
+            raw_id: raw_id,
+            client_extension_outputs: nil,
+            response: attestation_response
+          )
+        end
+
+        it "works" do
+          expect(public_key_credential.verify(challenge)).to be_truthy
+
+          expect(public_key_credential.client_extension_outputs).to be_nil
+        end
       end
 
-      it "works" do
-        expect(public_key_credential.verify(challenge)).to be_truthy
+      context "are received" do
+        let(:public_key_credential) do
+          WebAuthn::PublicKeyCredentialWithAttestation.new(
+            type: type,
+            id: id,
+            raw_id: raw_id,
+            client_extension_outputs: { "appid" => "true" },
+            response: attestation_response
+          )
+        end
 
-        expect(public_key_credential.client_extension_outputs).to eq({ "appid" => "true" })
+        it "works" do
+          expect(public_key_credential.verify(challenge)).to be_truthy
+
+          expect(public_key_credential.client_extension_outputs).to eq({ "appid" => "true" })
+        end
       end
     end
 
