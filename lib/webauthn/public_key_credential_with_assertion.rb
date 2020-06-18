@@ -17,7 +17,7 @@ module WebAuthn
         public_key: encoder.decode(public_key),
         sign_count: sign_count,
         user_verification: user_verification,
-        rp_id: client_extension_outputs[:appid] ? domain.to_s : domain.host
+        rp_id: client_extension_outputs[:appid] ? appid : nil
       )
 
       true
@@ -35,10 +35,11 @@ module WebAuthn
 
     private
 
-    def domain
-      expected_origin ||= WebAuthn.configuration.origin || raise("Unspecified expected origin")
+    def appid
+      appid_domain = WebAuthn.configuration.appid || WebAuthn.configuration.rp_id ||
+                     WebAuthn.configuration.origin || raise("Unspecified expected origin")
 
-      URI.parse(expected_origin)
+      URI.parse(appid_domain).to_s
     end
   end
 end

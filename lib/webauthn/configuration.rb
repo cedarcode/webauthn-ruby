@@ -26,6 +26,7 @@ module WebAuthn
     attr_accessor :encoding
     attr_accessor :origin
     attr_accessor :rp_id
+    attr_accessor :appid
     attr_accessor :rp_name
     attr_accessor :verify_attestation_statement
     attr_accessor :credential_options_timeout

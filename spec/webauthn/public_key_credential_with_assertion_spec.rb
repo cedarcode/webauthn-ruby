@@ -265,6 +265,36 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
           )
         ).to be_truthy
       end
+
+      context "and appid is setted in configuration file" do
+        let(:appid) { "http://u2f-login.localhost" }
+
+        let!(:credential) { create_credential(client: client, rp_id: appid) }
+
+        let(:assertion_response) do
+          response = client.get(challenge: raw_challenge, rp_id: appid)["response"]
+
+          WebAuthn::AuthenticatorAssertionResponse.new(
+            authenticator_data: response["authenticatorData"],
+            client_data_json: response["clientDataJSON"],
+            signature: response["signature"]
+          )
+        end
+
+        before do
+          WebAuthn.configuration.appid = appid
+        end
+
+        it "works" do
+          expect(
+            public_key_credential.verify(
+              challenge,
+              public_key: credential_public_key,
+              sign_count: credential_sign_count
+            )
+          ).to be_truthy
+        end
+      end
     end
   end
 end
