@@ -47,14 +47,8 @@ module WebAuthn
         attested_credential_data_aaguid == WebAuthn::AuthenticatorData::AttestedCredentialData::ZEROED_AAGUID
       end
 
-      def cose_algorithm
-        return @cose_algorithm unless @cose_algorithm.nil?
-
-        if configuration.algorithms.include?(VALID_ATTESTATION_CERTIFICATE_ALGORITHM.name)
-          @cose_algorithm = VALID_ATTESTATION_CERTIFICATE_ALGORITHM
-        else
-          raise(UnsupportedAlgorithm, "Unsupported algorithm #{VALID_ATTESTATION_CERTIFICATE_ALGORITHM}")
-        end
+      def algorithm
+        VALID_ATTESTATION_CERTIFICATE_ALGORITHM.id
       end
 
       def verification_data(authenticator_data, client_data_hash)
