@@ -93,18 +93,25 @@ module WebAuthn
       )
     end
 
-    def verify_authentication(raw_credential, challenge, user_verification: nil, &block)
+    def verify_authentication(
+      raw_credential,
+      challenge,
+      user_verification: nil,
+      public_key: nil,
+      sign_count: nil,
+      &block
+    )
       webauthn_credential = WebAuthn::Credential.from_get(raw_credential, relying_party: self)
 
-      stored_credential = yield(webauthn_credential)
+      stored_credential = yield(webauthn_credential) if block_given?
 
       if webauthn_credential.verify(
         challenge,
-        public_key: stored_credential.public_key,
-        sign_count: stored_credential.sign_count,
+        public_key: public_key || stored_credential.public_key,
+        sign_count: sign_count || stored_credential.sign_count,
         user_verification: user_verification
       )
-        webauthn_credential
+        block_given? ? [webauthn_credential, stored_credential] : webauthn_credential
       end
     end
   end
