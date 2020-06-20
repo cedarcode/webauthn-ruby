@@ -150,9 +150,7 @@ module WebAuthn
         OpenSSL::ASN1.decode(ext_value.value).value
       end
 
-      def valid_signature?(authenticator_data, client_data_hash, public_key = nil)
-        public_key ||= attestation_certificate.public_key
-
+      def valid_signature?(authenticator_data, client_data_hash, public_key = attestation_certificate.public_key)
         raise("Incompatible algorithm and key") unless cose_algorithm.compatible_key?(public_key)
 
         cose_algorithm.verify(
