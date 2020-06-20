@@ -154,11 +154,29 @@ RSpec.describe "PublicKey" do
         end
       end
 
-      context "because it was signed over different data" do
+      context "when it was signed over different data" do
         let(:signature) { key.sign(hash_algorithm, "different data") }
 
         it "fails" do
           expect(webauthn_public_key.verify(signature, to_be_signed)).to be_falsy
+        end
+      end
+
+      context "when public key algorithm is not in COSE" do
+        let(:cose_key) do
+          cose_key = COSE::Key::EC2.from_pkey(key.public_key)
+          cose_key.alg = -1
+
+          cose_key
+        end
+
+        it "fails" do
+          expect { webauthn_public_key.verify(signature, to_be_signed) }.to(
+            raise_error(
+              WebAuthn::PublicKey::UnsupportedAlgorithm,
+              "The public key algorithm -1 is not among the available COSE algorithms"
+            )
+          )
         end
       end
     end

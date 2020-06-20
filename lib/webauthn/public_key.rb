@@ -8,6 +8,8 @@ require "webauthn/attestation_statement/fido_u2f/public_key"
 
 module WebAuthn
   class PublicKey
+    class UnsupportedAlgorithm < Error; end
+
     def self.deserialize(public_key)
       cose_key =
         if WebAuthn::AttestationStatement::FidoU2f::PublicKey.uncompressed_point?(public_key)
@@ -57,7 +59,10 @@ module WebAuthn
     private
 
     def cose_algorithm
-      @cose_algorithm ||= COSE::Algorithm.find(alg)
+      @cose_algorithm ||= COSE::Algorithm.find(alg) || raise(
+        UnsupportedAlgorithm,
+        "The public key algorithm #{alg} is not among the available COSE algorithms"
+      )
     end
   end
 end
