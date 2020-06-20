@@ -9,6 +9,8 @@ require "webauthn/error"
 
 module WebAuthn
   module AttestationStatement
+    class UnsupportedAlgorithm < Error; end
+
     ATTESTATION_TYPE_NONE = "None"
     ATTESTATION_TYPE_BASIC = "Basic"
     ATTESTATION_TYPE_SELF = "Self"
@@ -22,9 +24,6 @@ module WebAuthn
     ].freeze
 
     class Base
-      class UnsupportedAlgorithm < Error; end
-      class NotSupportedError < Error; end
-
       AAGUID_EXTENSION_OID = "1.3.6.1.4.1.45724.1.1.4"
 
       def initialize(statement)
