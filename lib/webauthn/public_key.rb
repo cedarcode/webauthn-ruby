@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "cose/algorithm"
+require "cose/error"
 require "cose/key"
 require "cose/rsapkcs1_algorithm"
 require "webauthn/attestation_statement/fido_u2f/public_key"
@@ -49,7 +50,7 @@ module WebAuthn
 
     def verify(signature, verification_data)
       cose_algorithm.verify(pkey, signature, verification_data)
-    rescue
+    rescue COSE::Error
       false
     end
 
