@@ -49,6 +49,20 @@ RSpec.describe "PublicKeyCredential" do
       expect(public_key_credential.sign_count).to eq(0)
     end
 
+    context 'with valid origin as an argument' do
+      before do
+        WebAuthn.configuration.origin = nil
+      end
+
+      it 'works' do
+        expect(public_key_credential.verify(challenge, origin)).to be_truthy
+
+        expect(public_key_credential.id).not_to be_empty
+        expect(public_key_credential.public_key).not_to be_empty
+        expect(public_key_credential.sign_count).to eq(0)
+      end
+    end
+
     context "when type is invalid" do
       context "because it is missing" do
         let(:type) { nil }
