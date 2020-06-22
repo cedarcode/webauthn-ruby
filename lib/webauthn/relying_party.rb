@@ -98,8 +98,7 @@ module WebAuthn
       challenge,
       user_verification: nil,
       public_key: nil,
-      sign_count: nil,
-      &block
+      sign_count: nil
     )
       webauthn_credential = WebAuthn::Credential.from_get(raw_credential, relying_party: self)
 

@@ -32,17 +32,19 @@ def create_credential(
 
   create_result = client.create(rp_id: rp_id)
 
-  attestation_object = if client.encoding
-    relying_party.encoder.decode(create_result["response"]["attestationObject"])
-  else
-    create_result["response"]["attestationObject"]
-  end
+  attestation_object =
+    if client.encoding
+      relying_party.encoder.decode(create_result["response"]["attestationObject"])
+    else
+      create_result["response"]["attestationObject"]
+    end
 
-  client_data_json = if client.encoding
-    relying_party.encoder.decode(create_result["response"]["clientDataJSON"])
-  else
-    create_result["response"]["clientDataJSON"]
-  end
+  client_data_json =
+    if client.encoding
+      relying_party.encoder.decode(create_result["response"]["clientDataJSON"])
+    else
+      create_result["response"]["clientDataJSON"]
+    end
 
   credential_public_key =
     WebAuthn::AuthenticatorAttestationResponse

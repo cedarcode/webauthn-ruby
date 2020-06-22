@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "ostruct"
 require "spec_helper"
 require "webauthn/fake_authenticator"
@@ -43,9 +45,9 @@ RSpec.describe "RelyingParty" do
         raw_credential = admin_fake_client.create(challenge: options.challenge, rp_id: admin_rp.id)
         webauthn_credential = admin_rp.verify_registration(raw_credential, options.challenge)
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
-        expect(webauthn_credential.public_key).to be
+        expect(webauthn_credential).to be_truthy
+        expect(webauthn_credential.id).to be_truthy
+        expect(webauthn_credential.public_key).to be_truthy
         expect(webauthn_credential.sign_count).to eq(0)
 
         options = consumer_rp.options_for_registration(
@@ -55,9 +57,9 @@ RSpec.describe "RelyingParty" do
         raw_credential = consumer_fake_client.create(challenge: options.challenge, rp_id: consumer_rp.id)
         webauthn_credential = consumer_rp.verify_registration(raw_credential, options.challenge)
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
-        expect(webauthn_credential.public_key).to be
+        expect(webauthn_credential).to be_truthy
+        expect(webauthn_credential.id).to be_truthy
+        expect(webauthn_credential.public_key).to be_truthy
         expect(webauthn_credential.sign_count).to eq(0)
       end
 
@@ -104,16 +106,17 @@ RSpec.describe "RelyingParty" do
           sign_count: 1
         )
 
-        webauthn_credential, stored_credential = admin_rp.verify_authentication(
-          raw_credential,
-          options.challenge
-        ) do |webauthn_credential|
+        verified_webauthn_credential, stored_credential =
+          admin_rp.verify_authentication(
+            raw_credential,
+            options.challenge
+          ) do |webauthn_credential|
           user.credentials.find { |c| c.webauthn_id == webauthn_credential.id }
         end
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
-        expect(webauthn_credential.sign_count).to eq(1)
+        expect(verified_webauthn_credential).to be_truthy
+        expect(verified_webauthn_credential.id).to be_truthy
+        expect(verified_webauthn_credential.sign_count).to eq(1)
         expect(stored_credential.webauthn_id).to eq(admin_credential.first)
 
         options = consumer_rp.options_for_authentication(allow: user.credentials.map(&:webauthn_id))
@@ -124,16 +127,17 @@ RSpec.describe "RelyingParty" do
           sign_count: 1
         )
 
-        webauthn_credential, stored_credential = consumer_rp.verify_authentication(
-          raw_credential,
-          options.challenge
-        ) do |webauthn_credential|
+        verified_webauthn_credential, stored_credential =
+          consumer_rp.verify_authentication(
+            raw_credential,
+            options.challenge
+          ) do |webauthn_credential|
           user.credentials.find { |c| c.webauthn_id == webauthn_credential.id }
         end
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
-        expect(webauthn_credential.sign_count).to eq(1)
+        expect(verified_webauthn_credential).to be_truthy
+        expect(verified_webauthn_credential.id).to be_truthy
+        expect(verified_webauthn_credential.sign_count).to eq(1)
         expect(stored_credential.webauthn_id).to eq(consumer_credential.first)
       end
 
@@ -179,9 +183,9 @@ RSpec.describe "RelyingParty" do
         raw_credential = admin_fake_client.create(challenge: options.challenge, rp_id: admin_rp.id)
         webauthn_credential = admin_rp.verify_registration(raw_credential, options.challenge)
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
-        expect(webauthn_credential.public_key).to be
+        expect(webauthn_credential).to be_truthy
+        expect(webauthn_credential.id).to be_truthy
+        expect(webauthn_credential.public_key).to be_truthy
         expect(webauthn_credential.sign_count).to eq(0)
 
         options = WebAuthn.configuration.relying_party.options_for_registration(
@@ -189,11 +193,15 @@ RSpec.describe "RelyingParty" do
           exclude: user.credentials
         )
         raw_credential = global_configuration_client.create(challenge: options.challenge)
-        webauthn_credential = WebAuthn.configuration.relying_party.verify_registration(raw_credential, options.challenge)
+        webauthn_credential =
+          WebAuthn.configuration.relying_party.verify_registration(
+            raw_credential,
+            options.challenge
+          )
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
-        expect(webauthn_credential.public_key).to be
+        expect(webauthn_credential).to be_truthy
+        expect(webauthn_credential.id).to be_truthy
+        expect(webauthn_credential.public_key).to be_truthy
         expect(webauthn_credential.sign_count).to eq(0)
       end
     end
@@ -228,35 +236,40 @@ RSpec.describe "RelyingParty" do
           sign_count: 1
         )
 
-        webauthn_credential, stored_credential = admin_rp.verify_authentication(
-          raw_credential,
-          options.challenge
-        ) do |webauthn_credential|
+        verified_webauthn_credential, stored_credential =
+          admin_rp.verify_authentication(
+            raw_credential,
+            options.challenge
+          ) do |webauthn_credential|
           user.credentials.find { |c| c.webauthn_id == webauthn_credential.id }
         end
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
-        expect(webauthn_credential.sign_count).to eq(1)
+        expect(verified_webauthn_credential).to be_truthy
+        expect(verified_webauthn_credential.id).to be_truthy
+        expect(verified_webauthn_credential.sign_count).to eq(1)
         expect(stored_credential.webauthn_id).to eq(admin_credential.first)
 
-        options = WebAuthn.configuration.relying_party.options_for_authentication(allow: user.credentials.map(&:webauthn_id))
+        options =
+          WebAuthn.configuration.relying_party.options_for_authentication(
+            allow: user.credentials.map(&:webauthn_id)
+          )
 
         raw_credential = global_configuration_client.get(
           challenge: options.challenge,
           sign_count: 1
         )
 
-        webauthn_credential, stored_credential = WebAuthn.configuration.relying_party.verify_authentication(
-          raw_credential,
-          options.challenge
-        ) do |webauthn_credential|
+        verified_webauthn_credential, stored_credential =
+          WebAuthn.configuration.relying_party.verify_authentication(
+            raw_credential,
+            options.challenge
+          ) do |webauthn_credential|
           user.credentials.find { |c| c.webauthn_id == webauthn_credential.id }
         end
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
-        expect(webauthn_credential.sign_count).to eq(1)
+        expect(verified_webauthn_credential).to be_truthy
+        expect(verified_webauthn_credential.id).to be_truthy
+        expect(verified_webauthn_credential.sign_count).to eq(1)
         expect(stored_credential.webauthn_id).to eq(default_configuration_credential.first)
       end
     end
@@ -284,9 +297,9 @@ RSpec.describe "RelyingParty" do
         webauthn_credential = WebAuthn::Credential.from_create(raw_credential)
         webauthn_credential.verify(options.challenge)
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
-        expect(webauthn_credential.public_key).to be
+        expect(webauthn_credential).to be_truthy
+        expect(webauthn_credential.id).to be_truthy
+        expect(webauthn_credential.public_key).to be_truthy
         expect(webauthn_credential.sign_count).to eq(0)
       end
     end
@@ -320,8 +333,8 @@ RSpec.describe "RelyingParty" do
           sign_count: stored_credential.sign_count
         )
 
-        expect(webauthn_credential).to be
-        expect(webauthn_credential.id).to be
+        expect(webauthn_credential).to be_truthy
+        expect(webauthn_credential.id).to be_truthy
         expect(webauthn_credential.sign_count).to eq(1)
       end
     end
