@@ -92,5 +92,83 @@ RSpec.describe "PublicKeyCredential" do
         }.to raise_error(WebAuthn::ChallengeVerificationError)
       end
     end
+
+    context "when clientExtensionResults" do
+      context "are not received" do
+        let(:public_key_credential) do
+          WebAuthn::PublicKeyCredentialWithAttestation.new(
+            type: type,
+            id: id,
+            raw_id: raw_id,
+            client_extension_outputs: nil,
+            response: attestation_response
+          )
+        end
+
+        it "works" do
+          expect(public_key_credential.verify(challenge)).to be_truthy
+
+          expect(public_key_credential.client_extension_outputs).to be_nil
+        end
+      end
+
+      context "are received" do
+        let(:public_key_credential) do
+          WebAuthn::PublicKeyCredentialWithAttestation.new(
+            type: type,
+            id: id,
+            raw_id: raw_id,
+            client_extension_outputs: { "appid" => "true" },
+            response: attestation_response
+          )
+        end
+
+        it "works" do
+          expect(public_key_credential.verify(challenge)).to be_truthy
+
+          expect(public_key_credential.client_extension_outputs).to eq({ "appid" => "true" })
+        end
+      end
+    end
+
+    context "when authentication extension input" do
+      context "is not received" do
+        let(:attestation_response) do
+          response = client.create(challenge: raw_challenge, extensions: nil)["response"]
+
+          WebAuthn::AuthenticatorAttestationResponse.new(
+            attestation_object: response["attestationObject"],
+            client_data_json: response["clientDataJSON"]
+          )
+        end
+
+        it "works" do
+          expect(public_key_credential.verify(challenge)).to be_truthy
+
+          expect(public_key_credential.authenticator_extension_outputs).to be_nil
+        end
+      end
+
+      context "is received" do
+        let(:attestation_response) do
+          response = client.create(
+            challenge: raw_challenge,
+            extensions: { "txAuthSimple" => "Could you please verify yourself?" }
+          )["response"]
+
+          WebAuthn::AuthenticatorAttestationResponse.new(
+            attestation_object: response["attestationObject"],
+            client_data_json: response["clientDataJSON"]
+          )
+        end
+
+        it "works" do
+          expect(public_key_credential.verify(challenge)).to be_truthy
+
+          expect(public_key_credential.authenticator_extension_outputs)
+            .to eq({ "txAuthSimple" => "Could you please verify yourself?" })
+        end
+      end
+    end
   end
 end
