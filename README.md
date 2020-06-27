@@ -295,7 +295,10 @@ webauthn_credential.client_extension_outputs #=> { "appid" => true }
 webauthn_credential.authenticator_extension_outputs #=> nil
 ```
 
-The list of all currently defined extensions can be found [here](https://www.w3.org/TR/webauthn-2/#sctn-defined-extensions).
+A list of all currently defined extensions:
+
+  - [Last published version](https://www.w3.org/TR/webauthn-2/#sctn-defined-extensions)
+  - [Next version (in draft)](https://w3c.github.io/webauthn/#sctn-defined-extensions)
 
 ## API
 
