@@ -31,11 +31,11 @@ module WebAuthn
       ATTESTATION_FORMAT_APPLE => WebAuthn::AttestationStatement::Apple
     }.freeze
 
-    def self.from(format, statement)
+    def self.from(format, statement, relying_party: WebAuthn.configuration.relying_party)
       klass = FORMAT_TO_CLASS[format]
 
       if klass
-        klass.new(statement)
+        klass.new(statement, relying_party)
       else
         raise(FormatNotSupportedError, "Unsupported attestation format '#{format}'")
       end
