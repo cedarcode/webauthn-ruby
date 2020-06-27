@@ -289,9 +289,9 @@ Finally, you can check the values returned for each extension by calling `client
 For example, following the initialization phase for the Credential Authentication ceremony specified in the above example:
 
 ```ruby
-webauthn_credential = WebAuthn::Credential.from_get(params[:publicKeyCredential])
+webauthn_credential = WebAuthn::Credential.from_get(credential_get_result_hash)
 
-webauthn_credential.client_extension_outputs #=> <ActionController::Parameters {"appid"=>true} permitted: false>
+webauthn_credential.client_extension_outputs #=> { "appid" => true }
 webauthn_credential.authenticator_extension_outputs #=> nil
 ```
 
