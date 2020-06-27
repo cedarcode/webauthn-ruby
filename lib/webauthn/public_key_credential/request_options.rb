@@ -10,7 +10,7 @@ module WebAuthn
       def initialize(rp_id: nil, allow_credentials: nil, allow: nil, user_verification: nil, **keyword_arguments)
         super(**keyword_arguments)
 
-        @rp_id = rp_id || configuration.rp_id
+        @rp_id = rp_id || relying_party.id
         @allow_credentials = allow_credentials
         @allow = allow
         @user_verification = user_verification
