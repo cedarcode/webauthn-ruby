@@ -295,7 +295,7 @@ webauthn_credential.client_extension_outputs #=> <ActionController::Parameters {
 webauthn_credential.authenticator_extension_outputs #=> nil
 ```
 
-The list of all currently defined extensions can be found [here](https://w3c.github.io/webauthn/#sctn-defined-extensions).
+The list of all currently defined extensions can be found [here](https://www.w3.org/TR/webauthn-2/#sctn-defined-extensions).
 
 ## API
 
