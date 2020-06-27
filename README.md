@@ -254,9 +254,9 @@ end
 
 ### Extensions
 
->The mechanism for generating public key credentials, as well as requesting and generating Authentication assertions, as defined in Web Authentication API, can be extended to suit particular use cases. Each case is addressed by defining a registration extension and/or an authentication extension.
+> The mechanism for generating public key credentials, as well as requesting and generating Authentication assertions, as defined in Web Authentication API, can be extended to suit particular use cases. Each case is addressed by defining a registration extension and/or an authentication extension.
 
->When creating a public key credential or requesting an authentication assertion, a WebAuthn Relying Party can request the use of a set of extensions. These extensions will be invoked during the requested operation if they are supported by the client and/or the WebAuthn Authenticator. The Relying Party sends the client extension input for each extension in the get() call (for authentication extensions) or create() call (for registration extensions) to the client. [[source](https://www.w3.org/TR/webauthn-2/#sctn-extensions)]
+> When creating a public key credential or requesting an authentication assertion, a WebAuthn Relying Party can request the use of a set of extensions. These extensions will be invoked during the requested ceremony if they are supported by the WebAuthn Client and/or the WebAuthn Authenticator. The Relying Party sends the client extension input for each extension in the get() call (for authentication extensions) or create() call (for registration extensions) to the WebAuthn client. [[source](https://www.w3.org/TR/webauthn-2/#sctn-extensions)]
 
 Extensions can be requested in the initiation phase in both Credential Registration and Authentication ceremonies by adding the extension parameter when generating the options for create/get:
 
@@ -277,13 +277,13 @@ options = WebAuthn::Credential.options_for_get(
 )
 ```
 
-Consequently, after these `options` are send back to the browser:
+Consequently, after these `options` are sent to the WebAuthn client:
 
->The client performs client extension processing for each extension that the client platform supports, and augments the client data as specified by each extension, by including the extension identifier and client extension output values.
+> The WebAuthn client performs client extension processing for each extension that the client supports, and augments the client data as specified by each extension, by including the extension identifier and client extension output values.
 
->For authenticator extensions, as part of the client extension processing, the client also creates the CBOR authenticator extension input value for each extension (often based on the corresponding client extension input value), and passes them to the authenticator in the create() call (for registration extensions) or the get() call (for authentication extensions).
+> For authenticator extensions, as part of the client extension processing, the client also creates the CBOR authenticator extension input value for each extension (often based on the corresponding client extension input value), and passes them to the authenticator in the create() call (for registration extensions) or the get() call (for authentication extensions).
 
->The authenticator, in turn, performs additional processing for the extensions that it supports, and returns the CBOR authenticator extension output for each as specified by the extension. Part of the client extension processing for authenticator extensions is to use the authenticator extension output as an input to creating the client extension output. [[source](https://www.w3.org/TR/webauthn-2/#sctn-extensions)]
+> The authenticator, in turn, performs additional processing for the extensions that it supports, and returns the CBOR authenticator extension output for each as specified by the extension. Part of the client extension processing for authenticator extensions is to use the authenticator extension output as an input to creating the client extension output. [[source](https://www.w3.org/TR/webauthn-2/#sctn-extensions)]
 
 Finally, you can check the values returned for each extension by calling `client_extension_outputs` and `authenticator_extension_outputs` respectively.
 For example, following the initialization phase for the Credential Authentication ceremony specified in the above example:
