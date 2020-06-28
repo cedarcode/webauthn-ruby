@@ -39,7 +39,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
 
     let(:authenticator_data_bytes) do
       WebAuthn::FakeAuthenticator::AuthenticatorData.new(
-        rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
+        rp_id_hash: OpenSSL::Digest.digest("SHA256", "RP"),
         credential: { id: "0".b * 16, public_key: credential_key.public_key },
       ).serialize
     end
@@ -63,7 +63,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     end
 
     context "when nonce is not set to the base64 of the SHA256 of authData + clientDataHash" do
-      let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest("something else")) }
+      let(:nonce) { Base64.strict_encode64(OpenSSL::Digest.digest("SHA256", "something else")) }
 
       it "returns false" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
