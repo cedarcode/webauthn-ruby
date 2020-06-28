@@ -3,7 +3,6 @@
 require "webauthn/authenticator_data"
 require "webauthn/client_data"
 require "webauthn/error"
-require "webauthn/security_utils"
 
 module WebAuthn
   TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
@@ -80,7 +79,7 @@ module WebAuthn
     end
 
     def valid_challenge?(expected_challenge)
-      WebAuthn::SecurityUtils.secure_compare(client_data.challenge, expected_challenge)
+      OpenSSL.secure_compare(client_data.challenge, expected_challenge)
     end
 
     def valid_origin?(expected_origin)
