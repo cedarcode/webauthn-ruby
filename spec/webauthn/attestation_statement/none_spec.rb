@@ -7,7 +7,7 @@ require "webauthn/attestation_statement/none"
 RSpec.describe "none attestation" do
   let(:authenticator_data_bytes) do
     WebAuthn::FakeAuthenticator::AuthenticatorData.new(
-      rp_id_hash: OpenSSL::Digest::SHA256.digest("localhost"),
+      rp_id_hash: OpenSSL::Digest.digest("SHA256", "localhost"),
       aaguid: 0.chr * 16,
     ).serialize
   end
