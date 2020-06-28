@@ -13,7 +13,7 @@ RSpec.describe "Packed attestation" do
 
     let(:authenticator_data_bytes) do
       WebAuthn::FakeAuthenticator::AuthenticatorData.new(
-        rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
+        rp_id_hash: OpenSSL::Digest.digest("SHA256", "RP"),
         credential: { id: "0".b * 16, public_key: credential_key.public_key },
       ).serialize
     end
@@ -113,7 +113,7 @@ RSpec.describe "Packed attestation" do
           extension_factory.create_extension("basicConstraints", attestation_certificate_basic_constraints, true),
         ]
 
-        certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
+        certificate.sign(root_key, "SHA256")
 
         certificate.to_der
       end
@@ -139,7 +139,7 @@ RSpec.describe "Packed attestation" do
           extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true),
         ]
 
-        root_certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
+        root_certificate.sign(root_key, "SHA256")
 
         root_certificate
       end

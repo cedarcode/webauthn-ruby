@@ -13,7 +13,7 @@ RSpec.describe "AndroidKey attestation" do
 
     let(:authenticator_data_bytes) do
       WebAuthn::FakeAuthenticator::AuthenticatorData.new(
-        rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
+        rp_id_hash: OpenSSL::Digest.digest("SHA256", "RP"),
         credential: { id: "0".b * 16, public_key: credential_key.public_key },
       ).serialize
     end
@@ -66,7 +66,7 @@ RSpec.describe "AndroidKey attestation" do
       extension_factory.issuer_certificate = certificate
       certificate.extensions = attestation_certificate_extensions
 
-      certificate.sign(root_key, OpenSSL::Digest::SHA256.new)
+      certificate.sign(root_key, "SHA256")
 
       certificate.to_der
     end
