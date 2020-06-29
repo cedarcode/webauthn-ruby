@@ -296,6 +296,27 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
           ).to be_truthy
         end
       end
+
+      context "if appid extension is not requested" do
+        let(:public_key_credential) do
+          WebAuthn::PublicKeyCredentialWithAssertion.new(
+            type: credential_type,
+            id: credential_id,
+            raw_id: credential_raw_id,
+            response: assertion_response
+          )
+        end
+
+        it "fails" do
+          expect do
+            public_key_credential.verify(
+              challenge,
+              public_key: credential_public_key,
+              sign_count: credential_sign_count
+            )
+          end.to raise_error(WebAuthn::RpIdVerificationError)
+        end
+      end
     end
   end
 end
