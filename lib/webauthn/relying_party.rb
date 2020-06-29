@@ -42,7 +42,7 @@ module WebAuthn
     attr_accessor :algorithms,
                   :encoding,
                   :origin,
-                  :appid,
+                  :legacy_u2f_appid,
                   :id,
                   :name,
                   :verify_attestation_statement,

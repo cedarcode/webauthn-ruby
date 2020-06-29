@@ -267,12 +267,12 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
       end
 
       context "and appid is setted in configuration file" do
-        let(:appid) { "http://u2f-login.localhost" }
+        let(:legacy_u2f_appid) { "http://u2f-login.localhost" }
 
-        let!(:credential) { create_credential(client: client, rp_id: appid) }
+        let!(:credential) { create_credential(client: client, rp_id: legacy_u2f_appid) }
 
         let(:assertion_response) do
-          response = client.get(challenge: raw_challenge, rp_id: appid)["response"]
+          response = client.get(challenge: raw_challenge, rp_id: legacy_u2f_appid)["response"]
 
           WebAuthn::AuthenticatorAssertionResponse.new(
             authenticator_data: response["authenticatorData"],
@@ -282,7 +282,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
         end
 
         before do
-          WebAuthn.configuration.appid = appid
+          WebAuthn.configuration.legacy_u2f_appid = legacy_u2f_appid
         end
 
         it "works" do

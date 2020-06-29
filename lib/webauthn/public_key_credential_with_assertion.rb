@@ -36,7 +36,7 @@ module WebAuthn
     private
 
     def appid
-      appid_domain = relying_party.appid || relying_party.id ||
+      appid_domain = relying_party.legacy_u2f_appid || relying_party.id ||
                      relying_party.origin || raise("Unspecified expected origin")
 
       URI.parse(appid_domain).to_s
