@@ -14,6 +14,10 @@ module WebAuthn
         @allow_credentials = allow_credentials
         @allow = allow
         @user_verification = user_verification
+
+        if relying_party.legacy_u2f_appid && @extensions&.[](:appid).nil? && @extensions&.[]("appid").nil?
+          @extensions = (@extensions || {}).merge(appid: relying_party.legacy_u2f_appid)
+        end
       end
 
       def allow_credentials
