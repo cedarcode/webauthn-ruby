@@ -39,8 +39,8 @@ module WebAuthn
 
         @rp =
           if rp.is_a?(Hash)
-            rp[:name] ||= configuration.rp_name
-            rp[:id] ||= configuration.rp_id
+            rp[:name] ||= relying_party.name
+            rp[:id] ||= relying_party.id
 
             RPEntity.new(**rp)
           else
@@ -76,7 +76,7 @@ module WebAuthn
       end
 
       def pub_key_cred_params_from_algs
-        Array(algs || configuration.algorithms).map do |alg|
+        Array(algs || relying_party.algorithms).map do |alg|
           alg_id =
             if alg.is_a?(String) || alg.is_a?(Symbol)
               COSE::Algorithm.by_name(alg.to_s).id

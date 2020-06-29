@@ -10,6 +10,7 @@ AllCops:
   DisabledByDefault: true
   Exclude:
     - "gemfiles/**/*"
+    - "vendor/**/*"
 
 Bundler:
   Enabled: true
@@ -21,6 +22,9 @@ Layout:
   Enabled: true
 
 Layout/ClassStructure:
+  Enabled: true
+
+Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true
 
 Layout/FirstMethodArgumentLineBreak:
@@ -37,7 +41,22 @@ Layout/MultilineAssignmentLayout:
 Layout/MultilineMethodArgumentLineBreaks:
   Enabled: true
 
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
 Lint:
+  Enabled: true
+
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
+
+Lint/MixedRegexpCaptureTypes:
+  Enabled: true
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
   Enabled: true
 
 Naming:

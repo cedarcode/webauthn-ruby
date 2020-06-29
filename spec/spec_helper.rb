@@ -23,16 +23,35 @@ RSpec.configure do |config|
   end
 end
 
-def create_credential(client: WebAuthn::FakeClient.new, rp_id: nil)
-  rp_id ||= URI.parse(client.origin).host
+def create_credential(
+  client: WebAuthn::FakeClient.new,
+  rp_id: nil,
+  relying_party: WebAuthn.configuration.relying_party
+)
+  rp_id ||= relying_party.id || URI.parse(client.origin).host
 
   create_result = client.create(rp_id: rp_id)
+
+  attestation_object =
+    if client.encoding
+      relying_party.encoder.decode(create_result["response"]["attestationObject"])
+    else
+      create_result["response"]["attestationObject"]
+    end
+
+  client_data_json =
+    if client.encoding
+      relying_party.encoder.decode(create_result["response"]["clientDataJSON"])
+    else
+      create_result["response"]["clientDataJSON"]
+    end
 
   response =
     WebAuthn::AuthenticatorAttestationResponse
     .new(
-      attestation_object: create_result["response"]["attestationObject"],
-      client_data_json: create_result["response"]["clientDataJSON"]
+      attestation_object: attestation_object,
+      client_data_json: client_data_json,
+      relying_party: relying_party
     )
 
   credential_public_key = response.credential.public_key
@@ -120,7 +139,7 @@ def create_root_certificate(key)
     extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true),
   ]
 
-  certificate.sign(key, OpenSSL::Digest::SHA256.new)
+  certificate.sign(key, "SHA256")
 
   certificate
 end
@@ -135,7 +154,7 @@ def issue_certificate(ca_certificate, ca_key, key, name: nil)
   certificate.not_after = Time.now + 60
   certificate.public_key = key
 
-  certificate.sign(ca_key, OpenSSL::Digest::SHA256.new)
+  certificate.sign(ca_key, "SHA256")
 
   certificate
 end

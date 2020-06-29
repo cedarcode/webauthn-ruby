@@ -18,7 +18,7 @@ RSpec.describe "TPM attestation statement" do
 
       let(:authenticator_data_bytes) do
         WebAuthn::FakeAuthenticator::AuthenticatorData.new(
-          rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
+          rp_id_hash: OpenSSL::Digest.digest("SHA256", "RP"),
           credential: { id: "0".b * 16, public_key: credential_key.public_key },
         ).serialize
       end
@@ -46,7 +46,7 @@ RSpec.describe "TPM attestation statement" do
           extension_factory.create_extension("subjectAltName", "ASN1:SEQUENCE:dir_seq", aik_certificate_san_critical),
         ]
 
-        cert.sign(root_key, OpenSSL::Digest::SHA256.new)
+        cert.sign(root_key, "SHA256")
 
         cert
       end

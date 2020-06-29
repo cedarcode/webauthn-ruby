@@ -3,7 +3,6 @@
 require "webauthn/authenticator_data"
 require "webauthn/authenticator_response"
 require "webauthn/encoder"
-require "webauthn/signature_verifier"
 require "webauthn/public_key"
 
 module WebAuthn
@@ -11,8 +10,8 @@ module WebAuthn
   class SignCountVerificationError < VerificationError; end
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
-    def self.from_client(response)
-      encoder = WebAuthn.configuration.encoder
+    def self.from_client(response, relying_party: WebAuthn.configuration.relying_party)
+      encoder = relying_party.encoder
 
       user_handle =
         if response["userHandle"]
@@ -23,7 +22,8 @@ module WebAuthn
         authenticator_data: encoder.decode(response["authenticatorData"]),
         client_data_json: encoder.decode(response["clientDataJSON"]),
         signature: encoder.decode(response["signature"]),
-        user_handle: user_handle
+        user_handle: user_handle,
+        relying_party: relying_party
       )
     end
 
@@ -54,9 +54,7 @@ module WebAuthn
     attr_reader :authenticator_data_bytes, :signature
 
     def valid_signature?(webauthn_public_key)
-      WebAuthn::SignatureVerifier
-        .new(webauthn_public_key.alg, webauthn_public_key.pkey)
-        .verify(signature, authenticator_data_bytes + client_data.hash)
+      webauthn_public_key.verify(signature, authenticator_data_bytes + client_data.hash)
     end
 
     def valid_sign_count?(stored_sign_count)

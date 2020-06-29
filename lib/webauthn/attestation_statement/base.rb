@@ -1,11 +1,16 @@
 # frozen_string_literal: true
 
+require "cose/algorithm"
+require "cose/error"
+require "cose/rsapkcs1_algorithm"
 require "openssl"
 require "webauthn/authenticator_data/attested_credential_data"
 require "webauthn/error"
 
 module WebAuthn
   module AttestationStatement
+    class UnsupportedAlgorithm < Error; end
+
     ATTESTATION_TYPE_NONE = "None"
     ATTESTATION_TYPE_BASIC = "Basic"
     ATTESTATION_TYPE_SELF = "Self"
@@ -19,12 +24,11 @@ module WebAuthn
     ].freeze
 
     class Base
-      class NotSupportedError < Error; end
-
       AAGUID_EXTENSION_OID = "1.3.6.1.4.1.45724.1.1.4"
 
-      def initialize(statement)
+      def initialize(statement, relying_party = WebAuthn.configuration.relying_party)
         @statement = statement
+        @relying_party = relying_party
       end
 
       def valid?(_authenticator_data, _client_data_hash)
@@ -51,7 +55,7 @@ module WebAuthn
 
       private
 
-      attr_reader :statement
+      attr_reader :statement, :relying_party
 
       def matching_aaguid?(attested_credential_data_aaguid)
         extension = attestation_certificate&.extensions&.detect { |ext| ext.oid == AAGUID_EXTENSION_OID }
@@ -92,10 +96,10 @@ module WebAuthn
 
       def trustworthy?(aaguid: nil, attestation_certificate_key_id: nil)
         if ATTESTATION_TYPES_WITH_ROOT.include?(attestation_type)
-          configuration.acceptable_attestation_types.include?(attestation_type) &&
+          relying_party.acceptable_attestation_types.include?(attestation_type) &&
             valid_certificate_chain?(aaguid: aaguid, attestation_certificate_key_id: attestation_certificate_key_id)
         else
-          configuration.acceptable_attestation_types.include?(attestation_type)
+          relying_party.acceptable_attestation_types.include?(attestation_type)
         end
       end
 
@@ -119,7 +123,7 @@ module WebAuthn
 
       def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
         root_certificates =
-          configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
+          relying_party.attestation_root_certificates_finders.reduce([]) do |certs, finder|
             if certs.empty?
               finder.find(
                 attestation_format: format,
@@ -147,8 +151,28 @@ module WebAuthn
         OpenSSL::ASN1.decode(ext_value.value).value
       end
 
-      def configuration
-        WebAuthn.configuration
+      def valid_signature?(authenticator_data, client_data_hash, public_key = attestation_certificate.public_key)
+        raise("Incompatible algorithm and key") unless cose_algorithm.compatible_key?(public_key)
+
+        cose_algorithm.verify(
+          public_key,
+          signature,
+          verification_data(authenticator_data, client_data_hash)
+        )
+      rescue COSE::Error
+        false
+      end
+
+      def verification_data(authenticator_data, client_data_hash)
+        authenticator_data.data + client_data_hash
+      end
+
+      def cose_algorithm
+        @cose_algorithm ||=
+          COSE::Algorithm.find(algorithm).tap do |alg|
+            alg && relying_party.algorithms.include?(alg.name) ||
+              raise(UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}")
+          end
       end
     end
   end

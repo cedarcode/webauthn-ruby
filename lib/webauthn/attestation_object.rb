@@ -10,18 +10,22 @@ module WebAuthn
   class AttestationObject
     extend Forwardable
 
-    def self.deserialize(attestation_object)
-      from_map(CBOR.decode(attestation_object))
+    def self.deserialize(attestation_object, relying_party)
+      from_map(CBOR.decode(attestation_object), relying_party)
     end
 
-    def self.from_map(map)
+    def self.from_map(map, relying_party)
       new(
         authenticator_data: WebAuthn::AuthenticatorData.deserialize(map["authData"]),
-        attestation_statement: WebAuthn::AttestationStatement.from(map["fmt"], map["attStmt"])
+        attestation_statement: WebAuthn::AttestationStatement.from(
+          map["fmt"],
+          map["attStmt"],
+          relying_party: relying_party
+        )
       )
     end
 
-    attr_reader :authenticator_data, :attestation_statement
+    attr_reader :authenticator_data, :attestation_statement, :relying_party
 
     def initialize(authenticator_data:, attestation_statement:)
       @authenticator_data = authenticator_data
