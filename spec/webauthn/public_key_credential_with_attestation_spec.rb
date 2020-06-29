@@ -108,7 +108,7 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
         it "works" do
           expect(public_key_credential.verify(challenge)).to be_truthy
 
-          expect(public_key_credential.client_extension_outputs).to be_empty
+          expect(public_key_credential.client_extension_outputs).to be_nil
         end
       end
 

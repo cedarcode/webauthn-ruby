@@ -150,7 +150,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
             )
           ).to be_truthy
 
-          expect(public_key_credential.client_extension_outputs).to be_empty
+          expect(public_key_credential.client_extension_outputs).to be_nil
         end
       end
 
@@ -160,7 +160,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
             type: credential_type,
             id: credential_id,
             raw_id: credential_raw_id,
-            client_extension_outputs: { "appid" => "true" },
+            client_extension_outputs: { "txAuthSimple" => "Could you please verify yourself?" },
             response: assertion_response
           )
         end
@@ -174,7 +174,8 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
             )
           ).to be_truthy
 
-          expect(public_key_credential.client_extension_outputs).to eq({ "appid" => "true" })
+          expect(public_key_credential.client_extension_outputs)
+            .to eq({ "txAuthSimple" => "Could you please verify yourself?" })
         end
       end
     end
