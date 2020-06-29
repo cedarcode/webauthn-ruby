@@ -267,7 +267,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
         ).to be_truthy
       end
 
-      context "and appid is setted in configuration file" do
+      context "and appid is set in configuration file" do
         let(:legacy_u2f_appid) { "http://u2f-login.localhost" }
 
         let!(:credential) { create_credential(client: client, rp_id: legacy_u2f_appid) }
