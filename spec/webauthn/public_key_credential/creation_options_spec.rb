@@ -111,14 +111,12 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
     options = WebAuthn::PublicKeyCredential::CreationOptions.new(
       rp: {
         id: "rp-id",
-        name: "rp-name",
-        icon: "rp-icon-url"
+        name: "rp-name"
       },
       user: {
         id: "user-id",
         name: "user-name",
-        display_name: "user-display-name",
-        icon: "user-icon-url"
+        display_name: "user-display-name"
       },
       pub_key_cred_params: [{ type: "public-key", alg: -7 }],
       timeout: 10_000,
@@ -134,9 +132,9 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
 
     hash = options.as_json
 
-    expect(hash[:rp]).to eq(id: "rp-id", name: "rp-name", icon: "rp-icon-url")
+    expect(hash[:rp]).to eq(id: "rp-id", name: "rp-name")
     expect(hash[:user]).to eq(
-      id: "user-id", name: "user-name", icon: "user-icon-url", displayName: "user-display-name"
+      id: "user-id", name: "user-name", displayName: "user-display-name"
     )
     expect(hash[:pubKeyCredParams]).to eq([{ type: "public-key", alg: -7 }])
     expect(hash[:timeout]).to eq(10_000)

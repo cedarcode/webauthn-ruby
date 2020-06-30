@@ -5,11 +5,10 @@ require "awrence"
 module WebAuthn
   class PublicKeyCredential
     class Entity
-      attr_reader :name, :icon
+      attr_reader :name
 
-      def initialize(name:, icon: nil)
+      def initialize(name:)
         @name = name
-        @icon = icon
       end
 
       def as_json
@@ -37,7 +36,7 @@ module WebAuthn
       end
 
       def attributes
-        [:name, :icon]
+        [:name]
       end
     end
   end
