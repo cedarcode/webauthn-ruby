@@ -13,8 +13,9 @@ If you are still not sure, or want to keep your options open, be aware that [Ins
 
 ## Instance Based Configuration
 
-All options that are valid for [Global Configuration](../README.md#configuration)
-are also valid for each instance of your application that needs to be configured in the following way:
+Intead of the [Global Configuration](../README.md#configuration) you place in `config/initializers/webauthn.rb`,
+ you can now have an on-demand instance of `WebAuthn::RelyingParty` with the same configuration options, that
+ you can build anywhere in you application, in the following way:
 
 ```ruby
   relying_party = WebAuthn::RelyingParty.new(
@@ -168,6 +169,6 @@ end
 
 ## Moving from Global to Instance Based Configuration
 
-Adding a configuration for a new instance does not mean you need to get rid of your Global configuration. They can co-exist in your application and be both available for the different usages you might have. `WebAuthn.configuration.relying_party` will always return the global one while `WebAuthn::RelyingParty.new` will allow you to create a different instance as you see the need. They will not collide and instead operate in isolation without any shared state.
+Adding a configuration for a new instance does not mean you need to get rid of your Global configuration. They can co-exist in your application and be both available for the different usages you might have. `WebAuthn.configuration.relying_party` will always return the global one while `WebAuthn::RelyingParty.new`, executed anywhere in your codebase, will allow you to create a different instance as you see the need. They will not collide and instead operate in isolation without any shared state.
 
 The gem API described in the current [Usage](../README.md#usage) section for the [Global Configuration](../README.md#configuration) approach will still valid but the [Instance Based API](#instance-based-api) also works with the global `relying_party` that is maintain globally at `WebAuthn.configuration.relying_party`.
