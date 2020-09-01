@@ -73,7 +73,8 @@ module WebAuthn
             user_present: true,
             user_verified: false,
             sign_count: nil,
-            extensions: nil)
+            extensions: nil,
+            user_handle: nil)
       rp_id ||= URI.parse(origin).host
 
       client_data_json = data_json_for(:get, encoder.decode(challenge))
@@ -97,7 +98,7 @@ module WebAuthn
           "clientDataJSON" => encoder.encode(client_data_json),
           "authenticatorData" => encoder.encode(assertion[:authenticator_data]),
           "signature" => encoder.encode(assertion[:signature]),
-          "userHandle" => nil
+          "userHandle" => user_handle ? encoder.encode(user_handle) : nil
         }
       }
     end
