@@ -39,7 +39,7 @@ RSpec.describe "RelyingParty" do
     context "instance two relying parties and use them for the registration ceremony" do
       it "works when both used for the same user and authenticator" do
         options = admin_rp.options_for_registration(
-          user: user.to_h.slice(:id, :name),
+          user: { id: user.id, name: user.name },
           exclude: user.credentials
         )
         raw_credential = admin_fake_client.create(challenge: options.challenge, rp_id: admin_rp.id)
@@ -51,7 +51,7 @@ RSpec.describe "RelyingParty" do
         expect(webauthn_credential.sign_count).to eq(0)
 
         options = consumer_rp.options_for_registration(
-          user: user.to_h.slice(:id, :name),
+          user: { id: user.id, name: user.name },
           exclude: user.credentials
         )
         raw_credential = consumer_fake_client.create(challenge: options.challenge, rp_id: consumer_rp.id)
@@ -65,7 +65,7 @@ RSpec.describe "RelyingParty" do
 
       it "fails if you pass consumer client data to admin relying party" do
         options = admin_rp.options_for_registration(
-          user: user.to_h.slice(:id, :name),
+          user: { id: user.id, name: user.name },
           exclude: user.credentials
         )
         raw_credential = consumer_fake_client.create(challenge: options.challenge)
@@ -177,7 +177,7 @@ RSpec.describe "RelyingParty" do
     context "when performing a registragion ceremony" do
       it "works when both used for the same user and authenticator" do
         options = admin_rp.options_for_registration(
-          user: user.to_h.slice(:id, :name),
+          user: { id: user.id, name: user.name },
           exclude: user.credentials
         )
         raw_credential = admin_fake_client.create(challenge: options.challenge, rp_id: admin_rp.id)
@@ -189,7 +189,7 @@ RSpec.describe "RelyingParty" do
         expect(webauthn_credential.sign_count).to eq(0)
 
         options = WebAuthn.configuration.relying_party.options_for_registration(
-          user: user.to_h.slice(:id, :name),
+          user: { id: user.id, name: user.name },
           exclude: user.credentials
         )
         raw_credential = global_configuration_client.create(challenge: options.challenge)
@@ -290,7 +290,7 @@ RSpec.describe "RelyingParty" do
     context "when performing a registragion ceremony" do
       it "works well when using the former interface" do
         options = WebAuthn::Credential.options_for_create(
-          user: user.to_h.slice(:id, :name),
+          user: { id: user.id, name: user.name },
           exclude: user.credentials
         )
         raw_credential = global_configuration_client.create(challenge: options.challenge)
