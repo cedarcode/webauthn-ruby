@@ -1,7 +1,0 @@
-#!/bin/bash
-
-set -e
-
-if [[ "$LIBSSL" == "1.0" ]]; then
-  sudo apt-get install libssl1.0-dev
-fi

@@ -1,22 +1,13 @@
 dist: bionic
 language: ruby
+cache: bundler
 
-cache:
-  bundler: true
-  directories:
-    - /home/travis/.rvm/
-
-env:
-  - LIBSSL=1.1 RB=2.7.1
-  - LIBSSL=1.1 RB=2.6.6
-  - LIBSSL=1.1 RB=2.5.8
-  - LIBSSL=1.1 RB=2.4.10
-  - LIBSSL=1.1 RB=ruby-head
-  - LIBSSL=1.0 RB=2.7.1
-  - LIBSSL=1.0 RB=2.6.6
-  - LIBSSL=1.0 RB=2.5.8
-  - LIBSSL=1.0 RB=2.4.10
-  - LIBSSL=1.0 RB=ruby-head
+rvm:
+  - ruby-head
+  - 2.7.1
+  - 2.6.6
+  - 2.5.8
+  - 2.4.10
 
 gemfile:
   - gemfiles/cose_head.gemfile
@@ -28,12 +19,9 @@ gemfile:
 matrix:
   fast_finish: true
   allow_failures:
-    - env: LIBSSL=1.1 RB=ruby-head
-    - env: LIBSSL=1.0 RB=ruby-head
+    - rvm: ruby-head
     - gemfile: gemfiles/cose_head.gemfile
     - gemfile: gemfiles/openssl_head.gemfile
 
 before_install:
-  - ./script/ci/install-openssl
-  - ./script/ci/install-ruby
   - gem install bundler -v "~> 2.0"
