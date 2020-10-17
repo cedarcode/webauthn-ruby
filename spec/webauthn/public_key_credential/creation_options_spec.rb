@@ -21,19 +21,11 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
     it "has default public key params" do
       params = creation_options.pub_key_cred_params
 
-      array =
-        if OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
-          [
-            { type: "public-key", alg: -7 },
-            { type: "public-key", alg: -37 },
-            { type: "public-key", alg: -257 },
-          ]
-        else
-          [
-            { type: "public-key", alg: -7 },
-            { type: "public-key", alg: -257 },
-          ]
-        end
+      array = [
+        { type: "public-key", alg: -7 },
+        { type: "public-key", alg: -37 },
+        { type: "public-key", alg: -257 },
+      ]
 
       expect(params).to match_array(array)
     end
@@ -46,21 +38,12 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
       it "is added to public key params" do
         params = creation_options.pub_key_cred_params
 
-        array =
-          if OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
-            [
-              { type: "public-key", alg: -7 },
-              { type: "public-key", alg: -37 },
-              { type: "public-key", alg: -257 },
-              { type: "public-key", alg: -65535 },
-            ]
-          else
-            [
-              { type: "public-key", alg: -7 },
-              { type: "public-key", alg: -257 },
-              { type: "public-key", alg: -65535 },
-            ]
-          end
+        array = [
+          { type: "public-key", alg: -7 },
+          { type: "public-key", alg: -37 },
+          { type: "public-key", alg: -257 },
+          { type: "public-key", alg: -65535 },
+        ]
 
         expect(params).to match_array(array)
       end
