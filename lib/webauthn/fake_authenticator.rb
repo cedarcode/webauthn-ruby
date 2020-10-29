@@ -50,12 +50,19 @@ module WebAuthn
       user_verified: false,
       aaguid: AuthenticatorData::AAGUID,
       sign_count: nil,
-      extensions: nil
+      extensions: nil,
+      allow_credentials: nil
     )
       credential_options = credentials[rp_id]
 
       if credential_options
-        credential_id, credential = credential_options.first
+        allow_credentials ||= credential_options.keys
+        credential_id = (credential_options.keys & allow_credentials).first
+        unless credential_id
+          raise "No matching credentials found for RP #{rp_id}"
+        end
+
+        credential = credential_options[credential_id]
         credential_key = credential[:credential_key]
         credential_sign_count = credential[:sign_count]
 

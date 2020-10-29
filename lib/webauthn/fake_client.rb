@@ -74,11 +74,16 @@ module WebAuthn
             user_verified: false,
             sign_count: nil,
             extensions: nil,
-            user_handle: nil)
+            user_handle: nil,
+            allow_credentials: nil)
       rp_id ||= URI.parse(origin).host
 
       client_data_json = data_json_for(:get, encoder.decode(challenge))
       client_data_hash = hashed(client_data_json)
+
+      if allow_credentials
+        allow_credentials = allow_credentials.map { |credential| encoder.decode(credential[:id]) }
+      end
 
       assertion = authenticator.get_assertion(
         rp_id: rp_id,
@@ -86,7 +91,8 @@ module WebAuthn
         user_present: user_present,
         user_verified: user_verified,
         sign_count: sign_count,
-        extensions: extensions
+        extensions: extensions,
+        allow_credentials: allow_credentials
       )
 
       {
