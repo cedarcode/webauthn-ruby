@@ -31,5 +31,11 @@ RSpec.describe "none attestation" do
       expect(WebAuthn::AttestationStatement::None.new([]).valid?(authenticator_data, nil)).to be_falsy
       expect(WebAuthn::AttestationStatement::None.new("a" => "b").valid?(authenticator_data, nil)).to be_falsy
     end
+
+    it "returns false if None is not among the acceptable formats" do
+      WebAuthn.configuration.acceptable_attestation_types = ['AttCA']
+
+      expect(WebAuthn::AttestationStatement::None.new({}).valid?(authenticator_data, nil)).to be_falsy
+    end
   end
 end
