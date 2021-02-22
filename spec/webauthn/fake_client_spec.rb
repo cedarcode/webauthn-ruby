@@ -15,15 +15,16 @@ RSpec.describe "FakeClient" do
     end
 
     it "returns the matching credential when allow_credentials is passed" do
-      allow_credentials = [{ id: credential_2["id"] }]
+      allow_credentials = [credential_2["id"]]
       assertion = client.get(allow_credentials: allow_credentials)
       expect(assertion["id"]).to eq(credential_2["id"])
     end
 
     it "raises an error when no matching allow_credential can be found" do
       # base64(abc) is surely not a valid credential id (too short)
-      allow_credentials = [{ id: "YWJj" }]
-      expect { client.get(allow_credentials: allow_credentials) }.to raise_error(/No matching credentials found/)
+      allow_credentials = ["YWJj"]
+      expect { client.get(allow_credentials: allow_credentials) }.to \
+        raise_error(RuntimeError, /No matching credentials \(allowed=\["abc"\]\) found for RP/)
     end
   end
 end

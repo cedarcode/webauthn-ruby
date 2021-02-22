@@ -82,7 +82,7 @@ module WebAuthn
       client_data_hash = hashed(client_data_json)
 
       if allow_credentials
-        allow_credentials = allow_credentials.map { |credential| encoder.decode(credential[:id]) }
+        allow_credentials = allow_credentials.map { |credential| encoder.decode(credential) }
       end
 
       assertion = authenticator.get_assertion(
