@@ -59,7 +59,8 @@ module WebAuthn
         allow_credentials ||= credential_options.keys
         credential_id = (credential_options.keys & allow_credentials).first
         unless credential_id
-          raise "No matching credentials (allowed=#{allow_credentials}) found for RP #{rp_id} among credentials=#{credential_options}"
+          raise "No matching credentials (allowed=#{allow_credentials}) " \
+                "found for RP #{rp_id} among credentials=#{credential_options}"
         end
 
         credential = credential_options[credential_id]
