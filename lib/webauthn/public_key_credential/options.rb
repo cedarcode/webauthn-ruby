@@ -8,11 +8,10 @@ module WebAuthn
     class Options
       CHALLENGE_LENGTH = 32
 
-      attr_reader :timeout, :extensions, :relying_party
+      attr_reader :timeout, :extensions
 
-      def initialize(timeout: nil, extensions: nil, relying_party: WebAuthn.configuration.relying_party)
-        @relying_party = relying_party
-        @timeout = timeout || default_timeout
+      def initialize(timeout: default_timeout, extensions: nil)
+        @timeout = timeout
         @extensions = extensions
       end
 
@@ -50,7 +49,7 @@ module WebAuthn
       end
 
       def encoder
-        relying_party.encoder
+        WebAuthn.configuration.encoder
       end
 
       def raw_challenge
@@ -58,7 +57,11 @@ module WebAuthn
       end
 
       def default_timeout
-        relying_party.credential_options_timeout
+        configuration.credential_options_timeout
+      end
+
+      def configuration
+        WebAuthn.configuration
       end
 
       def as_public_key_descriptors(ids)

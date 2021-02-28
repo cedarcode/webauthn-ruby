@@ -24,7 +24,7 @@ module WebAuthn
 
       # TODO: use keyword_init when we dropped Ruby 2.4 support
       Credential =
-        Struct.new(:id, :public_key, :algorithm) do
+        Struct.new(:id, :public_key) do
           def public_key_object
             COSE::Key.deserialize(public_key).to_pkey
           end
@@ -47,7 +47,7 @@ module WebAuthn
       def credential
         @credential ||=
           if valid?
-            Credential.new(id, public_key, algorithm)
+            Credential.new(id, public_key)
           end
       end
 
@@ -59,16 +59,10 @@ module WebAuthn
 
       private
 
-      def algorithm
-        COSE::Algorithm.find(cose_key.alg).name
-      end
-
       def valid_credential_public_key?
-        !!cose_key.alg
-      end
+        cose_key = COSE::Key.deserialize(public_key)
 
-      def cose_key
-        @cose_key ||= COSE::Key.deserialize(public_key)
+        !!cose_key.alg && WebAuthn.configuration.algorithms.include?(COSE::Algorithm.find(cose_key.alg).name)
       end
 
       def public_key

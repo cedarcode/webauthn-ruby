@@ -10,8 +10,8 @@ module WebAuthn
   class SignCountVerificationError < VerificationError; end
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
-    def self.from_client(response, relying_party: WebAuthn.configuration.relying_party)
-      encoder = relying_party.encoder
+    def self.from_client(response)
+      encoder = WebAuthn.configuration.encoder
 
       user_handle =
         if response["userHandle"]
@@ -22,8 +22,7 @@ module WebAuthn
         authenticator_data: encoder.decode(response["authenticatorData"]),
         client_data_json: encoder.decode(response["clientDataJSON"]),
         signature: encoder.decode(response["signature"]),
-        user_handle: user_handle,
-        relying_party: relying_party
+        user_handle: user_handle
       )
     end
 

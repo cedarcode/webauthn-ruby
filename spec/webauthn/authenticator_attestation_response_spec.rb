@@ -502,7 +502,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       it "doesn't verify" do
         expect {
           attestation_response.verify(original_challenge, origin)
-        }.to raise_exception(WebAuthn::AttestedCredentialVerificationError)
+        }.to raise_exception(WebAuthn::AuthenticatorDataVerificationError)
       end
     end
   end
