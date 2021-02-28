@@ -29,26 +29,23 @@ RSpec.describe "TPM attestation statement" do
       let(:algorithm) { -257 }
 
       let(:aik_certificate) do
-        cert = OpenSSL::X509::Certificate.new
-        cert.version = aik_certificate_version
-        cert.issuer = root_certificate.subject
-        cert.subject = OpenSSL::X509::Name.parse(aik_certificate_subject)
-        cert.not_before = aik_certificate_start_time
-        cert.not_after = aik_certificate_end_time
-        cert.public_key = aik
-
         extension_factory = OpenSSL::X509::ExtensionFactory.new
         extension_factory.config = aik_certificate_san_config
 
-        cert.extensions = [
-          extension_factory.create_extension("basicConstraints", aik_certificate_basic_constraints, true),
-          extension_factory.create_extension("extendedKeyUsage", aik_certificate_extended_key_usage),
-          extension_factory.create_extension("subjectAltName", "ASN1:SEQUENCE:dir_seq", aik_certificate_san_critical),
-        ]
-
-        cert.sign(root_key, "SHA256")
-
-        cert
+        issue_certificate(
+          root_certificate,
+          root_key,
+          aik,
+          version: aik_certificate_version,
+          name: aik_certificate_subject,
+          not_before: aik_certificate_start_time,
+          not_after: aik_certificate_end_time,
+          extensions: [
+            extension_factory.create_extension("basicConstraints", aik_certificate_basic_constraints, true),
+            extension_factory.create_extension("extendedKeyUsage", aik_certificate_extended_key_usage),
+            extension_factory.create_extension("subjectAltName", "ASN1:SEQUENCE:dir_seq", aik_certificate_san_critical),
+          ]
+        )
       end
 
       let(:aik) { create_rsa_key }

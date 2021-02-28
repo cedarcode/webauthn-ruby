@@ -105,15 +105,17 @@ def create_ec_key
   OpenSSL::PKey::EC.new("prime256v1").generate_key
 end
 
-def create_root_certificate(key)
-  certificate = OpenSSL::X509::Certificate.new
-  common_name = "Root-#{rand(1_000_000)}"
+X509_V3 = 2
 
-  certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
+def create_root_certificate(key, not_before: Time.now - 1, not_after: Time.now + 60)
+  certificate = OpenSSL::X509::Certificate.new
+
+  certificate.version = X509_V3
+  certificate.subject = OpenSSL::X509::Name.parse("CN=Root-#{rand(1_000_000)}")
   certificate.issuer = certificate.subject
   certificate.public_key = key
-  certificate.not_before = Time.now - 1
-  certificate.not_after = Time.now + 60
+  certificate.not_before = not_before
+  certificate.not_after = not_after
 
   extension_factory = OpenSSL::X509::ExtensionFactory.new
   extension_factory.subject_certificate = certificate
@@ -129,15 +131,29 @@ def create_root_certificate(key)
   certificate
 end
 
-def issue_certificate(ca_certificate, ca_key, key, name: nil)
-  certificate = OpenSSL::X509::Certificate.new
-  common_name = name || "Cert-#{rand(1_000_000)}"
+def issue_certificate(
+  ca_certificate,
+  ca_key,
+  key,
+  version: X509_V3,
+  name: "CN=Cert-#{rand(1_000_000)}",
+  not_before: Time.now - 1,
+  not_after: Time.now + 60,
+  extensions: nil
+)
 
-  certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
+  certificate = OpenSSL::X509::Certificate.new
+
+  certificate.version = version
+  certificate.subject = OpenSSL::X509::Name.parse(name)
   certificate.issuer = ca_certificate.subject
-  certificate.not_before = Time.now - 1
-  certificate.not_after = Time.now + 60
+  certificate.not_before = not_before
+  certificate.not_after = not_after
   certificate.public_key = key
+
+  if extensions
+    certificate.extensions = extensions
+  end
 
   certificate.sign(ca_key, "SHA256")
 

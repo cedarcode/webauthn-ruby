@@ -30,7 +30,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     let(:attestation_key) { create_rsa_key }
 
     let(:leaf_certificate) do
-      issue_certificate(root_certificate, root_key, attestation_key, name: "attest.android.com")
+      issue_certificate(root_certificate, root_key, attestation_key, name: "CN=attest.android.com")
     end
 
     let(:root_key) { create_ec_key }

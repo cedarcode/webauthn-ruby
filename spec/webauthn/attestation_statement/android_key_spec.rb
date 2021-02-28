@@ -54,21 +54,12 @@ RSpec.describe "AndroidKey attestation" do
     end
 
     let(:attestation_certificate) do
-      certificate = OpenSSL::X509::Certificate.new
-      certificate.subject = OpenSSL::X509::Name.new([["CN", "Fake Attestation"]])
-      certificate.issuer = root_certificate.subject
-      certificate.not_before = Time.now - 1
-      certificate.not_after = Time.now + 60
-      certificate.public_key = attestation_key
-
-      extension_factory = OpenSSL::X509::ExtensionFactory.new
-      extension_factory.subject_certificate = certificate
-      extension_factory.issuer_certificate = certificate
-      certificate.extensions = attestation_certificate_extensions
-
-      certificate.sign(root_key, "SHA256")
-
-      certificate.to_der
+      issue_certificate(
+        root_certificate,
+        root_key,
+        attestation_key,
+        extensions: attestation_certificate_extensions
+      ).to_der
     end
 
     let(:statement) do
