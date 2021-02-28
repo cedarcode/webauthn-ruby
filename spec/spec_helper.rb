@@ -111,7 +111,7 @@ def create_root_certificate(key)
 
   certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
   certificate.issuer = certificate.subject
-  certificate.public_key = root_key
+  certificate.public_key = key
   certificate.not_before = Time.now - 1
   certificate.not_after = Time.now + 60
 
