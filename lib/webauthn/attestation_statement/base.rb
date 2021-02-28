@@ -42,12 +42,6 @@ module WebAuthn
         certificates&.first
       end
 
-      def certificate_chain
-        if certificates
-          certificates[1..-1]
-        end
-      end
-
       def attestation_certificate_key_id
         raw_subject_key_identifier&.unpack("H*")&.[](0)
       end
