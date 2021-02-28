@@ -101,6 +101,10 @@ def create_rsa_key
   OpenSSL::PKey::RSA.new(key_bits)
 end
 
+def create_ec_key
+  OpenSSL::PKey::EC.new("prime256v1").generate_key
+end
+
 def create_root_certificate(key)
   certificate = OpenSSL::X509::Certificate.new
   common_name = "Root-#{rand(1_000_000)}"

@@ -88,7 +88,7 @@ RSpec.describe "TPM attestation statement" do
       end
       let(:aik_certificate_start_time) { Time.now - 1 }
       let(:aik_certificate_end_time) { Time.now + 60 }
-      let(:root_key) { OpenSSL::PKey::RSA.new(2048) }
+      let(:root_key) { create_rsa_key }
       let(:root_certificate) { create_root_certificate(root_key) }
       let(:signature) { aik.sign("SHA256", cert_info) }
 
@@ -155,7 +155,7 @@ RSpec.describe "TPM attestation statement" do
 
       context "when the attestation certificate is not signed by a TPM" do
         let(:tpm_certificates) do
-          [create_root_certificate(OpenSSL::PKey::RSA.new(2048))]
+          [create_root_certificate(create_rsa_key)]
         end
 
         it "fails" do
@@ -171,8 +171,8 @@ RSpec.describe "TPM attestation statement" do
 
       context "when EC algorithm" do
         let(:algorithm) { -7 }
-        let(:aik) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
-        let(:credential_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+        let(:aik) { create_ec_key }
+        let(:credential_key) { create_ec_key }
 
         let(:pub_area) do
           t_public = ::TPM::TPublic.new
@@ -204,8 +204,7 @@ RSpec.describe "TPM attestation statement" do
               t_public.alg_type = ::TPM::ALG_ECC
               t_public.name_alg = name_alg
               t_public.parameters = pub_area_parameters
-              t_public.unique.buffer =
-                OpenSSL::PKey::EC.generate("prime256v1").generate_key.public_key.to_bn.to_s(2)[1..-1]
+              t_public.unique.buffer = create_ec_key.public_key.to_bn.to_s(2)[1..-1]
 
               t_public.to_binary_s
             end

@@ -8,7 +8,7 @@ require "webauthn/attestation_statement/fido_u2f"
 
 RSpec.describe "FidoU2f attestation" do
   describe "#valid?" do
-    let(:credential_public_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key.public_key }
+    let(:credential_public_key) { create_ec_key.public_key }
     let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
 
     let(:authenticator_data_bytes) do
@@ -28,7 +28,7 @@ RSpec.describe "FidoU2f attestation" do
         credential_public_key.to_bn.to_s(2)
     end
 
-    let(:attestation_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:attestation_key) { create_ec_key }
     let(:signature) { attestation_key.sign("SHA256", to_be_signed) }
 
     let(:attestation_certificate) do
@@ -42,7 +42,7 @@ RSpec.describe "FidoU2f attestation" do
       )
     end
 
-    let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:root_key) { create_ec_key }
 
     let(:root_certificate) do
       create_root_certificate(root_key)
@@ -58,7 +58,7 @@ RSpec.describe "FidoU2f attestation" do
 
     context "when signature is invalid" do
       context "because it was signed with a different signing key (self attested)" do
-        let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
+        let(:signature) { create_ec_key.sign("SHA256", to_be_signed) }
 
         it "fails" do
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

@@ -33,7 +33,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
       issue_certificate(root_certificate, root_key, attestation_key, name: "attest.android.com")
     end
 
-    let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:root_key) { create_ec_key }
     let(:root_certificate) { create_root_certificate(root_key) }
     let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
 
@@ -79,9 +79,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     end
 
     context "when the attestation certificate is not signed by Google" do
-      let(:google_certificates) do
-        [create_root_certificate(OpenSSL::PKey::EC.new("prime256v1").generate_key)]
-      end
+      let(:google_certificates) { [create_root_certificate(create_ec_key)] }
 
       it "fails" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

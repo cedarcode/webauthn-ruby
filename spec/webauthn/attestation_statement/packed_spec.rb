@@ -8,7 +8,7 @@ require "webauthn/attestation_statement/packed"
 
 RSpec.describe "Packed attestation" do
   describe "#valid?" do
-    let(:credential_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:credential_key) { create_ec_key }
     let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
 
     let(:authenticator_data_bytes) do
@@ -61,7 +61,7 @@ RSpec.describe "Packed attestation" do
         end
 
         context "because it was signed with a different signing key" do
-          let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
+          let(:signature) { create_ec_key.sign("SHA256", to_be_signed) }
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
@@ -88,7 +88,7 @@ RSpec.describe "Packed attestation" do
 
     context "x5c attestation" do
       let(:algorithm) { -7 }
-      let(:attestation_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+      let(:attestation_key) { create_ec_key }
       let(:signature) { attestation_key.sign("SHA256", to_be_signed) }
       let(:attestation_certificate_version) { 2 }
       let(:attestation_certificate_subject) { "/C=UY/O=ACME/OU=Authenticator Attestation/CN=CN" }
@@ -118,7 +118,7 @@ RSpec.describe "Packed attestation" do
         certificate.to_der
       end
 
-      let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+      let(:root_key) { create_ec_key }
       let(:root_certificate_start_time) { Time.now - 1 }
       let(:root_certificate_end_time) { Time.now + 60 }
 
@@ -172,7 +172,7 @@ RSpec.describe "Packed attestation" do
         end
 
         context "because it was signed with a different signing key (self attested)" do
-          let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
+          let(:signature) { create_ec_key.sign("SHA256", to_be_signed) }
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

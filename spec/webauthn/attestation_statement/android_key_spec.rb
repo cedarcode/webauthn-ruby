@@ -8,7 +8,7 @@ require "webauthn/attestation_statement/android_key"
 
 RSpec.describe "AndroidKey attestation" do
   describe "#valid?" do
-    let(:credential_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:credential_key) { create_ec_key }
     let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
 
     let(:authenticator_data_bytes) do
@@ -79,7 +79,7 @@ RSpec.describe "AndroidKey attestation" do
       )
     end
 
-    let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:root_key) { create_ec_key }
     let(:root_certificate) { create_root_certificate(root_key) }
     let(:google_certificates) { [root_certificate] }
 
@@ -117,7 +117,7 @@ RSpec.describe "AndroidKey attestation" do
       end
 
       context "because it was signed with a different key" do
-        let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
+        let(:signature) { create_ec_key.sign("SHA256", to_be_signed) }
 
         it "fails" do
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
@@ -142,7 +142,7 @@ RSpec.describe "AndroidKey attestation" do
     end
 
     context "when the attestation key doesn't match the credential key" do
-      let(:attestation_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+      let(:attestation_key) { create_ec_key }
 
       it "fails" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
@@ -202,9 +202,7 @@ RSpec.describe "AndroidKey attestation" do
     end
 
     context "when the attestation certificate is not signed by Google" do
-      let(:google_certificates) do
-        [create_root_certificate(OpenSSL::PKey::EC.new("prime256v1").generate_key)]
-      end
+      let(:google_certificates) { [create_root_certificate(create_ec_key)] }
 
       it "fails" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
