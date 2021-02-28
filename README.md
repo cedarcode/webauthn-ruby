@@ -408,7 +408,7 @@ credential.authenticator_extension_outputs
 
 ## Attestation
 
-### Attestation Statement Format
+### Attestation Statement Formats
 
 | Attestation Statement Format | Supported? |
 | -------- | :--------: |
