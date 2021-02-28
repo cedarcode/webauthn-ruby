@@ -16,10 +16,6 @@ module WebAuthn
           [attestation_type, attestation_trust_path]
       end
 
-      def attestation_certificate
-        attestation_trust_path.first
-      end
-
       private
 
       def valid_response?(authenticator_data, client_data_hash)
@@ -52,7 +48,7 @@ module WebAuthn
       end
 
       # SafetyNetAttestation returns full chain including root, WebAuthn expects only the x5c certificates
-      def attestation_trust_path
+      def certificates
         attestation_response.certificate_chain[0..-2]
       end
 
