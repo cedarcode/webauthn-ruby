@@ -148,7 +148,7 @@ RSpec.describe "Packed attestation" do
         WebAuthn::AttestationStatement::Packed.new(
           "alg" => algorithm,
           "sig" => signature,
-          "x5c" => [attestation_certificate, root_certificate]
+          "x5c" => [attestation_certificate]
         )
       end
 
