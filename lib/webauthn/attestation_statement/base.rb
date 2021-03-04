@@ -16,11 +16,13 @@ module WebAuthn
     ATTESTATION_TYPE_SELF = "Self"
     ATTESTATION_TYPE_ATTCA = "AttCA"
     ATTESTATION_TYPE_BASIC_OR_ATTCA = "Basic_or_AttCA"
+    ATTESTATION_TYPE_ANONCA = "AnonCA"
 
     ATTESTATION_TYPES_WITH_ROOT = [
       ATTESTATION_TYPE_BASIC,
       ATTESTATION_TYPE_BASIC_OR_ATTCA,
-      ATTESTATION_TYPE_ATTCA
+      ATTESTATION_TYPE_ATTCA,
+      ATTESTATION_TYPE_ANONCA
     ].freeze
 
     class Base
@@ -60,6 +62,10 @@ module WebAuthn
         else
           true
         end
+      end
+
+      def matching_public_key?(authenticator_data)
+        attestation_certificate.public_key.to_der == authenticator_data.credential.public_key_object.to_der
       end
 
       def certificates
