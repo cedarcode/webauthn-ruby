@@ -43,7 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "securecompare", "~> 1.0"
   spec.add_dependency "tpm-key_attestation", "~> 0.10.0"
 
-  spec.add_development_dependency "appraisal", "~> 2.3.0"
+  spec.add_development_dependency "appraisal", "~> 2.4"
   spec.add_development_dependency "bundler", ">= 1.17", "< 3.0"
   spec.add_development_dependency "byebug", "~> 11.0"
   spec.add_development_dependency "rake", "~> 13.0"
