@@ -10,13 +10,13 @@ module WebAuthn
       def initialize(rp_id: nil, allow_credentials: nil, allow: nil, user_verification: nil, **keyword_arguments)
         super(**keyword_arguments)
 
-        @rp_id = rp_id || relying_party.id
+        @rp_id = rp_id || configuration.rp_id
         @allow_credentials = allow_credentials
         @allow = allow
         @user_verification = user_verification
 
-        if relying_party.legacy_u2f_appid && @extensions&.[](:appid).nil? && @extensions&.[]("appid").nil?
-          @extensions = (@extensions || {}).merge(appid: relying_party.legacy_u2f_appid)
+        if configuration.legacy_u2f_appid && @extensions&.[](:appid).nil? && @extensions&.[]("appid").nil?
+          @extensions = (@extensions || {}).merge(appid: configuration.legacy_u2f_appid)
         end
       end
 

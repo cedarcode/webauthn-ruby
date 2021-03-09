@@ -8,7 +8,7 @@ require "webauthn/attestation_statement/packed"
 
 RSpec.describe "Packed attestation" do
   describe "#valid?" do
-    let(:credential_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:credential_key) { create_ec_key }
     let(:client_data_hash) { OpenSSL::Digest::SHA256.digest({}.to_json) }
 
     let(:authenticator_data_bytes) do
@@ -61,7 +61,7 @@ RSpec.describe "Packed attestation" do
         end
 
         context "because it was signed with a different signing key" do
-          let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
+          let(:signature) { create_ec_key.sign("SHA256", to_be_signed) }
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
@@ -88,7 +88,7 @@ RSpec.describe "Packed attestation" do
 
     context "x5c attestation" do
       let(:algorithm) { -7 }
-      let(:attestation_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+      let(:attestation_key) { create_ec_key }
       let(:signature) { attestation_key.sign("SHA256", to_be_signed) }
       let(:attestation_certificate_version) { 2 }
       let(:attestation_certificate_subject) { "/C=UY/O=ACME/OU=Authenticator Attestation/CN=CN" }
@@ -97,58 +97,35 @@ RSpec.describe "Packed attestation" do
       let(:attestation_certificate_end_time) { Time.now + 60 }
 
       let(:attestation_certificate) do
-        certificate = OpenSSL::X509::Certificate.new
-        certificate.version = attestation_certificate_version
-        certificate.subject = OpenSSL::X509::Name.parse(attestation_certificate_subject)
-        certificate.issuer = root_certificate.subject
-        certificate.not_before = attestation_certificate_start_time
-        certificate.not_after = attestation_certificate_end_time
-        certificate.public_key = attestation_key
-
         extension_factory = OpenSSL::X509::ExtensionFactory.new
-        extension_factory.subject_certificate = certificate
-        extension_factory.issuer_certificate = certificate
 
-        certificate.extensions = [
-          extension_factory.create_extension("basicConstraints", attestation_certificate_basic_constraints, true),
-        ]
-
-        certificate.sign(root_key, "SHA256")
-
-        certificate.to_der
+        issue_certificate(
+          root_certificate,
+          root_key,
+          attestation_key,
+          version: attestation_certificate_version,
+          name: attestation_certificate_subject,
+          not_before: attestation_certificate_start_time,
+          not_after: attestation_certificate_end_time,
+          extensions: [
+            extension_factory.create_extension("basicConstraints", attestation_certificate_basic_constraints, true),
+          ]
+        ).to_der
       end
 
-      let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+      let(:root_key) { create_ec_key }
       let(:root_certificate_start_time) { Time.now - 1 }
       let(:root_certificate_end_time) { Time.now + 60 }
 
       let(:root_certificate) do
-        root_certificate = OpenSSL::X509::Certificate.new
-        root_certificate.version = attestation_certificate_version
-        root_certificate.subject = OpenSSL::X509::Name.parse("/DC=org/DC=fake-ca/CN=Fake CA")
-        root_certificate.issuer = root_certificate.subject
-        root_certificate.public_key = root_key
-        root_certificate.not_before = root_certificate_start_time
-        root_certificate.not_after = root_certificate_end_time
-
-        extension_factory = OpenSSL::X509::ExtensionFactory.new
-        extension_factory.subject_certificate = root_certificate
-        extension_factory.issuer_certificate = root_certificate
-        root_certificate.extensions = [
-          extension_factory.create_extension("basicConstraints", "CA:TRUE", true),
-          extension_factory.create_extension("keyUsage", "keyCertSign,cRLSign", true),
-        ]
-
-        root_certificate.sign(root_key, "SHA256")
-
-        root_certificate
+        create_root_certificate(root_key, not_before: root_certificate_start_time, not_after: root_certificate_end_time)
       end
 
       let(:statement) do
         WebAuthn::AttestationStatement::Packed.new(
           "alg" => algorithm,
           "sig" => signature,
-          "x5c" => [attestation_certificate, root_certificate]
+          "x5c" => [attestation_certificate]
         )
       end
 
@@ -172,7 +149,7 @@ RSpec.describe "Packed attestation" do
         end
 
         context "because it was signed with a different signing key (self attested)" do
-          let(:signature) { OpenSSL::PKey::EC.new("prime256v1").generate_key.sign("SHA256", to_be_signed) }
+          let(:signature) { create_ec_key.sign("SHA256", to_be_signed) }
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

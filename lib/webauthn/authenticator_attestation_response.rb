@@ -18,13 +18,12 @@ module WebAuthn
   class AuthenticatorAttestationResponse < AuthenticatorResponse
     extend Forwardable
 
-    def self.from_client(response, relying_party: WebAuthn.configuration.relying_party)
-      encoder = relying_party.encoder
+    def self.from_client(response)
+      encoder = WebAuthn.configuration.encoder
 
       new(
         attestation_object: encoder.decode(response["attestationObject"]),
-        client_data_json: encoder.decode(response["clientDataJSON"]),
-        relying_party: relying_party
+        client_data_json: encoder.decode(response["clientDataJSON"])
       )
     end
 
@@ -34,14 +33,13 @@ module WebAuthn
       super(**options)
 
       @attestation_object_bytes = attestation_object
-      @relying_party = relying_party
     end
 
     def verify(expected_challenge, expected_origin = nil, user_verification: nil, rp_id: nil)
       super
 
       verify_item(:attested_credential)
-      if relying_party.verify_attestation_statement
+      if WebAuthn.configuration.verify_attestation_statement
         verify_item(:attestation_statement)
       end
 
@@ -49,7 +47,7 @@ module WebAuthn
     end
 
     def attestation_object
-      @attestation_object ||= WebAuthn::AttestationObject.deserialize(attestation_object_bytes, relying_party)
+      @attestation_object ||= WebAuthn::AttestationObject.deserialize(attestation_object_bytes)
     end
 
     def_delegators(
@@ -65,15 +63,14 @@ module WebAuthn
 
     private
 
-    attr_reader :attestation_object_bytes, :relying_party
+    attr_reader :attestation_object_bytes
 
     def type
       WebAuthn::TYPES[:create]
     end
 
     def valid_attested_credential?
-      attestation_object.valid_attested_credential? &&
-        relying_party.algorithms.include?(authenticator_data.credential.algorithm)
+      attestation_object.valid_attested_credential?
     end
 
     def valid_attestation_statement?

@@ -26,9 +26,8 @@ module WebAuthn
     class Base
       AAGUID_EXTENSION_OID = "1.3.6.1.4.1.45724.1.1.4"
 
-      def initialize(statement, relying_party = WebAuthn.configuration.relying_party)
+      def initialize(statement)
         @statement = statement
-        @relying_party = relying_party
       end
 
       def valid?(_authenticator_data, _client_data_hash)
@@ -43,19 +42,13 @@ module WebAuthn
         certificates&.first
       end
 
-      def certificate_chain
-        if certificates
-          certificates[1..-1]
-        end
-      end
-
       def attestation_certificate_key_id
         raw_subject_key_identifier&.unpack("H*")&.[](0)
       end
 
       private
 
-      attr_reader :statement, :relying_party
+      attr_reader :statement
 
       def matching_aaguid?(attested_credential_data_aaguid)
         extension = attestation_certificate&.extensions&.detect { |ext| ext.oid == AAGUID_EXTENSION_OID }
@@ -96,10 +89,10 @@ module WebAuthn
 
       def trustworthy?(aaguid: nil, attestation_certificate_key_id: nil)
         if ATTESTATION_TYPES_WITH_ROOT.include?(attestation_type)
-          relying_party.acceptable_attestation_types.include?(attestation_type) &&
+          configuration.acceptable_attestation_types.include?(attestation_type) &&
             valid_certificate_chain?(aaguid: aaguid, attestation_certificate_key_id: attestation_certificate_key_id)
         else
-          relying_party.acceptable_attestation_types.include?(attestation_type)
+          configuration.acceptable_attestation_types.include?(attestation_type)
         end
       end
 
@@ -123,7 +116,7 @@ module WebAuthn
 
       def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
         root_certificates =
-          relying_party.attestation_root_certificates_finders.reduce([]) do |certs, finder|
+          configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
             if certs.empty?
               finder.find(
                 attestation_format: format,
@@ -170,9 +163,13 @@ module WebAuthn
       def cose_algorithm
         @cose_algorithm ||=
           COSE::Algorithm.find(algorithm).tap do |alg|
-            alg && relying_party.algorithms.include?(alg.name) ||
+            alg && configuration.algorithms.include?(alg.name) ||
               raise(UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}")
           end
+      end
+
+      def configuration
+        WebAuthn.configuration
       end
     end
   end

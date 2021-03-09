@@ -1,5 +1,6 @@
 require:
   - rubocop-rspec
+  - rubocop-rake
 
 inherit_mode:
   merge:
@@ -8,6 +9,7 @@ inherit_mode:
 AllCops:
   TargetRubyVersion: 2.4
   DisabledByDefault: true
+  NewCops: disable
   Exclude:
     - "gemfiles/**/*"
     - "vendor/**/*"
@@ -23,6 +25,9 @@ Layout:
 
 Layout/ClassStructure:
   Enabled: true
+
+Layout/EmptyLineBetweenDefs:
+  AllowAdjacentOneLineDefs: true
 
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true
@@ -59,8 +64,41 @@ Lint/RaiseException:
 Lint/StructNewOverride:
   Enabled: true
 
+Lint/BinaryOperatorWithIdenticalOperands:
+  Enabled: true
+
+Lint/DuplicateElsifCondition:
+  Enabled: true
+
+Lint/DuplicateRescueException:
+  Enabled: true
+
+Lint/EmptyConditionalBody:
+  Enabled: true
+
+Lint/FloatComparison:
+  Enabled: true
+
+Lint/MissingSuper:
+  Enabled: true
+
+Lint/OutOfRangeRegexpRef:
+  Enabled: true
+
+Lint/SelfAssignment:
+  Enabled: true
+
+Lint/TopLevelReturnWithArgument:
+  Enabled: true
+
+Lint/UnreachableLoop:
+  Enabled: true
+
 Naming:
   Enabled: true
+
+Naming/VariableNumber:
+  Enabled: false
 
 RSpec/Be:
   Enabled: true

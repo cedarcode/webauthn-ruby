@@ -23,35 +23,16 @@ RSpec.configure do |config|
   end
 end
 
-def create_credential(
-  client: WebAuthn::FakeClient.new,
-  rp_id: nil,
-  relying_party: WebAuthn.configuration.relying_party
-)
-  rp_id ||= relying_party.id || URI.parse(client.origin).host
+def create_credential(client: WebAuthn::FakeClient.new, rp_id: nil)
+  rp_id ||= URI.parse(client.origin).host
 
   create_result = client.create(rp_id: rp_id)
-
-  attestation_object =
-    if client.encoding
-      relying_party.encoder.decode(create_result["response"]["attestationObject"])
-    else
-      create_result["response"]["attestationObject"]
-    end
-
-  client_data_json =
-    if client.encoding
-      relying_party.encoder.decode(create_result["response"]["clientDataJSON"])
-    else
-      create_result["response"]["clientDataJSON"]
-    end
 
   response =
     WebAuthn::AuthenticatorAttestationResponse
     .new(
-      attestation_object: attestation_object,
-      client_data_json: client_data_json,
-      relying_party: relying_party
+      attestation_object: create_result["response"]["attestationObject"],
+      client_data_json: create_result["response"]["clientDataJSON"]
     )
 
   credential_public_key = response.credential.public_key
@@ -120,15 +101,21 @@ def create_rsa_key
   OpenSSL::PKey::RSA.new(key_bits)
 end
 
-def create_root_certificate(key)
-  certificate = OpenSSL::X509::Certificate.new
-  common_name = "Root-#{rand(1_000_000)}"
+def create_ec_key
+  OpenSSL::PKey::EC.new("prime256v1").generate_key
+end
 
-  certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
+X509_V3 = 2
+
+def create_root_certificate(key, not_before: Time.now - 1, not_after: Time.now + 60)
+  certificate = OpenSSL::X509::Certificate.new
+
+  certificate.version = X509_V3
+  certificate.subject = OpenSSL::X509::Name.parse("CN=Root-#{rand(1_000_000)}")
   certificate.issuer = certificate.subject
-  certificate.public_key = root_key
-  certificate.not_before = Time.now - 1
-  certificate.not_after = Time.now + 60
+  certificate.public_key = key
+  certificate.not_before = not_before
+  certificate.not_after = not_after
 
   extension_factory = OpenSSL::X509::ExtensionFactory.new
   extension_factory.subject_certificate = certificate
@@ -144,15 +131,29 @@ def create_root_certificate(key)
   certificate
 end
 
-def issue_certificate(ca_certificate, ca_key, key, name: nil)
-  certificate = OpenSSL::X509::Certificate.new
-  common_name = name || "Cert-#{rand(1_000_000)}"
+def issue_certificate(
+  ca_certificate,
+  ca_key,
+  key,
+  version: X509_V3,
+  name: "CN=Cert-#{rand(1_000_000)}",
+  not_before: Time.now - 1,
+  not_after: Time.now + 60,
+  extensions: nil
+)
 
-  certificate.subject = OpenSSL::X509::Name.new([["CN", common_name]])
+  certificate = OpenSSL::X509::Certificate.new
+
+  certificate.version = version
+  certificate.subject = OpenSSL::X509::Name.parse(name)
   certificate.issuer = ca_certificate.subject
-  certificate.not_before = Time.now - 1
-  certificate.not_after = Time.now + 60
+  certificate.not_before = not_before
+  certificate.not_after = not_after
   certificate.public_key = key
+
+  if extensions
+    certificate.extensions = extensions
+  end
 
   certificate.sign(ca_key, "SHA256")
 

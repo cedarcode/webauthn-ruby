@@ -28,11 +28,11 @@ module WebAuthn
       ATTESTATION_FORMAT_TPM => WebAuthn::AttestationStatement::TPM
     }.freeze
 
-    def self.from(format, statement, relying_party: WebAuthn.configuration.relying_party)
+    def self.from(format, statement)
       klass = FORMAT_TO_CLASS[format]
 
       if klass
-        klass.new(statement, relying_party)
+        klass.new(statement)
       else
         raise(FormatNotSupportedError, "Unsupported attestation format '#{format}'")
       end

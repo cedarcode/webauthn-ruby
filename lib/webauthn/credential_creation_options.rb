@@ -32,6 +32,8 @@ module WebAuthn
       user_display_name: nil,
       rp_name: nil
     )
+      super()
+
       @attestation = attestation
       @authenticator_selection = authenticator_selection
       @exclude_credentials = exclude_credentials

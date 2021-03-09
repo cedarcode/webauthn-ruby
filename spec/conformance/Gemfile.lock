@@ -1,16 +1,16 @@
 PATH
   remote: ../..
   specs:
-    webauthn (3.0.0.alpha1)
+    webauthn (2.4.1)
       android_key_attestation (~> 0.3.0)
       awrence (~> 1.1)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
-      cose (~> 1.0)
+      cose (~> 1.1)
       openssl (~> 2.0)
       safety_net_attestation (~> 0.4.0)
       securecompare (~> 1.0)
-      tpm-key_attestation (~> 0.9.0)
+      tpm-key_attestation (~> 0.10.0)
 
 GEM
   remote: https://rubygems.org/
@@ -21,9 +21,9 @@ GEM
     bindata (2.4.7)
     byebug (11.0.1)
     cbor (0.5.9.6)
-    cose (1.0.0)
+    cose (1.2.0)
       cbor (~> 0.5.9)
-      openssl-signature_algorithm (~> 0.4.0)
+      openssl-signature_algorithm (~> 1.0)
     fido_metadata (0.4.0)
       jwt (~> 2.0)
     jwt (2.2.1)
@@ -31,7 +31,7 @@ GEM
     mustermann (1.1.0)
       ruby2_keywords (~> 0.0.1)
     openssl (2.2.0)
-    openssl-signature_algorithm (0.4.0)
+    openssl-signature_algorithm (1.0.0)
     rack (2.0.8)
     rack-contrib (2.1.0)
       rack (~> 2.0)
@@ -55,9 +55,9 @@ GEM
       sinatra (= 2.0.8.1)
       tilt (~> 2.0)
     tilt (2.0.10)
-    tpm-key_attestation (0.9.0)
+    tpm-key_attestation (0.10.0)
       bindata (~> 2.4)
-      openssl-signature_algorithm (~> 0.4.0)
+      openssl-signature_algorithm (~> 1.0)
 
 PLATFORMS
   ruby

@@ -258,11 +258,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     before do
       allow(attestation_response.attestation_statement).to receive(:time).and_return(time)
-      allow(attestation_response).to receive(:attestation_root_certificates_store).and_wrap_original do |m, *args|
-        store = m.call(*args)
-        store.time = time
-        store
-      end
     end
 
     it "verifies" do
@@ -502,7 +497,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       it "doesn't verify" do
         expect {
           attestation_response.verify(original_challenge, origin)
-        }.to raise_exception(WebAuthn::AttestedCredentialVerificationError)
+        }.to raise_exception(WebAuthn::AuthenticatorDataVerificationError)
       end
     end
   end
