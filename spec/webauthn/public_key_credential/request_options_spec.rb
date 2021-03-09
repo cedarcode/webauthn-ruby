@@ -105,7 +105,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::RequestOptions do
     context "is not set in the configuration" do
       context "and appid extension is not requested in the options" do
         it "does not adds it automatically" do
-          expect(request_options.extensions).to be_nil
+          expect(request_options.extensions).to be_empty
         end
       end
 

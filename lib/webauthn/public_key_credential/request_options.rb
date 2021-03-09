@@ -14,10 +14,6 @@ module WebAuthn
         @allow_credentials = allow_credentials
         @allow = allow
         @user_verification = user_verification
-
-        if configuration.legacy_u2f_appid && @extensions&.[](:appid).nil? && @extensions&.[]("appid").nil?
-          @extensions = (@extensions || {}).merge(appid: configuration.legacy_u2f_appid)
-        end
       end
 
       def allow_credentials
@@ -28,6 +24,16 @@ module WebAuthn
 
       def attributes
         super.concat([:allow_credentials, :rp_id, :user_verification])
+      end
+
+      def default_extensions
+        extensions = super || {}
+
+        if configuration.legacy_u2f_appid
+          extensions.merge!(appid: configuration.legacy_u2f_appid)
+        end
+
+        extensions
       end
 
       def allow_credentials_from_allow
