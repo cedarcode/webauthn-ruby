@@ -141,7 +141,6 @@ def issue_certificate(
   not_after: Time.now + 60,
   extensions: nil
 )
-
   certificate = OpenSSL::X509::Certificate.new
 
   certificate.version = version
@@ -158,4 +157,12 @@ def issue_certificate(
   certificate.sign(ca_key, "SHA256")
 
   certificate
+end
+
+def fake_certificate_chain_validation_time(attestation_statement, time)
+  allow(attestation_statement).to receive(:attestation_root_certificates_store).and_wrap_original do |m, *args|
+    store = m.call(*args)
+    store.time = time
+    store
+  end
 end
