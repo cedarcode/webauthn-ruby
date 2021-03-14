@@ -6,6 +6,30 @@
 
 - Ability to define multiple relying parties with the introduction of the `WebAuthn::RelyingParty` class ([@padulafacundo], [@brauliomartinezlm])
 
+## [v2.5.0] - 2021-03-14
+
+### Added
+
+- Support 'apple' attestation statement format ([#343](https://github.com/cedarcode/webauthn-ruby/pull/343) / [@juanarias93], [@santiagorodriguez96])
+- Allow specifying an array of ids as `allow_credentials:` for `FakeClient#get` method ([#335](https://github.com/cedarcode/webauthn-ruby/pull/335) / [@kingjan1999])
+
+### Removed
+
+- No longer accept "removed from the WebAuthn spec" options `rp: { icon: }` and `user: { icon: }` for `WebAuthn::Credential.options_for_create` method ([#326](https://github.com/cedarcode/webauthn-ruby/pull/326) / [@santiagorodriguez96])
+
+## [v2.4.1] - 2021-02-15
+
+### Fixed
+
+- Fix verification of new credential if no attestation provided and 'None' type is not among configured `acceptable_attestation_types`. I.e. reject it instead of letting it go through.
+
+## [v2.4.0] - 2020-09-03
+
+### Added
+
+- Support for ES256K credentials
+- `FakeClient#get` accepts `user_handle:` keyword argument ([@lgarron])
+
 ## [v2.3.0] - 2020-06-27
 
 ### Added
@@ -301,6 +325,9 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 - Works with ruby 2.5
 
 [v3.0.0.alpha1]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha1/
+[v2.5.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.4.1...v2.5.0/
+[v2.4.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.4.0...v2.4.1/
+[v2.4.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v2.4.0/
 [v2.3.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.2.1...v2.3.0/
 [v2.2.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.2.0...v2.2.1/
 [v2.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.1.0...v2.2.0/
@@ -337,3 +364,6 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@ssuttner]: https://github.com/ssuttner
 [@padulafacundo]: https://github.com/padulafacundo
 [@santiagorodriguez96]: https://github.com/santiagorodriguez96
+[@lgarron]: https://github.com/lgarron
+[@juanarias93]: https://github.com/juanarias93
+[@kingjan1999]: https://github.com/@kingjan1999

@@ -258,11 +258,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     before do
       allow(attestation_response.attestation_statement).to receive(:time).and_return(time)
-      allow(attestation_response).to receive(:attestation_root_certificates_store).and_wrap_original do |m, *args|
-        store = m.call(*args)
-        store.time = time
-        store
-      end
     end
 
     it "verifies" do
@@ -330,6 +325,48 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     it "returns the AAGUID" do
       expect(attestation_response.aaguid).to eq("550e4b54-aa47-409f-9a95-1ab76c130131")
+    end
+  end
+
+  context "when apple attestation" do
+    let(:origin) { seeds[:macbook_touch_id][:origin] }
+
+    let(:original_challenge) do
+      Base64.urlsafe_decode64(seeds[:macbook_touch_id][:credential_creation_options][:challenge])
+    end
+
+    let(:attestation_response) do
+      response = seeds[:macbook_touch_id][:authenticator_attestation_response]
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.urlsafe_decode64(response[:attestation_object]),
+        client_data_json: Base64.urlsafe_decode64(response[:client_data_json])
+      )
+    end
+
+    before do
+      # Apple credential certificate expires after 3 days apparently.
+      # Seed data was obtained 22nd Feb 2021, so we are simulating validation within that 3 day timeframe
+      fake_certificate_chain_validation_time(attestation_response.attestation_statement, Time.parse("2021-02-23"))
+    end
+
+    it "verifies" do
+      expect(attestation_response.verify(original_challenge)).to be_truthy
+    end
+
+    it "is valid" do
+      expect(attestation_response.valid?(original_challenge)).to eq(true)
+    end
+
+    it "returns attestation info" do
+      attestation_response.valid?(original_challenge)
+
+      expect(attestation_response.attestation_type).to eq("AnonCA")
+      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+    end
+
+    it "returns the credential" do
+      expect(attestation_response.credential.id.length).to be >= 16
     end
   end
 
@@ -502,7 +539,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       it "doesn't verify" do
         expect {
           attestation_response.verify(original_challenge, origin)
-        }.to raise_exception(WebAuthn::AttestedCredentialVerificationError)
+        }.to raise_exception(WebAuthn::AuthenticatorDataVerificationError)
       end
     end
   end

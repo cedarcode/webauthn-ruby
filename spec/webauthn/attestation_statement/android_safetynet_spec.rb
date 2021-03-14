@@ -30,16 +30,16 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     let(:attestation_key) { create_rsa_key }
 
     let(:leaf_certificate) do
-      issue_certificate(root_certificate, root_key, attestation_key, name: "attest.android.com")
+      issue_certificate(root_certificate, root_key, attestation_key, name: "CN=attest.android.com")
     end
 
-    let(:root_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+    let(:root_key) { create_ec_key }
     let(:root_certificate) { create_root_certificate(root_key) }
     let(:authenticator_data) { WebAuthn::AuthenticatorData.deserialize(authenticator_data_bytes) }
 
     let(:authenticator_data_bytes) do
       WebAuthn::FakeAuthenticator::AuthenticatorData.new(
-        rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
+        rp_id_hash: OpenSSL::Digest.digest("SHA256", "RP"),
         credential: { id: "0".b * 16, public_key: credential_key.public_key },
       ).serialize
     end
@@ -63,7 +63,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     end
 
     context "when nonce is not set to the base64 of the SHA256 of authData + clientDataHash" do
-      let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest("something else")) }
+      let(:nonce) { Base64.strict_encode64(OpenSSL::Digest.digest("SHA256", "something else")) }
 
       it "returns false" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
@@ -79,9 +79,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     end
 
     context "when the attestation certificate is not signed by Google" do
-      let(:google_certificates) do
-        [create_root_certificate(OpenSSL::PKey::EC.new("prime256v1").generate_key)]
-      end
+      let(:google_certificates) { [create_root_certificate(create_ec_key)] }
 
       it "fails" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

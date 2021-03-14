@@ -18,12 +18,12 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
     end
   end
 
-  def setup_metadata_store(endpoint)
+  def setup_metadata_store
     puts("Setting up metadata store TOC")
 
     response = Net::HTTP.post(
-      URI("https://fidoalliance.co.nz/mds/getEndpoints"),
-      { endpoint: endpoint }.to_json,
+      URI("https://mds.certinfra.fidoalliance.org/getEndpoints"),
+      { endpoint: WebAuthn.configuration.origin }.to_json,
       FidoMetadata::Client::DEFAULT_HEADERS
     )
 

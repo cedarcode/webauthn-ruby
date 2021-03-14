@@ -2,6 +2,7 @@
 
 require "webauthn/attestation_statement/android_key"
 require "webauthn/attestation_statement/android_safetynet"
+require "webauthn/attestation_statement/apple"
 require "webauthn/attestation_statement/fido_u2f"
 require "webauthn/attestation_statement/none"
 require "webauthn/attestation_statement/packed"
@@ -18,6 +19,7 @@ module WebAuthn
     ATTESTATION_FORMAT_ANDROID_SAFETYNET = "android-safetynet"
     ATTESTATION_FORMAT_ANDROID_KEY = "android-key"
     ATTESTATION_FORMAT_TPM = "tpm"
+    ATTESTATION_FORMAT_APPLE = "apple"
 
     FORMAT_TO_CLASS = {
       ATTESTATION_FORMAT_NONE => WebAuthn::AttestationStatement::None,
@@ -25,14 +27,15 @@ module WebAuthn
       ATTESTATION_FORMAT_PACKED => WebAuthn::AttestationStatement::Packed,
       ATTESTATION_FORMAT_ANDROID_SAFETYNET => WebAuthn::AttestationStatement::AndroidSafetynet,
       ATTESTATION_FORMAT_ANDROID_KEY => WebAuthn::AttestationStatement::AndroidKey,
-      ATTESTATION_FORMAT_TPM => WebAuthn::AttestationStatement::TPM
+      ATTESTATION_FORMAT_TPM => WebAuthn::AttestationStatement::TPM,
+      ATTESTATION_FORMAT_APPLE => WebAuthn::AttestationStatement::Apple
     }.freeze
 
-    def self.from(format, statement, relying_party: WebAuthn.configuration.relying_party)
+    def self.from(format, statement)
       klass = FORMAT_TO_CLASS[format]
 
       if klass
-        klass.new(statement, relying_party)
+        klass.new(statement)
       else
         raise(FormatNotSupportedError, "Unsupported attestation format '#{format}'")
       end

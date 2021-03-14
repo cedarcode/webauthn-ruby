@@ -10,7 +10,7 @@ module WebAuthn
   class FakeClient
     TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
 
-    attr_reader :origin, :token_binding, :encoding
+    attr_reader :origin, :token_binding
 
     def initialize(
       origin = fake_origin,
@@ -73,11 +73,17 @@ module WebAuthn
             user_present: true,
             user_verified: false,
             sign_count: nil,
-            extensions: nil)
+            extensions: nil,
+            user_handle: nil,
+            allow_credentials: nil)
       rp_id ||= URI.parse(origin).host
 
       client_data_json = data_json_for(:get, encoder.decode(challenge))
       client_data_hash = hashed(client_data_json)
+
+      if allow_credentials
+        allow_credentials = allow_credentials.map { |credential| encoder.decode(credential) }
+      end
 
       assertion = authenticator.get_assertion(
         rp_id: rp_id,
@@ -85,7 +91,8 @@ module WebAuthn
         user_present: user_present,
         user_verified: user_verified,
         sign_count: sign_count,
-        extensions: extensions
+        extensions: extensions,
+        allow_credentials: allow_credentials
       )
 
       {
@@ -97,14 +104,14 @@ module WebAuthn
           "clientDataJSON" => encoder.encode(client_data_json),
           "authenticatorData" => encoder.encode(assertion[:authenticator_data]),
           "signature" => encoder.encode(assertion[:signature]),
-          "userHandle" => nil
+          "userHandle" => user_handle ? encoder.encode(user_handle) : nil
         }
       }
     end
 
     private
 
-    attr_reader :authenticator
+    attr_reader :authenticator, :encoding
 
     def data_json_for(method, challenge)
       data = {

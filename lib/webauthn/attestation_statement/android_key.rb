@@ -20,10 +20,6 @@ module WebAuthn
 
       private
 
-      def matching_public_key?(authenticator_data)
-        attestation_certificate.public_key.to_der == authenticator_data.credential.public_key_object.to_der
-      end
-
       def valid_attestation_challenge?(client_data_hash)
         android_key_attestation.verify_challenge(client_data_hash)
       rescue AndroidKeyAttestation::ChallengeMismatchError

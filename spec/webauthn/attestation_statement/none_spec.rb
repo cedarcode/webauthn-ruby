@@ -7,7 +7,7 @@ require "webauthn/attestation_statement/none"
 RSpec.describe "none attestation" do
   let(:authenticator_data_bytes) do
     WebAuthn::FakeAuthenticator::AuthenticatorData.new(
-      rp_id_hash: OpenSSL::Digest::SHA256.digest("localhost"),
+      rp_id_hash: OpenSSL::Digest.digest("SHA256", "localhost"),
       aaguid: 0.chr * 16,
     ).serialize
   end
@@ -30,6 +30,12 @@ RSpec.describe "none attestation" do
       expect(WebAuthn::AttestationStatement::None.new("").valid?(authenticator_data, nil)).to be_falsy
       expect(WebAuthn::AttestationStatement::None.new([]).valid?(authenticator_data, nil)).to be_falsy
       expect(WebAuthn::AttestationStatement::None.new("a" => "b").valid?(authenticator_data, nil)).to be_falsy
+    end
+
+    it "returns false if None is not among the acceptable attestation types" do
+      WebAuthn.configuration.acceptable_attestation_types = ['AttCA']
+
+      expect(WebAuthn::AttestationStatement::None.new({}).valid?(authenticator_data, nil)).to be_falsy
     end
   end
 end

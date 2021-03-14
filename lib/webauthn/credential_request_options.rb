@@ -16,6 +16,8 @@ module WebAuthn
     attr_accessor :allow_credentials, :extensions, :user_verification
 
     def initialize(allow_credentials: [], extensions: nil, user_verification: nil)
+      super()
+
       @allow_credentials = allow_credentials
       @extensions = extensions
       @user_verification = user_verification

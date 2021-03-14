@@ -18,7 +18,7 @@ RSpec.describe "TPM attestation statement" do
 
       let(:authenticator_data_bytes) do
         WebAuthn::FakeAuthenticator::AuthenticatorData.new(
-          rp_id_hash: OpenSSL::Digest::SHA256.digest("RP"),
+          rp_id_hash: OpenSSL::Digest.digest("SHA256", "RP"),
           credential: { id: "0".b * 16, public_key: credential_key.public_key },
         ).serialize
       end
@@ -29,26 +29,23 @@ RSpec.describe "TPM attestation statement" do
       let(:algorithm) { -257 }
 
       let(:aik_certificate) do
-        cert = OpenSSL::X509::Certificate.new
-        cert.version = aik_certificate_version
-        cert.issuer = root_certificate.subject
-        cert.subject = OpenSSL::X509::Name.parse(aik_certificate_subject)
-        cert.not_before = aik_certificate_start_time
-        cert.not_after = aik_certificate_end_time
-        cert.public_key = aik
-
         extension_factory = OpenSSL::X509::ExtensionFactory.new
         extension_factory.config = aik_certificate_san_config
 
-        cert.extensions = [
-          extension_factory.create_extension("basicConstraints", aik_certificate_basic_constraints, true),
-          extension_factory.create_extension("extendedKeyUsage", aik_certificate_extended_key_usage),
-          extension_factory.create_extension("subjectAltName", "ASN1:SEQUENCE:dir_seq", aik_certificate_san_critical),
-        ]
-
-        cert.sign(root_key, OpenSSL::Digest::SHA256.new)
-
-        cert
+        issue_certificate(
+          root_certificate,
+          root_key,
+          aik,
+          version: aik_certificate_version,
+          name: aik_certificate_subject,
+          not_before: aik_certificate_start_time,
+          not_after: aik_certificate_end_time,
+          extensions: [
+            extension_factory.create_extension("basicConstraints", aik_certificate_basic_constraints, true),
+            extension_factory.create_extension("extendedKeyUsage", aik_certificate_extended_key_usage),
+            extension_factory.create_extension("subjectAltName", "ASN1:SEQUENCE:dir_seq", aik_certificate_san_critical),
+          ]
+        )
       end
 
       let(:aik) { create_rsa_key }
@@ -88,7 +85,7 @@ RSpec.describe "TPM attestation statement" do
       end
       let(:aik_certificate_start_time) { Time.now - 1 }
       let(:aik_certificate_end_time) { Time.now + 60 }
-      let(:root_key) { OpenSSL::PKey::RSA.new(2048) }
+      let(:root_key) { create_rsa_key }
       let(:root_certificate) { create_root_certificate(root_key) }
       let(:signature) { aik.sign("SHA256", cert_info) }
 
@@ -155,7 +152,7 @@ RSpec.describe "TPM attestation statement" do
 
       context "when the attestation certificate is not signed by a TPM" do
         let(:tpm_certificates) do
-          [create_root_certificate(OpenSSL::PKey::RSA.new(2048))]
+          [create_root_certificate(create_rsa_key)]
         end
 
         it "fails" do
@@ -171,8 +168,8 @@ RSpec.describe "TPM attestation statement" do
 
       context "when EC algorithm" do
         let(:algorithm) { -7 }
-        let(:aik) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
-        let(:credential_key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+        let(:aik) { create_ec_key }
+        let(:credential_key) { create_ec_key }
 
         let(:pub_area) do
           t_public = ::TPM::TPublic.new
@@ -204,8 +201,7 @@ RSpec.describe "TPM attestation statement" do
               t_public.alg_type = ::TPM::ALG_ECC
               t_public.name_alg = name_alg
               t_public.parameters = pub_area_parameters
-              t_public.unique.buffer =
-                OpenSSL::PKey::EC.generate("prime256v1").generate_key.public_key.to_bn.to_s(2)[1..-1]
+              t_public.unique.buffer = create_ec_key.public_key.to_bn.to_s(2)[1..-1]
 
               t_public.to_binary_s
             end
@@ -265,12 +261,6 @@ RSpec.describe "TPM attestation statement" do
       end
 
       context "when RSA PSS algorithm" do
-        before do
-          unless OpenSSL::PKey::RSA.instance_methods.include?(:verify_pss)
-            skip "Ruby OpenSSL gem #{OpenSSL::VERSION} do not support RSASSA-PSS"
-          end
-        end
-
         let(:algorithm) { -37 }
         let(:signature) do
           aik.sign_pss("SHA256", cert_info, salt_length: :max, mgf1_hash: "SHA256")

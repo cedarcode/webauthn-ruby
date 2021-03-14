@@ -19,14 +19,13 @@ module WebAuthn
   class UserVerifiedVerificationError < VerificationError; end
 
   class AuthenticatorResponse
-    def initialize(client_data_json:, relying_party: WebAuthn.configuration.relying_party)
+    def initialize(client_data_json:)
       @client_data_json = client_data_json
-      @relying_party = relying_party
     end
 
     def verify(expected_challenge, expected_origin = nil, user_verification: nil, rp_id: nil)
-      expected_origin ||= relying_party.origin || raise("Unspecified expected origin")
-      rp_id ||= relying_party.id
+      expected_origin ||= WebAuthn.configuration.origin || raise("Unspecified expected origin")
+      rp_id ||= WebAuthn.configuration.rp_id
 
       verify_item(:type)
       verify_item(:token_binding)
@@ -35,7 +34,7 @@ module WebAuthn
       verify_item(:authenticator_data)
       verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
 
-      if !relying_party.silent_authentication
+      if !WebAuthn.configuration.silent_authentication
         verify_item(:user_presence)
       end
 
@@ -58,7 +57,7 @@ module WebAuthn
 
     private
 
-    attr_reader :client_data_json, :relying_party
+    attr_reader :client_data_json
 
     def verify_item(item, *args)
       if send("valid_#{item}?", *args)

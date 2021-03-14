@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require 'forwardable'
-require 'webauthn/relying_party'
+require "openssl"
+require "webauthn/encoder"
+require "webauthn/error"
 
 module WebAuthn
   def self.configuration
@@ -12,49 +13,50 @@ module WebAuthn
     yield(configuration)
   end
 
+  class RootCertificateFinderNotSupportedError < Error; end
+
   class Configuration
-    extend Forwardable
+    DEFAULT_ALGORITHMS = ["ES256", "PS256", "RS256"].compact.freeze
 
-    def_delegators :@relying_party,
-                   :algorithms,
-                   :algorithms=,
-                   :encoding,
-                   :encoding=,
-                   :origin,
-                   :origin=,
-                   :verify_attestation_statement,
-                   :verify_attestation_statement=,
-                   :credential_options_timeout,
-                   :credential_options_timeout=,
-                   :silent_authentication,
-                   :silent_authentication=,
-                   :acceptable_attestation_types,
-                   :acceptable_attestation_types=,
-                   :attestation_root_certificates_finders,
-                   :attestation_root_certificates_finders=,
-                   :encoder,
-                   :encoder=
-
-    attr_reader :relying_party
+    attr_accessor :algorithms
+    attr_accessor :encoding
+    attr_accessor :origin
+    attr_accessor :rp_id
+    attr_accessor :rp_name
+    attr_accessor :verify_attestation_statement
+    attr_accessor :credential_options_timeout
+    attr_accessor :silent_authentication
+    attr_accessor :acceptable_attestation_types
+    attr_reader :attestation_root_certificates_finders
 
     def initialize
-      @relying_party = RelyingParty.new
+      @algorithms = DEFAULT_ALGORITHMS.dup
+      @encoding = WebAuthn::Encoder::STANDARD_ENCODING
+      @verify_attestation_statement = true
+      @credential_options_timeout = 120000
+      @silent_authentication = false
+      @acceptable_attestation_types = ['None', 'Self', 'Basic', 'AttCA', 'Basic_or_AttCA', 'AnonCA']
+      @attestation_root_certificates_finders = []
     end
 
-    def rp_name
-      relying_party.name
+    # This is the user-data encoder.
+    # Used to decode user input and to encode data provided to the user.
+    def encoder
+      @encoder ||= WebAuthn::Encoder.new(encoding)
     end
 
-    def rp_name=(name)
-      relying_party.name = name
-    end
+    def attestation_root_certificates_finders=(finders)
+      if !finders.respond_to?(:each)
+        finders = [finders]
+      end
 
-    def rp_id
-      relying_party.id
-    end
+      finders.each do |finder|
+        unless finder.respond_to?(:find)
+          raise RootCertificateFinderNotSupportedError, "Finder must implement `find` method"
+        end
+      end
 
-    def rp_id=(id)
-      relying_party.id = id
+      @attestation_root_certificates_finders = finders
     end
   end
 end

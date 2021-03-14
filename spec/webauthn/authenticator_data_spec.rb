@@ -12,7 +12,7 @@ RSpec.describe WebAuthn::AuthenticatorData do
     ).serialize
   end
 
-  let(:rp_id_hash) { OpenSSL::Digest::SHA256.digest("localhost") }
+  let(:rp_id_hash) { OpenSSL::Digest.digest("SHA256", "localhost") }
   let(:sign_count) { 42 }
   let(:user_present) { true }
   let(:user_verified) { false }
