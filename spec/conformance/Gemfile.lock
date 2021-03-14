@@ -7,7 +7,7 @@ PATH
       bindata (~> 2.4)
       cbor (~> 0.5.9)
       cose (~> 1.1)
-      openssl (~> 2.0)
+      openssl (~> 2.1)
       safety_net_attestation (~> 0.4.0)
       securecompare (~> 1.0)
       tpm-key_attestation (~> 0.10.0)
@@ -75,4 +75,4 @@ RUBY VERSION
    ruby 2.7.0p-1
 
 BUNDLED WITH
-   2.1.4
+   2.2.14
