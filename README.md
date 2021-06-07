@@ -96,6 +96,8 @@ If you are migrating an existing application from the legacy FIDO U2F JavaScript
 
 ### Configuration
 
+If you have a multi-tenant application or just need to configure WebAuthn differently for separate parts of your application (e.g. if your users authenticate to different subdomains in the same application), we strongly recommend you look at this [Advanced Configuration](docs/advanced_configuration.md) section instead of this.
+
 For a Rails application this would go in `config/initializers/webauthn.rb`.
 
 ```ruby
