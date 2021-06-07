@@ -37,10 +37,10 @@ module WebAuthn
       private
 
       def valid_nonce?(authenticator_data, client_data_hash)
-        extension = cred_cert&.extensions&.detect { |ext| ext.oid == NONCE_EXTENSION_OID }
+        extension = cred_cert&.find_extension(NONCE_EXTENSION_OID)
 
         if extension
-          sequence = OpenSSL::ASN1.decode(OpenSSL::ASN1.decode(extension.to_der).value[1].value)
+          sequence = OpenSSL::ASN1.decode(extension.value_der)
 
           sequence.tag == OpenSSL::ASN1::SEQUENCE &&
             sequence.value.size == 1 &&

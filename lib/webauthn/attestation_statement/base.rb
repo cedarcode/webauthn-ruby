@@ -45,7 +45,7 @@ module WebAuthn
       end
 
       def attestation_certificate_key_id
-        raw_subject_key_identifier&.unpack("H*")&.[](0)
+        attestation_certificate.subject_key_identifier&.unpack("H*")&.[](0)
       end
 
       private
@@ -53,12 +53,10 @@ module WebAuthn
       attr_reader :statement
 
       def matching_aaguid?(attested_credential_data_aaguid)
-        extension = attestation_certificate&.extensions&.detect { |ext| ext.oid == AAGUID_EXTENSION_OID }
+        extension = attestation_certificate&.find_extension(AAGUID_EXTENSION_OID)
         if extension
-          # `extension.value` mangles data into ASCII, so we must manually compare bytes
-          # see https://github.com/ruby/openssl/pull/234
-          extension.to_der[-WebAuthn::AuthenticatorData::AttestedCredentialData::AAGUID_LENGTH..-1] ==
-            attested_credential_data_aaguid
+          aaguid_value = OpenSSL::ASN1.decode(extension.value_der).value
+          aaguid_value == attested_credential_data_aaguid
         else
           true
         end
@@ -139,15 +137,6 @@ module WebAuthn
         else
           root_certificates
         end
-      end
-
-      def raw_subject_key_identifier
-        extension = attestation_certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
-        return unless extension
-
-        ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
-        ext_value = ext_asn1.value.last
-        OpenSSL::ASN1.decode(ext_value.value).value
       end
 
       def valid_signature?(authenticator_data, client_data_hash, public_key = attestation_certificate.public_key)
