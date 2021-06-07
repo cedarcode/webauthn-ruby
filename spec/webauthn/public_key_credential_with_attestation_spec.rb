@@ -93,6 +93,14 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
       end
     end
 
+    context "when the origin is not what's expected" do
+      it "fails" do
+        expect {
+          public_key_credential.verify(challenge, "https://example.com/")
+        }.to raise_error(WebAuthn::OriginVerificationError)
+      end
+    end
+
     context "when clientExtensionResults" do
       context "are not received" do
         let(:public_key_credential) do
