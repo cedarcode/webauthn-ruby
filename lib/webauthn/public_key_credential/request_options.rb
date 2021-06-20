@@ -26,6 +26,16 @@ module WebAuthn
         super.concat([:allow_credentials, :rp_id, :user_verification])
       end
 
+      def default_extensions
+        extensions = super || {}
+
+        if configuration.legacy_u2f_appid
+          extensions.merge!(appid: configuration.legacy_u2f_appid)
+        end
+
+        extensions
+      end
+
       def allow_credentials_from_allow
         if allow
           as_public_key_descriptors(allow)

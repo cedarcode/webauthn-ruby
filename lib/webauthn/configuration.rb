@@ -27,6 +27,7 @@ module WebAuthn
     attr_accessor :credential_options_timeout
     attr_accessor :silent_authentication
     attr_accessor :acceptable_attestation_types
+    attr_accessor :legacy_u2f_appid
     attr_reader :attestation_root_certificates_finders
 
     def initialize

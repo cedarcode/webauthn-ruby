@@ -74,4 +74,53 @@ RSpec.describe WebAuthn::PublicKeyCredential::RequestOptions do
     expect(options.allow_credentials).to eq([{ type: "public-key", id: "id" }])
     expect(options.as_json[:allowCredentials]).to eq([{ type: "public-key", id: "id" }])
   end
+
+  context "when legacy_u2f_appid" do
+    context "is set in the configuration" do
+      before do
+        WebAuthn.configuration.legacy_u2f_appid = "https://u2f-login.example.com"
+      end
+
+      context "and appid extension is not requested in the options" do
+        it "automatically adds it with the value in the configuration" do
+          expect(request_options.extensions).not_to be_empty
+          expect(request_options.extensions[:appid]).to eq("https://u2f-login.example.com")
+        end
+      end
+
+      context "and appid extension is requested in the options" do
+        let(:request_options) do
+          WebAuthn::PublicKeyCredential::RequestOptions.new(
+            extensions: { appid: "https://another-login.example.com" }
+          )
+        end
+
+        it "leaves the value that was originally requested" do
+          expect(request_options.extensions).not_to be_empty
+          expect(request_options.extensions[:appid]).to eq("https://another-login.example.com")
+        end
+      end
+    end
+
+    context "is not set in the configuration" do
+      context "and appid extension is not requested in the options" do
+        it "does not adds it automatically" do
+          expect(request_options.extensions).to be_empty
+        end
+      end
+
+      context "and appid extension is requested in the options" do
+        let(:request_options) do
+          WebAuthn::PublicKeyCredential::RequestOptions.new(
+            extensions: { appid: "https://another-login.example.com" }
+          )
+        end
+
+        it "leaves the value that was originally requested" do
+          expect(request_options.extensions).not_to be_empty
+          expect(request_options.extensions[:appid]).to eq("https://another-login.example.com")
+        end
+      end
+    end
+  end
 end

@@ -54,7 +54,11 @@ module WebAuthn
     end
 
     def encoder
-      WebAuthn.configuration.encoder
+      configuration.encoder
+    end
+
+    def configuration
+      WebAuthn.configuration
     end
   end
 end

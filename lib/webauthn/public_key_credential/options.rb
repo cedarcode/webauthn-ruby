@@ -12,7 +12,7 @@ module WebAuthn
 
       def initialize(timeout: default_timeout, extensions: nil)
         @timeout = timeout
-        @extensions = extensions
+        @extensions = default_extensions.merge(extensions || {})
       end
 
       def challenge
@@ -58,6 +58,10 @@ module WebAuthn
 
       def default_timeout
         configuration.credential_options_timeout
+      end
+
+      def default_extensions
+        {}
       end
 
       def configuration

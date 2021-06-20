@@ -233,5 +233,90 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
         end
       end
     end
+
+    context "when verifying a migrated U2F credential" do
+      let!(:credential) { create_credential(client: client, rp_id: origin.to_s) }
+
+      let(:public_key_credential) do
+        WebAuthn::PublicKeyCredentialWithAssertion.new(
+          type: credential_type,
+          id: credential_id,
+          raw_id: credential_raw_id,
+          client_extension_outputs: { appid: true },
+          response: assertion_response
+        )
+      end
+
+      let(:assertion_response) do
+        response = client.get(challenge: raw_challenge, rp_id: origin.to_s)["response"]
+
+        WebAuthn::AuthenticatorAssertionResponse.new(
+          authenticator_data: response["authenticatorData"],
+          client_data_json: response["clientDataJSON"],
+          signature: response["signature"]
+        )
+      end
+
+      it "works" do
+        expect(
+          public_key_credential.verify(
+            challenge,
+            public_key: credential_public_key,
+            sign_count: credential_sign_count
+          )
+        ).to be_truthy
+      end
+
+      context "and appid is set in configuration file" do
+        let(:legacy_u2f_appid) { "http://u2f-login.localhost" }
+
+        let!(:credential) { create_credential(client: client, rp_id: legacy_u2f_appid) }
+
+        let(:assertion_response) do
+          response = client.get(challenge: raw_challenge, rp_id: legacy_u2f_appid)["response"]
+
+          WebAuthn::AuthenticatorAssertionResponse.new(
+            authenticator_data: response["authenticatorData"],
+            client_data_json: response["clientDataJSON"],
+            signature: response["signature"]
+          )
+        end
+
+        before do
+          WebAuthn.configuration.legacy_u2f_appid = legacy_u2f_appid
+        end
+
+        it "works" do
+          expect(
+            public_key_credential.verify(
+              challenge,
+              public_key: credential_public_key,
+              sign_count: credential_sign_count
+            )
+          ).to be_truthy
+        end
+      end
+
+      context "if appid extension is not requested" do
+        let(:public_key_credential) do
+          WebAuthn::PublicKeyCredentialWithAssertion.new(
+            type: credential_type,
+            id: credential_id,
+            raw_id: credential_raw_id,
+            response: assertion_response
+          )
+        end
+
+        it "fails" do
+          expect do
+            public_key_credential.verify(
+              challenge,
+              public_key: credential_public_key,
+              sign_count: credential_sign_count
+            )
+          end.to raise_error(WebAuthn::RpIdVerificationError)
+        end
+      end
+    end
   end
 end
