@@ -33,7 +33,7 @@ GEM
     openssl (2.2.0)
     openssl-signature_algorithm (1.1.1)
       openssl (~> 2.0)
-    rack (2.0.8)
+    rack (2.2.3)
     rack-contrib (2.1.0)
       rack (~> 2.0)
     rack-protection (2.0.8.1)
