@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "cbor", "~> 0.5.9.2"
   spec.add_dependency "cose", "~> 0.1.0"
+  spec.add_dependency "base64url", "~> 1.0.1"
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "byebug", "~> 10.0"
