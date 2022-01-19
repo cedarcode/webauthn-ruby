@@ -82,7 +82,7 @@ During authentication verification phase, you must pass either the original AppI
 
 ```ruby
 assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-  credential_id: params[:id],
+  user_handle: params[:response][:userHandle],
   authenticator_data: params[:response][:authenticatorData],
   client_data_json: params[:response][:clientDataJSON],
   signature: params[:response][:signature],
@@ -90,7 +90,8 @@ assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
 
 assertion_response.verify(
   expected_challenge,
-  allowed_credentials: [credential],
+  public_key: credential.public_key,
+  sign_count: credential.count,
   rp_id: params[:clientExtensionResults][:appid] ? domain.to_s : domain.host,
 )
 ```
