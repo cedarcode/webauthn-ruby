@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    webauthn (2.5.0)
+    webauthn (2.5.1)
       android_key_attestation (~> 0.3.0)
       awrence (~> 1.1)
       bindata (~> 2.4)
@@ -17,7 +17,7 @@ GEM
     android_key_attestation (0.3.0)
     awrence (1.2.1)
     backports (3.15.0)
-    bindata (2.4.8)
+    bindata (2.4.10)
     byebug (11.0.1)
     cbor (0.5.9.6)
     cose (1.2.0)
@@ -25,11 +25,13 @@ GEM
       openssl-signature_algorithm (~> 1.0)
     fido_metadata (0.4.0)
       jwt (~> 2.0)
+    ipaddr (1.2.4)
     jwt (2.2.1)
     multi_json (1.14.1)
     mustermann (1.1.0)
       ruby2_keywords (~> 0.0.1)
-    openssl (2.2.0)
+    openssl (2.2.1)
+      ipaddr
     openssl-signature_algorithm (1.1.1)
       openssl (~> 2.0)
     rack (2.0.8)
