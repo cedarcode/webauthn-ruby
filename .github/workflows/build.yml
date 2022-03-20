@@ -23,11 +23,6 @@ jobs:
           - '2.5'
           - '2.4'
           - truffleruby
-        gemfile:
-          - openssl_2_2
-          - openssl_2_1
-    env:
-      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
     steps:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@v1
