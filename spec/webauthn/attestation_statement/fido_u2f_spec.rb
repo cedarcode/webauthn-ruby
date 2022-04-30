@@ -87,7 +87,7 @@ RSpec.describe "FidoU2f attestation" do
         let(:credential_public_key) do
           WebAuthn.configuration.algorithms << "ES384"
 
-          OpenSSL::PKey::EC.new("secp384r1").generate_key.public_key
+          OpenSSL::PKey::EC.generate("secp384r1").public_key
         end
 
         it "fails" do
@@ -119,7 +119,7 @@ RSpec.describe "FidoU2f attestation" do
       end
 
       context "because it is not of the correct curve" do
-        let(:attestation_key) { OpenSSL::PKey::EC.new("secp384r1").generate_key }
+        let(:attestation_key) { OpenSSL::PKey::EC.generate("secp384r1") }
 
         it "fails" do
           expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
