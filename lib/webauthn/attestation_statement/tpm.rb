@@ -42,7 +42,7 @@ module WebAuthn
             OpenSSL::Digest.digest(cose_algorithm.hash_function, certified_extra_data),
             signature_algorithm: tpm_algorithm[:signature],
             hash_algorithm: tpm_algorithm[:hash],
-            root_certificates: root_certificates(aaguid: aaguid)
+            trusted_certificates: root_certificates(aaguid: aaguid)
           )
 
         key_attestation.valid? && key_attestation.key && key_attestation.key.to_pem == key.to_pem
@@ -54,7 +54,7 @@ module WebAuthn
       end
 
       def default_root_certificates
-        ::TPM::KeyAttestation::ROOT_CERTIFICATES
+        ::TPM::KeyAttestation::TRUSTED_CERTIFICATES
       end
 
       def tpm_algorithm
