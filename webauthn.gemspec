@@ -38,9 +38,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency "bindata", "~> 2.4"
   spec.add_dependency "cbor", "~> 0.5.9"
   spec.add_dependency "cose", "~> 1.1"
-  spec.add_dependency "openssl", "~> 2.2"
+  spec.add_dependency "openssl", ">= 2.2", "< 3.1"
   spec.add_dependency "safety_net_attestation", "~> 0.4.0"
-  spec.add_dependency "tpm-key_attestation", "~> 0.10.0"
+  spec.add_dependency "tpm-key_attestation", "~> 0.11.0"
 
   spec.add_development_dependency "bundler", ">= 1.17", "< 3.0"
   spec.add_development_dependency "byebug", "~> 11.0"

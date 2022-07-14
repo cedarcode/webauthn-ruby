@@ -102,7 +102,7 @@ def create_rsa_key
 end
 
 def create_ec_key
-  OpenSSL::PKey::EC.new("prime256v1").generate_key
+  OpenSSL::PKey::EC.generate("prime256v1")
 end
 
 X509_V3 = 2

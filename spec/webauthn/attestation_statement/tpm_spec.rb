@@ -139,10 +139,10 @@ RSpec.describe "TPM attestation statement" do
 
       around do |example|
         silence_warnings do
-          original_tpm_certificates = ::TPM::KeyAttestation::ROOT_CERTIFICATES
-          ::TPM::KeyAttestation::ROOT_CERTIFICATES = tpm_certificates
+          original_tpm_certificates = ::TPM::KeyAttestation::TRUSTED_CERTIFICATES
+          ::TPM::KeyAttestation::TRUSTED_CERTIFICATES = tpm_certificates
           example.run
-          ::TPM::KeyAttestation::ROOT_CERTIFICATES = original_tpm_certificates
+          ::TPM::KeyAttestation::TRUSTED_CERTIFICATES = original_tpm_certificates
         end
       end
 

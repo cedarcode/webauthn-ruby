@@ -15,7 +15,7 @@ module WebAuthn
         rp_id_hash:,
         credential: {
           id: SecureRandom.random_bytes(16),
-          public_key: OpenSSL::PKey::EC.new("prime256v1").generate_key.public_key
+          public_key: OpenSSL::PKey::EC.generate("prime256v1").public_key
         },
         sign_count: 0,
         user_present: true,

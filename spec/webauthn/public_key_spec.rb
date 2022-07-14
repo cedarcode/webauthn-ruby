@@ -126,7 +126,7 @@ RSpec.describe "PublicKey" do
 
         cose_key
       end
-      let(:key) { OpenSSL::PKey::EC.new("prime256v1").generate_key }
+      let(:key) { OpenSSL::PKey::EC.generate("prime256v1") }
       let(:webauthn_public_key) { WebAuthn::PublicKey.new(cose_key: cose_key) }
 
       it "works" do
@@ -143,7 +143,7 @@ RSpec.describe "PublicKey" do
 
       context "when it was signed with a different key" do
         let(:signature) do
-          OpenSSL::PKey::EC.new("prime256v1").generate_key.sign(
+          OpenSSL::PKey::EC.generate("prime256v1").sign(
             hash_algorithm,
             to_be_signed
           )
