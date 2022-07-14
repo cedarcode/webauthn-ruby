@@ -6,6 +6,12 @@
 
 - Ability to define multiple relying parties with the introduction of the `WebAuthn::RelyingParty` class ([@padulafacundo], [@brauliomartinezlm])
 
+## [v2.5.1] - 2022-07-13
+
+### Added
+
+- Updated dependencies to make the gem compatible with openssl-3 [@ClearlyClaire]
+
 ## [v2.5.1] - 2022-03-20
 
 ### Added
@@ -335,6 +341,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 - Works with ruby 2.5
 
 [v3.0.0.alpha1]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha1/
+[v2.5.2]: https://github.com/cedarcode/webauthn-ruby/compare/v2.5.0...v2.5.2/
 [v2.5.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.5.0...v2.5.1/
 [v2.5.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.4.1...v2.5.0/
 [v2.4.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.4.0...v2.4.1/
@@ -380,3 +387,4 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@kingjan1999]: https://github.com/@kingjan1999
 [@jdongelmans]: https://github.com/jdongelmans
 [@petergoldstein]: https://github.com/petergoldstein
+[@ClearlyClaire]: https://github.com/ClearlyClaire
