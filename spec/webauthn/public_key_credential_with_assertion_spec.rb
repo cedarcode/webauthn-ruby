@@ -28,7 +28,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
       WebAuthn::AuthenticatorAssertionResponse.new(
         authenticator_data: response["authenticatorData"],
         client_data_json: response["clientDataJSON"],
-        signature: response["signature"]
+        signature: response["signature"],
       )
     end
 
@@ -37,7 +37,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
         type: credential_type,
         id: credential_id,
         raw_id: credential_raw_id,
-        response: assertion_response
+        response: assertion_response,
       )
     end
 
@@ -53,6 +53,36 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
       expect(public_key_credential.id).not_to be_empty
       expect(public_key_credential.user_handle).to be_nil
       expect(public_key_credential.sign_count).to eq(credential_sign_count + 1)
+    end
+
+    context "with exptected_origin" do
+      let(:client) { WebAuthn::FakeClient.new(expected_origin, encoding: false) }
+      let(:expected_origin) { "http://other-origin" }
+
+      it "works" do
+        expect(
+          public_key_credential.verify(
+            challenge,
+            expected_origin,
+            public_key: credential_public_key,
+            sign_count: credential_sign_count,
+          )
+        ).to be_truthy
+
+        expect(public_key_credential.id).not_to be_empty
+        expect(public_key_credential.user_handle).to be_nil
+        expect(public_key_credential.sign_count).to eq(credential_sign_count + 1)
+      end
+
+      it "fails" do
+        expect {
+          public_key_credential.verify(
+            challenge,
+            public_key: credential_public_key,
+            sign_count: credential_sign_count,
+          )
+        }.to raise_error(WebAuthn::OriginVerificationError)
+      end
     end
 
     context "when type is invalid" do
@@ -174,8 +204,9 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
             )
           ).to be_truthy
 
-          expect(public_key_credential.client_extension_outputs)
-            .to eq({ "txAuthSimple" => "Could you please verify yourself?" })
+          expect(
+            public_key_credential.client_extension_outputs
+          ).to eq({ "txAuthSimple" => "Could you please verify yourself?" })
         end
       end
     end
@@ -228,8 +259,9 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
             )
           ).to be_truthy
 
-          expect(public_key_credential.authenticator_extension_outputs)
-            .to eq({ "txAuthSimple" => "Could you please verify yourself?" })
+          expect(
+            public_key_credential.authenticator_extension_outputs
+          ).to eq({ "txAuthSimple" => "Could you please verify yourself?" })
         end
       end
     end
