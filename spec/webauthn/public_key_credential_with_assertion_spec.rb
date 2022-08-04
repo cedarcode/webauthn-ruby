@@ -28,7 +28,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
       WebAuthn::AuthenticatorAssertionResponse.new(
         authenticator_data: response["authenticatorData"],
         client_data_json: response["clientDataJSON"],
-        signature: response["signature"],
+        signature: response["signature"]
       )
     end
 
@@ -37,7 +37,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
         type: credential_type,
         id: credential_id,
         raw_id: credential_raw_id,
-        response: assertion_response,
+        response: assertion_response
       )
     end
 
