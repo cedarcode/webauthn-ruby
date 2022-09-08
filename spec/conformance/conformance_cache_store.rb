@@ -34,12 +34,10 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
 
     json =
       possible_endpoints.each_with_index do |uri, index|
-        begin
-          puts("Trying endpoint #{index}: #{uri}")
-          break client.download_toc(URI(uri), trusted_certs: conformance_certificates)
-        rescue FidoMetadata::Client::DataIntegrityError, JWT::VerificationError, Net::HTTPFatalError
-          nil
-        end
+        puts("Trying endpoint #{index}: #{uri}")
+        break client.download_toc(URI(uri), trusted_certs: conformance_certificates)
+      rescue FidoMetadata::Client::DataIntegrityError, JWT::VerificationError, Net::HTTPFatalError
+        nil
       end
 
     if json.is_a?(Hash) && json.keys == ["legalHeader", "no", "nextUpdate", "entries"]
