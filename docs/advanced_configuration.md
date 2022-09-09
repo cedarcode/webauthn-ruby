@@ -40,7 +40,7 @@ Intead of the [Global Configuration](../README.md#configuration) you place in `c
     # In this case the default would be "admin.example.com", but you can set it to
     # the suffix "example.com"
     #
-    # rp_id: "example.com"
+    # id: "example.com"
 
     # Configure preferred binary-to-text encoding scheme. This should match the encoding scheme
     # used in your client-side (user agent) code before sending the credential to the server.
