@@ -1,5 +1,15 @@
 # Changelog
 
+## [v3.0.0.alpha2] - 2022-09-12
+
+### Added
+
+- Rebased support for multiple relying parties from v3.0.0.alpha1 on top of v2.5.2, the previous alpha version was based on v2.3.0 ([@bdewater])
+
+### BREAKING CHANGES
+
+- Bumped minimum required Ruby version to 2.5 ([@bdewater])
+
 ## [v3.0.0.alpha1] - 2020-06-27
 
 ### Added
@@ -340,7 +350,8 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
-[v3.0.0.alpha1]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha1/
+[v3.0.0.alpha2]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha2/
+[v3.0.0.alpha1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v3.0.0.alpha1
 [v2.5.2]: https://github.com/cedarcode/webauthn-ruby/compare/v2.5.1...v2.5.2/
 [v2.5.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.5.0...v2.5.1/
 [v2.5.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.4.1...v2.5.0/

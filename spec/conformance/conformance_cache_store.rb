@@ -18,12 +18,12 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
     end
   end
 
-  def setup_metadata_store
+  def setup_metadata_store(endpoint)
     puts("Setting up metadata store TOC")
 
     response = Net::HTTP.post(
       URI("https://mds.certinfra.fidoalliance.org/getEndpoints"),
-      { endpoint: WebAuthn.configuration.origin }.to_json,
+      { endpoint: endpoint }.to_json,
       FidoMetadata::Client::DEFAULT_HEADERS
     )
 
@@ -34,12 +34,10 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
 
     json =
       possible_endpoints.each_with_index do |uri, index|
-        begin
-          puts("Trying endpoint #{index}: #{uri}")
-          break client.download_toc(URI(uri), trusted_certs: conformance_certificates)
-        rescue FidoMetadata::Client::DataIntegrityError, JWT::VerificationError, Net::HTTPFatalError
-          nil
-        end
+        puts("Trying endpoint #{index}: #{uri}")
+        break client.download_toc(URI(uri), trusted_certs: conformance_certificates)
+      rescue FidoMetadata::Client::DataIntegrityError, JWT::VerificationError, Net::HTTPFatalError
+        nil
       end
 
     if json.is_a?(Hash) && json.keys == ["legalHeader", "no", "nextUpdate", "entries"]
