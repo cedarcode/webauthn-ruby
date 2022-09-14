@@ -16,7 +16,7 @@ Makes your Ruby/Rails web server become a functional [WebAuthn Relying Party](ht
 
 Takes care of the [server-side operations](https://www.w3.org/TR/webauthn/#rp-operations) needed to
 [register](https://www.w3.org/TR/webauthn/#registration) or [authenticate](https://www.w3.org/TR/webauthn/#authentication)
-a user [credential](https://www.w3.org/TR/webauthn/#public-key-credential), including the necessary cryptographic checks.
+a user's [public key credential](https://www.w3.org/TR/webauthn/#public-key-credential) (also called a "passkey"), including the necessary cryptographic checks.
 
 ## Table of Contents
 
@@ -52,7 +52,7 @@ WebAuthn (Web Authentication) is a W3C standard for secure public-key authentica
 
 - WebAuthn [W3C Recommendation](https://www.w3.org/TR/webauthn/) (i.e. "The Standard")
 - [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API) in MDN
-- How to use [WebAuthn in Android apps](https://developers.google.com/identity/fido/android/native-apps)
+- How to use WebAuthn in native [Android](https://developers.google.com/identity/fido/android/native-apps) or [macOS/iOS/iPadOS](https://developer.apple.com/documentation/authenticationservices/public-private_key_authentication) apps.
 - [Security Benefits for WebAuthn Servers (a.k.a Relying Parties)](https://www.w3.org/TR/webauthn/#sctn-rp-benefits)
 
 ## Prerequisites
