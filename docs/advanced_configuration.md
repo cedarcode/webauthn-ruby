@@ -21,7 +21,7 @@ Intead of the [Global Configuration](../README.md#configuration) you place in `c
   relying_party = WebAuthn::RelyingParty.new(
     # This value needs to match `window.location.origin` evaluated by
     # the User Agent during registration and authentication ceremonies.
-    origin: "https://admin.example.com"
+    origin: "https://admin.example.com",
 
     # Relying Party name for display purposes
     name: "Admin Site for Example Inc."
@@ -71,7 +71,7 @@ if !user.webauthn_id
   user.update!(webauthn_id: WebAuthn.generate_user_id)
 end
 
-options = relying_party.options_for_create(
+options = relying_party.options_for_registration(
   user: { id: user.webauthn_id, name: user.name },
   exclude: user.credentials.map { |c| c.webauthn_id }
 )
