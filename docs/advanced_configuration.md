@@ -101,7 +101,8 @@ session[:creation_challenge] = options.challenge
 begin
   webauthn_credential = relying_party.verify_registration(
     params[:publicKeyCredential],
-    params[:create_challenge]
+    params[:create_challenge],
+    user_verification: true
   )
 
   # Store Credential ID, Credential Public Key and Sign Count for future authentications
