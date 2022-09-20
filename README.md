@@ -237,7 +237,8 @@ begin
   webauthn_credential.verify(
     session[:authentication_challenge],
     public_key: stored_credential.public_key,
-    sign_count: stored_credential.sign_count
+    sign_count: stored_credential.sign_count,
+    user_verification: true, # needed for passwordless verification
   )
 
   # Update the stored credential sign count with the value from `webauthn_credential.sign_count`
@@ -384,11 +385,14 @@ Verifies the asserted WebAuthn credential is [valid](https://www.w3.org/TR/webau
 Mainly, that the client provided a valid cryptographic signature for the corresponding stored credential public
 key, among other extra validations.
 
+Note that the `user_verification: true` flag is required to ensure that the the authenticator has verified the user's identity before sending the credentials. See the following [CVE-2020-8236 writeup](https://hwsecurity.dev/2020/08/webauthn-pin-bypass/)
+
 ```ruby
 credential_with_assertion.verify(
   session[:authentication_challenge],
   public_key: stored_credential.public_key,
-  sign_count: stored_credential.sign_count
+  sign_count: stored_credential.sign_count,
+  user_verification: true # needed for passwordless verification
 )
 ```
 
