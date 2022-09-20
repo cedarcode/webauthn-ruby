@@ -147,7 +147,8 @@ begin
   # in params[:publicKeyCredential]:
   webauthn_credential, stored_credential = relying_party.verify_authentication(
     params[:publicKeyCredential],
-    session[:authentication_challenge]
+    session[:authentication_challenge],
+    user_verification: true
   ) do
     # the returned object needs to respond to #public_key and #sign_count
     user.credentials.find_by(webauthn_id: webauthn_credential.id)
