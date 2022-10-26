@@ -13,8 +13,6 @@ module WebAuthn
   end
 
   class Configuration
-    DEFAULT_ALGORITHMS = ["ES256", "PS256", "RS256"].compact.freeze
-
     extend Forwardable
 
     def_delegators :@relying_party,
