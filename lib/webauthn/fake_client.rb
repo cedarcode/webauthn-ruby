@@ -10,7 +10,7 @@ module WebAuthn
   class FakeClient
     TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
 
-    attr_reader :origin, :token_binding
+    attr_reader :origin, :token_binding, :encoding
 
     def initialize(
       origin = fake_origin,
@@ -111,7 +111,7 @@ module WebAuthn
 
     private
 
-    attr_reader :authenticator, :encoding
+    attr_reader :authenticator
 
     def data_json_for(method, challenge)
       data = {

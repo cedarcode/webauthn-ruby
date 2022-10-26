@@ -1,10 +1,47 @@
 # Changelog
 
+## [v3.0.0.alpha2] - 2022-09-12
+
+### Added
+
+- Rebased support for multiple relying parties from v3.0.0.alpha1 on top of v2.5.2, the previous alpha version was based on v2.3.0 ([@bdewater])
+
+### BREAKING CHANGES
+
+- Bumped minimum required Ruby version to 2.5 ([@bdewater])
+
 ## [v3.0.0.alpha1] - 2020-06-27
 
 ### Added
 
 - Ability to define multiple relying parties with the introduction of the `WebAuthn::RelyingParty` class ([@padulafacundo], [@brauliomartinezlm])
+
+## [v2.5.2] - 2022-07-13
+
+### Added
+
+- Updated dependencies to make the gem compatible with openssl-3 [@ClearlyClaire]
+
+## [v2.5.1] - 2022-03-20
+
+### Added
+
+- Updated openssl support to be ~>2.2 [@bdewater]
+
+### Removed
+
+- Removed dependency [secure_compare dependency] (https://rubygems.org/gems/secure_compare/versions/0.0.1) and use OpenSSL#secure_compare instead [@bdewater]
+
+## [v2.5.0] - 2021-03-14
+
+### Added
+
+- Support 'apple' attestation statement format ([#343](https://github.com/cedarcode/webauthn-ruby/pull/343) / [@juanarias93], [@santiagorodriguez96])
+- Allow specifying an array of ids as `allow_credentials:` for `FakeClient#get` method ([#335](https://github.com/cedarcode/webauthn-ruby/pull/335) / [@kingjan1999])
+
+### Removed
+
+- No longer accept "removed from the WebAuthn spec" options `rp: { icon: }` and `user: { icon: }` for `WebAuthn::Credential.options_for_create` method ([#326](https://github.com/cedarcode/webauthn-ruby/pull/326) / [@santiagorodriguez96])
 
 ## [v2.4.1] - 2021-02-15
 
@@ -313,7 +350,11 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
-[v3.0.0.alpha1]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha1/
+[v3.0.0.alpha2]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha2/
+[v3.0.0.alpha1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v3.0.0.alpha1
+[v2.5.2]: https://github.com/cedarcode/webauthn-ruby/compare/v2.5.1...v2.5.2/
+[v2.5.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.5.0...v2.5.1/
+[v2.5.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.4.1...v2.5.0/
 [v2.4.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.4.0...v2.4.1/
 [v2.4.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v2.4.0/
 [v2.3.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.2.1...v2.3.0/
@@ -353,3 +394,8 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@padulafacundo]: https://github.com/padulafacundo
 [@santiagorodriguez96]: https://github.com/santiagorodriguez96
 [@lgarron]: https://github.com/lgarron
+[@juanarias93]: https://github.com/juanarias93
+[@kingjan1999]: https://github.com/@kingjan1999
+[@jdongelmans]: https://github.com/jdongelmans
+[@petergoldstein]: https://github.com/petergoldstein
+[@ClearlyClaire]: https://github.com/ClearlyClaire

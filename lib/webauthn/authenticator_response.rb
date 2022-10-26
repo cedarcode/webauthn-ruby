@@ -3,7 +3,6 @@
 require "webauthn/authenticator_data"
 require "webauthn/client_data"
 require "webauthn/error"
-require "webauthn/security_utils"
 
 module WebAuthn
   TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
@@ -20,13 +19,14 @@ module WebAuthn
   class UserVerifiedVerificationError < VerificationError; end
 
   class AuthenticatorResponse
-    def initialize(client_data_json:)
+    def initialize(client_data_json:, relying_party: WebAuthn.configuration.relying_party)
       @client_data_json = client_data_json
+      @relying_party = relying_party
     end
 
     def verify(expected_challenge, expected_origin = nil, user_verification: nil, rp_id: nil)
-      expected_origin ||= WebAuthn.configuration.origin || raise("Unspecified expected origin")
-      rp_id ||= WebAuthn.configuration.rp_id
+      expected_origin ||= relying_party.origin || raise("Unspecified expected origin")
+      rp_id ||= relying_party.id
 
       verify_item(:type)
       verify_item(:token_binding)
@@ -35,7 +35,7 @@ module WebAuthn
       verify_item(:authenticator_data)
       verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
 
-      if !WebAuthn.configuration.silent_authentication
+      if !relying_party.silent_authentication
         verify_item(:user_presence)
       end
 
@@ -58,7 +58,7 @@ module WebAuthn
 
     private
 
-    attr_reader :client_data_json
+    attr_reader :client_data_json, :relying_party
 
     def verify_item(item, *args)
       if send("valid_#{item}?", *args)
@@ -79,7 +79,7 @@ module WebAuthn
     end
 
     def valid_challenge?(expected_challenge)
-      WebAuthn::SecurityUtils.secure_compare(client_data.challenge, expected_challenge)
+      OpenSSL.secure_compare(client_data.challenge, expected_challenge)
     end
 
     def valid_origin?(expected_origin)

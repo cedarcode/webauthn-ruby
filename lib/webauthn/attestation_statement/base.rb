@@ -16,18 +16,21 @@ module WebAuthn
     ATTESTATION_TYPE_SELF = "Self"
     ATTESTATION_TYPE_ATTCA = "AttCA"
     ATTESTATION_TYPE_BASIC_OR_ATTCA = "Basic_or_AttCA"
+    ATTESTATION_TYPE_ANONCA = "AnonCA"
 
     ATTESTATION_TYPES_WITH_ROOT = [
       ATTESTATION_TYPE_BASIC,
       ATTESTATION_TYPE_BASIC_OR_ATTCA,
-      ATTESTATION_TYPE_ATTCA
+      ATTESTATION_TYPE_ATTCA,
+      ATTESTATION_TYPE_ANONCA
     ].freeze
 
     class Base
       AAGUID_EXTENSION_OID = "1.3.6.1.4.1.45724.1.1.4"
 
-      def initialize(statement)
+      def initialize(statement, relying_party = WebAuthn.configuration.relying_party)
         @statement = statement
+        @relying_party = relying_party
       end
 
       def valid?(_authenticator_data, _client_data_hash)
@@ -43,23 +46,25 @@ module WebAuthn
       end
 
       def attestation_certificate_key_id
-        raw_subject_key_identifier&.unpack("H*")&.[](0)
+        attestation_certificate.subject_key_identifier&.unpack("H*")&.[](0)
       end
 
       private
 
-      attr_reader :statement
+      attr_reader :statement, :relying_party
 
       def matching_aaguid?(attested_credential_data_aaguid)
-        extension = attestation_certificate&.extensions&.detect { |ext| ext.oid == AAGUID_EXTENSION_OID }
+        extension = attestation_certificate&.find_extension(AAGUID_EXTENSION_OID)
         if extension
-          # `extension.value` mangles data into ASCII, so we must manually compare bytes
-          # see https://github.com/ruby/openssl/pull/234
-          extension.to_der[-WebAuthn::AuthenticatorData::AttestedCredentialData::AAGUID_LENGTH..-1] ==
-            attested_credential_data_aaguid
+          aaguid_value = OpenSSL::ASN1.decode(extension.value_der).value
+          aaguid_value == attested_credential_data_aaguid
         else
           true
         end
+      end
+
+      def matching_public_key?(authenticator_data)
+        attestation_certificate.public_key.to_der == authenticator_data.credential.public_key_object.to_der
       end
 
       def certificates
@@ -89,10 +94,10 @@ module WebAuthn
 
       def trustworthy?(aaguid: nil, attestation_certificate_key_id: nil)
         if ATTESTATION_TYPES_WITH_ROOT.include?(attestation_type)
-          configuration.acceptable_attestation_types.include?(attestation_type) &&
+          relying_party.acceptable_attestation_types.include?(attestation_type) &&
             valid_certificate_chain?(aaguid: aaguid, attestation_certificate_key_id: attestation_certificate_key_id)
         else
-          configuration.acceptable_attestation_types.include?(attestation_type)
+          relying_party.acceptable_attestation_types.include?(attestation_type)
         end
       end
 
@@ -116,7 +121,7 @@ module WebAuthn
 
       def root_certificates(aaguid: nil, attestation_certificate_key_id: nil)
         root_certificates =
-          configuration.attestation_root_certificates_finders.reduce([]) do |certs, finder|
+          relying_party.attestation_root_certificates_finders.reduce([]) do |certs, finder|
             if certs.empty?
               finder.find(
                 attestation_format: format,
@@ -133,15 +138,6 @@ module WebAuthn
         else
           root_certificates
         end
-      end
-
-      def raw_subject_key_identifier
-        extension = attestation_certificate.extensions.detect { |ext| ext.oid == "subjectKeyIdentifier" }
-        return unless extension
-
-        ext_asn1 = OpenSSL::ASN1.decode(extension.to_der)
-        ext_value = ext_asn1.value.last
-        OpenSSL::ASN1.decode(ext_value.value).value
       end
 
       def valid_signature?(authenticator_data, client_data_hash, public_key = attestation_certificate.public_key)
@@ -163,13 +159,9 @@ module WebAuthn
       def cose_algorithm
         @cose_algorithm ||=
           COSE::Algorithm.find(algorithm).tap do |alg|
-            alg && configuration.algorithms.include?(alg.name) ||
+            alg && relying_party.algorithms.include?(alg.name) ||
               raise(UnsupportedAlgorithm, "Unsupported algorithm #{algorithm}")
           end
-      end
-
-      def configuration
-        WebAuthn.configuration
       end
     end
   end

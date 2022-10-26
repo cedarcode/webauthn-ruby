@@ -328,6 +328,48 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
+  context "when apple attestation" do
+    let(:origin) { seeds[:macbook_touch_id][:origin] }
+
+    let(:original_challenge) do
+      Base64.urlsafe_decode64(seeds[:macbook_touch_id][:credential_creation_options][:challenge])
+    end
+
+    let(:attestation_response) do
+      response = seeds[:macbook_touch_id][:authenticator_attestation_response]
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: Base64.urlsafe_decode64(response[:attestation_object]),
+        client_data_json: Base64.urlsafe_decode64(response[:client_data_json])
+      )
+    end
+
+    before do
+      # Apple credential certificate expires after 3 days apparently.
+      # Seed data was obtained 22nd Feb 2021, so we are simulating validation within that 3 day timeframe
+      fake_certificate_chain_validation_time(attestation_response.attestation_statement, Time.parse("2021-02-23"))
+    end
+
+    it "verifies" do
+      expect(attestation_response.verify(original_challenge)).to be_truthy
+    end
+
+    it "is valid" do
+      expect(attestation_response.valid?(original_challenge)).to eq(true)
+    end
+
+    it "returns attestation info" do
+      attestation_response.valid?(original_challenge)
+
+      expect(attestation_response.attestation_type).to eq("AnonCA")
+      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+    end
+
+    it "returns the credential" do
+      expect(attestation_response.credential.id.length).to be >= 16
+    end
+  end
+
   it "returns user-friendly error if no client data received" do
     attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
       attestation_object: "",
@@ -497,7 +539,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       it "doesn't verify" do
         expect {
           attestation_response.verify(original_challenge, origin)
-        }.to raise_exception(WebAuthn::AuthenticatorDataVerificationError)
+        }.to raise_exception(WebAuthn::AttestedCredentialVerificationError)
       end
     end
   end

@@ -16,7 +16,7 @@ Makes your Ruby/Rails web server become a functional [WebAuthn Relying Party](ht
 
 Takes care of the [server-side operations](https://www.w3.org/TR/webauthn/#rp-operations) needed to
 [register](https://www.w3.org/TR/webauthn/#registration) or [authenticate](https://www.w3.org/TR/webauthn/#authentication)
-a user [credential](https://www.w3.org/TR/webauthn/#public-key-credential), including the necessary cryptographic checks.
+a user's [public key credential](https://www.w3.org/TR/webauthn/#public-key-credential) (also called a "passkey"), including the necessary cryptographic checks.
 
 ## Table of Contents
 
@@ -52,7 +52,7 @@ WebAuthn (Web Authentication) is a W3C standard for secure public-key authentica
 
 - WebAuthn [W3C Recommendation](https://www.w3.org/TR/webauthn/) (i.e. "The Standard")
 - [Web Authentication API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API) in MDN
-- How to use [WebAuthn in Android apps](https://developers.google.com/identity/fido/android/native-apps)
+- How to use WebAuthn in native [Android](https://developers.google.com/identity/fido/android/native-apps) or [macOS/iOS/iPadOS](https://developer.apple.com/documentation/authenticationservices/public-private_key_authentication) apps.
 - [Security Benefits for WebAuthn Servers (a.k.a Relying Parties)](https://www.w3.org/TR/webauthn/#sctn-rp-benefits)
 
 ## Prerequisites
@@ -89,12 +89,14 @@ Or install it yourself as:
 
 ## Usage
 
-You can find a working example on how to use this gem in a __Rails__ app in [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app).
+You can find a working example on how to use this gem in a pasword-less login in a __Rails__ app in [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app). If you want to see an example on how to use this gem as a second factor authenticator in a __Rails__ application instead, you can check it in [webauthn-2fa-rails-demo](https://github.com/cedarcode/webauthn-2fa-rails-demo).
 
 If you are migrating an existing application from the legacy FIDO U2F JavaScript API to WebAuthn, also refer to
 [`docs/u2f_migration.md`](docs/u2f_migration.md).
 
 ### Configuration
+
+If you have a multi-tenant application or just need to configure WebAuthn differently for separate parts of your application (e.g. if your users authenticate to different subdomains in the same application), we strongly recommend you look at this [Advanced Configuration](docs/advanced_configuration.md) section instead of this.
 
 For a Rails application this would go in `config/initializers/webauthn.rb`.
 
@@ -417,6 +419,7 @@ credential.authenticator_extension_outputs
 | tpm (x5c attestation) | Yes |
 | android-key | Yes |
 | android-safetynet | Yes |
+| apple | Yes |
 | fido-u2f | Yes |
 | none | Yes |
 

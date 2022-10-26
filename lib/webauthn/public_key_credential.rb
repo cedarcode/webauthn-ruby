@@ -6,22 +6,31 @@ module WebAuthn
   class PublicKeyCredential
     attr_reader :type, :id, :raw_id, :client_extension_outputs, :response
 
-    def self.from_client(credential)
+    def self.from_client(credential, relying_party: WebAuthn.configuration.relying_party)
       new(
         type: credential["type"],
         id: credential["id"],
-        raw_id: WebAuthn.configuration.encoder.decode(credential["rawId"]),
+        raw_id: relying_party.encoder.decode(credential["rawId"]),
         client_extension_outputs: credential["clientExtensionResults"],
-        response: response_class.from_client(credential["response"])
+        response: response_class.from_client(credential["response"], relying_party: relying_party),
+        relying_party: relying_party
       )
     end
 
-    def initialize(type:, id:, raw_id:, client_extension_outputs: {}, response:)
+    def initialize(
+      type:,
+      id:,
+      raw_id:,
+      response:,
+      client_extension_outputs: {},
+      relying_party: WebAuthn.configuration.relying_party
+    )
       @type = type
       @id = id
       @raw_id = raw_id
       @client_extension_outputs = client_extension_outputs
       @response = response
+      @relying_party = relying_party
     end
 
     def verify(*_args)
@@ -41,6 +50,8 @@ module WebAuthn
 
     private
 
+    attr_reader :relying_party
+
     def valid_type?
       type == TYPE_PUBLIC_KEY
     end
@@ -54,11 +65,7 @@ module WebAuthn
     end
 
     def encoder
-      configuration.encoder
-    end
-
-    def configuration
-      WebAuthn.configuration
+      relying_party.encoder
     end
   end
 end

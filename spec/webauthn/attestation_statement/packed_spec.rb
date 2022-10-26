@@ -43,7 +43,7 @@ RSpec.describe "Packed attestation" do
         let(:credential_key) do
           WebAuthn.configuration.algorithms << "ES512"
 
-          OpenSSL::PKey::EC.new("secp521r1").generate_key
+          OpenSSL::PKey::EC.generate("secp521r1")
         end
 
         it "fails" do

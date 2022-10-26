@@ -10,7 +10,7 @@ module WebAuthn
       def initialize(rp_id: nil, allow_credentials: nil, allow: nil, user_verification: nil, **keyword_arguments)
         super(**keyword_arguments)
 
-        @rp_id = rp_id || configuration.rp_id
+        @rp_id = rp_id || relying_party.id
         @allow_credentials = allow_credentials
         @allow = allow
         @user_verification = user_verification
@@ -29,8 +29,8 @@ module WebAuthn
       def default_extensions
         extensions = super || {}
 
-        if configuration.legacy_u2f_appid
-          extensions.merge!(appid: configuration.legacy_u2f_appid)
+        if relying_party.legacy_u2f_appid
+          extensions.merge!(appid: relying_party.legacy_u2f_appid)
         end
 
         extensions

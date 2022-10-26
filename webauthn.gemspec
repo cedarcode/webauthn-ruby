@@ -31,19 +31,17 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.4"
+  spec.required_ruby_version = ">= 2.5"
 
   spec.add_dependency "android_key_attestation", "~> 0.3.0"
   spec.add_dependency "awrence", "~> 1.1"
   spec.add_dependency "bindata", "~> 2.4"
   spec.add_dependency "cbor", "~> 0.5.9"
   spec.add_dependency "cose", "~> 1.1"
-  spec.add_dependency "openssl", "~> 2.1"
+  spec.add_dependency "openssl", ">= 2.2", "< 3.1"
   spec.add_dependency "safety_net_attestation", "~> 0.4.0"
-  spec.add_dependency "securecompare", "~> 1.0"
-  spec.add_dependency "tpm-key_attestation", "~> 0.10.0"
+  spec.add_dependency "tpm-key_attestation", "~> 0.11.0"
 
-  spec.add_development_dependency "appraisal", "~> 2.4"
   spec.add_development_dependency "bundler", ">= 1.17", "< 3.0"
   spec.add_development_dependency "byebug", "~> 11.0"
   spec.add_development_dependency "rake", "~> 13.0"

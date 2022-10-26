@@ -23,16 +23,35 @@ RSpec.configure do |config|
   end
 end
 
-def create_credential(client: WebAuthn::FakeClient.new, rp_id: nil)
-  rp_id ||= URI.parse(client.origin).host
+def create_credential(
+  client: WebAuthn::FakeClient.new,
+  rp_id: nil,
+  relying_party: WebAuthn.configuration.relying_party
+)
+  rp_id ||= relying_party.id || URI.parse(client.origin).host
 
   create_result = client.create(rp_id: rp_id)
+
+  attestation_object =
+    if client.encoding
+      relying_party.encoder.decode(create_result["response"]["attestationObject"])
+    else
+      create_result["response"]["attestationObject"]
+    end
+
+  client_data_json =
+    if client.encoding
+      relying_party.encoder.decode(create_result["response"]["clientDataJSON"])
+    else
+      create_result["response"]["clientDataJSON"]
+    end
 
   response =
     WebAuthn::AuthenticatorAttestationResponse
     .new(
-      attestation_object: create_result["response"]["attestationObject"],
-      client_data_json: create_result["response"]["clientDataJSON"]
+      attestation_object: attestation_object,
+      client_data_json: client_data_json,
+      relying_party: relying_party
     )
 
   credential_public_key = response.credential.public_key
@@ -102,7 +121,7 @@ def create_rsa_key
 end
 
 def create_ec_key
-  OpenSSL::PKey::EC.new("prime256v1").generate_key
+  OpenSSL::PKey::EC.generate("prime256v1")
 end
 
 X509_V3 = 2
@@ -141,7 +160,6 @@ def issue_certificate(
   not_after: Time.now + 60,
   extensions: nil
 )
-
   certificate = OpenSSL::X509::Certificate.new
 
   certificate.version = version
@@ -158,4 +176,12 @@ def issue_certificate(
   certificate.sign(ca_key, "SHA256")
 
   certificate
+end
+
+def fake_certificate_chain_validation_time(attestation_statement, time)
+  allow(attestation_statement).to receive(:attestation_root_certificates_store).and_wrap_original do |m, *args|
+    store = m.call(*args)
+    store.time = time
+    store
+  end
 end

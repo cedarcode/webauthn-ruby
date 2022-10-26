@@ -31,7 +31,10 @@ module WebAuthn
       @credential ||=
         begin
           hash = authenticator_data.send(:credential)
-          WebAuthn::AuthenticatorData::AttestedCredentialData::Credential.new(hash[:id], hash[:public_key].serialize)
+          WebAuthn::AuthenticatorData::AttestedCredentialData::Credential.new(
+            id: hash[:id],
+            public_key: hash[:public_key].serialize
+          )
         end
     end
 
