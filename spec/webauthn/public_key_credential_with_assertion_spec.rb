@@ -238,8 +238,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
 
     context "when verifying a migrated U2F credential" do
       let!(:credential) do
-        stored_credential = seeds[:u2f_migration][:stored_credential]
-        migrated_credential = WebAuthn::U2fMigrator.new(**stored_credential)
+        migrated_credential = WebAuthn::U2fMigrator.new(**seeds[:u2f_migration][:stored_credential])
 
         [
           migrated_credential.credential.id,
@@ -259,10 +258,8 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
       end
 
       let(:assertion_response) do
-        assertion_response = seeds[:u2f_migration][:assertion][:response]
-
         WebAuthn::AuthenticatorAssertionResponse.new(
-          **assertion_response.transform_values { |v| Base64.strict_decode64(v) }
+          **seeds[:u2f_migration][:assertion][:response].transform_values { |v| Base64.strict_decode64(v) }
         )
       end
 
