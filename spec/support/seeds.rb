@@ -60,11 +60,14 @@ def seeds
     },
     u2f_migration: {
       stored_credential: {
+        app_id: "https://f69df4d9.ngrok.io/appid",
         certificate: "MIIBNDCB26ADAgECAgp2ubKB51u9YwjcMAoGCCqGSM49BAMCMBUxEzARBgNVBAMTClUyRiBJc3N1ZXIwGhcLMDAwMTAxMDAwMFoXCzAwMDEwMTAwMDBaMBUxEzARBgNVBAMTClUyRiBEZXZpY2UwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQfqziP5Gobu7FmIoFH0WCaD15knMWpIiLgeero1dVBVt2qo62PNI6GktGDUkzCwoj5pENTzTFVDUqAZTHDHTN1oxcwFTATBgsrBgEEAYLlHAIBAQQEAwIFIDAKBggqhkjOPQQDAgNIADBFAiEAwaOmji8WpyFGJwV/YrtyjJ4D56G6YtBGUk5FbSwvP3MCIAtfeOURqhgSn28jbZITIn2StOZ+31PoFt+wXZ3IuQ/e",
         key_handle: "1a9tIwwYiYNdmfmxVaksOkxKapK2HtDNSsL4MssbCHILhkMzA0xZYk5IHmBljyblTQ_SnsQea-QEMzgTN2L1Mw",
         public_key: "BBbTnfbd5sY+rCxZDQi87+akvZedjIqR8567GfrsLR0Gnp4zBpD5zhdSq1wKPvhzEoKJvFuYel1cpdTCzpahrBA=",
+        counter: 41,
       },
       assertion: {
+        origin: "https://f69df4d9.ngrok.io",
         challenge: "v7G2KR2NYPW6AWxfevjMYflTxbWQqLwEoaZkOnm25K8=",
         id: "1a9tIwwYiYNdmfmxVaksOkxKapK2HtDNSsL4MssbCHILhkMzA0xZYk5IHmBljyblTQ/SnsQea+QEMzgTN2L1Mw==",
         response: {
