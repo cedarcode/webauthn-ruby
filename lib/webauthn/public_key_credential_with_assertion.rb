@@ -42,10 +42,7 @@ module WebAuthn
     end
 
     def appid
-      appid_domain = relying_party.legacy_u2f_appid || relying_party.id ||
-                     relying_party.origin || raise("Unspecified expected origin")
-
-      URI.parse(appid_domain).to_s
+      URI.parse(relying_party.legacy_u2f_appid || raise("Unspecified legacy U2F AppID")).to_s
     end
   end
 end
