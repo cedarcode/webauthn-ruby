@@ -252,7 +252,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
           type: credential_type,
           id: credential_id,
           raw_id: credential_raw_id,
-          client_extension_outputs: { appid: true },
+          client_extension_outputs: { "appid" => true },
           response: assertion_response
         )
       end

@@ -38,7 +38,7 @@ module WebAuthn
     def appid_extension_output
       return if client_extension_outputs.nil?
 
-      client_extension_outputs[:appid] || client_extension_outputs['appid']
+      client_extension_outputs['appid']
     end
 
     def appid
