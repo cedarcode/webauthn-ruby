@@ -135,14 +135,6 @@ WebAuthn.configure do |config|
   # Default: ["ES256", "PS256", "RS256"]
   #
   # config.algorithms << "ES384"
-  
-  # If you have previously registered a credential using the legacy FIDO U2F JavaScript API, 
-  # set this configuration to the AppID that you used with it so that those credentials can
-  # be scoped to this identifier – instead of the RP ID – when requesting an assertion. 
-  # Otherwise you would have to re-register those credentials to scope them to the RP ID.
-  # See https://github.com/cedarcode/webauthn-ruby/blob/master/docs/u2f_migration.md.
-  # 
-  # config.legacy_u2f_appid = "https://login.example.com"
 end
 ```
 
