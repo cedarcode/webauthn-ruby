@@ -33,7 +33,9 @@ module WebAuthn
                    :attestation_root_certificates_finders,
                    :attestation_root_certificates_finders=,
                    :encoder,
-                   :encoder=
+                   :encoder=,
+                   :legacy_u2f_appid,
+                   :legacy_u2f_appid=
 
     attr_reader :relying_party
 

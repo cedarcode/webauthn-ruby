@@ -16,7 +16,8 @@ module WebAuthn
         encoder.decode(challenge),
         public_key: encoder.decode(public_key),
         sign_count: sign_count,
-        user_verification: user_verification
+        user_verification: user_verification,
+        rp_id: appid_extension_output ? appid : nil
       )
 
       true
@@ -30,6 +31,18 @@ module WebAuthn
 
     def raw_user_handle
       response.user_handle
+    end
+
+    private
+
+    def appid_extension_output
+      return if client_extension_outputs.nil?
+
+      client_extension_outputs['appid']
+    end
+
+    def appid
+      URI.parse(relying_party.legacy_u2f_appid || raise("Unspecified legacy U2F AppID")).to_s
     end
   end
 end

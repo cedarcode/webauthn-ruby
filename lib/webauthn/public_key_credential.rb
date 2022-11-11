@@ -13,7 +13,7 @@ module WebAuthn
         raw_id: relying_party.encoder.decode(credential["rawId"]),
         client_extension_outputs: credential["clientExtensionResults"],
         response: response_class.from_client(credential["response"], relying_party: relying_party),
-        encoder: relying_party.encoder
+        relying_party: relying_party
       )
     end
 
@@ -23,14 +23,14 @@ module WebAuthn
       raw_id:,
       response:,
       client_extension_outputs: {},
-      encoder: WebAuthn.configuration.encoder
+      relying_party: WebAuthn.configuration.relying_party
     )
       @type = type
       @id = id
       @raw_id = raw_id
       @client_extension_outputs = client_extension_outputs
       @response = response
-      @encoder = encoder
+      @relying_party = relying_party
     end
 
     def verify(*_args)
@@ -50,7 +50,7 @@ module WebAuthn
 
     private
 
-    attr_reader :encoder
+    attr_reader :relying_party
 
     def valid_type?
       type == TYPE_PUBLIC_KEY
@@ -62,6 +62,10 @@ module WebAuthn
 
     def authenticator_data
       response&.authenticator_data
+    end
+
+    def encoder
+      relying_party.encoder
     end
   end
 end

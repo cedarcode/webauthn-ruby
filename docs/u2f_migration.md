@@ -53,7 +53,7 @@ migrated_credential.authenticator_data.sign_count
 
 ## Authenticate migrated U2F credentials
 
-Following the documentation on the [authentication initiation](https://github.com/cedarcode/webauthn-ruby/blob/master/README.md#authentication),
+Following the documentation on the [authentication initiation](https://github.com/cedarcode/webauthn-ruby/blob/master/README.md#initiation-phase-1),
 you need to specify the [FIDO AppID extension](https://www.w3.org/TR/webauthn/#sctn-appid-extension) for U2F migratedq
 credentials. The WebAuthn standard explains:
 
@@ -65,33 +65,26 @@ For the earlier given example `domain` this means:
 - FIDO AppID: `https://login.example.com`
 - Valid RP IDs: `login.example.com` (default) and `example.com`
 
+You can request the use of the `appid` extension by setting the AppID in the configuration, like this:
+
 ```ruby
-credential_request_options = WebAuthn.credential_request_options
-credential_request_options[:extensions] = { appid: domain.to_s }
+WebAuthn.configure do |config|
+  config.legacy_u2f_appid = "https://login.example.com"
+end
+```
+
+By doing this, the `appid` extension will be automatically requested when generating the options for get:
+
+```ruby
+options = WebAuthn::Credential.options_for_get
 ```
 
 On the frontend, in the resolved value from `navigator.credentials.get({ "publicKey": credentialRequestOptions })` add
 a call to [getClientExtensionResults()](https://www.w3.org/TR/webauthn/#dom-publickeycredential-getclientextensionresults)
 and send its result to your backend alongside the `id`/`rawId` and `response` values. If the authenticator used the AppID
-extension, the returned value will contain `{ "appid": true }`. In the example below, we use `clientExtensionResults`.
+extension, the returned value will contain `{ "appid": true }`.
 
-During authentication verification phase, you must pass either the original AppID or the RP ID as the `rp_id` argument:
+During authentication verification phase, if you followed the [verification phase documentation](https://github.com/cedarcode/webauthn-ruby#verification-phase-1) and have set the AppID in the config, the method `PublicKeyCredentialWithAssertion#verify` will be smart enough to determine if it should use the AppID or the RP ID to verify the WebAuthn credential, depending on the output of the `appid` client extension:
 
 > If true, the AppID was used and thus, when verifying an assertion, the Relying Party MUST expect the `rpIdHash` to be
 > the hash of the _AppID_, not the RP ID.
-
-```ruby
-assertion_response = WebAuthn::AuthenticatorAssertionResponse.new(
-  user_handle: params[:response][:userHandle],
-  authenticator_data: params[:response][:authenticatorData],
-  client_data_json: params[:response][:clientDataJSON],
-  signature: params[:response][:signature],
-)
-
-assertion_response.verify(
-  expected_challenge,
-  public_key: credential.public_key,
-  sign_count: credential.count,
-  rp_id: params[:clientExtensionResults][:appid] ? domain.to_s : domain.host,
-)
-```
