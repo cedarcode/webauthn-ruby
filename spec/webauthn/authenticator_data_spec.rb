@@ -9,7 +9,8 @@ RSpec.describe WebAuthn::AuthenticatorData do
       sign_count: sign_count,
       user_present: user_present,
       user_verified: user_verified,
-      backup_eligibility: backup_eligibility
+      backup_eligibility: backup_eligibility,
+      backup_state: backup_state,
     ).serialize
   end
 
@@ -18,6 +19,7 @@ RSpec.describe WebAuthn::AuthenticatorData do
   let(:user_present) { true }
   let(:user_verified) { false }
   let(:backup_eligibility) { false }
+  let(:backup_state) { false }
 
   let(:authenticator_data) { described_class.deserialize(serialized_authenticator_data) }
 
@@ -128,6 +130,22 @@ RSpec.describe WebAuthn::AuthenticatorData do
 
     context "when BE flag is not set" do
       let(:backup_eligibility) { false }
+
+      it { is_expected.to be_falsy }
+    end
+  end
+
+  describe "#credential_backed_up?" do
+    subject { authenticator_data.credential_backed_up? }
+
+    context "when BS flag is set" do
+      let(:backup_state) { true }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context "when BS flag is not set" do
+      let(:backup_state) { false }
 
       it { is_expected.to be_falsy }
     end

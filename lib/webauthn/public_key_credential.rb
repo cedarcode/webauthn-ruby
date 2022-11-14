@@ -52,6 +52,10 @@ module WebAuthn
       authenticator_data&.credential_backup_eligible?
     end
 
+    def backed_up?
+      authenticator_data&.credential_backed_up?
+    end
+
     private
 
     attr_reader :relying_party
