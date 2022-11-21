@@ -47,6 +47,7 @@ WebAuthn (Web Authentication) is a W3C standard for secure public-key authentica
 
 - [Guide to Web Authentication](https://webauthn.guide) by Duo
 - [What is WebAuthn?](https://www.yubico.com/webauthn/) by Yubico
+- [What is Passkey and how it works?](https://mojoauth.com/blog/passkeys-fido-new-mission-to-remove-passwords/)
 
 #### In Depth
 
