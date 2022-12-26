@@ -179,8 +179,9 @@ def issue_certificate(
 end
 
 def fake_certificate_chain_validation_time(attestation_statement, time)
-  allow(attestation_statement).to receive(:attestation_root_certificates_store).and_wrap_original do |m, *args|
-    store = m.call(*args)
+  allow(attestation_statement).to receive(:attestation_root_certificates_store)
+    .and_wrap_original do |m, *_args, **kwargs|
+    store = m.call(**kwargs)
     store.time = time
     store
   end
