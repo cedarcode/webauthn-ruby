@@ -47,8 +47,8 @@ module WebAuthn
             reserved_for_future_use_bit,
             bit(:user_verified),
             reserved_for_future_use_bit,
-            reserved_for_future_use_bit,
-            reserved_for_future_use_bit,
+            bit(:backup_state),
+            bit(:backup_eligibility),
             attested_credential_data_included_bit,
             extension_data_included_bit
           ].join
