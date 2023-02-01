@@ -35,7 +35,9 @@ module WebAuthn
                    :encoder,
                    :encoder=,
                    :legacy_u2f_appid,
-                   :legacy_u2f_appid=
+                   :legacy_u2f_appid=,
+                   :development_mode,
+                   :development_mode=
 
     attr_reader :relying_party
 
