@@ -29,6 +29,8 @@ module WebAuthn
       rp_id: nil,
       user_present: true,
       user_verified: false,
+      backup_eligibility: false,
+      backup_state: false,
       attested_credential_data: true,
       extensions: nil
     )
@@ -42,6 +44,8 @@ module WebAuthn
         client_data_hash: client_data_hash,
         user_present: user_present,
         user_verified: user_verified,
+        backup_eligibility: backup_eligibility,
+        backup_state:backup_state,
         attested_credential_data: attested_credential_data,
         extensions: extensions
       )
@@ -72,6 +76,8 @@ module WebAuthn
             rp_id: nil,
             user_present: true,
             user_verified: false,
+            backup_eligibility: false,
+            backup_state: true,
             sign_count: nil,
             extensions: nil,
             user_handle: nil,
@@ -90,6 +96,8 @@ module WebAuthn
         client_data_hash: client_data_hash,
         user_present: user_present,
         user_verified: user_verified,
+        backup_eligibility: backup_eligibility,
+        backup_state: backup_state,
         sign_count: sign_count,
         extensions: extensions,
         allow_credentials: allow_credentials

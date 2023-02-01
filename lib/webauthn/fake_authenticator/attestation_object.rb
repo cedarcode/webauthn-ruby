@@ -13,6 +13,8 @@ module WebAuthn
         credential_key:,
         user_present: true,
         user_verified: false,
+        backup_eligibility: false,
+        backup_state: false,
         attested_credential_data: true,
         sign_count: 0,
         extensions: nil
@@ -23,6 +25,8 @@ module WebAuthn
         @credential_key = credential_key
         @user_present = user_present
         @user_verified = user_verified
+        @backup_eligibility = backup_eligibility
+        @backup_state = backup_state
         @attested_credential_data = attested_credential_data
         @sign_count = sign_count
         @extensions = extensions
@@ -45,6 +49,8 @@ module WebAuthn
         :credential_key,
         :user_present,
         :user_verified,
+        :backup_eligibility,
+        :backup_state,
         :attested_credential_data,
         :sign_count,
         :extensions
@@ -63,6 +69,8 @@ module WebAuthn
               credential: credential_data,
               user_present: user_present,
               user_verified: user_verified,
+              backup_eligibility: backup_eligibility,
+              backup_state: backup_state,
               sign_count: 0,
               extensions: extensions
             )
