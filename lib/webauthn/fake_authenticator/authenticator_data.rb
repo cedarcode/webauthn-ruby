@@ -20,6 +20,8 @@ module WebAuthn
         sign_count: 0,
         user_present: true,
         user_verified: !user_present,
+        backup_eligibility: false,
+        backup_state: false,
         aaguid: AAGUID,
         extensions: { "fakeExtension" => "fakeExtensionValue" }
       )
@@ -28,6 +30,8 @@ module WebAuthn
         @sign_count = sign_count
         @user_present = user_present
         @user_verified = user_verified
+        @backup_eligibility = backup_eligibility
+        @backup_state = backup_state
         @aaguid = aaguid
         @extensions = extensions
       end
@@ -38,7 +42,13 @@ module WebAuthn
 
       private
 
-      attr_reader :rp_id_hash, :credential, :user_present, :user_verified, :extensions
+      attr_reader :rp_id_hash,
+                  :credential,
+                  :user_present,
+                  :user_verified,
+                  :extensions,
+                  :backup_eligibility,
+                  :backup_state
 
       def flags
         [
@@ -46,8 +56,8 @@ module WebAuthn
             bit(:user_present),
             reserved_for_future_use_bit,
             bit(:user_verified),
-            reserved_for_future_use_bit,
-            reserved_for_future_use_bit,
+            bit(:backup_eligibility),
+            bit(:backup_state),
             reserved_for_future_use_bit,
             attested_credential_data_included_bit,
             extension_data_included_bit
@@ -108,7 +118,12 @@ module WebAuthn
       end
 
       def context
-        { user_present: user_present, user_verified: user_verified }
+        {
+          user_present: user_present,
+          user_verified: user_verified,
+          backup_eligibility: backup_eligibility,
+          backup_state: backup_state
+        }
       end
 
       def cose_credential_public_key

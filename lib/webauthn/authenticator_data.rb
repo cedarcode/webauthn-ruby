@@ -19,9 +19,9 @@ module WebAuthn
     struct :flags do
       bit1 :extension_data_included
       bit1 :attested_credential_data_included
-      bit1 :reserved_for_future_use_4
-      bit1 :reserved_for_future_use_3
       bit1 :reserved_for_future_use_2
+      bit1 :backup_state
+      bit1 :backup_eligibility
       bit1 :user_verified
       bit1 :reserved_for_future_use_1
       bit1 :user_present
@@ -56,6 +56,14 @@ module WebAuthn
 
     def user_verified?
       flags.user_verified == 1
+    end
+
+    def credential_backup_eligible?
+      flags.backup_eligibility == 1
+    end
+
+    def credential_backed_up?
+      flags.backup_state == 1
     end
 
     def attested_credential_data_included?

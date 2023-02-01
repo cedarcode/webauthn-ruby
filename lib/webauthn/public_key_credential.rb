@@ -48,6 +48,14 @@ module WebAuthn
       authenticator_data.extension_data if authenticator_data&.extension_data_included?
     end
 
+    def backup_eligible?
+      authenticator_data&.credential_backup_eligible?
+    end
+
+    def backed_up?
+      authenticator_data&.credential_backed_up?
+    end
+
     private
 
     attr_reader :relying_party
