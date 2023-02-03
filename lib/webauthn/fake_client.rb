@@ -45,7 +45,7 @@ module WebAuthn
         user_present: user_present,
         user_verified: user_verified,
         backup_eligibility: backup_eligibility,
-        backup_state:backup_state,
+        backup_state: backup_state,
         attested_credential_data: attested_credential_data,
         extensions: extensions
       )
