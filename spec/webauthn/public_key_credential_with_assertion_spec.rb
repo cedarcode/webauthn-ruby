@@ -19,6 +19,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
     let(:credential_raw_id) { credential[0] }
     let(:credential_id) { Base64.urlsafe_encode64(credential_raw_id) }
     let(:credential_type) { "public-key" }
+    let(:credential_authenticator_attachment) { 'platform' }
     let(:credential_public_key) { Base64.urlsafe_encode64(credential[1]) }
     let(:credential_sign_count) { credential[2] }
 
@@ -37,6 +38,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
         type: credential_type,
         id: credential_id,
         raw_id: credential_raw_id,
+        authenticator_attachment: credential_authenticator_attachment,
         response: assertion_response
       )
     end

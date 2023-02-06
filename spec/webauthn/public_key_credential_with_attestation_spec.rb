@@ -15,6 +15,7 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
         type: type,
         id: id,
         raw_id: raw_id,
+        authenticator_attachment: authenticator_attachment,
         response: attestation_response
       )
     end
@@ -22,6 +23,7 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
     let(:type) { "public-key" }
     let(:id) { Base64.urlsafe_encode64(raw_id) }
     let(:raw_id) { SecureRandom.random_bytes(16) }
+    let(:authenticator_attachment) { 'platform' }
 
     let(:attestation_response) do
       response = client.create(challenge: raw_challenge)["response"]
