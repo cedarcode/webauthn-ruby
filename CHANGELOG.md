@@ -1,5 +1,13 @@
 # Changelog
 
+## [v3.0.0] - 2023-02-15
+
+### Added
+
+- Add the capability of handling appid extension #319 [@santiagorodriguez96]
+- Add support for credential backup flags #378 [@santiagorodriguez96]
+- Update dependencies to make gem compatible with OpenSSL 3.1 ([@bdewater],[@santiagorodriguez96])
+
 ## [v3.0.0.alpha2] - 2022-09-12
 
 ### Added
@@ -350,6 +358,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v3.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0/
 [v3.0.0.alpha2]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha2/
 [v3.0.0.alpha1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v3.0.0.alpha1
 [v2.5.2]: https://github.com/cedarcode/webauthn-ruby/compare/v2.5.1...v2.5.2/
