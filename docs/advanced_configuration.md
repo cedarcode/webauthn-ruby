@@ -101,7 +101,8 @@ session[:creation_challenge] = options.challenge
 begin
   webauthn_credential = relying_party.verify_registration(
     params[:publicKeyCredential],
-    params[:create_challenge]
+    params[:create_challenge],
+    user_verification: true
   )
 
   # Store Credential ID, Credential Public Key and Sign Count for future authentications
@@ -147,7 +148,8 @@ begin
   # in params[:publicKeyCredential]:
   webauthn_credential, stored_credential = relying_party.verify_authentication(
     params[:publicKeyCredential],
-    session[:authentication_challenge]
+    session[:authentication_challenge],
+    user_verification: true
   ) do
     # the returned object needs to respond to #public_key and #sign_count
     user.credentials.find_by(webauthn_id: webauthn_credential.id)
