@@ -14,7 +14,7 @@ module WebAuthn
       encoder = relying_party.encoder
 
       user_handle =
-        if response["userHandle"]
+        if response["userHandle"] && String === response["userHandle"]
           encoder.decode(response["userHandle"])
         end
 
