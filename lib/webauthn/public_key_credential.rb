@@ -4,7 +4,7 @@ require "webauthn/encoder"
 
 module WebAuthn
   class PublicKeyCredential
-    attr_reader :type, :id, :raw_id, :client_extension_outputs, :response
+    attr_reader :type, :id, :raw_id, :client_extension_outputs, :authenticator_attachment, :response
 
     def self.from_client(credential, relying_party: WebAuthn.configuration.relying_party)
       new(
@@ -12,6 +12,7 @@ module WebAuthn
         id: credential["id"],
         raw_id: relying_party.encoder.decode(credential["rawId"]),
         client_extension_outputs: credential["clientExtensionResults"],
+        authenticator_attachment: credential["authenticatorAttachment"],
         response: response_class.from_client(credential["response"], relying_party: relying_party),
         relying_party: relying_party
       )
@@ -22,6 +23,7 @@ module WebAuthn
       id:,
       raw_id:,
       response:,
+      authenticator_attachment: nil,
       client_extension_outputs: {},
       relying_party: WebAuthn.configuration.relying_party
     )
@@ -29,6 +31,7 @@ module WebAuthn
       @id = id
       @raw_id = raw_id
       @client_extension_outputs = client_extension_outputs
+      @authenticator_attachment = authenticator_attachment
       @response = response
       @relying_party = relying_party
     end

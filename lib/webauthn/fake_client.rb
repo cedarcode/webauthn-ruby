@@ -64,6 +64,7 @@ module WebAuthn
         "type" => "public-key",
         "id" => internal_encoder.encode(id),
         "rawId" => encoder.encode(id),
+        "authenticatorAttachment" => 'platform',
         "clientExtensionResults" => extensions,
         "response" => {
           "attestationObject" => encoder.encode(attestation_object),
@@ -108,6 +109,7 @@ module WebAuthn
         "id" => internal_encoder.encode(assertion[:credential_id]),
         "rawId" => encoder.encode(assertion[:credential_id]),
         "clientExtensionResults" => extensions,
+        "authenticatorAttachment" => 'platform',
         "response" => {
           "clientDataJSON" => encoder.encode(client_data_json),
           "authenticatorData" => encoder.encode(assertion[:authenticator_data]),
