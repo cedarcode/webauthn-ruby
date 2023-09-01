@@ -73,7 +73,7 @@ end
 
 options = relying_party.options_for_registration(
   user: { id: user.webauthn_id, name: user.name },
-  exclude: user.credentials.map { |c| c.webauthn_id }
+  exclude: user.credentials.map { |c| c.external_id }
 )
 
 # Store the newly generated challenge somewhere so you can have it
@@ -106,7 +106,7 @@ begin
 
   # Store Credential ID, Credential Public Key and Sign Count for future authentications
   user.credentials.create!(
-    webauthn_id: webauthn_credential.id,
+    external_id: webauthn_credential.id,
     public_key: webauthn_credential.public_key,
     sign_count: webauthn_credential.sign_count
   )
@@ -150,7 +150,7 @@ begin
     session[:authentication_challenge]
   ) do |webauthn_credential|
     # the returned object needs to respond to #public_key and #sign_count
-    user.credentials.find_by(webauthn_id: webauthn_credential.id)
+    user.credentials.find_by(external_id: webauthn_credential.id)
   end
 
   # Update the stored credential sign count with the value from `webauthn_credential.sign_count`
