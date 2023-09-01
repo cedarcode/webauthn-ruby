@@ -59,7 +59,7 @@ Intead of the [Global Configuration](../README.md#configuration) you place in `c
 
 **DISCLAIMER: This API was released on version 3.0.0.alpha1 and is still under evaluation. Although it has been throughly tested and it is fully functional it might be changed until the final release of version 3.0.0.**
 
-The explanation for each ceremony can be found in depth in [Credential Registration](../README.md#credential-registration) and [Credential Authentication](../README.md#credential-authentication) but if you choose this instance based approach to define your WebAuthn configurations and assuming `relying_party` is the result of an instance you get through `WebAuthn::RelytingParty.new(...)` the code in those explanations needs to be updated to:
+The explanation for each ceremony can be found in depth in [Credential Registration](../README.md#credential-registration) and [Credential Authentication](../README.md#credential-authentication) but if you choose this instance based approach to define your WebAuthn configurations and assuming `relying_party` is the result of an instance you get through `WebAuthn::RelyingParty.new(...)` the code in those explanations needs to be updated to:
 
 ### Credential Registration
 
@@ -120,7 +120,7 @@ end
 #### Initiation phase
 
 ```ruby
-options = relying_party.options_for_get(allow: user.credentials.map { |c| c.webauthn_id })
+options = relying_party.options_for_authentication(allow: user.credentials.map { |c| c.webauthn_id })
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
@@ -148,7 +148,7 @@ begin
   webauthn_credential, stored_credential = relying_party.verify_authentication(
     params[:publicKeyCredential],
     session[:authentication_challenge]
-  ) do
+  ) do |webauthn_credential|
     # the returned object needs to respond to #public_key and #sign_count
     user.credentials.find_by(webauthn_id: webauthn_credential.id)
   end
