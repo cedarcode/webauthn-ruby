@@ -6,7 +6,7 @@ For the current release version see https://github.com/cedarcode/webauthn-ruby/b
 ![banner](assets/webauthn-ruby.png)
 
 [![Gem](https://img.shields.io/gem/v/webauthn.svg?style=flat-square)](https://rubygems.org/gems/webauthn)
-[![Travis](https://img.shields.io/travis/cedarcode/webauthn-ruby/master.svg?style=flat-square)](https://travis-ci.com/cedarcode/webauthn-ruby)
+[![Build](https://github.com/cedarcode/webauthn-ruby/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/cedarcode/webauthn-ruby/actions/workflows/build.yml)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-informational.svg?style=flat-square)](https://conventionalcommits.org)
 [![Join the chat at https://gitter.im/cedarcode/webauthn-ruby](https://badges.gitter.im/cedarcode/webauthn-ruby.svg)](https://gitter.im/cedarcode/webauthn-ruby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
