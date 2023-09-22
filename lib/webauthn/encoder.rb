@@ -20,9 +20,12 @@ module WebAuthn
     def encode(data)
       case encoding
       when :base64
-        Base64.strict_encode64(data)
+        [data].pack("m0") # Base64.strict_encode64(data)
       when :base64url
-        Base64.urlsafe_encode64(data, padding: false)
+        data = [data].pack("m0") # Base64.urlsafe_encode64(data, padding: false)
+        data.chomp!("==") or data.chomp!("=")
+        data.tr!("+/", "-_")
+        data
       when nil, false
         data
       else
@@ -33,9 +36,15 @@ module WebAuthn
     def decode(data)
       case encoding
       when :base64
-        Base64.strict_decode64(data)
+        data.unpack1("m0") # Base64.strict_decode64(data)
       when :base64url
-        Base64.urlsafe_decode64(data)
+        if !data.end_with?("=") && data.length % 4 != 0 #  Base64.urlsafe_decode64(data)
+          data = data.ljust((data.length + 3) & ~3, "=")
+          data.tr!("-_", "+/")
+        else
+          data = data.tr("-_", "+/")
+        end
+        data.unpack1("m0")
       when nil, false
         data
       else
