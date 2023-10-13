@@ -110,7 +110,7 @@ RSpec.describe "Packed attestation" do
           extensions: [
             extension_factory.create_extension("basicConstraints", attestation_certificate_basic_constraints, true),
           ]
-        ).to_der
+        )
       end
 
       let(:root_key) { create_ec_key }
@@ -125,7 +125,7 @@ RSpec.describe "Packed attestation" do
         WebAuthn::AttestationStatement::Packed.new(
           "alg" => algorithm,
           "sig" => signature,
-          "x5c" => [attestation_certificate]
+          "x5c" => [attestation_certificate.to_der]
         )
       end
 
@@ -135,6 +135,18 @@ RSpec.describe "Packed attestation" do
 
       it "works if everything's fine" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+      end
+
+      context 'when the attestation certificate is the only certificate in the certificate chain' do
+        context "and it's equal to one of the root certificates" do
+          before do
+            WebAuthn.configuration.attestation_root_certificates_finders = finder_for(attestation_certificate)
+          end
+
+          it "works" do
+            expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+          end
+        end
       end
 
       context "when signature is invalid" do

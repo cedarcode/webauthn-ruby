@@ -32,13 +32,13 @@ RSpec.describe "FidoU2f attestation" do
     let(:signature) { attestation_key.sign("SHA256", to_be_signed) }
 
     let(:attestation_certificate) do
-      issue_certificate(root_certificate, root_key, attestation_key).to_der
+      issue_certificate(root_certificate, root_key, attestation_key)
     end
 
     let(:statement) do
       WebAuthn::AttestationStatement::FidoU2f.new(
         "sig" => signature,
-        "x5c" => [attestation_certificate]
+        "x5c" => [attestation_certificate.to_der]
       )
     end
 
@@ -54,6 +54,18 @@ RSpec.describe "FidoU2f attestation" do
 
     it "works if everything's fine" do
       expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+    end
+
+    context 'when the attestation certificate is the only certificate in the certificate chain' do
+      context "and it's equal to one of the root certificates" do
+        before do
+          WebAuthn.configuration.attestation_root_certificates_finders = finder_for(attestation_certificate)
+        end
+
+        it "works" do
+          expect(statement.valid?(authenticator_data, client_data_hash)).to be_truthy
+        end
+      end
     end
 
     context "when signature is invalid" do
@@ -101,7 +113,7 @@ RSpec.describe "FidoU2f attestation" do
         let(:statement) do
           WebAuthn::AttestationStatement::FidoU2f.new(
             "sig" => signature,
-            "x5c" => [attestation_certificate, attestation_certificate]
+            "x5c" => [attestation_certificate.to_der, attestation_certificate.to_der]
           )
         end
 
