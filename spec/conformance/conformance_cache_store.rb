@@ -6,6 +6,7 @@ require "zip"
 
 class ConformanceCacheStore < FidoMetadata::TestCacheStore
   FILENAME = "metadata.zip"
+  METADATA_ENDPOINT = URI("https://mds.fidoalliance.org/")
 
   def setup_authenticators
     puts("#{FILENAME} not found, this will affect Metadata Service Test results.") unless File.exist?(FILENAME)
@@ -18,27 +19,11 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
     end
   end
 
-  def setup_metadata_store(endpoint)
+  def setup_metadata_store
     puts("Setting up metadata store TOC")
 
-    response = Net::HTTP.post(
-      URI("https://mds.certinfra.fidoalliance.org/getEndpoints"),
-      { endpoint: endpoint }.to_json,
-      FidoMetadata::Client::DEFAULT_HEADERS
-    )
-
-    response.value
-    possible_endpoints = JSON.parse(response.body)["result"]
-
-    client = FidoMetadata::Client.new(nil)
-
-    json =
-      possible_endpoints.each_with_index do |uri, index|
-        puts("Trying endpoint #{index}: #{uri}")
-        break client.download_toc(URI(uri), trusted_certs: conformance_certificates)
-      rescue FidoMetadata::Client::DataIntegrityError, JWT::VerificationError, Net::HTTPFatalError
-        nil
-      end
+    client = FidoMetadata::Client.new
+    json = client.download_toc(METADATA_ENDPOINT, trusted_certs: conformance_certificates)
 
     if json.is_a?(Hash) && json.keys == ["legalHeader", "no", "nextUpdate", "entries"]
       puts("TOC setup done!")
