@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-ruby "~> 2.7.0"
+ruby "~> 3.2.0"
 
 gem "byebug"
 gem "fido_metadata", github: 'santiagorodriguez96/fido_metadata', branch: 'sr--support-FIDO-metadata-msd3'
@@ -11,3 +11,4 @@ gem "rubyzip"
 gem "sinatra", "~> 2.0"
 gem "sinatra-contrib"
 gem "webauthn", path: File.join("..", "..")
+gem "webrick"
