@@ -5,7 +5,7 @@ source "https://rubygems.org"
 ruby "~> 2.7.0"
 
 gem "byebug"
-gem "fido_metadata", "~> 0.4.0"
+gem "fido_metadata", github: 'santiagorodriguez96/fido_metadata', branch: 'sr--support-FIDO-metadata-msd3'
 gem "rack-contrib"
 gem "rubyzip"
 gem "sinatra", "~> 2.0"

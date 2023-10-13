@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/santiagorodriguez96/fido_metadata.git
+  revision: 8280a2ac9bb83a37e9f68e20efdb40eca33ea937
+  branch: sr--support-FIDO-metadata-msd3
+  specs:
+    fido_metadata (0.3.0)
+      jwt (~> 2.0)
+
 PATH
   remote: ../..
   specs:
@@ -23,8 +31,6 @@ GEM
     cose (1.3.0)
       cbor (~> 0.5.9)
       openssl-signature_algorithm (~> 1.0)
-    fido_metadata (0.4.0)
-      jwt (~> 2.0)
     jwt (2.2.1)
     multi_json (1.14.1)
     mustermann (1.1.0)
@@ -64,7 +70,7 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
-  fido_metadata (~> 0.4.0)
+  fido_metadata!
   rack-contrib
   rubyzip
   sinatra (~> 2.0)
