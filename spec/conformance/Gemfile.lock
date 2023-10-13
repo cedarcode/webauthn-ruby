@@ -76,7 +76,7 @@ DEPENDENCIES
   webauthn!
 
 RUBY VERSION
-   ruby 2.7.0p-1
+   ruby 3.4.2p28
 
 BUNDLED WITH
    2.3.26

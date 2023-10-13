@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-ruby "~> 2.7.0"
+ruby "~> 3.4.2"
 
 gem "byebug"
 gem "fido_metadata", github: 'santiagorodriguez96/fido_metadata', branch: 'sr--support-FIDO-metadata-msd3'
