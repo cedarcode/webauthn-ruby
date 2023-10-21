@@ -5,11 +5,15 @@ require "webauthn/public_key_credential"
 
 module WebAuthn
   class PublicKeyCredentialWithAttestation < PublicKeyCredential
+    class InvalidChallengeError < Error; end
+
     def self.response_class
       WebAuthn::AuthenticatorAttestationResponse
     end
 
     def verify(challenge, user_verification: nil)
+      challenge.is_a?(String) || raise(InvalidChallengeError, "challenge must be a String. input challenge class: #{challenge.class}")
+
       super
 
       response.verify(encoder.decode(challenge), user_verification: user_verification)
