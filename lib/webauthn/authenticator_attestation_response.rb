@@ -12,7 +12,6 @@ require "webauthn/encoder"
 
 module WebAuthn
   class AttestationStatementVerificationError < VerificationError; end
-  class AttestationTrustworthinessVerificationError < VerificationError; end
   class AttestedCredentialVerificationError < VerificationError; end
 
   class AuthenticatorAttestationResponse < AuthenticatorResponse
