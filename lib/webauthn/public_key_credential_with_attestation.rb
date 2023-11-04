@@ -12,7 +12,11 @@ module WebAuthn
     end
 
     def verify(challenge, user_verification: nil)
-      challenge.is_a?(String) || raise(InvalidChallengeError, "challenge must be a String. input challenge class: #{challenge.class}")
+      unless challenge.is_a?(String)
+        msg = "challenge must be a String. input challenge class: #{challenge.class}"
+
+        raise(InvalidChallengeError, msg)
+      end
 
       super
 
