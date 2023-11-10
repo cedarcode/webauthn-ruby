@@ -102,6 +102,15 @@ module WebAuthn
       end
 
       def valid_certificate_chain?(aaguid: nil, attestation_certificate_key_id: nil)
+        root_certificates = root_certificates(
+          aaguid: aaguid,
+          attestation_certificate_key_id: attestation_certificate_key_id
+        )
+
+        if certificates&.one? && root_certificates.include?(attestation_certificate)
+          return true
+        end
+
         attestation_root_certificates_store(
           aaguid: aaguid,
           attestation_certificate_key_id: attestation_certificate_key_id
