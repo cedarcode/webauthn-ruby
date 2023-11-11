@@ -119,6 +119,18 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
       end
     end
 
+    context "when challenge class is invalid" do
+      it "raise error" do
+        expect do
+          public_key_credential.verify(
+            nil,
+            public_key: credential_public_key,
+            sign_count: credential_sign_count
+          )
+        end.to raise_error(WebAuthn::PublicKeyCredential::InvalidChallengeError)
+      end
+    end
+
     context "when challenge is invalid" do
       let(:challenge) { Base64.urlsafe_encode64("another challenge") }
 

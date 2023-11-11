@@ -91,7 +91,7 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
       it "raise error" do
         expect {
           public_key_credential.verify(nil)
-        }.to raise_error(WebAuthn::PublicKeyCredentialWithAttestation::InvalidChallengeError)
+        }.to raise_error(WebAuthn::PublicKeyCredential::InvalidChallengeError)
       end
     end
 
