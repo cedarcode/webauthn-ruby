@@ -4,6 +4,8 @@ require "webauthn/encoder"
 
 module WebAuthn
   class PublicKeyCredential
+    class InvalidChallengeError < Error; end
+
     attr_reader :type, :id, :raw_id, :client_extension_outputs, :authenticator_attachment, :response
 
     def self.from_client(credential, relying_party: WebAuthn.configuration.relying_party)
@@ -36,7 +38,13 @@ module WebAuthn
       @relying_party = relying_party
     end
 
-    def verify(*_args)
+    def verify(challenge, *_args)
+      unless valid_class?(challenge)
+        msg = "challenge must be a String. input challenge class: #{challenge.class}"
+
+        raise(InvalidChallengeError, msg)
+      end
+
       valid_type? || raise("invalid type")
       valid_id? || raise("invalid id")
 
@@ -69,6 +77,10 @@ module WebAuthn
 
     def valid_id?
       raw_id && id && raw_id == WebAuthn.standard_encoder.decode(id)
+    end
+
+    def valid_class?(challenge)
+      challenge.is_a?(String)
     end
 
     def authenticator_data
