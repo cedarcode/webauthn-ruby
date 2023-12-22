@@ -1,5 +1,21 @@
 # Changelog
 
+## [v3.1.0] - 2023-12-26
+
+### Added
+
+- Add support for optional `authenticator_attachment` in `PublicKeyCredential`. #370 [@8ma10s]
+
+### Fixed
+
+- Fix circular require warning between `webauthn/relying_party` and `webauthn/credential`. #389 [@bdewater]
+- Correctly verify attestation that contains just a batch certificate that is present in the attestation root certificates. #406 [@santiagorodriguez96]
+
+### Changed
+
+- Inlined `base64` implementation. #402 [@olleolleolle]
+- Raise a more descriptive error if input `challenge` is `nil` when verifying the `PublicKeyCredential`. #413 [@soartec-lab]
+
 ## [v3.0.0] - 2023-02-15
 
 ### Added
@@ -358,6 +374,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v3.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.0.0...v3.1.0/
 [v3.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0/
 [v3.0.0.alpha2]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha2/
 [v3.0.0.alpha1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v3.0.0.alpha1
