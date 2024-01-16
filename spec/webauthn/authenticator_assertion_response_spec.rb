@@ -120,6 +120,24 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
   end
 
+  describe "user present validation 2" do
+    let(:assertion) { client.get(challenge: original_challenge, user_present: false, user_verified: true) }
+
+    context "if user flags are off" do
+      it "doesn't verify" do
+        expect {
+          assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
+        }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+      end
+
+      it "is invalid" do
+        expect(
+          assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
+        ).to be_falsy
+      end
+    end
+  end
+
   describe "user verified validation" do
     context "if user flags are off" do
       let(:assertion) { client.get(challenge: original_challenge, user_present: true, user_verified: false) }
