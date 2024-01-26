@@ -15,10 +15,12 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        # ubuntu-22.04 uses OpenSSL 3.0, ubuntu-20.04 uses OpenSSL 1.1.1
+        os: [ ubuntu-22.04, ubuntu-20.04 ]
         ruby:
           - '3.3'
           - '3.2'
