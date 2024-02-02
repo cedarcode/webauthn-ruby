@@ -23,17 +23,19 @@ module WebAuthn
 
       new(
         attestation_object: encoder.decode(response["attestationObject"]),
+        transports: response["transports"],
         client_data_json: encoder.decode(response["clientDataJSON"]),
         relying_party: relying_party
       )
     end
 
-    attr_reader :attestation_type, :attestation_trust_path
+    attr_reader :attestation_type, :attestation_trust_path, :transports
 
-    def initialize(attestation_object:, **options)
+    def initialize(attestation_object:, transports: [], **options)
       super(**options)
 
       @attestation_object_bytes = attestation_object
+      @transports = transports
       @relying_party = relying_party
     end
 

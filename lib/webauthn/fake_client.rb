@@ -68,7 +68,8 @@ module WebAuthn
         "clientExtensionResults" => extensions,
         "response" => {
           "attestationObject" => encoder.encode(attestation_object),
-          "clientDataJSON" => encoder.encode(client_data_json)
+          "clientDataJSON" => encoder.encode(client_data_json),
+          "transports" => ["internal"],
         }
       }
     end

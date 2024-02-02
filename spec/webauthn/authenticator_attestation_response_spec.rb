@@ -17,6 +17,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     WebAuthn::AuthenticatorAttestationResponse.new(
       attestation_object: response["attestationObject"],
+      transports: response["transports"],
       client_data_json: response["clientDataJSON"]
     )
   end
