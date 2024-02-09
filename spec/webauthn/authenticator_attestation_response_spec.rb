@@ -50,7 +50,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   context "when fido-u2f attestation" do
     let(:original_challenge) do
-      Base64.strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
+      base64_strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
     end
 
     let(:origin) { "http://localhost:3000" }
@@ -59,8 +59,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       response = seeds[:security_key_direct][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.strict_decode64(response[:attestation_object]),
-        client_data_json: Base64.strict_decode64(response[:client_data_json])
+        attestation_object: base64_strict_decode64(response[:attestation_object]),
+        client_data_json: base64_strict_decode64(response[:client_data_json])
       )
     end
 
@@ -98,7 +98,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:origin) { "https://localhost:13010" }
 
     let(:original_challenge) do
-      Base64.strict_decode64(
+      base64_strict_decode64(
         seeds[:security_key_packed_self][:credential_creation_options][:challenge]
       )
     end
@@ -107,8 +107,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       response = seeds[:security_key_packed_self][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.strict_decode64(response[:attestation_object]),
-        client_data_json: Base64.strict_decode64(response[:client_data_json])
+        attestation_object: base64_strict_decode64(response[:attestation_object]),
+        client_data_json: base64_strict_decode64(response[:client_data_json])
       )
     end
 
@@ -140,7 +140,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:origin) { "http://localhost:3000" }
 
     let(:original_challenge) do
-      Base64.strict_decode64(
+      base64_strict_decode64(
         seeds[:security_key_packed_x5c][:credential_creation_options][:challenge]
       )
     end
@@ -149,8 +149,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       response = seeds[:security_key_packed_x5c][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.strict_decode64(response[:attestation_object]),
-        client_data_json: Base64.strict_decode64(response[:client_data_json])
+        attestation_object: base64_strict_decode64(response[:attestation_object]),
+        client_data_json: base64_strict_decode64(response[:client_data_json])
       )
     end
 
@@ -185,14 +185,14 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   context "when TPM attestation" do
     let(:origin) { seeds[:tpm][:origin] }
     let(:time) { Time.utc(2019, 8, 13, 22, 6) }
-    let(:challenge) { Base64.strict_decode64(seeds[:tpm][:credential_creation_options][:challenge]) }
+    let(:challenge) { base64_strict_decode64(seeds[:tpm][:credential_creation_options][:challenge]) }
 
     let(:attestation_response) do
       response = seeds[:tpm][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.strict_decode64(response[:attestation_object]),
-        client_data_json: Base64.strict_decode64(response[:client_data_json])
+        attestation_object: base64_strict_decode64(response[:attestation_object]),
+        client_data_json: base64_strict_decode64(response[:client_data_json])
       )
     end
 
@@ -244,15 +244,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:origin) { "https://7f41ac45.ngrok.io" }
 
     let(:original_challenge) do
-      Base64.strict_decode64(seeds[:android_safetynet_direct][:credential_creation_options][:challenge])
+      base64_strict_decode64(seeds[:android_safetynet_direct][:credential_creation_options][:challenge])
     end
 
     let(:attestation_response) do
       response = seeds[:android_safetynet_direct][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.strict_decode64(response[:attestation_object]),
-        client_data_json: Base64.strict_decode64(response[:client_data_json])
+        attestation_object: base64_strict_decode64(response[:attestation_object]),
+        client_data_json: base64_strict_decode64(response[:client_data_json])
       )
     end
 
@@ -288,15 +288,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:origin) { seeds[:android_key_direct][:origin] }
 
     let(:original_challenge) do
-      Base64.urlsafe_decode64(seeds[:android_key_direct][:credential_creation_options][:challenge])
+      base64_urlsafe_decode64(seeds[:android_key_direct][:credential_creation_options][:challenge])
     end
 
     let(:attestation_response) do
       response = seeds[:android_key_direct][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.urlsafe_decode64(response[:attestation_object]),
-        client_data_json: Base64.urlsafe_decode64(response[:client_data_json])
+        attestation_object: base64_urlsafe_decode64(response[:attestation_object]),
+        client_data_json: base64_urlsafe_decode64(response[:client_data_json])
       )
     end
 
@@ -332,15 +332,15 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:origin) { seeds[:macbook_touch_id][:origin] }
 
     let(:original_challenge) do
-      Base64.urlsafe_decode64(seeds[:macbook_touch_id][:credential_creation_options][:challenge])
+      base64_urlsafe_decode64(seeds[:macbook_touch_id][:credential_creation_options][:challenge])
     end
 
     let(:attestation_response) do
       response = seeds[:macbook_touch_id][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.urlsafe_decode64(response[:attestation_object]),
-        client_data_json: Base64.urlsafe_decode64(response[:client_data_json])
+        attestation_object: base64_urlsafe_decode64(response[:attestation_object]),
+        client_data_json: base64_urlsafe_decode64(response[:client_data_json])
       )
     end
 
@@ -546,7 +546,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   describe "attestation statement verification" do
     let(:original_challenge) do
-      Base64.strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
+      base64_strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
     end
 
     let(:origin) { "http://localhost:3000" }
@@ -555,8 +555,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       response = seeds[:security_key_direct][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.strict_decode64(response[:attestation_object]),
-        client_data_json: Base64.strict_decode64(response[:client_data_json])
+        attestation_object: base64_strict_decode64(response[:attestation_object]),
+        client_data_json: base64_strict_decode64(response[:client_data_json])
       )
     end
 

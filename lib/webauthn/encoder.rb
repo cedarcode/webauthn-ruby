@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "base64"
-
 module WebAuthn
   def self.standard_encoder
     @standard_encoder ||= Encoder.new
