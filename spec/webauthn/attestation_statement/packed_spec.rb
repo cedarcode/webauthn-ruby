@@ -90,7 +90,6 @@ RSpec.describe "Packed attestation" do
       let(:algorithm) { -7 }
       let(:attestation_key) { create_ec_key }
       let(:signature) { attestation_key.sign("SHA256", to_be_signed) }
-      let(:attestation_certificate_version) { 2 }
       let(:attestation_certificate_subject) { "/C=UY/O=ACME/OU=Authenticator Attestation/CN=CN" }
       let(:attestation_certificate_basic_constraints) { "CA:FALSE" }
       let(:attestation_certificate_start_time) { Time.now - 1 }
@@ -103,7 +102,7 @@ RSpec.describe "Packed attestation" do
           root_certificate,
           root_key,
           attestation_key,
-          version: attestation_certificate_version,
+          version: 2,
           name: attestation_certificate_subject,
           not_before: attestation_certificate_start_time,
           not_after: attestation_certificate_end_time,
@@ -187,7 +186,9 @@ RSpec.describe "Packed attestation" do
 
       context "when the attestation certificate doesn't meet requirements" do
         context "because version is invalid" do
-          let(:attestation_certificate_version) { 1 }
+          before do
+            attestation_certificate.version = 1
+          end
 
           it "fails" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

@@ -36,7 +36,7 @@ RSpec.describe "TPM attestation statement" do
           root_certificate,
           root_key,
           aik,
-          version: aik_certificate_version,
+          version: 2,
           name: aik_certificate_subject,
           not_before: aik_certificate_start_time,
           not_after: aik_certificate_end_time,
@@ -49,7 +49,6 @@ RSpec.describe "TPM attestation statement" do
       end
 
       let(:aik) { create_rsa_key }
-      let(:aik_certificate_version) { 2 }
       let(:aik_certificate_subject) { "" }
       let(:aik_certificate_basic_constraints) { "CA:FALSE" }
       let(:aik_certificate_extended_key_usage) { ::TPM::AIKCertificate::OID_TCG_KP_AIK_CERTIFICATE }
@@ -361,7 +360,9 @@ RSpec.describe "TPM attestation statement" do
 
       context "when the AIK certificate doesn't meet requirements" do
         context "because version is invalid" do
-          let(:aik_certificate_version) { 1 }
+          before do
+            aik_certificate.version = 1
+          end
 
           it "returns false" do
             expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy
