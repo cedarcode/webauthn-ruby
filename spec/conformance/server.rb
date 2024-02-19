@@ -44,7 +44,7 @@ mds_finder =
   MDSFinder.new.tap do |mds|
     mds.cache_backend = ConformanceCacheStore.new
     mds.cache_backend.setup_authenticators
-    mds.cache_backend.setup_metadata_store
+    mds.cache_backend.setup_metadata_store("http://#{host}:#{settings.port}")
   end
 
 relying_party = WebAuthn::RelyingParty.new(
