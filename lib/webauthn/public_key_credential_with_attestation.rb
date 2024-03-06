@@ -9,10 +9,10 @@ module WebAuthn
       WebAuthn::AuthenticatorAttestationResponse
     end
 
-    def verify(challenge, expected_origin: nil, **kw)
+    def verify(challenge, expected_origin: nil, **keywords)
       super
 
-      response.verify(encoder.decode(challenge), expected_origin, **kw)
+      response.verify(encoder.decode(challenge), expected_origin, **keywords)
 
       true
     end

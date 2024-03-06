@@ -9,7 +9,8 @@ module WebAuthn
       WebAuthn::AuthenticatorAssertionResponse
     end
 
-    def verify(challenge, expected_origin: nil, public_key:, sign_count:, user_verification: nil, rp_id: (appid_extension_output ? appid : nil))
+    def verify(challenge, expected_origin: nil, public_key:, sign_count:,
+               user_verification: nil, rp_id: (appid_extension_output ? appid : nil))
       super
 
       response.verify(
