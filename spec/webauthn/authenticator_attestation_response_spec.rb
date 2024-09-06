@@ -24,11 +24,32 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   let(:public_key_credential) { client.create(challenge: original_challenge) }
 
-  before do
-    WebAuthn.configuration.origin = origin
+  shared_context "with a single origin" do
+    before do
+      WebAuthn.configuration.origin = origin
+    end
   end
 
-  context "when everything's in place" do
+  shared_context "with multiple origins" do
+    let(:allowed_origins) do
+      [
+        fake_origin,
+        "android:apk-key-hash:blablablablablalblalla"
+      ]
+    end
+
+    before do
+      WebAuthn.configuration.allowed_origins = allowed_origins
+    end
+  end
+
+  shared_context "with rp_id set to" do |rp_id|
+    before do
+      WebAuthn.configuration.rp_id = rp_id
+    end
+  end
+
+  shared_examples "a valid attestation response" do
     it "verifies" do
       expect(attestation_response.verify(original_challenge)).to be_truthy
     end
@@ -36,16 +57,68 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     it "is valid" do
       expect(attestation_response.valid?(original_challenge)).to be_truthy
     end
+  end
 
-    # TODO: let FakeClient#create recieve a fixed credential
-    # https://github.com/cedarcode/webauthn-ruby/pull/302#discussion_r365338434
-    it "returns the credential" do
-      credential = attestation_response.credential
+  context "when everything's in place" do
+    context "when there is a single origin" do
+      include_context "with a single origin"
 
-      expect(credential.id.class).to eq(BinData::String)
-      expect(credential.id.encoding).to eq(Encoding::BINARY)
-      expect(credential.public_key.class).to eq(String)
-      expect(credential.public_key.encoding).to be(Encoding::BINARY)
+      it_behaves_like "a valid attestation response"
+
+      # TODO: let FakeClient#create recieve a fixed credential
+      # https://github.com/cedarcode/webauthn-ruby/pull/302#discussion_r365338434
+      it "returns the credential" do
+        credential = attestation_response.credential
+
+        expect(credential.id.class).to eq(BinData::String)
+        expect(credential.id.encoding).to eq(Encoding::BINARY)
+        expect(credential.public_key.class).to eq(String)
+        expect(credential.public_key.encoding).to be(Encoding::BINARY)
+      end
+    end
+
+    context "when there are multiple allowed origins" do
+      include_context "with multiple origins"
+
+      context "when rp_id is set explicitly" do
+        include_context "with rp_id set to", "localhost"
+
+        it_behaves_like "a valid attestation response"
+
+        # TODO: let FakeClient#create recieve a fixed credential
+        # https://github.com/cedarcode/webauthn-ruby/pull/302#discussion_r365338434
+        it "returns the credential" do
+          credential = attestation_response.credential
+
+          expect(credential.id.class).to eq(BinData::String)
+          expect(credential.id.encoding).to eq(Encoding::BINARY)
+          expect(credential.public_key.class).to eq(String)
+          expect(credential.public_key.encoding).to be(Encoding::BINARY)
+        end
+      end
+
+      context "when rp_id is not set explicitly" do
+        include_context "with rp_id set to", nil
+
+        it "raises error" do
+          expect { attestation_response.verify(original_challenge) }.to raise_error(WebAuthn::RpIdVerificationError)
+        end
+
+        it "is not valid" do
+          expect(attestation_response.valid?(original_challenge)).to be_falsey
+        end
+
+        # TODO: let FakeClient#create recieve a fixed credential
+        # https://github.com/cedarcode/webauthn-ruby/pull/302#discussion_r365338434
+        it "returns the credential" do
+          credential = attestation_response.credential
+
+          expect(credential.id.class).to eq(BinData::String)
+          expect(credential.id.encoding).to eq(Encoding::BINARY)
+          expect(credential.public_key.class).to eq(String)
+          expect(credential.public_key.encoding).to be(Encoding::BINARY)
+        end
+      end
     end
   end
 
@@ -54,48 +127,70 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       Base64.strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
     end
 
-    let(:origin) { "http://localhost:3000" }
+    context "when there is a single origin" do
+      include_context "with a single origin"
 
-    let(:attestation_response) do
-      response = seeds[:security_key_direct][:authenticator_attestation_response]
+      let(:origin) { "http://localhost:3000" }
 
-      WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.strict_decode64(response[:attestation_object]),
-        client_data_json: Base64.strict_decode64(response[:client_data_json])
-      )
+      let(:attestation_response) do
+        response = seeds[:security_key_direct][:authenticator_attestation_response]
+
+        WebAuthn::AuthenticatorAttestationResponse.new(
+          attestation_object: Base64.strict_decode64(response[:attestation_object]),
+          client_data_json: Base64.strict_decode64(response[:client_data_json])
+        )
+      end
+
+      before do
+        WebAuthn.configuration.attestation_root_certificates_finders = finder_for('feitian_ft_fido_0200.pem')
+      end
+
+      it_behaves_like "a valid attestation response"
+
+      it "returns attestation info" do
+        attestation_response.valid?(original_challenge)
+
+        expect(attestation_response.attestation_type).to eq("Basic_or_AttCA")
+        expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+      end
+
+      it "returns the credential" do
+        expect(attestation_response.credential.id.length).to be >= 16
+      end
+
+      it "returns the attestation certificate key" do
+        expect(attestation_response.attestation_certificate_key_id).to(
+          eq("f4b64a68c334e901b8e23c6e66e6866c31931f5d")
+        )
+      end
     end
 
-    before do
-      WebAuthn.configuration.attestation_root_certificates_finders = finder_for('feitian_ft_fido_0200.pem')
-    end
+    context "when there are multiple allowed origins" do
+      include_context "with multiple origins"
 
-    it "verifies" do
-      expect(attestation_response.verify(original_challenge)).to be_truthy
-    end
+      context "when rp_id is set explicitly" do
+        include_context "with rp_id set to", "localhost"
 
-    it "is valid" do
-      expect(attestation_response.valid?(original_challenge)).to eq(true)
-    end
+        it_behaves_like "a valid attestation response"
+      end
 
-    it "returns attestation info" do
-      attestation_response.valid?(original_challenge)
+      context "when rp_id is not set explicitly" do
+        include_context "with rp_id set to", nil
 
-      expect(attestation_response.attestation_type).to eq("Basic_or_AttCA")
-      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
-    end
+        it "raises error" do
+          expect { attestation_response.verify(original_challenge) }.to raise_error(WebAuthn::RpIdVerificationError)
+        end
 
-    it "returns the credential" do
-      expect(attestation_response.credential.id.length).to be >= 16
-    end
-
-    it "returns the attestation certificate key" do
-      expect(attestation_response.attestation_certificate_key_id).to(
-        eq("f4b64a68c334e901b8e23c6e66e6866c31931f5d")
-      )
+        it "is not valid" do
+          expect(attestation_response.valid?(original_challenge)).to be_falsey
+        end
+      end
     end
   end
 
   context "when packed attestation (self attestation)" do
+    include_context "with a single origin"
+
     let(:origin) { "https://localhost:13010" }
 
     let(:original_challenge) do
@@ -113,13 +208,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       )
     end
 
-    it "verifies" do
-      expect(attestation_response.verify(original_challenge)).to be_truthy
-    end
-
-    it "is valid" do
-      expect(attestation_response.valid?(original_challenge)).to eq(true)
-    end
+    it_behaves_like "a valid attestation response"
 
     it "returns attestation info" do
       attestation_response.valid?(original_challenge)
@@ -138,6 +227,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when packed attestation (basic attestation)" do
+    include_context "with a single origin"
+
     let(:origin) { "http://localhost:3000" }
 
     let(:original_challenge) do
@@ -159,13 +250,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('yubico_u2f_root.pem')
     end
 
-    it "verifies" do
-      expect(attestation_response.verify(original_challenge)).to be_truthy
-    end
-
-    it "is valid" do
-      expect(attestation_response.valid?(original_challenge)).to eq(true)
-    end
+    it_behaves_like "a valid attestation response"
 
     it "returns attestation info" do
       attestation_response.valid?(original_challenge)
@@ -184,6 +269,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when TPM attestation" do
+    include_context "with a single origin"
+
     let(:origin) { seeds[:tpm][:origin] }
     let(:time) { Time.utc(2019, 8, 13, 22, 6) }
     let(:challenge) { Base64.strict_decode64(seeds[:tpm][:credential_creation_options][:challenge]) }
@@ -240,6 +327,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-safetynet attestation" do
+    include_context "with a single origin"
+
     let(:time) { Time.utc(2019, 7, 7, 16, 15, 11) }
 
     let(:origin) { "https://7f41ac45.ngrok.io" }
@@ -261,13 +350,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       allow(attestation_response.attestation_statement).to receive(:time).and_return(time)
     end
 
-    it "verifies" do
-      expect(attestation_response.verify(original_challenge)).to be_truthy
-    end
-
-    it "is valid" do
-      expect(attestation_response.valid?(original_challenge)).to eq(true)
-    end
+    it_behaves_like "a valid attestation response"
 
     it "returns attestation info" do
       attestation_response.valid?(original_challenge)
@@ -286,8 +369,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   context "when android-key attestation" do
-    let(:origin) { seeds[:android_key_direct][:origin] }
-
     let(:original_challenge) do
       Base64.urlsafe_decode64(seeds[:android_key_direct][:credential_creation_options][:challenge])
     end
@@ -305,31 +386,78 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('android_key_root.pem')
     end
 
-    it "verifies" do
-      expect(attestation_response.verify(original_challenge)).to be_truthy
+    context "when there is a single origin" do
+      let(:origin) { seeds[:android_key_direct][:origin] }
+
+      include_context "with a single origin"
+
+      it_behaves_like "a valid attestation response"
+
+      it "returns attestation info" do
+        attestation_response.valid?(original_challenge)
+
+        expect(attestation_response.attestation_type).to eq("Basic")
+        expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+      end
+
+      it "returns the credential" do
+        expect(attestation_response.credential.id.length).to be >= 16
+      end
+
+      it "returns the AAGUID" do
+        expect(attestation_response.aaguid).to eq("550e4b54-aa47-409f-9a95-1ab76c130131")
+      end
     end
 
-    it "is valid" do
-      expect(attestation_response.valid?(original_challenge)).to eq(true)
-    end
+    context "when there are multiple allowed origins" do
+      include_context "with multiple origins" do
+        let(:allowed_origins) do
+          [
+            seeds[:android_key_direct][:origin],
+            "android:apk-key-hash:blablablablablalblalla",
+            "localhost"
+          ]
+        end
+      end
 
-    it "returns attestation info" do
-      attestation_response.valid?(original_challenge)
+      context "when rp_id is set explicitly" do
+        include_context "with rp_id set to", "localhost"
 
-      expect(attestation_response.attestation_type).to eq("Basic")
-      expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
-    end
+        it_behaves_like "a valid attestation response"
 
-    it "returns the credential" do
-      expect(attestation_response.credential.id.length).to be >= 16
-    end
+        it "returns attestation info" do
+          attestation_response.valid?(original_challenge)
 
-    it "returns the AAGUID" do
-      expect(attestation_response.aaguid).to eq("550e4b54-aa47-409f-9a95-1ab76c130131")
+          expect(attestation_response.attestation_type).to eq("Basic")
+          expect(attestation_response.attestation_trust_path).to all(be_kind_of(OpenSSL::X509::Certificate))
+        end
+
+        it "returns the credential" do
+          expect(attestation_response.credential.id.length).to be >= 16
+        end
+
+        it "returns the AAGUID" do
+          expect(attestation_response.aaguid).to eq("550e4b54-aa47-409f-9a95-1ab76c130131")
+        end
+      end
+
+      context "when rp_id is not set explicitly" do
+        include_context "with rp_id set to", nil
+
+        it "raises error" do
+          expect { attestation_response.verify(original_challenge) }.to raise_error(WebAuthn::RpIdVerificationError)
+        end
+
+        it "is not valid" do
+          expect(attestation_response.valid?(original_challenge)).to be_falsey
+        end
+      end
     end
   end
 
   context "when apple attestation" do
+    include_context "with a single origin"
+
     let(:origin) { seeds[:macbook_touch_id][:origin] }
 
     let(:original_challenge) do
@@ -351,13 +479,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       fake_certificate_chain_validation_time(attestation_response.attestation_statement, Time.parse("2021-02-23"))
     end
 
-    it "verifies" do
-      expect(attestation_response.verify(original_challenge)).to be_truthy
-    end
-
-    it "is valid" do
-      expect(attestation_response.valid?(original_challenge)).to eq(true)
-    end
+    it_behaves_like "a valid attestation response"
 
     it "returns attestation info" do
       attestation_response.valid?(original_challenge)
@@ -371,18 +493,24 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
-  it "returns user-friendly error if no client data received" do
-    attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
-      attestation_object: "",
-      client_data_json: nil
-    )
+  context "when no client data received" do
+    include_context "with a single origin"
 
-    expect {
-      attestation_response.valid?("", "")
-    }.to raise_exception(WebAuthn::ClientDataMissingError)
+    it "returns user-friendly error if no client data received" do
+      attestation_response = WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: "",
+        client_data_json: nil
+      )
+
+      expect {
+        attestation_response.valid?("", "")
+      }.to raise_exception(WebAuthn::ClientDataMissingError)
+    end
   end
 
   describe "origin validation" do
+    include_context "with a single origin"
+
     let(:origin) { "http://localhost" }
     let(:original_challenge) { fake_challenge }
 
@@ -399,13 +527,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     context "matches the default one" do
       let(:actual_origin) { "http://localhost" }
 
-      it "verifies" do
-        expect(attestation_response.verify(original_challenge)).to be_truthy
-      end
-
-      it "is valid" do
-        expect(attestation_response.valid?(original_challenge)).to be_truthy
-      end
+      it_behaves_like "a valid attestation response"
     end
 
     context "doesn't match the default one" do
@@ -424,6 +546,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   describe "rp_id validation" do
+    include_context "with a single origin"
+
     let(:original_challenge) { fake_challenge }
 
     let(:attestation_response) do
@@ -439,13 +563,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     context "matches the default one" do
       let(:rp_id) { "localhost" }
 
-      it "verifies" do
-        expect(attestation_response.verify(original_challenge)).to be_truthy
-      end
-
-      it "is valid" do
-        expect(attestation_response.valid?(original_challenge)).to be_truthy
-      end
+      it_behaves_like "a valid attestation response"
     end
 
     context "doesn't match the default one" do
@@ -469,17 +587,12 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         WebAuthn.configuration.rp_id = rp_id
       end
 
-      it "verifies" do
-        expect(attestation_response.verify(original_challenge)).to be_truthy
-      end
-
-      it "is valid" do
-        expect(attestation_response.valid?(original_challenge)).to be_truthy
-      end
+      it_behaves_like "a valid attestation response"
     end
   end
 
   describe "tokenBinding validation" do
+    include_context "with a single origin"
     let(:client) { WebAuthn::FakeClient.new(origin, token_binding: token_binding, encoding: false) }
 
     context "it has stuff" do
@@ -586,6 +699,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   describe "user verification" do
+    include_context "with a single origin"
+
     context "when UV is not set" do
       let(:public_key_credential) { client.create(challenge: original_challenge, user_verified: false) }
 
@@ -598,6 +713,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   describe "attested credential data verification" do
+    include_context "with a single origin"
+
     context "when AT is not set" do
       let(:public_key_credential) { client.create(challenge: original_challenge, attested_credential_data: false) }
 
@@ -622,6 +739,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   describe "attestation statement verification" do
+    include_context "with a single origin"
+
     let(:original_challenge) do
       Base64.strict_decode64(seeds[:security_key_direct][:credential_creation_options][:challenge])
     end
@@ -647,7 +766,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         WebAuthn.configuration.verify_attestation_statement = true
       end
 
-      it "verifies the attestation statement" do
+      it "raises error" do
         expect { attestation_response.verify(original_challenge) }.to raise_error(OpenSSL::PKey::PKeyError)
       end
     end
