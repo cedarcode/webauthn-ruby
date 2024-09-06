@@ -11,7 +11,7 @@ RSpec.describe "RelyingParty" do
 
   let(:admin_rp) do
     WebAuthn::RelyingParty.new(
-      origin: "https://admin.example.test",
+      allowed_origins: ["https://admin.example.test"],
       id: 'admin.example.test',
       name: 'Admin Application'
     )
@@ -136,7 +136,7 @@ RSpec.describe "RelyingParty" do
   context "without having any global configuration" do
     let(:consumer_rp) do
       WebAuthn::RelyingParty.new(
-        origin: "https://www.example.test",
+        allowed_origins: ["https://www.example.test"],
         id: 'example.test',
         name: 'Consumer Application'
       )
@@ -273,7 +273,7 @@ RSpec.describe "RelyingParty" do
 
   context "with a global configuration and a different relying party co-existing" do
     let(:global_configuration_client) do
-      WebAuthn::FakeClient.new(WebAuthn.configuration.origin, authenticator: authenticator)
+      WebAuthn::FakeClient.new(WebAuthn.configuration.allowed_origins[0], authenticator: authenticator)
     end
 
     before do
@@ -386,7 +386,7 @@ RSpec.describe "RelyingParty" do
 
   context "with only a global configuration" do
     let(:global_configuration_client) do
-      WebAuthn::FakeClient.new(WebAuthn.configuration.origin, authenticator: authenticator)
+      WebAuthn::FakeClient.new(WebAuthn.configuration.allowed_origins[0], authenticator: authenticator)
     end
 
     before do
