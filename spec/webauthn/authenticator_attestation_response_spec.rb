@@ -509,6 +509,22 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
+  describe "user presence" do
+    context "when UP is not set" do
+      let(:public_key_credential) { client.create(challenge: original_challenge, user_present: false) }
+
+      it "verifies if user presence is not required" do
+        expect(attestation_response.verify(original_challenge, origin, user_presence: false)).to be_truthy
+      end
+
+      it "doesn't verify if user presence is required" do
+        expect {
+          attestation_response.verify(original_challenge, origin, user_presence: true)
+        }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+      end
+    end
+  end
+
   describe "user verification" do
     context "when UV is not set" do
       let(:public_key_credential) { client.create(challenge: original_challenge, user_verified: false) }

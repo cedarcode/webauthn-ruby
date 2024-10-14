@@ -24,6 +24,45 @@ RSpec.describe "RelyingParty" do
     OpenStruct.new(id: WebAuthn.generate_user_id, name: 'John Doe', credentials: [])
   end
 
+  describe '#verify_registration' do
+    let(:options) do
+      admin_rp.options_for_registration(
+        user: user.to_h.slice(:id, :name),
+        exclude: user.credentials
+      )
+    end
+    let(:raw_credential) do
+      admin_fake_client.create(challenge: options.challenge, rp_id: admin_rp.id)
+    end
+
+    it 'require user_presence by default' do
+      expect_any_instance_of(WebAuthn::PublicKeyCredentialWithAttestation).to receive(:verify).with(
+        options.challenge,
+        user_presence: true,
+        user_verification: nil
+      )
+      admin_rp.verify_registration(raw_credential, options.challenge)
+    end
+
+    it 'can skip user_presence' do
+      expect_any_instance_of(WebAuthn::PublicKeyCredentialWithAttestation).to receive(:verify).with(
+        options.challenge,
+        user_presence: false,
+        user_verification: nil
+      )
+      admin_rp.verify_registration(raw_credential, options.challenge, user_presence: false)
+    end
+
+    it 'can require user_verification' do
+      expect_any_instance_of(WebAuthn::PublicKeyCredentialWithAttestation).to receive(:verify).with(
+        options.challenge,
+        user_presence: true,
+        user_verification: true
+      )
+      admin_rp.verify_registration(raw_credential, options.challenge, user_verification: true)
+    end
+  end
+
   context "without having any global configuration" do
     let(:consumer_rp) do
       WebAuthn::RelyingParty.new(
