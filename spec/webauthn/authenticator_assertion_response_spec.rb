@@ -320,12 +320,12 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     let(:assertion_data) { seeds[:u2f_migration][:assertion] }
     let(:assertion_response) do
       WebAuthn::AuthenticatorAssertionResponse.new(
-        client_data_json: Base64.strict_decode64(assertion_data[:response][:client_data_json]),
-        authenticator_data: Base64.strict_decode64(assertion_data[:response][:authenticator_data]),
-        signature: Base64.strict_decode64(assertion_data[:response][:signature])
+        client_data_json: base64_strict_decode64(assertion_data[:response][:client_data_json]),
+        authenticator_data: base64_strict_decode64(assertion_data[:response][:authenticator_data]),
+        signature: base64_strict_decode64(assertion_data[:response][:signature])
       )
     end
-    let(:original_challenge) { Base64.strict_decode64(assertion_data[:challenge]) }
+    let(:original_challenge) { base64_strict_decode64(assertion_data[:challenge]) }
 
     context "when correct FIDO AppID is given as rp_id" do
       it "verifies" do
