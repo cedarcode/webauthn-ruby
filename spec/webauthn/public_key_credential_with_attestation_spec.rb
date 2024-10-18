@@ -180,5 +180,31 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
         end
       end
     end
+
+    context "when user_presence" do
+      context "is not set" do
+        it "correcly delegates its value to the response" do
+          expect(attestation_response).to receive(:verify).with(anything, hash_including(user_presence: nil))
+
+          public_key_credential.verify(challenge)
+        end
+      end
+
+      context "is set to false" do
+        it "correcly delegates its value to the response" do
+          expect(attestation_response).to receive(:verify).with(anything, hash_including(user_presence: false))
+
+          public_key_credential.verify(challenge, user_presence: false)
+        end
+      end
+
+      context "is set to true" do
+        it "correcly delegates its value to the response" do
+          expect(attestation_response).to receive(:verify).with(anything, hash_including(user_presence: true))
+
+          public_key_credential.verify(challenge, user_presence: true)
+        end
+      end
+    end
   end
 end
