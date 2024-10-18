@@ -68,6 +68,71 @@ RSpec.describe "RelyingParty" do
     end
   end
 
+  describe '#verify_authentication' do
+    let(:options) { admin_rp.options_for_authentication(allow: user.credentials.map(&:webauthn_id)) }
+    let(:raw_credential) { admin_fake_client.get(challenge: options.challenge, rp_id: admin_rp.id, sign_count: 1) }
+
+    let(:admin_credential) { create_credential(client: admin_fake_client, relying_party: admin_rp) }
+    let(:admin_credential_public_key) { admin_credential[1] }
+
+    before do
+      user.credentials << OpenStruct.new(
+        webauthn_id: admin_credential.first,
+        public_key: admin_rp.encoder.encode(admin_credential[1]),
+        sign_count: 0
+      )
+    end
+
+    context "when user_presence" do
+      let(:webauthn_credential_mock) { instance_double('WebAuthn::PublicKeyCredentialWithAssertion', verify: true) }
+
+      before do
+        allow(WebAuthn::Credential).to receive(:from_get).and_return(webauthn_credential_mock)
+      end
+
+      context "is not set" do
+        it "correcly delegates its value to the response" do
+          expect(webauthn_credential_mock).to receive(:verify).with(anything, hash_including(user_presence: nil))
+
+          admin_rp.verify_authentication(
+            raw_credential,
+            options.challenge,
+            public_key: admin_credential_public_key,
+            sign_count: 0
+          )
+        end
+      end
+
+      context "is set to false" do
+        it "correcly delegates its value to the response" do
+          expect(webauthn_credential_mock).to receive(:verify).with(anything, hash_including(user_presence: false))
+
+          admin_rp.verify_authentication(
+            raw_credential,
+            options.challenge,
+            public_key: admin_credential_public_key,
+            sign_count: 0,
+            user_presence: false
+          )
+        end
+      end
+
+      context "is set to true" do
+        it "correcly delegates its value to the response" do
+          expect(webauthn_credential_mock).to receive(:verify).with(anything, hash_including(user_presence: true))
+
+          admin_rp.verify_authentication(
+            raw_credential,
+            options.challenge,
+            public_key: admin_credential_public_key,
+            sign_count: 0,
+            user_presence: true
+          )
+        end
+      end
+    end
+  end
+
   context "without having any global configuration" do
     let(:consumer_rp) do
       WebAuthn::RelyingParty.new(

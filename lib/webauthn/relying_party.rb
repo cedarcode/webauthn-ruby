@@ -99,6 +99,7 @@ module WebAuthn
     def verify_authentication(
       raw_credential,
       challenge,
+      user_presence: nil,
       user_verification: nil,
       public_key: nil,
       sign_count: nil
@@ -111,6 +112,7 @@ module WebAuthn
         challenge,
         public_key: public_key || stored_credential.public_key,
         sign_count: sign_count || stored_credential.sign_count,
+        user_presence: user_presence,
         user_verification: user_verification
       )
         block_given? ? [webauthn_credential, stored_credential] : webauthn_credential
