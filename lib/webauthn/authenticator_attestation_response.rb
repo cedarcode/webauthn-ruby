@@ -38,7 +38,7 @@ module WebAuthn
       @relying_party = relying_party
     end
 
-    def verify(expected_challenge, expected_origin = nil, user_presence: true, user_verification: nil, rp_id: nil)
+    def verify(expected_challenge, expected_origin = nil, user_presence: nil, user_verification: nil, rp_id: nil)
       super
 
       verify_item(:attested_credential)
