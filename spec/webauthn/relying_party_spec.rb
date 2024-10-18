@@ -35,31 +35,36 @@ RSpec.describe "RelyingParty" do
       admin_fake_client.create(challenge: options.challenge, rp_id: admin_rp.id)
     end
 
-    it 'require user_presence by default' do
-      expect_any_instance_of(WebAuthn::PublicKeyCredentialWithAttestation).to receive(:verify).with(
-        options.challenge,
-        user_presence: true,
-        user_verification: nil
-      )
-      admin_rp.verify_registration(raw_credential, options.challenge)
-    end
+    context "when user_presence" do
+      let(:webauthn_credential_mock) { instance_double('WebAuthn::PublicKeyCredentialWithAttestation', verify: true) }
 
-    it 'can skip user_presence' do
-      expect_any_instance_of(WebAuthn::PublicKeyCredentialWithAttestation).to receive(:verify).with(
-        options.challenge,
-        user_presence: false,
-        user_verification: nil
-      )
-      admin_rp.verify_registration(raw_credential, options.challenge, user_presence: false)
-    end
+      before do
+        allow(WebAuthn::Credential).to receive(:from_create).and_return(webauthn_credential_mock)
+      end
 
-    it 'can require user_verification' do
-      expect_any_instance_of(WebAuthn::PublicKeyCredentialWithAttestation).to receive(:verify).with(
-        options.challenge,
-        user_presence: true,
-        user_verification: true
-      )
-      admin_rp.verify_registration(raw_credential, options.challenge, user_verification: true)
+      context "is not set" do
+        it "correcly delegates its value to the response" do
+          expect(webauthn_credential_mock).to receive(:verify).with(anything, hash_including(user_presence: nil))
+
+          admin_rp.verify_registration(raw_credential, options.challenge)
+        end
+      end
+
+      context "is set to false" do
+        it "correcly delegates its value to the response" do
+          expect(webauthn_credential_mock).to receive(:verify).with(anything, hash_including(user_presence: false))
+
+          admin_rp.verify_registration(raw_credential, options.challenge, user_presence: false)
+        end
+      end
+
+      context "is set to true" do
+        it "correcly delegates its value to the response" do
+          expect(webauthn_credential_mock).to receive(:verify).with(anything, hash_including(user_presence: true))
+
+          admin_rp.verify_registration(raw_credential, options.challenge, user_presence: true)
+        end
+      end
     end
   end
 

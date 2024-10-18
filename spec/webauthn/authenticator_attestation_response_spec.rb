@@ -513,14 +513,74 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     context "when UP is not set" do
       let(:public_key_credential) { client.create(challenge: original_challenge, user_present: false) }
 
-      it "verifies if user presence is not required" do
-        expect(attestation_response.verify(original_challenge, origin, user_presence: false)).to be_truthy
+      context "when silent_authentication is not set" do
+        it "doesn't verify if user presence is not set" do
+          expect {
+            attestation_response.verify(original_challenge, origin)
+          }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+        end
+
+        it "verifies if user presence is not required" do
+          expect(attestation_response.verify(original_challenge, origin, user_presence: false)).to be_truthy
+        end
+
+        it "doesn't verify if user presence is required" do
+          expect {
+            attestation_response.verify(original_challenge, origin, user_presence: true)
+          }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+        end
       end
 
-      it "doesn't verify if user presence is required" do
-        expect {
-          attestation_response.verify(original_challenge, origin, user_presence: true)
-        }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+      context "when silent_authentication is disabled" do
+        around do |ex|
+          old_value = WebAuthn.configuration.silent_authentication
+          WebAuthn.configuration.silent_authentication = false
+
+          ex.run
+
+          WebAuthn.configuration.silent_authentication = old_value
+        end
+
+        it "doesn't verify if user presence is not set" do
+          expect {
+            attestation_response.verify(original_challenge, origin)
+          }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+        end
+
+        it "verifies if user presence is not required" do
+          expect(attestation_response.verify(original_challenge, origin, user_presence: false)).to be_truthy
+        end
+
+        it "doesn't verify if user presence is required" do
+          expect {
+            attestation_response.verify(original_challenge, origin, user_presence: true)
+          }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+        end
+      end
+
+      context "when silent_authentication is enabled" do
+        around do |ex|
+          old_value = WebAuthn.configuration.silent_authentication
+          WebAuthn.configuration.silent_authentication = true
+
+          ex.run
+
+          WebAuthn.configuration.silent_authentication = old_value
+        end
+
+        it "verifies if user presence is not set" do
+          expect(attestation_response.verify(original_challenge, origin)).to be_truthy
+        end
+
+        it "verifies if user presence is not required" do
+          expect(attestation_response.verify(original_challenge, origin, user_presence: false)).to be_truthy
+        end
+
+        it "doesn't verify if user presence is required" do
+          expect {
+            attestation_response.verify(original_challenge, origin, user_presence: true)
+          }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+        end
       end
     end
   end

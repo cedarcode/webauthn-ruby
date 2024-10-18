@@ -24,7 +24,7 @@ module WebAuthn
       @relying_party = relying_party
     end
 
-    def verify(expected_challenge, expected_origin = nil, user_presence: true, user_verification: nil, rp_id: nil)
+    def verify(expected_challenge, expected_origin = nil, user_presence: nil, user_verification: nil, rp_id: nil)
       expected_origin ||= relying_party.origin || raise("Unspecified expected origin")
       rp_id ||= relying_party.id
 
@@ -35,7 +35,8 @@ module WebAuthn
       verify_item(:authenticator_data)
       verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
 
-      if !relying_party.silent_authentication && user_presence
+      # Fallback to RP configuration unless user_presence is passed in explicitely
+      if user_presence.nil? && !relying_party.silent_authentication || user_presence
         verify_item(:user_presence)
       end
 

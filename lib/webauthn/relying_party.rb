@@ -81,7 +81,7 @@ module WebAuthn
       )
     end
 
-    def verify_registration(raw_credential, challenge, user_presence: true, user_verification: nil)
+    def verify_registration(raw_credential, challenge, user_presence: nil, user_verification: nil)
       webauthn_credential = WebAuthn::Credential.from_create(raw_credential, relying_party: self)
 
       if webauthn_credential.verify(challenge, user_presence: user_presence, user_verification: user_verification)
