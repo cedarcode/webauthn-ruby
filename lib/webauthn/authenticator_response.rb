@@ -35,8 +35,8 @@ module WebAuthn
       verify_item(:authenticator_data)
       verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
 
-      user_presence = !relying_party.silent_authentication if user_presence.nil?
-      if user_presence
+      # Fallback to RP configuration unless user_presence is passed in explicitely
+      if user_presence.nil? && !relying_party.silent_authentication || user_presence
         verify_item(:user_presence)
       end
 
