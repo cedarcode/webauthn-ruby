@@ -37,8 +37,22 @@ module WebAuthn
       @user_handle = user_handle
     end
 
-    def verify(expected_challenge, expected_origin = nil, public_key:, sign_count:, user_verification: nil, rp_id: nil)
-      super(expected_challenge, expected_origin, user_verification: user_verification, rp_id: rp_id)
+    def verify(
+      expected_challenge,
+      expected_origin = nil,
+      public_key:,
+      sign_count:,
+      user_presence: nil,
+      user_verification: nil,
+      rp_id: nil
+    )
+      super(
+        expected_challenge,
+        expected_origin,
+        user_presence: user_presence,
+        user_verification: user_verification,
+        rp_id: rp_id
+      )
       verify_item(:signature, WebAuthn::PublicKey.deserialize(public_key))
       verify_item(:sign_count, sign_count)
 

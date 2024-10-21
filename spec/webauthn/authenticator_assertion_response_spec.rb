@@ -103,19 +103,217 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "user present validation" do
-    let(:assertion) { client.get(challenge: original_challenge, user_present: false, user_verified: false) }
+    context "when user presence flag is off" do
+      let(:assertion) { client.get(challenge: original_challenge, user_present: false, user_verified: false) }
 
-    context "if user flags are off" do
-      it "doesn't verify" do
-        expect {
-          assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-        }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+      context "when silent_authentication is not set" do
+        context 'when user presence is not set' do
+          it "doesn't verify" do
+            expect {
+              assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
+            }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+          end
+
+          it "is invalid" do
+            expect(
+              assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
+            ).to be_falsy
+          end
+        end
+
+        context 'when user presence is not required' do
+          it "verifies if user presence is not required" do
+            expect(
+              assertion_response.verify(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: false
+              )
+            ).to be_truthy
+          end
+
+          it "is valid" do
+            expect(
+              assertion_response.valid?(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: false
+              )
+            ).to be_truthy
+          end
+        end
+
+        context 'when user presence is required' do
+          it "doesn't verify" do
+            expect {
+              assertion_response.verify(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: true
+              )
+            }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+          end
+
+          it "is invalid" do
+            expect(
+              assertion_response.valid?(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: true
+              )
+            ).to be_falsy
+          end
+        end
       end
 
-      it "is invalid" do
-        expect(
-          assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-        ).to be_falsy
+      context "when silent_authentication is disabled" do
+        around do |ex|
+          old_value = WebAuthn.configuration.silent_authentication
+          WebAuthn.configuration.silent_authentication = false
+
+          ex.run
+
+          WebAuthn.configuration.silent_authentication = old_value
+        end
+
+        context 'when user presence is not set' do
+          it "doesn't verify" do
+            expect {
+              assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
+            }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+          end
+
+          it "is invalid" do
+            expect(
+              assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
+            ).to be_falsy
+          end
+        end
+
+        context 'when user presence is not required' do
+          it "verifies if user presence is not required" do
+            expect(
+              assertion_response.verify(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: false
+              )
+            ).to be_truthy
+          end
+
+          it "is valid" do
+            expect(
+              assertion_response.valid?(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: false
+              )
+            ).to be_truthy
+          end
+        end
+
+        context 'when user presence is required' do
+          it "doesn't verify" do
+            expect {
+              assertion_response.verify(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: true
+              )
+            }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+          end
+
+          it "is invalid" do
+            expect(
+              assertion_response.valid?(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: true
+              )
+            ).to be_falsy
+          end
+        end
+      end
+
+      context "when silent_authentication is enabled" do
+        around do |ex|
+          old_value = WebAuthn.configuration.silent_authentication
+          WebAuthn.configuration.silent_authentication = true
+
+          ex.run
+
+          WebAuthn.configuration.silent_authentication = old_value
+        end
+
+        context 'when user presence is not set' do
+          it "verifies if user presence is not required" do
+            expect(
+              assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
+            ).to be_truthy
+          end
+
+          it "is valid" do
+            expect(
+              assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
+            ).to be_truthy
+          end
+        end
+
+        context 'when user presence is not required' do
+          it "verifies if user presence is not required" do
+            expect(
+              assertion_response.verify(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: false
+              )
+            ).to be_truthy
+          end
+
+          it "is valid" do
+            expect(
+              assertion_response.valid?(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: false
+              )
+            ).to be_truthy
+          end
+        end
+
+        context 'when user presence is required' do
+          it "doesn't verify" do
+            expect {
+              assertion_response.verify(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: true
+              )
+            }.to raise_exception(WebAuthn::UserPresenceVerificationError)
+          end
+
+          it "is invalid" do
+            expect(
+              assertion_response.valid?(
+                original_challenge,
+                public_key: credential_public_key,
+                sign_count: 0,
+                user_presence: true
+              )
+            ).to be_falsy
+          end
+        end
       end
     end
   end
