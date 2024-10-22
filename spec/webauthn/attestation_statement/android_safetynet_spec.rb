@@ -17,7 +17,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
         payload,
         attestation_key,
         "RS256",
-        x5c: [Base64.strict_encode64(leaf_certificate.to_der)]
+        x5c: [base64_strict_encode64(leaf_certificate.to_der)]
       )
     end
 
@@ -26,7 +26,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     end
     let(:timestamp) { Time.now }
     let(:cts_profile_match) { true }
-    let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)) }
+    let(:nonce) { base64_strict_encode64(OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)) }
     let(:attestation_key) { create_rsa_key }
 
     let(:leaf_certificate) do
@@ -63,7 +63,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     end
 
     context "when nonce is not set to the base64 of the SHA256 of authData + clientDataHash" do
-      let(:nonce) { Base64.strict_encode64(OpenSSL::Digest.digest("SHA256", "something else")) }
+      let(:nonce) { base64_strict_encode64(OpenSSL::Digest.digest("SHA256", "something else")) }
 
       it "returns false" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

@@ -13,16 +13,16 @@ require "support/seeds"
 RSpec.describe "PublicKeyCredentialWithAssertion" do
   describe "#verify" do
     let(:client) { WebAuthn::FakeClient.new(origin, encoding: false) }
-    let(:challenge) { Base64.urlsafe_encode64(raw_challenge) }
+    let(:challenge) { base64_urlsafe_encode64(raw_challenge) }
     let(:raw_challenge) { fake_challenge }
     let(:origin) { fake_origin }
 
     let!(:credential) { create_credential(client: client) }
     let(:credential_raw_id) { credential[0] }
-    let(:credential_id) { Base64.urlsafe_encode64(credential_raw_id) }
+    let(:credential_id) { base64_urlsafe_encode64(credential_raw_id) }
     let(:credential_type) { "public-key" }
     let(:credential_authenticator_attachment) { 'platform' }
-    let(:credential_public_key) { Base64.urlsafe_encode64(credential[1]) }
+    let(:credential_public_key) { base64_urlsafe_encode64(credential[1]) }
     let(:credential_sign_count) { credential[2] }
 
     let(:assertion_response) do
@@ -105,7 +105,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
       end
 
       context "because it is not the base64url of raw id" do
-        let(:credential_id) { Base64.urlsafe_encode64(credential_raw_id + "a") }
+        let(:credential_id) { base64_urlsafe_encode64(credential_raw_id + "a") }
 
         it "fails" do
           expect do
@@ -132,7 +132,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
     end
 
     context "when challenge is invalid" do
-      let(:challenge) { Base64.urlsafe_encode64("another challenge") }
+      let(:challenge) { base64_urlsafe_encode64("another challenge") }
 
       it "fails" do
         expect do
@@ -273,7 +273,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
 
       let(:assertion_response) do
         WebAuthn::AuthenticatorAssertionResponse.new(
-          **seeds[:u2f_migration][:assertion][:response].transform_values { |v| Base64.strict_decode64(v) }
+          **seeds[:u2f_migration][:assertion][:response].transform_values { |v| base64_strict_decode64(v) }
         )
       end
 
