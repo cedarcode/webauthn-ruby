@@ -140,7 +140,9 @@ module WebAuthn
 
           key = COSE::Key::EC2.from_pkey(credential[:public_key])
           key.alg = alg[key.crv]
-
+        when OpenSSL::PKey::PKey
+          key = COSE::Key::OKP.from_pkey(credential[:public_key])
+          key.alg = -8
         end
 
         key.serialize

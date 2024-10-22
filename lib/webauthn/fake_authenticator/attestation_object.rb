@@ -61,7 +61,7 @@ module WebAuthn
           begin
             credential_data =
               if attested_credential_data
-                { id: credential_id, public_key: credential_key.public_key }
+                { id: credential_id, public_key: credential_public_key }
               end
 
             AuthenticatorData.new(
@@ -75,6 +75,15 @@ module WebAuthn
               extensions: extensions
             )
           end
+      end
+
+      def credential_public_key
+        case credential_key
+        when OpenSSL::PKey::RSA, OpenSSL::PKey::EC
+          credential_key.public_key
+        when OpenSSL::PKey::PKey
+          OpenSSL::PKey.read(credential_key.public_to_der)
+        end
       end
     end
   end

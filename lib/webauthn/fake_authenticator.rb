@@ -85,7 +85,14 @@ module WebAuthn
           extensions: extensions
         ).serialize
 
-        signature = credential_key.sign("SHA256", authenticator_data + client_data_hash)
+        signature_digest_algorithm =
+          case credential_key
+          when OpenSSL::PKey::RSA, OpenSSL::PKey::EC
+            'SHA256'
+          when OpenSSL::PKey::PKey
+            nil
+          end
+        signature = credential_key.sign(signature_digest_algorithm, authenticator_data + client_data_hash)
         credential[:sign_count] += 1
 
         {
