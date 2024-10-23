@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require "awrence"
-
 module WebAuthn
   class PublicKeyCredential
     class Entity
+      include Camelize
+
       attr_reader :name
 
       def initialize(name:)
@@ -12,7 +12,7 @@ module WebAuthn
       end
 
       def as_json
-        to_hash.to_camelback_keys
+        deep_camelize_keys(to_hash)
       end
 
       private

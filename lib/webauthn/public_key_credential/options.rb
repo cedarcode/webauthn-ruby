@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-require "awrence"
 require "securerandom"
 
 module WebAuthn
   class PublicKeyCredential
     class Options
+      include Camelize
+
       CHALLENGE_LENGTH = 32
 
       attr_reader :timeout, :extensions, :relying_party
@@ -22,7 +23,7 @@ module WebAuthn
 
       # Argument wildcard for Ruby on Rails controller automatic object JSON serialization
       def as_json(*)
-        to_hash.to_camelback_keys
+        deep_camelize_keys(to_hash)
       end
 
       private

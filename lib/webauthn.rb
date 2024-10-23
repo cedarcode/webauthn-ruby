@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "webauthn/camelize"
 require "webauthn/configuration"
 require "webauthn/credential"
 require "webauthn/credential_creation_options"
