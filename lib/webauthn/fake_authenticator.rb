@@ -20,10 +20,11 @@ module WebAuthn
       backup_eligibility: false,
       backup_state: false,
       attested_credential_data: true,
+      algorithm: nil,
       sign_count: nil,
       extensions: nil
     )
-      credential_id, credential_key, credential_sign_count = new_credential
+      credential_id, credential_key, credential_sign_count = new_credential(algorithm)
       sign_count ||= credential_sign_count
 
       credentials[rp_id] ||= {}
@@ -109,8 +110,21 @@ module WebAuthn
 
     attr_reader :credentials
 
-    def new_credential
-      [SecureRandom.random_bytes(16), OpenSSL::PKey::EC.generate("prime256v1"), 0]
+    def new_credential(algorithm)
+      algorithm ||= 'ES256'
+      credential_key =
+        case algorithm
+        when 'ES256'
+          OpenSSL::PKey::EC.generate('prime256v1')
+        when 'RS256'
+          OpenSSL::PKey::RSA.new(2048)
+        when 'EdDSA'
+          OpenSSL::PKey.generate_key("ED25519")
+        else
+          raise "Unsupported algorithm #{algorithm}"
+        end
+
+      [SecureRandom.random_bytes(16), credential_key, 0]
     end
 
     def hashed(target)
