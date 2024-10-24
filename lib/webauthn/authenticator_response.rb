@@ -25,7 +25,7 @@ module WebAuthn
     end
 
     def verify(expected_challenge, expected_origin = nil, user_presence: nil, user_verification: nil, rp_id: nil)
-      expected_origin ||= relying_party.origin || raise("Unspecified expected origin")
+      expected_origin ||= relying_party.allowed_origins || [relying_party.origin] || raise("Unspecified expected origin")
       rp_id ||= relying_party.id
 
       verify_item(:type)
@@ -33,7 +33,13 @@ module WebAuthn
       verify_item(:challenge, expected_challenge)
       verify_item(:origin, expected_origin)
       verify_item(:authenticator_data)
-      verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
+
+      # note: we are not trying to guess from 'expected_origin' since it is an array and we can not guess
+      #      which one is the correct one. rp_id should either be explicitly set or guessed from only a single origin
+      verify_item(
+        :rp_id,
+        rp_id || rp_id_from_origin(relying_party.origin)
+      )
 
       # Fallback to RP configuration unless user_presence is passed in explicitely
       if user_presence.nil? && !relying_party.silent_authentication || user_presence
@@ -83,11 +89,21 @@ module WebAuthn
       OpenSSL.secure_compare(client_data.challenge, expected_challenge)
     end
 
+    # @return [Boolean]
+    # @param [Array<String>] expected_origin
+    # Validate if one of the allowed origins configured for RP is matching the one received from client
     def valid_origin?(expected_origin)
-      expected_origin && (client_data.origin == expected_origin)
+      return false unless expected_origin
+
+      expected_origin.include?(client_data.origin)
     end
 
+    # @return [Boolean]
+    # @param [String] rp_id
+    # Validate if RP ID is matching the one received from client
     def valid_rp_id?(rp_id)
+      return false unless rp_id
+
       OpenSSL::Digest::SHA256.digest(rp_id) == authenticator_data.rp_id_hash
     end
 
@@ -105,7 +121,13 @@ module WebAuthn
       authenticator_data.user_verified?
     end
 
+    # @return [String, nil]
+    # @param [Array[String]] expected_origin
+    # Extract RP ID from origin in case rp_id is not provided explicitly
+    # Note: In case origin is an array, we can not guess anymore since any guess would end up being wrong
     def rp_id_from_origin(expected_origin)
+      return if expected_origin.is_a?(Array)
+
       URI.parse(expected_origin).host
     end
 
