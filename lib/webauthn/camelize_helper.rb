@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module WebAuthn
-  module Camelize
+  module CamelizeHelper
     def deep_camelize_keys(object)
       if object.is_a?(Hash)
         object.each_with_object({}) do |(key, value), result|
@@ -13,11 +13,9 @@ module WebAuthn
     end
 
     def camelize(term)
-      term.to_s
-          .sub(/^(?:(?-mix:(?=a)b)(?=\b|[A-Z_])|\w)/) { |match| match.downcase }
-          .gsub(/(?:_|(\/))([a-z\d]*)/i) do
-        $2.capitalize
-      end.to_sym
+      first_term, *rest = term.to_s.split('_')
+
+      [first_term, *rest.map(&:capitalize)].join.to_sym
     end
   end
 end

@@ -5,7 +5,7 @@ require "securerandom"
 module WebAuthn
   class PublicKeyCredential
     class Options
-      include Camelize
+      include CamelizeHelper
 
       CHALLENGE_LENGTH = 32
 

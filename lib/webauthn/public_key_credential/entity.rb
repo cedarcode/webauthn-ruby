@@ -3,7 +3,7 @@
 module WebAuthn
   class PublicKeyCredential
     class Entity
-      include Camelize
+      include CamelizeHelper
 
       attr_reader :name
 
