@@ -33,7 +33,13 @@ module WebAuthn
       verify_item(:challenge, expected_challenge)
       verify_item(:origin, expected_origin)
       verify_item(:authenticator_data)
-      verify_item(:rp_id, rp_id || rp_id_from_origin(relying_party.origin)) # only try to guess RP ID if not provided explicitly or if there is a single origin
+
+      # note: we are not trying to guess from 'expected_origin' since it is an array and we can not guess
+      #      which one is the correct one. rp_id should either be explicitly set or guessed from only a single origin
+      verify_item(
+        :rp_id,
+        rp_id || rp_id_from_origin(relying_party.origin)
+      )
 
       # Fallback to RP configuration unless user_presence is passed in explicitely
       if user_presence.nil? && !relying_party.silent_authentication || user_presence
@@ -84,17 +90,12 @@ module WebAuthn
     end
 
     # @return [Boolean]
-    # @param [String, Array<String>] expected_origin
-    # Validate if origin configured for RP is matching the one received from client
+    # @param [Array<String>] expected_origin
+    # Validate if one of the allowed origins configured for RP is matching the one received from client
     def valid_origin?(expected_origin)
       return false unless expected_origin
 
-      case expected_origin
-      when Array
-        expected_origin.include?(client_data.origin) # allow multiple origins as per spec
-      else
-        client_data.origin == expected_origin # keep the default behaviour for backwards compatibility
-      end
+      expected_origin.include?(client_data.origin)
     end
 
     # @return [Boolean]
@@ -121,6 +122,7 @@ module WebAuthn
     end
 
     # @return [String, nil]
+    # @param [Array[String]] expected_origin
     # Extract RP ID from origin in case rp_id is not provided explicitly
     # Note: In case origin is an array, we can not guess anymore since any guess would end up being wrong
     def rp_id_from_origin(expected_origin)

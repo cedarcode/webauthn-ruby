@@ -32,7 +32,7 @@ module WebAuthn
       @algorithms = algorithms
       @encoding = encoding
       @origin = origin
-      @allowed_origins = allowed_origins.nil? ? [origin] : allowed_origins
+      @allowed_origins = allowed_origins
       @id = id
       @name = name
       @verify_attestation_statement = verify_attestation_statement
@@ -41,6 +41,13 @@ module WebAuthn
       @acceptable_attestation_types = acceptable_attestation_types
       @legacy_u2f_appid = legacy_u2f_appid
       self.attestation_root_certificates_finders = attestation_root_certificates_finders
+
+      if allowed_origins.nil? && !origin.nil?
+        warn(
+          "DEPRECATION WARNING: `WebAuthn.origin` is deprecated and will be removed in future"\
+          " Please use `WebAuthn.allowed_origins` instead that also allows configuring multiple origins per Relying Party"
+        )
+      end
     end
 
     attr_accessor :algorithms,
