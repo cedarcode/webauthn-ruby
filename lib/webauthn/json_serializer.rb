@@ -10,9 +10,7 @@ module WebAuthn
     private
 
     def to_hash_with_camelized_keys
-      hash = {}
-
-      attributes.each do |attribute_name|
+      attributes.each_with_object({}) do |attribute_name, hash|
         value = send(attribute_name)
 
         if value.respond_to?(:as_json)
@@ -21,8 +19,6 @@ module WebAuthn
           hash[camelize(attribute_name)] = deep_camelize_keys(value)
         end
       end
-
-      hash
     end
 
     def deep_camelize_keys(object)
