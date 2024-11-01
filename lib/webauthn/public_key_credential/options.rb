@@ -5,7 +5,7 @@ require "securerandom"
 module WebAuthn
   class PublicKeyCredential
     class Options
-      include CamelizeHelper
+      include JSONSerializer
 
       CHALLENGE_LENGTH = 32
 
@@ -21,30 +21,7 @@ module WebAuthn
         encoder.encode(raw_challenge)
       end
 
-      # Argument wildcard for Ruby on Rails controller automatic object JSON serialization
-      def as_json(*)
-        deep_camelize_keys(to_hash)
-      end
-
       private
-
-      def to_hash
-        hash = {}
-
-        attributes.each do |attribute_name|
-          value = send(attribute_name)
-
-          if value.respond_to?(:as_json)
-            value = value.as_json
-          end
-
-          if value
-            hash[attribute_name] = value
-          end
-        end
-
-        hash
-      end
 
       def attributes
         [:challenge, :timeout, :extensions]

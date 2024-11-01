@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "webauthn/camelize_helper"
+require "webauthn/json_serializer"
 require "webauthn/configuration"
 require "webauthn/credential"
 require "webauthn/credential_creation_options"
