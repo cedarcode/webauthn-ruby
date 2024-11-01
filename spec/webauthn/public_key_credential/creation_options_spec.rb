@@ -130,6 +130,31 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
     expect(hash[:challenge]).to be_truthy
   end
 
+  it "has minimum required" do
+    options = WebAuthn::PublicKeyCredential::CreationOptions.new(
+      user: {
+        id: "user-id",
+        name: "user-name",
+      }
+    )
+
+    hash = options.as_json
+
+    expect(hash[:rp]).to eq({})
+    expect(hash[:user]).to eq(
+      id: "user-id", name: "user-name", displayName: 'user-name'
+    )
+    expect(hash[:pubKeyCredParams]).to eq(
+      [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -37 }, { type: "public-key", alg: -257 }]
+    )
+    expect(hash[:timeout]).to eq(120_000)
+    expect(hash[:excludeCredentials]).to be_nil
+    expect(hash[:authenticatorSelection]).to be_nil
+    expect(hash[:attestation]).to be_nil
+    expect(hash[:extensions]).to eq({})
+    expect(hash[:challenge]).to be_truthy
+  end
+
   it "accepts shorthand for exclude_credentials" do
     options = WebAuthn::PublicKeyCredential::CreationOptions.new(user: { id: "id", name: "name" }, exclude: "id")
 
