@@ -22,11 +22,12 @@ module WebAuthn
     end
 
     def deep_camelize_keys(object)
-      if object.is_a?(Hash)
+      case object
+      when Hash
         object.each_with_object({}) do |(key, value), result|
           result[camelize(key)] = deep_camelize_keys(value)
         end
-      elsif object.is_a?(Array)
+      when Array
         object.map { |element| deep_camelize_keys(element) }
       else
         object
