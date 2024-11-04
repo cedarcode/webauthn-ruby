@@ -26,6 +26,8 @@ module WebAuthn
         object.each_with_object({}) do |(key, value), result|
           result[camelize(key)] = deep_camelize_keys(value)
         end
+      elsif object.is_a?(Array)
+        object.map { |element| deep_camelize_keys(element) }
       else
         object
       end
