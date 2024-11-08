@@ -1,7 +1,6 @@
 GIT
-  remote: https://github.com/santiagorodriguez96/fido_metadata.git
-  revision: 8280a2ac9bb83a37e9f68e20efdb40eca33ea937
-  branch: sr--support-FIDO-metadata-msd3
+  remote: https://github.com/bdewater/fido_metadata.git
+  revision: fcc1fc1a92f9b0eda5900485d773336494b2c1c6
   specs:
     fido_metadata (0.3.0)
       jwt (~> 2.0)
