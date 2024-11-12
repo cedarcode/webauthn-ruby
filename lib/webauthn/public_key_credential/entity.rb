@@ -3,7 +3,7 @@
 module WebAuthn
   class PublicKeyCredential
     class Entity
-      include CamelizeHelper
+      include JSONSerializer
 
       attr_reader :name
 
@@ -11,29 +11,7 @@ module WebAuthn
         @name = name
       end
 
-      def as_json
-        deep_camelize_keys(to_hash)
-      end
-
       private
-
-      def to_hash
-        hash = {}
-
-        attributes.each do |attribute_name|
-          value = send(attribute_name)
-
-          if value.respond_to?(:as_json)
-            value = value.as_json
-          end
-
-          if value
-            hash[attribute_name] = value
-          end
-        end
-
-        hash
-      end
 
       def attributes
         [:name]

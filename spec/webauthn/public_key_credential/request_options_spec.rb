@@ -67,6 +67,19 @@ RSpec.describe WebAuthn::PublicKeyCredential::RequestOptions do
     expect(hash[:challenge]).to be_truthy
   end
 
+  it "has minimum required" do
+    options = WebAuthn::PublicKeyCredential::RequestOptions.new
+
+    hash = options.as_json
+
+    expect(hash[:rpId]).to be_nil
+    expect(hash[:timeout]).to eq(120_000)
+    expect(hash[:allowCredentials]).to eq([])
+    expect(hash[:userVerification]).to be_nil
+    expect(hash[:extensions]).to eq({})
+    expect(hash[:challenge]).to be_truthy
+  end
+
   it "accepts shorthand for allow_credentials" do
     options = WebAuthn::PublicKeyCredential::RequestOptions.new(allow: "id")
 
