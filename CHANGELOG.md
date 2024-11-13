@@ -1,5 +1,26 @@
 # Changelog
 
+## [v3.2.0] - 2024-11-13
+
+### Added
+
+- Added `AuthenticatorAttestationResponse#transports` for accessing the response's `transports` value. [#421](https://github.com/cedarcode/webauthn-ruby/pull/421) [@santiagorodriguez96]
+- `WebAuthn::AuthenticatorAssertionResponse#verify` and `WebAuthn::AuthenticatorAttestationResponse#verify`,
+  as well as `RelyingParty#verify_registration` and `RelyingParty#verify_authentication` now accept a `user_presence`
+  keyword arg in order to be able to skip the user presence check for specific attestation and assertion verifications.
+  By default, user presence will be checked unless `silent_authentication` is enabled for the Relying Party (as it was before).
+  [#432](https://github.com/cedarcode/webauthn-ruby/pull/432), [#434](https://github.com/cedarcode/webauthn-ruby/pull/434), [#435](https://github.com/cedarcode/webauthn-ruby/pull/435) ([@nov](https://github.com/nov), [@santiagorodriguez96])
+- `WebAuthn::FakeClient#create` and `WebAuthn::FakeAuthenticator#make_credential` now support a `credential_algorithm` and
+  `algorithm` param (respectively) for choosing the algorithm to use for creating the credential.
+  Supported values are: 'ES256', 'RSA256' and 'EdDSA'. [#400](https://github.com/cedarcode/webauthn-ruby/pull/400), [#437](https://github.com/cedarcode/webauthn-ruby/pull/437) [@santiagorodriguez96]
+- Remove `awrence` dependency. [#436](https://github.com/cedarcode/webauthn-ruby/pull/436) [@npezza](https://github.com/npezza93)
+- Run tests with Ruby 3.3. [#416](https://github.com/cedarcode/webauthn-ruby/pull/416) [@santiagorodriguez96]
+- Run tests with Ruby 3.4.0-preview2. [#436](https://github.com/cedarcode/webauthn-ruby/pull/436) [@npezza](https://github.com/npezza93)
+
+### Changed
+
+- Remove unused class `AttestationTrustworthinessVerificationError`. [#412](https://github.com/cedarcode/webauthn-ruby/pull/412) [@soartec-lab]
+
 ## [v3.1.0] - 2023-12-26
 
 ### Added
