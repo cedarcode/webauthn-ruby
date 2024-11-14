@@ -1,5 +1,11 @@
 # Changelog
 
+## [v3.2.1] - 2024-11-14
+
+### Fixed
+
+- Fix JSON Serializer generating json with attributes with a null value. [#442](https://github.com/cedarcode/webauthn-ruby/pull/442) @santiagorodriguez96
+
 ## [v3.2.0] - 2024-11-13
 
 ### Added
