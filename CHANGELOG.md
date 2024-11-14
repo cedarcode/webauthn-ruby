@@ -1,5 +1,11 @@
 # Changelog
 
+## [v3.2.2] - 2024-11-14
+
+### Fixed
+
+- Fix `PublicKeyCredential::Options#.as_json` not camelCase'ing keys of attributes with hash or arrays as values. [#445](https://github.com/cedarcode/webauthn-ruby/pull/445) [@santiagorodriguez96]
+
 ## [v3.2.1] - 2024-11-14
 
 ### Fixed
