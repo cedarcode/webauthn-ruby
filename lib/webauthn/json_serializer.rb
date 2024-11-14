@@ -4,19 +4,21 @@ module WebAuthn
   module JSONSerializer
     # Argument wildcard for Ruby on Rails controller automatic object JSON serialization
     def as_json(*)
-      to_hash_with_camelized_keys
+      deep_camelize_keys(to_hash)
     end
 
     private
 
-    def to_hash_with_camelized_keys
+    def to_hash
       attributes.each_with_object({}) do |attribute_name, hash|
         value = send(attribute_name)
 
-        if value && value.respond_to?(:as_json)
-          hash[camelize(attribute_name)] = value.as_json
-        elsif value
-          hash[camelize(attribute_name)] = deep_camelize_keys(value)
+        if value.respond_to?(:as_json)
+          value = value.as_json
+        end
+
+        if value
+          hash[attribute_name] = value
         end
       end
     end
