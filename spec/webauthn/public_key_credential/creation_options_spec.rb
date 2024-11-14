@@ -148,11 +148,11 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
       [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -37 }, { type: "public-key", alg: -257 }]
     )
     expect(hash[:timeout]).to eq(120_000)
-    expect(hash[:excludeCredentials]).to be_nil
-    expect(hash[:authenticatorSelection]).to be_nil
-    expect(hash[:attestation]).to be_nil
-    expect(hash[:extensions]).to eq({})
     expect(hash[:challenge]).to be_truthy
+    expect(hash[:extensions]).to eq({})
+    expect(hash).not_to have_key(:excludeCredentials)
+    expect(hash).not_to have_key(:authenticatorSelection)
+    expect(hash).not_to have_key(:attestation)
   end
 
   it "accepts shorthand for exclude_credentials" do

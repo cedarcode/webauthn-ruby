@@ -72,12 +72,12 @@ RSpec.describe WebAuthn::PublicKeyCredential::RequestOptions do
 
     hash = options.as_json
 
-    expect(hash[:rpId]).to be_nil
     expect(hash[:timeout]).to eq(120_000)
     expect(hash[:allowCredentials]).to eq([])
-    expect(hash[:userVerification]).to be_nil
     expect(hash[:extensions]).to eq({})
     expect(hash[:challenge]).to be_truthy
+    expect(hash).not_to have_key(:userVerification)
+    expect(hash).not_to have_key(:rpId)
   end
 
   it "accepts shorthand for allow_credentials" do
