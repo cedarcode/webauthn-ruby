@@ -13,7 +13,7 @@ module WebAuthn
       attributes.each_with_object({}) do |attribute_name, hash|
         value = send(attribute_name)
 
-        if value.respond_to?(:as_json)
+        if value && value.respond_to?(:as_json)
           hash[camelize(attribute_name)] = value.as_json
         elsif value
           hash[camelize(attribute_name)] = deep_camelize_keys(value)
