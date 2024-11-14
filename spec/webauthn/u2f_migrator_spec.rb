@@ -21,7 +21,7 @@ RSpec.describe WebAuthn::U2fMigrator do
   let(:app_id) { URI("https://f69df4d9.ngrok.io") }
 
   it "returns the credential ID" do
-    expect(Base64.strict_encode64(u2f_migrator.credential.id))
+    expect(base64_strict_encode64(u2f_migrator.credential.id))
       .to eq("1a9tIwwYiYNdmfmxVaksOkxKapK2HtDNSsL4MssbCHILhkMzA0xZYk5IHmBljyblTQ/SnsQea+QEMzgTN2L1Mw==")
   end
 
@@ -30,8 +30,8 @@ RSpec.describe WebAuthn::U2fMigrator do
 
     expect(public_key.alg).to eq(-7)
     expect(public_key.crv).to eq(1)
-    expect(public_key.x).to eq(Base64.strict_decode64("FtOd9t3mxj6sLFkNCLzv5qS9l52MipHznrsZ+uwtHQY="))
-    expect(public_key.y).to eq(Base64.strict_decode64("np4zBpD5zhdSq1wKPvhzEoKJvFuYel1cpdTCzpahrBA="))
+    expect(public_key.x).to eq(base64_strict_decode64("FtOd9t3mxj6sLFkNCLzv5qS9l52MipHznrsZ+uwtHQY="))
+    expect(public_key.y).to eq(base64_strict_decode64("np4zBpD5zhdSq1wKPvhzEoKJvFuYel1cpdTCzpahrBA="))
   end
 
   it "returns the signature counter" do

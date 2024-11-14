@@ -186,3 +186,27 @@ def fake_certificate_chain_validation_time(attestation_statement, time)
     store
   end
 end
+
+def base64_strict_encode64(data)
+  [data].pack("m0")
+end
+
+def base64_strict_decode64(data)
+  data.unpack1("m0")
+end
+
+def base64_urlsafe_decode64(data)
+  if !data.end_with?("=") && data.length % 4 != 0
+    data = data.ljust((data.length + 3) & ~3, "=")
+    data.tr!("-_", "+/")
+  else
+    data = data.tr("-_", "+/")
+  end
+  data.unpack1("m0")
+end
+
+def base64_urlsafe_encode64(data)
+  str = base64_strict_encode64(data)
+  str.tr!("+/", "-_")
+  str
+end
