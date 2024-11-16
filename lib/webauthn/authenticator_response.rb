@@ -25,7 +25,10 @@ module WebAuthn
     end
 
     def verify(expected_challenge, expected_origin = nil, user_presence: nil, user_verification: nil, rp_id: nil)
-      expected_origin ||= relying_party.origin || raise("Unspecified expected origin")
+      expected_origin ||= relying_party.allowed_origins ||
+                          [relying_party.origin] ||
+                          raise("Unspecified expected origin")
+
       rp_id ||= relying_party.id
 
       verify_item(:type)
@@ -33,7 +36,14 @@ module WebAuthn
       verify_item(:challenge, expected_challenge)
       verify_item(:origin, expected_origin)
       verify_item(:authenticator_data)
-      verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
+
+      # NOTE: we are trying to guess from 'expected_origin' only in case it's a single origin
+      # (array that contains a single element)
+      # rp_id should either be explicitly set or guessed from only a single origin
+      verify_item(
+        :rp_id,
+        rp_id || rp_id_from_origin(expected_origin)
+      )
 
       # Fallback to RP configuration unless user_presence is passed in explicitely
       if user_presence.nil? && !relying_party.silent_authentication || user_presence
@@ -83,11 +93,21 @@ module WebAuthn
       OpenSSL.secure_compare(client_data.challenge, expected_challenge)
     end
 
+    # @return [Boolean]
+    # @param [Array<String>] expected_origin
+    # Validate if one of the allowed origins configured for RP is matching the one received from client
     def valid_origin?(expected_origin)
-      expected_origin && (client_data.origin == expected_origin)
+      return false unless expected_origin
+
+      expected_origin.include?(client_data.origin)
     end
 
+    # @return [Boolean]
+    # @param [String] rp_id
+    # Validate if RP ID is matching the one received from client
     def valid_rp_id?(rp_id)
+      return false unless rp_id
+
       OpenSSL::Digest::SHA256.digest(rp_id) == authenticator_data.rp_id_hash
     end
 
@@ -105,8 +125,16 @@ module WebAuthn
       authenticator_data.user_verified?
     end
 
+    # @return [String, nil]
+    # @param [String, Array, nil] expected_origin
+    # Extract RP ID from origin in case rp_id is not provided explicitly
     def rp_id_from_origin(expected_origin)
-      URI.parse(expected_origin).host
+      case expected_origin
+      when Array
+        URI.parse(expected_origin.first).host if expected_origin.size == 1
+      when String
+        URI.parse(expected_origin).host
+      end
     end
 
     def type
