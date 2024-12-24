@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-require 'support/seeds'
+require "spec_helper"
+require "support/seeds"
 require "webauthn/attestation_statement/fido_u2f/public_key"
 require "webauthn/authenticator_assertion_response"
 require "webauthn/u2f_migrator"
