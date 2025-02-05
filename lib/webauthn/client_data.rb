@@ -9,8 +9,6 @@ module WebAuthn
   class ClientDataMissingError < Error; end
 
   class ClientData
-    VALID_TOKEN_BINDING_STATUSES = ["present", "supported", "not-supported"].freeze
-
     def initialize(client_data_json)
       @client_data_json = client_data_json
     end
@@ -25,18 +23,6 @@ module WebAuthn
 
     def origin
       data["origin"]
-    end
-
-    def token_binding
-      data["tokenBinding"]
-    end
-
-    def valid_token_binding_format?
-      if token_binding
-        token_binding.is_a?(Hash) && VALID_TOKEN_BINDING_STATUSES.include?(token_binding["status"])
-      else
-        true
-      end
     end
 
     def hash

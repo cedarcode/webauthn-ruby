@@ -479,36 +479,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
-  describe "tokenBinding validation" do
-    let(:client) { WebAuthn::FakeClient.new(origin, token_binding: token_binding, encoding: false) }
-
-    context "it has stuff" do
-      let(:token_binding) { { status: "supported" } }
-
-      it "verifies" do
-        expect(attestation_response.verify(original_challenge, origin)).to be_truthy
-      end
-
-      it "is valid" do
-        expect(attestation_response.valid?(original_challenge, origin)).to be_truthy
-      end
-    end
-
-    context "has an invalid format" do
-      let(:token_binding) { "invalid token binding format" }
-
-      it "doesn't verify" do
-        expect {
-          attestation_response.verify(original_challenge, origin)
-        }.to raise_exception(WebAuthn::TokenBindingVerificationError)
-      end
-
-      it "isn't valid" do
-        expect(attestation_response.valid?(original_challenge, origin)).to be_falsy
-      end
-    end
-  end
-
   describe "user presence" do
     context "when UP is not set" do
       let(:public_key_credential) { client.create(challenge: original_challenge, user_present: false) }
