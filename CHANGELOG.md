@@ -1,5 +1,11 @@
 # Changelog
 
+## [v3.3.0] - 2025-02-06
+
+### Added
+
+- Updated `tpm-key_attestation` dependency from `~> 1.12.0` to `~> 1.14.0`. [#449](https://github.com/cedarcode/webauthn-ruby/pull/449) [@brauliomartinezlm], [@nicolastemciuc]
+
 ## [v3.2.2] - 2024-11-14
 
 ### Fixed
