@@ -49,12 +49,10 @@ module WebAuthn
 
     def data
       @data ||=
-        begin
-          if client_data_json
-            JSON.parse(client_data_json)
-          else
-            raise ClientDataMissingError, "Client Data JSON is missing"
-          end
+        if client_data_json
+          JSON.parse(client_data_json)
+        else
+          raise ClientDataMissingError, "Client Data JSON is missing"
         end
     end
   end
