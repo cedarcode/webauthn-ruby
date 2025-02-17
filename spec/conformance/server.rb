@@ -42,7 +42,6 @@ host = ENV["HOST"] || "localhost"
 
 mds_finder =
   MDSFinder.new.tap do |mds|
-    mds.token = ""
     mds.cache_backend = ConformanceCacheStore.new
     mds.cache_backend.setup_authenticators
     mds.cache_backend.setup_metadata_store("http://#{host}:#{settings.port}")
@@ -51,7 +50,7 @@ mds_finder =
 relying_party = WebAuthn::RelyingParty.new(
   origin: "http://#{host}:#{settings.port}",
   name: RP_NAME,
-  algorithms: %w(ES256 ES384 ES512 PS256 PS384 PS512 RS256 RS384 RS512 RS1),
+  algorithms: %w(ES256 ES384 ES512 PS256 PS384 PS512 RS256 RS384 RS512 RS1 EdDSA),
   silent_authentication: true,
   attestation_root_certificates_finders: mds_finder
 )
