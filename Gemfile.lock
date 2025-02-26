@@ -85,7 +85,7 @@ DEPENDENCIES
   byebug (~> 11.0)
   rake (~> 13.0)
   rspec (~> 3.8)
-  rubocop (~> 1.9.1)
+  rubocop (~> 1)
   rubocop-rake (~> 0.5.1)
   rubocop-rspec (~> 2.2.0)
   webauthn!
