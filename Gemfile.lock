@@ -87,7 +87,7 @@ DEPENDENCIES
   rspec (~> 3.8)
   rubocop (~> 1)
   rubocop-rake (~> 0.5)
-  rubocop-rspec (~> 2.2.0)
+  rubocop-rspec (>= 2.2)
   webauthn!
 
 BUNDLED WITH
