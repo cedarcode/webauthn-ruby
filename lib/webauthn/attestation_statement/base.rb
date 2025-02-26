@@ -46,7 +46,7 @@ module WebAuthn
       end
 
       def attestation_certificate_key_id
-        attestation_certificate.subject_key_identifier&.unpack("H*")&.[](0)
+        attestation_certificate.subject_key_identifier&.unpack1("H*")
       end
 
       private
