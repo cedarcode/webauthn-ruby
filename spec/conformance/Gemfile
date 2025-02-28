@@ -11,3 +11,4 @@ gem "rubyzip"
 gem "sinatra", "~> 2.0"
 gem "sinatra-contrib"
 gem "webauthn", path: File.join("..", "..")
+gem "webrick", "~> 1.9"
