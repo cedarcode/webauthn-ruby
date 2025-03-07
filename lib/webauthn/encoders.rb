@@ -2,8 +2,11 @@
 
 module WebAuthn
   module Encoders
+    # https://www.w3.org/TR/webauthn-2/#base64url-encoding
+    STANDARD_ENCODING = :base64url
+
     class << self
-      def lookup(encoding = WebAuthn::Encoder::STANDARD_ENCODING)
+      def lookup(encoding = STANDARD_ENCODING)
         case encoding
         when :base64
           Base64Encoder
