@@ -16,18 +16,8 @@ module WebAuthn
 
     def_delegators :@encoder_klass, :encode, :decode
 
-    def initialize(encoding = STANDARD_ENCODING)
-      @encoder_klass =
-        case encoding
-        when :base64
-          Encoders::Base64Encoder
-        when :base64url
-          Encoders::Base64URLEncoder
-        when nil, false
-          Encoders::NullEncoder
-        else
-          raise "Unsupported or unknown encoding: #{encoding}"
-        end
+    def initialize(*args)
+      @encoder_klass = Encoders.lookup(*args)
     end
   end
 end

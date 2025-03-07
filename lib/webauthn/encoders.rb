@@ -2,6 +2,21 @@
 
 module WebAuthn
   module Encoders
+    class << self
+      def lookup(encoding = WebAuthn::Encoder::STANDARD_ENCODING)
+        case encoding
+        when :base64
+          Base64Encoder
+        when :base64url
+          Base64UrlEncoder
+        when nil, false
+          NullEncoder
+        else
+          raise "Unsupported or unknown encoding: #{encoding}"
+        end
+      end
+    end
+
     class Base64Encoder
       def self.encode(data)
         [data].pack("m0") # Base64.strict_encode64(data)
