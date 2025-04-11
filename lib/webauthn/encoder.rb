@@ -4,10 +4,6 @@ require "base64"
 require "webauthn/encoders"
 
 module WebAuthn
-  def self.standard_encoder
-    @standard_encoder ||= Encoder.new
-  end
-
   class Encoder
     extend Forwardable
 

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 module WebAuthn
+  def self.standard_encoder
+    @standard_encoder ||= Encoders.lookup
+  end
+
   module Encoders
     # https://www.w3.org/TR/webauthn-2/#base64url-encoding
     STANDARD_ENCODING = :base64url
