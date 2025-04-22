@@ -274,14 +274,14 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   context "when TPM attestation" do
     let(:origin) { seeds[:tpm][:origin] }
     let(:time) { Time.utc(2019, 8, 13, 22, 6) }
-    let(:challenge) { Base64.strict_decode64(seeds[:tpm][:credential_creation_options][:challenge]) }
+    let(:challenge) { Base64.urlsafe_decode64(seeds[:tpm][:credential_creation_options][:challenge]) }
 
     let(:attestation_response) do
       response = seeds[:tpm][:authenticator_attestation_response]
 
       WebAuthn::AuthenticatorAttestationResponse.new(
-        attestation_object: Base64.strict_decode64(response[:attestation_object]),
-        client_data_json: Base64.strict_decode64(response[:client_data_json])
+        attestation_object: Base64.urlsafe_decode64(response[:attestation_object]),
+        client_data_json: Base64.urlsafe_decode64(response[:client_data_json])
       )
     end
 
