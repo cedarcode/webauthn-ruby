@@ -9,10 +9,10 @@ require "openssl"
 
 RSpec.describe "PublicKey" do
   let(:uncompressed_point_public_key) do
-    Base64.strict_decode64(seeds[:u2f_migration][:stored_credential][:public_key])
+    WebAuthn::Encoders::Base64Encoder.decode(seeds[:u2f_migration][:stored_credential][:public_key])
   end
   let(:cose_public_key) do
-    Base64.urlsafe_decode64(
+    WebAuthn::Encoders::Base64UrlEncoder.decode(
       "pQECAyYgASFYIPJKd_-Rl0QtQwbLggjGC_EbUFIMriCkdc2yuaukkBuNIlggaBsBjCwnMzFL7OUGJNm4b-HVpFNUa_NbsHGARuYKHfU"
     )
   end
@@ -94,14 +94,14 @@ RSpec.describe "PublicKey" do
 
       context "when signature was signed with public key" do
         let(:signature) do
-          Base64.strict_decode64(seeds[:u2f_migration][:assertion][:response][:signature])
+          WebAuthn::Encoders::Base64Encoder.decode(seeds[:u2f_migration][:assertion][:response][:signature])
         end
         let(:authenticator_data) do
-          Base64.strict_decode64(seeds[:u2f_migration][:assertion][:response][:authenticator_data])
+          WebAuthn::Encoders::Base64Encoder.decode(seeds[:u2f_migration][:assertion][:response][:authenticator_data])
         end
         let(:client_data_hash) do
           WebAuthn::ClientData.new(
-            Base64.strict_decode64(seeds[:u2f_migration][:assertion][:response][:client_data_json])
+            WebAuthn::Encoders::Base64Encoder.decode(seeds[:u2f_migration][:assertion][:response][:client_data_json])
           ).hash
         end
         let(:verification_data) { authenticator_data + client_data_hash }

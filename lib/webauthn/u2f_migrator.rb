@@ -43,7 +43,9 @@ module WebAuthn
     end
 
     def attestation_trust_path
-      @attestation_trust_path ||= [OpenSSL::X509::Certificate.new(Base64.strict_decode64(@certificate))]
+      @attestation_trust_path ||= [
+        OpenSSL::X509::Certificate.new(WebAuthn::Encoders::Base64Encoder.decode(@certificate))
+      ]
     end
 
     private
@@ -51,14 +53,14 @@ module WebAuthn
     # https://fidoalliance.org/specs/fido-v2.0-rd-20180702/fido-client-to-authenticator-protocol-v2.0-rd-20180702.html#u2f-authenticatorMakeCredential-interoperability
     # Let credentialId be a credentialIdLength byte array initialized with CTAP1/U2F response key handle bytes.
     def credential_id
-      Base64.urlsafe_decode64(@key_handle)
+      WebAuthn::Encoders::Base64UrlEncoder.decode(@key_handle)
     end
 
     # Let x9encodedUserPublicKey be the user public key returned in the U2F registration response message [U2FRawMsgs].
     # Let coseEncodedCredentialPublicKey be the result of converting x9encodedUserPublicKey’s value from ANS X9.62 /
     # Sec-1 v2 uncompressed curve point representation [SEC1V2] to COSE_Key representation ([RFC8152] Section 7).
     def credential_cose_key
-      decoded_public_key = Base64.strict_decode64(@public_key)
+      decoded_public_key = WebAuthn::Encoders::Base64Encoder.decode(@public_key)
       if WebAuthn::AttestationStatement::FidoU2f::PublicKey.uncompressed_point?(decoded_public_key)
         COSE::Key::EC2.new(
           alg: COSE::Algorithm.by_name("ES256").id,
