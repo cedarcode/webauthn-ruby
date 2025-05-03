@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require "ostruct"
 require "spec_helper"
 require "webauthn/fake_authenticator"
 require "webauthn/fake_client"
 require "webauthn/relying_party"
+
+Credential = Struct.new(:webauthn_id, :public_key, :sign_count, keyword_init: true)
+User = Struct.new(:id, :name, :credentials, keyword_init: true)
 
 RSpec.describe "RelyingParty" do
   let(:authenticator) { WebAuthn::FakeAuthenticator.new }
@@ -21,7 +23,7 @@ RSpec.describe "RelyingParty" do
   end
 
   let(:user) do
-    OpenStruct.new(id: WebAuthn.generate_user_id, name: 'John Doe', credentials: [])
+    User.new(id: WebAuthn.generate_user_id, name: 'John Doe', credentials: [])
   end
 
   describe '#verify_registration' do
@@ -76,7 +78,7 @@ RSpec.describe "RelyingParty" do
     let(:admin_credential_public_key) { admin_credential[1] }
 
     before do
-      user.credentials << OpenStruct.new(
+      user.credentials << Credential.new(
         webauthn_id: admin_credential.first,
         public_key: admin_rp.encoder.encode(admin_credential[1]),
         sign_count: 0
@@ -194,12 +196,12 @@ RSpec.describe "RelyingParty" do
       end
 
       before do
-        user.credentials << OpenStruct.new(
+        user.credentials << Credential.new(
           webauthn_id: admin_credential.first,
           public_key: admin_rp.encoder.encode(admin_credential[1]),
           sign_count: 0
         )
-        user.credentials << OpenStruct.new(
+        user.credentials << Credential.new(
           webauthn_id: consumer_credential.first,
           public_key: consumer_rp.encoder.encode(consumer_credential[1]),
           sign_count: 0
@@ -324,12 +326,12 @@ RSpec.describe "RelyingParty" do
       end
 
       before do
-        user.credentials << OpenStruct.new(
+        user.credentials << Credential.new(
           webauthn_id: admin_credential.first,
           public_key: admin_rp.encoder.encode(admin_credential[1]),
           sign_count: 0
         )
-        user.credentials << OpenStruct.new(
+        user.credentials << Credential.new(
           webauthn_id: default_configuration_credential.first,
           public_key: WebAuthn.configuration.encoder.encode(default_configuration_credential[1]),
           sign_count: 0
@@ -419,7 +421,7 @@ RSpec.describe "RelyingParty" do
       end
 
       before do
-        user.credentials << OpenStruct.new(
+        user.credentials << Credential.new(
           webauthn_id: default_configuration_credential.first,
           public_key: WebAuthn.configuration.encoder.encode(default_configuration_credential[1]),
           sign_count: 0
