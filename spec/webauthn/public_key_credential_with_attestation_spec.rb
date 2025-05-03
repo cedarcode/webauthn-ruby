@@ -40,7 +40,7 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
     let(:origin) { fake_origin }
 
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     it "works" do
