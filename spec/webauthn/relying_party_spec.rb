@@ -278,7 +278,7 @@ RSpec.describe "RelyingParty" do
 
     before do
       WebAuthn.configure do |config|
-        config.origin = "https://www.example.com"
+        config.allowed_origins = ["https://www.example.com"]
         config.rp_name = "Example Consumer page"
       end
     end
@@ -391,7 +391,7 @@ RSpec.describe "RelyingParty" do
 
     before do
       WebAuthn.configure do |config|
-        config.origin = "https://www.example.com"
+        config.allowed_origins = ["https://www.example.com"]
         config.rp_name = "Example Consumer page"
       end
     end

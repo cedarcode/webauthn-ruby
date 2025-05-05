@@ -46,7 +46,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
     end
 
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     it "works" do
