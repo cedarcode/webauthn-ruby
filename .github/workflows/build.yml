@@ -7,11 +7,7 @@
 
 name: build
 
-on:
-  push:
-    branches: [master]
-  pull_request:
-    types: [opened, synchronize]
+on: push
 
 jobs:
   test:
