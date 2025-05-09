@@ -3,6 +3,9 @@ inputs:
   version:
     description: 'The version of Ruby to install'
     required: true
+  openssl-version:
+    description: 'The version of OpenSSL used'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -11,7 +14,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: ~/rubies/ruby-${{ inputs.version }}
-        key: ruby-${{ inputs.version }}-openssl-1.1.1w
+        key: ruby-${{ inputs.version }}-${{ inputs.openssl-version }}
 
     - name: Install Ruby
       if: steps.ruby-cache.outputs.cache-hit != 'true'
@@ -52,7 +55,7 @@ runs:
         GEMFILE: ${{ env.BUNDLE_GEMFILE || 'Gemfile' }}
       with:
         path: ./vendor/bundle
-        key: bundler-ruby-${{ inputs.version }}-${{ hashFiles(env.Gemfile, 'webauthn.gemspec') }}
+        key: bundler-ruby-${{ inputs.version }}-${{ inputs.openssl-version }}-${{ hashFiles(env.Gemfile, 'webauthn.gemspec') }}
 
     - name: Install dependencies
       shell: bash
