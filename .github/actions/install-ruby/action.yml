@@ -61,14 +61,14 @@ runs:
       env:
         GEMFILE: ${{ env.BUNDLE_GEMFILE || 'Gemfile' }}
       with:
-        path: ./vendor/bundle
+        path: ../vendor/bundle
         key: bundler-ruby-${{ inputs.version }}-${{ inputs.openssl-version }}-${{ hashFiles(env.Gemfile, 'webauthn.gemspec') }}
 
     - name: Install dependencies
       if: steps.cache-bundler-restore.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        bundle config set --local path ./vendor/bundle
+        bundle config set --local path ../vendor/bundle
         bundle install
 
     - name: Save Bundler Install cache
@@ -76,5 +76,5 @@ runs:
       id: cache-bundler-save
       uses: actions/cache/save@v4
       with:
-        path: ./vendor/bundle
+        path: ../vendor/bundle
         key: ${{ steps.cache-bundler-restore.outputs.cache-primary-key }}
