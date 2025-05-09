@@ -21,6 +21,13 @@ RSpec.configure do |config|
   config.after do
     WebAuthn.instance_variable_set(:@configuration, nil)
   end
+
+  config.before(:suite) do
+    puts "======================================================"
+    puts "OpenSSL library version is: #{OpenSSL::OPENSSL_VERSION}"
+    puts "======================================================"
+    puts
+  end
 end
 
 def create_credential(
