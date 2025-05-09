@@ -1,0 +1,35 @@
+name: Install OpenSSL
+
+inputs:
+  version:
+    description: 'The version of OpenSSL to install'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache OpenSSL library
+      id: cache-openssl
+      uses: actions/cache@v4
+      with:
+        path: ~/openssl
+        key: openssl-${{ inputs.version }}
+
+    - name: Compile OpenSSL library
+      if: steps.cache-openssl.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        mkdir -p tmp/build-openssl && cd tmp/build-openssl
+        case ${{ inputs.version }} in
+        1.1.*)
+          OPENSSL_COMMIT=OpenSSL_
+          OPENSSL_COMMIT+=$(echo ${{ inputs.version  }} | sed -e 's/\./_/g')
+          git clone -b $OPENSSL_COMMIT --depth 1 https://github.com/openssl/openssl.git .
+          echo "Git commit: $(git rev-parse HEAD)"
+          ./Configure --prefix=$HOME/openssl --libdir=lib linux-x86_64
+          make depend && make -j4 && make install_sw
+          ;;
+        *)
+          echo "Don't know how to build OpenSSL ${{ inputs.version }}"
+          ;;
+        esac
