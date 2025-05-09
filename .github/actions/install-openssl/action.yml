@@ -8,15 +8,15 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Cache OpenSSL library
-      id: cache-openssl
-      uses: actions/cache@v4
+    - name: Restore cached OpenSSL library
+      id: cache-openssl-restore
+      uses: actions/cache/restore@v4
       with:
         path: ~/openssl
         key: openssl-${{ inputs.version }}
 
     - name: Compile OpenSSL library
-      if: steps.cache-openssl.outputs.cache-hit != 'true'
+      if: steps.cache-openssl-restore.outputs.cache-hit != 'true'
       shell: bash
       run: |
         mkdir -p tmp/build-openssl && cd tmp/build-openssl
@@ -33,3 +33,11 @@ runs:
           echo "Don't know how to build OpenSSL ${{ inputs.version }}"
           ;;
         esac
+
+    - name: Save OpenSSL library cache
+      if: steps.cache-openssl-restore.outputs.cache-hit != 'true'
+      id: cache-openssl-save
+      uses: actions/cache/save@v4
+      with:
+        path: ~/openssl
+        key: ${{ steps.cache-openssl-restore.outputs.cache-primary-key }}
