@@ -8,15 +8,15 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Cache Ruby
-      id: ruby-cache
-      uses: actions/cache@v4
+    - name: Restore cached Ruby installation
+      id: cache-ruby-restore
+      uses: actions/cache/restore@v4
       with:
         path: ~/rubies/ruby-${{ inputs.version }}
         key: ruby-${{ inputs.version }}-openssl-1.1.1w
 
     - name: Install Ruby
-      if: steps.ruby-cache.outputs.cache-hit != 'true'
+      if: steps.cache-ruby-restore.outputs.cache-hit != 'true'
       shell: bash
       run: |
         latest_patch=$(curl -s https://cache.ruby-lang.org/pub/ruby/${{ inputs.version }}/ \
@@ -50,17 +50,32 @@ runs:
           ;;
         esac
 
+    - name: Save Ruby installation cache
+      if: steps.cache-ruby-restore.outputs.cache-hit != 'true'
+      id: cache-ruby-save
+      uses: actions/cache/save@v4
+      with:
+        path: ~/rubies/ruby-${{ inputs.version }}
+        key: ${{ steps.cache-ruby-restore.outputs.cache-primary-key }}
+
     - name: Cache Bundler Install
-      id: bundler-cache
-      uses: actions/cache@v4
+      id: cache-bundler-restore
+      uses: actions/cache/restore@v4
       env:
         GEMFILE: ${{ env.BUNDLE_GEMFILE || 'Gemfile' }}
       with:
         path: ~/bundler/cache
-        key: bundler-ruby-${{ inputs.version }}-${{ hashFiles(env.Gemfile, 'webauthn.gemspec') }}
+        key: bundler-ruby-${{ inputs.version }}-openssl-1.1.1w-${{ hashFiles(env.Gemfile, 'webauthn.gemspec') }}
 
     - name: Install dependencies
       shell: bash
       run: |
         bundle config set --local path ~/bundler/cache
         bundle install
+
+    - name: Save Bundler Install cache
+      id: cache-bundler-save
+      uses: actions/cache/save@v4
+      with:
+        path: ~/bundler/cache
+        key: ${{ steps.cache-bundler-restore.outputs.cache-primary-key }}
