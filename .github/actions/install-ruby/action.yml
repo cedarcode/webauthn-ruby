@@ -1,0 +1,66 @@
+name: Install Ruby
+
+inputs:
+  version:
+    description: 'The version of Ruby to install'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache Ruby
+      id: ruby-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/rubies/ruby-${{ inputs.version }}
+        key: ruby-${{ inputs.version }}-openssl-1.1.1w
+
+    - name: Install Ruby
+      if: steps.ruby-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        latest_patch=$(curl -s https://cache.ruby-lang.org/pub/ruby/${{ inputs.version }}/ \
+           | grep -oP "ruby-${{ inputs.version }}\.\d+\.tar\.xz" \
+           | grep -oP "\d+(?=\.tar\.xz)" \
+           | sort -V | tail -n 1)
+        wget https://cache.ruby-lang.org/pub/ruby/${{ inputs.version }}/ruby-${{ inputs.version }}.${latest_patch}.tar.xz
+        tar -xJvf ruby-${{ inputs.version }}.${latest_patch}.tar.xz
+        cd ruby-${{ inputs.version }}.${latest_patch}
+        ./configure --prefix=$HOME/rubies/ruby-${{ inputs.version }} --with-openssl-dir=$HOME/openssl
+        make
+        make install
+
+    - name: Update PATH
+      shell: bash
+      run: |
+        echo "~/rubies/ruby-${{ inputs.version }}/bin" >> $GITHUB_PATH
+
+    - name: Install Bundler
+      shell: bash
+      run: |
+        case ${{ inputs.version }} in
+        2.7* | 3.*)
+          echo "Skipping Bundler installation for Ruby ${{ inputs.version }}"
+          ;;
+        2.5* | 2.6*)
+          gem install bundler -v '~> 2.3.0'
+          ;;
+        *)
+          echo "Don't know how to install Bundler for Ruby ${{ inputs.version }}"
+          ;;
+        esac
+
+    - name: Cache Bundler Install
+      id: bundler-cache
+      uses: actions/cache@v4
+      env:
+        GEMFILE: ${{ env.BUNDLE_GEMFILE || 'Gemfile' }}
+      with:
+        path: ~/bundler/cache
+        key: bundler-ruby-${{ inputs.version }}-${{ hashFiles(env.Gemfile, 'webauthn.gemspec') }}
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        bundle config set --local path ~/bundler/cache
+        bundle install
