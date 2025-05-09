@@ -28,7 +28,17 @@ jobs:
           - '2.7'
           - '2.6'
           - '2.5'
-          - truffleruby
+        openssl:
+          - '3.5.3'
+          - '3.4.2'
+          - '3.3.4'
+          - '3.2.5'
+          - '3.1.8'
+          - '3.0.17'
+          - '1.1.1w'
+        include:
+          - ruby: truffleruby
+
     steps:
     - uses: actions/checkout@v5
 
@@ -36,14 +46,14 @@ jobs:
       if: matrix.ruby != 'truffleruby'
       uses: ./.github/actions/install-openssl
       with:
-        version: "1.1.1w"
+        version: ${{ matrix.openssl }}
 
     - name: Manually set up Ruby
       if: matrix.ruby != 'truffleruby'
       uses: ./.github/actions/install-ruby
       with:
         version: ${{ matrix.ruby }}
-        openssl-version: "1.1.1w"
+        openssl-version: ${{ matrix.openssl }}
 
     - name: Set up Ruby
       if: matrix.ruby == 'truffleruby'

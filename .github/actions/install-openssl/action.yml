@@ -29,6 +29,18 @@ runs:
           ./Configure --prefix=$HOME/openssl --libdir=lib linux-x86_64
           make depend && make -j4 && make install_sw
           ;;
+        3.*)
+          OPENSSL_COMMIT=openssl-
+          OPENSSL_COMMIT+=$(echo ${{ inputs.version  }})
+          git clone -b $OPENSSL_COMMIT --depth 1 https://github.com/openssl/openssl.git .
+          echo "Git commit: $(git rev-parse HEAD)"
+          if [[ ${{ inputs.version }} == 3.5* ]]; then
+            ./Configure --prefix=$HOME/openssl --libdir=lib enable-fips no-tests no-legacy
+          else
+            ./Configure --prefix=$HOME/openssl --libdir=lib enable-fips no-tests
+          fi
+          make -j4 && make install_sw && make install_fips
+          ;;
         *)
           echo "Don't know how to build OpenSSL ${{ inputs.version }}"
           ;;
