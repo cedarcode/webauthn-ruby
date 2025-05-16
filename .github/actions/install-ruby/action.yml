@@ -48,6 +48,12 @@ runs:
           echo "Don't know how to install Bundler for Ruby ${{ inputs.version }}"
           ;;
         esac
+
+    - name: Check Ruby OpenSSL version
+      shell: bash
+      run: |
+        ruby -ropenssl -e "puts %Q[\ \ \ Build: #{OpenSSL::OPENSSL_VERSION}\n Runtime: #{OpenSSL::OPENSSL_LIBRARY_VERSION}]"
+
     - name: Save Ruby installation cache
       if: steps.cache-ruby-restore.outputs.cache-hit != 'true'
       id: cache-ruby-save
