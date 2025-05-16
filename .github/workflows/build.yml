@@ -43,6 +43,7 @@ jobs:
       uses: ./.github/actions/install-ruby
       with:
         version: ${{ matrix.ruby }}
+        openssl-version: "1.1.1w"
 
     - name: Set up Ruby
       if: matrix.ruby == 'truffleruby'
