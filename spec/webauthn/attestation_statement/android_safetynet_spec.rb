@@ -2,7 +2,6 @@
 
 require "spec_helper"
 
-require "base64"
 require "jwt"
 require "openssl"
 require "webauthn/attestation_statement/android_safetynet"
@@ -17,7 +16,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
         payload,
         attestation_key,
         "RS256",
-        x5c: [Base64.strict_encode64(leaf_certificate.to_der)]
+        x5c: [WebAuthn::Encoders::Base64Encoder.encode(leaf_certificate.to_der)]
       )
     end
 
@@ -26,7 +25,11 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     end
     let(:timestamp) { Time.now }
     let(:cts_profile_match) { true }
-    let(:nonce) { Base64.strict_encode64(OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)) }
+    let(:nonce) do
+      WebAuthn::Encoders::Base64Encoder.encode(
+        OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)
+      )
+    end
     let(:attestation_key) { create_rsa_key }
 
     let(:leaf_certificate) do
@@ -63,7 +66,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
     end
 
     context "when nonce is not set to the base64 of the SHA256 of authData + clientDataHash" do
-      let(:nonce) { Base64.strict_encode64(OpenSSL::Digest.digest("SHA256", "something else")) }
+      let(:nonce) { WebAuthn::Encoders::Base64Encoder.encode(OpenSSL::Digest.digest("SHA256", "something else")) }
 
       it "returns false" do
         expect(statement.valid?(authenticator_data, client_data_hash)).to be_falsy

@@ -2,7 +2,6 @@
 
 require "spec_helper"
 
-require "base64"
 require "securerandom"
 require "webauthn/authenticator_attestation_response"
 require "webauthn/configuration"
@@ -21,7 +20,7 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
     end
 
     let(:type) { "public-key" }
-    let(:id) { Base64.urlsafe_encode64(raw_id) }
+    let(:id) { WebAuthn::Encoders::Base64UrlEncoder.encode(raw_id) }
     let(:raw_id) { SecureRandom.random_bytes(16) }
     let(:authenticator_attachment) { 'platform' }
 
@@ -35,7 +34,7 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
     end
 
     let(:client) { WebAuthn::FakeClient.new(origin, encoding: false) }
-    let(:challenge) { Base64.urlsafe_encode64(raw_challenge) }
+    let(:challenge) { WebAuthn::Encoders::Base64UrlEncoder.encode(raw_challenge) }
     let(:raw_challenge) { fake_challenge }
     let(:origin) { fake_origin }
 
@@ -79,7 +78,7 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
       end
 
       context "because it is not the base64url of raw id" do
-        let(:id) { Base64.urlsafe_encode64(raw_id + "a") }
+        let(:id) { WebAuthn::Encoders::Base64UrlEncoder.encode(raw_id + "a") }
 
         it "fails" do
           expect { public_key_credential.verify(challenge) }.to raise_error(RuntimeError)
@@ -98,7 +97,7 @@ RSpec.describe "PublicKeyCredentialWithAttestation" do
     context "when challenge value is invalid" do
       it "fails" do
         expect {
-          public_key_credential.verify(Base64.urlsafe_encode64("another challenge"))
+          public_key_credential.verify(WebAuthn::Encoders::Base64UrlEncoder.encode("another challenge"))
         }.to raise_error(WebAuthn::ChallengeVerificationError)
       end
     end
