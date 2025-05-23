@@ -27,7 +27,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   before do
-    WebAuthn.configuration.origin = origin
+    WebAuthn.configuration.allowed_origins = [origin]
   end
 
   context "when everything's in place" do

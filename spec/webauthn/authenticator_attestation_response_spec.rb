@@ -36,7 +36,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   context "when everything's in place" do
     context "when there is a single origin" do
       before do
-        WebAuthn.configuration.origin = origin
+        WebAuthn.configuration.allowed_origins = [origin]
       end
 
       it_behaves_like "a valid attestation response"
@@ -130,7 +130,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
       before do
         WebAuthn.configuration.attestation_root_certificates_finders = finder_for('feitian_ft_fido_0200.pem')
-        WebAuthn.configuration.origin = origin
+        WebAuthn.configuration.allowed_origins = [origin]
       end
 
       it_behaves_like "a valid attestation response"
@@ -208,7 +208,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     it_behaves_like "a valid attestation response"
@@ -249,7 +249,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
     before do
       WebAuthn.configuration.attestation_root_certificates_finders = finder_for('yubico_u2f_root.pem')
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     it_behaves_like "a valid attestation response"
@@ -285,7 +285,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
       WebAuthn.configure do |config|
         config.algorithms.concat(%w(RS1))
       end
@@ -348,7 +348,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
       allow(attestation_response.attestation_statement).to receive(:time).and_return(time)
     end
 
@@ -392,7 +392,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       let(:origin) { seeds[:android_key_direct][:origin] }
 
       before do
-        WebAuthn.configuration.origin = origin
+        WebAuthn.configuration.allowed_origins = [origin]
       end
 
       it_behaves_like "a valid attestation response"
@@ -482,7 +482,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
 
       # Apple credential certificate expires after 3 days apparently.
       # Seed data was obtained 22nd Feb 2021, so we are simulating validation within that 3 day timeframe
@@ -505,7 +505,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   context "when no client data received" do
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     it "returns user-friendly error if no client data received" do
@@ -535,7 +535,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
 
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     context "matches the default one" do
@@ -611,7 +611,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:client) { WebAuthn::FakeClient.new(origin, token_binding: token_binding, encoding: false) }
 
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     context "it has stuff" do
@@ -719,7 +719,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   describe "user verification" do
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     context "when UV is not set" do
@@ -739,7 +739,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   describe "attested credential data verification" do
     before do
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     context "when AT is not set" do
@@ -784,7 +784,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     before do
       attestation_response.attestation_statement.instance_variable_get(:@statement)["sig"] =
         "corrupted signature".b
-      WebAuthn.configuration.origin = origin
+      WebAuthn.configuration.allowed_origins = [origin]
     end
 
     context "when verification is set to true" do
