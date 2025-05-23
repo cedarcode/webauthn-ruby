@@ -17,7 +17,7 @@ module WebAuthn
 
     def initialize(
       algorithms: DEFAULT_ALGORITHMS.dup,
-      encoding: WebAuthn::Encoders::STANDARD_ENCODING,
+      encoding: WebAuthn::Encoder::STANDARD_ENCODING,
       allowed_origins: nil,
       origin: nil,
       id: nil,
