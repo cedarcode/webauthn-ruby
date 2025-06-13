@@ -42,6 +42,11 @@ jobs:
             openssl: '1.1.1w'
           - ruby: '2.5'
             openssl: '1.1.1w'
+          exclude:
+            openssl: '3.5.0' # See https://github.com/cedarcode/tpm-key_attestation/issues/51
+            openssl: '3.4.1' # See https://github.com/cedarcode/webauthn-ruby/issues/463
+            openssl: '3.3.3' # See https://github.com/cedarcode/webauthn-ruby/issues/463
+
 
     steps:
     - uses: actions/checkout@v4
