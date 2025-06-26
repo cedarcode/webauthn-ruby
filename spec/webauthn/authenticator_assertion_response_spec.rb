@@ -502,7 +502,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "migrated U2F credential" do
-    let(:origin) { "https://f69df4d9.ngrok.io" }
+    let(:origin) { seeds[:u2f_migration][:assertion][:origin] }
     let(:app_id) { "#{origin}/appid" }
     let(:migrated_credential) do
       WebAuthn::U2fMigrator.new(
@@ -525,17 +525,47 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
     let(:original_challenge) { WebAuthn::Encoders::Base64Encoder.decode(assertion_data[:challenge]) }
 
-    context "when correct FIDO AppID is given as rp_id" do
-      it "verifies" do
-        expect(
-          assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0, rp_id: app_id)
-        ).to be_truthy
+    it "verifies" do
+      expect(
+        assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
+      ).to be_truthy
+    end
+
+    it "is valid" do
+      expect(
+        assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
+      ).to be_truthy
+    end
+
+    context "when authenticator_data contains FIDO AppID hash instead of rp_id hash" do
+      before do
+        allow(assertion_response.authenticator_data)
+          .to receive(:rp_id_hash)
+          .and_return(OpenSSL::Digest::SHA256.digest(app_id))
       end
 
-      it "is valid" do
-        expect(
-          assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0, rp_id: app_id)
-        ).to be_truthy
+      context "and FIDO AppID is given as rp_id" do
+        it "verifies" do
+          expect(
+            assertion_response.verify(
+              original_challenge,
+              public_key: credential_public_key,
+              sign_count: 0,
+              rp_id: app_id
+            )
+          ).to be_truthy
+        end
+
+        it "is valid" do
+          expect(
+            assertion_response.valid?(
+              original_challenge,
+              public_key: credential_public_key,
+              sign_count: 0,
+              rp_id: app_id
+            )
+          ).to be_truthy
+        end
       end
     end
   end
