@@ -286,6 +286,8 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
 
         before do
           WebAuthn.configuration.legacy_u2f_appid = legacy_u2f_appid
+
+          allow(assertion_response.authenticator_data).to receive(:rp_id_hash).and_return(OpenSSL::Digest::SHA256.digest(legacy_u2f_appid))
         end
 
         it "works" do
@@ -298,7 +300,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
           ).to be_truthy
         end
 
-        context "if appid extension is not requested" do
+        context "if appid extension output is not present" do
           let(:public_key_credential) do
             WebAuthn::PublicKeyCredentialWithAssertion.new(
               type: credential_type,
@@ -331,7 +333,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
           end.to raise_error("Unspecified legacy U2F AppID")
         end
 
-        context "if appid extension is not requested" do
+        context "if appid extension output is not present" do
           let(:public_key_credential) do
             WebAuthn::PublicKeyCredentialWithAssertion.new(
               type: credential_type,
@@ -341,14 +343,14 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
             )
           end
 
-          it "fails" do
-            expect do
+          it "works" do
+            expect(
               public_key_credential.verify(
                 challenge,
                 public_key: credential_public_key,
                 sign_count: credential_sign_count
               )
-            end.to raise_error(WebAuthn::RpIdVerificationError)
+            ).to be_truthy
           end
         end
       end
