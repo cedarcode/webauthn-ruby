@@ -539,19 +539,31 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
     context "when authenticator_data contains FIDO AppID hash instead of rp_id hash" do
       before do
-        allow(assertion_response.authenticator_data).to receive(:rp_id_hash).and_return(OpenSSL::Digest::SHA256.digest(app_id))
+        allow(assertion_response.authenticator_data)
+          .to receive(:rp_id_hash)
+          .and_return(OpenSSL::Digest::SHA256.digest(app_id))
       end
 
       context "and FIDO AppID is given as rp_id" do
         it "verifies" do
           expect(
-            assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0, rp_id: app_id)
+            assertion_response.verify(
+              original_challenge,
+              public_key: credential_public_key,
+              sign_count: 0,
+              rp_id: app_id
+            )
           ).to be_truthy
         end
 
         it "is valid" do
           expect(
-            assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0, rp_id: app_id)
+            assertion_response.valid?(
+              original_challenge,
+              public_key: credential_public_key,
+              sign_count: 0,
+              rp_id: app_id
+            )
           ).to be_truthy
         end
       end

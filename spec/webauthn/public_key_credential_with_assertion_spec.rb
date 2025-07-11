@@ -287,7 +287,9 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
         before do
           WebAuthn.configuration.legacy_u2f_appid = legacy_u2f_appid
 
-          allow(assertion_response.authenticator_data).to receive(:rp_id_hash).and_return(OpenSSL::Digest::SHA256.digest(legacy_u2f_appid))
+          allow(assertion_response.authenticator_data)
+            .to receive(:rp_id_hash)
+            .and_return(OpenSSL::Digest::SHA256.digest(legacy_u2f_appid))
         end
 
         it "works" do
