@@ -151,8 +151,6 @@ error 500 do
   MSG
 end
 
-private
-
 def render_ok(params = {})
   JSON.dump({ status: "ok", errorMessage: "" }.merge!(params))
 end
