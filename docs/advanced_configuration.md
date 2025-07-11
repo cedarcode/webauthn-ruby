@@ -4,18 +4,18 @@
 
 Which approach suits best your needs will depend on the architecture of your application and how do your users need to register and authenticate to it.
 
-If you have a multi-tenant application, or any application segmenation, where your users register and authenticate to each of these tenants or segments individuallly using different hostnames, or with different security needs, you need to go through [Instance Based Configuration](#instance-based-configuration).
+If you have a multi-tenant application, or any application segmentation, where your users register and authenticate to each of these tenants or segments individually using different hostnames, or with different security needs, you need to go through [Instance Based Configuration](#instance-based-configuration).
 
-However, if your application is served for just one hostname, or else if your users authenticate to only one subdmain (e.g. your application serves www.example.com and admin.example.com but all you users authenticate through auth.example.com) you can still rely on one [Global Configuration](../README.md#configuration).
+However, if your application is served for just one hostname, or else if your users authenticate to only one subdomain (e.g. your application serves www.example.com and admin.example.com but all your users authenticate through auth.example.com) you can still rely on one [Global Configuration](../README.md#configuration).
 
 If you are still not sure, or want to keep your options open, be aware that [Instance Based Configuration](#instance-based-configuration) is also a valid way of defining a single instance configuration and how you share such configuration across your application, it's up to you.
 
 
 ## Instance Based Configuration
 
-Intead of the [Global Configuration](../README.md#configuration) you place in `config/initializers/webauthn.rb`,
+Instead of the [Global Configuration](../README.md#configuration) you place in `config/initializers/webauthn.rb`,
  you can now have an on-demand instance of `WebAuthn::RelyingParty` with the same configuration options, that
- you can build anywhere in you application, in the following way:
+ you can build anywhere in your application, in the following way:
 
 ```ruby
   relying_party = WebAuthn::RelyingParty.new(
@@ -57,7 +57,7 @@ Intead of the [Global Configuration](../README.md#configuration) you place in `c
 
 ## Instance Based API
 
-**DISCLAIMER: This API was released on version 3.0.0.alpha1 and is still under evaluation. Although it has been throughly tested and it is fully functional it might be changed until the final release of version 3.0.0.**
+**DISCLAIMER: This API was released on version 3.0.0.alpha1 and is still under evaluation. Although it has been thoroughly tested and it is fully functional it might be changed until the final release of version 3.0.0.**
 
 The explanation for each ceremony can be found in depth in [Credential Registration](../README.md#credential-registration) and [Credential Authentication](../README.md#credential-authentication) but if you choose this instance based approach to define your WebAuthn configurations and assuming `relying_party` is the result of an instance you get through `WebAuthn::RelyingParty.new(...)` the code in those explanations needs to be updated to:
 
@@ -159,7 +159,7 @@ begin
   # Continue with successful sign in or 2FA verification...
 
 rescue WebAuthn::SignCountVerificationError => e
-  # Cryptographic verification of the authenticator data succeeded, but the signature counter was less then or equal
+  # Cryptographic verification of the authenticator data succeeded, but the signature counter was less than or equal
   # to the stored value. This can have several reasons and depending on your risk tolerance you can choose to fail or
   # pass authentication. For more information see https://www.w3.org/TR/webauthn/#sign-counter
 rescue WebAuthn::Error => e
@@ -171,4 +171,4 @@ end
 
 Adding a configuration for a new instance does not mean you need to get rid of your Global configuration. They can co-exist in your application and be both available for the different usages you might have. `WebAuthn.configuration.relying_party` will always return the global one while `WebAuthn::RelyingParty.new`, executed anywhere in your codebase, will allow you to create a different instance as you see the need. They will not collide and instead operate in isolation without any shared state.
 
-The gem API described in the current [Usage](../README.md#usage) section for the [Global Configuration](../README.md#configuration) approach will still valid but the [Instance Based API](#instance-based-api) also works with the global `relying_party` that is maintain globally at `WebAuthn.configuration.relying_party`.
+The gem API described in the current [Usage](../README.md#usage) section for the [Global Configuration](../README.md#configuration) approach will still be valid but the [Instance Based API](#instance-based-api) also works with the global `relying_party` that is maintained globally at `WebAuthn.configuration.relying_party`.
