@@ -21,7 +21,8 @@ Instead of the [Global Configuration](../README.md#configuration) you place in `
   relying_party = WebAuthn::RelyingParty.new(
     # This value needs to match `window.location.origin` evaluated by
     # the User Agent during registration and authentication ceremonies.
-    origin: "https://admin.example.com",
+    # Multiple origins can be used when needed. Using more than one will imply you MUST configure rp_id explicitely. If you need your credentials to be bound to a single origin but you have more than one tenant, please see [our Advanced Configuration section](https://github.com/cedarcode/webauthn-ruby/blob/master/docs/advanced_configuration.md) instead of adding multiple origins.
+    allowed_origins: ["https://admin.example.com"],
 
     # Relying Party name for display purposes
     name: "Admin Site for Example Inc."
