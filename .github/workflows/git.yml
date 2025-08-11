@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Block autosquash commits
         uses: xt0rted/block-autosquash-commits-action@v2
         with:

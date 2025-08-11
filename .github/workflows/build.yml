@@ -30,7 +30,7 @@ jobs:
           - '2.5'
           - truffleruby
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
@@ -42,7 +42,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
