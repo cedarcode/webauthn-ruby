@@ -160,6 +160,10 @@ module WebAuthn
       "http://localhost#{rand(1000)}.test"
     end
 
+    def fake_wildcard_origin
+      /http:\/\/localhost.*/
+    end
+
     def type_for(method)
       TYPES[method]
     end
