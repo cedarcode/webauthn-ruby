@@ -60,20 +60,19 @@ def seeds
     },
     u2f_migration: {
       stored_credential: {
-        app_id: "https://f69df4d9.ngrok.io/appid",
-        certificate: "MIIBNDCB26ADAgECAgp2ubKB51u9YwjcMAoGCCqGSM49BAMCMBUxEzARBgNVBAMTClUyRiBJc3N1ZXIwGhcLMDAwMTAxMDAwMFoXCzAwMDEwMTAwMDBaMBUxEzARBgNVBAMTClUyRiBEZXZpY2UwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQfqziP5Gobu7FmIoFH0WCaD15knMWpIiLgeero1dVBVt2qo62PNI6GktGDUkzCwoj5pENTzTFVDUqAZTHDHTN1oxcwFTATBgsrBgEEAYLlHAIBAQQEAwIFIDAKBggqhkjOPQQDAgNIADBFAiEAwaOmji8WpyFGJwV/YrtyjJ4D56G6YtBGUk5FbSwvP3MCIAtfeOURqhgSn28jbZITIn2StOZ+31PoFt+wXZ3IuQ/e",
-        key_handle: "1a9tIwwYiYNdmfmxVaksOkxKapK2HtDNSsL4MssbCHILhkMzA0xZYk5IHmBljyblTQ_SnsQea-QEMzgTN2L1Mw",
-        public_key: "BBbTnfbd5sY+rCxZDQi87+akvZedjIqR8567GfrsLR0Gnp4zBpD5zhdSq1wKPvhzEoKJvFuYel1cpdTCzpahrBA=",
-        counter: 41,
+        app_id: "https://example.org/appid",
+        certificate: "MIICITCCAcegAwIBAgIQBPZtxlQup3Gd6kFtMlokATAKBggqhkjOPQQDAjBiMR4wHAYDVQQDDBVXZWJBdXRobiB0ZXN0IHZlY3RvcnMxDDAKBgNVBAoMA1czQzElMCMGA1UECwwcQXV0aGVudGljYXRvciBBdHRlc3RhdGlvbiBDQTELMAkGA1UEBhMCQUEwIBcNMjQwMTAxMDAwMDAwWhgPMzAyNDAxMDEwMDAwMDBaMF8xHjAcBgNVBAMMFVdlYkF1dGhuIHRlc3QgdmVjdG9yczEMMAoGA1UECgwDVzNDMSIwIAYDVQQLDBlBdXRoZW50aWNhdG9yIEF0dGVzdGF0aW9uMQswCQYDVQQGEwJBQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABFb/+nCT3t5Grv7vtuUgx8zHiWdjbi+SWCunFFX2TpOTLf875ODU72jj47c6oIfiagoKMLAtwqojCdtMOi/JNt6jYDBeMAwGA1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgeAMB0GA1UdDgQWBBRCCCLrGQi1zTkRAX+8rUZBwF4FozAfBgNVHSMEGDAWgBRFr/cVsN14Z0H+6ZbrwWVHo5MbHjAKBggqhkjOPQQDAgNIADBFAiANC3d/CgsYGtKDAnWswxUP1gkkMLzQNP13vre9+MLVRgIhANSGTt2V2qOScICFXfGZ8XFymbJKXuzvvQF0Vam5NNj2",
+        key_handle: "pLpuLSz-xDZI19JcXtVlm8GPK3gVOFJ-vUkt4DJWvfQ=",
+        public_key: "BLDWLeazD4bwusepAWlRORwuMYSeLmRmHL0rE819VQitUDsL2io1eppLNEdaKOZbZgtImKnj6bvwgg1DSUKX7dA=",
+        counter: 0,
       },
       assertion: {
-        origin: "https://f69df4d9.ngrok.io",
-        challenge: "v7G2KR2NYPW6AWxfevjMYflTxbWQqLwEoaZkOnm25K8=",
-        id: "1a9tIwwYiYNdmfmxVaksOkxKapK2HtDNSsL4MssbCHILhkMzA0xZYk5IHmBljyblTQ/SnsQea+QEMzgTN2L1Mw==",
+        origin: "https://example.org",
+        challenge: "+QxhKYHYT1mUON4aUA92km6SzIS++OAsbiNVPwBIVDU=",
         response: {
-          client_data_json: "eyJjaGFsbGVuZ2UiOiJ2N0cyS1IyTllQVzZBV3hmZXZqTVlmbFR4YldRcUx3RW9hWmtPbm0yNUs4Iiwib3JpZ2luIjoiaHR0cHM6Ly9mNjlkZjRkOS5uZ3Jvay5pbyIsInR5cGUiOiJ3ZWJhdXRobi5nZXQifQ==",
-          signature: "MEYCIQCvDq6m7mzBlfhbu+Y20018/iesDoaRyMOwMjVLUgKdJQIhAMFscVb7oUrIhEU/btWUWMj9xjXN9PSUio6ApytJ4Vd7",
-          authenticator_data: "wqc1M3OySstQSIGfoFIjkPhIJrGaCJiQKPeryg70zSsBAAAAbQ=="
+          client_data_json: "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiLVF4aEtZSFlUMW1VT040YVVBOTJrbTZTeklTLS1PQXNiaU5WUHdCSVZEVSIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5vcmciLCJjcm9zc09yaWdpbiI6ZmFsc2V9",
+          signature: "MEUCID6+MZ0WQ1rW9deqfQbw8LR7/zMvvUnMfAAmgDF2ksUmAiEApgp546w47JGxWS38AC/GznH9fcYUx5Zva62N+1KCg+c=",
+          authenticator_data: "HIcRkL9v+l6dYGTcxfrXQ/usPPfCIO8wnPdFumKDZbcBAAAAAA=="
         }
       }
     },

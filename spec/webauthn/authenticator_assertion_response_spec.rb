@@ -502,7 +502,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "migrated U2F credential" do
-    let(:origin) { "https://f69df4d9.ngrok.io" }
+    let(:origin) { "https://example.org" }
     let(:app_id) { "#{origin}/appid" }
     let(:migrated_credential) do
       WebAuthn::U2fMigrator.new(

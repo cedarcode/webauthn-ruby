@@ -298,7 +298,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
           ).to be_truthy
         end
 
-        context "if appid extension is not requested" do
+        context "if appid extension output is not present" do
           let(:public_key_credential) do
             WebAuthn::PublicKeyCredentialWithAssertion.new(
               type: credential_type,
@@ -331,7 +331,7 @@ RSpec.describe "PublicKeyCredentialWithAssertion" do
           end.to raise_error("Unspecified legacy U2F AppID")
         end
 
-        context "if appid extension is not requested" do
+        context "if appid extension output is not present" do
           let(:public_key_credential) do
             WebAuthn::PublicKeyCredentialWithAssertion.new(
               type: credential_type,
