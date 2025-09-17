@@ -15,6 +15,7 @@ on:
 
 jobs:
   test:
+    name: 'Test Ruby ${{ matrix.ruby }} with OpenSSL ${{ matrix.openssl }}'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
