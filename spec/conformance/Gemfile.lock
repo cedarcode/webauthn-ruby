@@ -8,7 +8,7 @@ GIT
 PATH
   remote: ../..
   specs:
-    webauthn (3.4.0)
+    webauthn (3.4.1)
       android_key_attestation (~> 0.3.0)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
