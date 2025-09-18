@@ -1,5 +1,5 @@
-__Note__: You are viewing the README for the development version of webauthn-ruby.
-For the current release version see https://github.com/cedarcode/webauthn-ruby/blob/2-stable/README.md.
+> [!warning]
+> You are viewing the README for the development version of webauthn-ruby. For the current release version see https://github.com/cedarcode/webauthn-ruby/blob/v3.4.1/README.md.
 
 # webauthn-ruby
 
