@@ -16,7 +16,7 @@ runs:
       uses: actions/cache/restore@v4
       with:
         path: ~/rubies/ruby-${{ inputs.version }}
-        key: ruby-${{ inputs.version }}-${{ inputs.openssl-version }}
+        key: ruby-${{ inputs.version }}-with-openssl-${{ inputs.openssl-version }}
 
     - name: Install Ruby
       if: steps.cache-ruby-restore.outputs.cache-hit != 'true'
