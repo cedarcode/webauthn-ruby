@@ -15,6 +15,7 @@ on:
 
 jobs:
   test:
+    name: 'Test Ruby ${{ matrix.ruby }} with OpenSSL ${{ matrix.openssl }}'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -24,17 +25,48 @@ jobs:
           - '3.3'
           - '3.2'
           - '3.1'
-          - '3.0'
-          - '2.7'
-          - '2.6'
-          - '2.5'
-          - truffleruby
+        openssl:
+          - '3.5.3'
+          - '3.4.2'
+          - '3.3.4'
+          - '3.2.5'
+          - '3.1.8'
+          - '3.0.17'
+          - '1.1.1w'
+        include:
+          - ruby: truffleruby
+          - ruby: '3.0'
+            openssl: '1.1.1w'
+          - ruby: '2.7'
+            openssl: '1.1.1w'
+          - ruby: '2.6'
+            openssl: '1.1.1w'
+          - ruby: '2.5'
+            openssl: '1.1.1w'
+
     steps:
     - uses: actions/checkout@v5
-    - uses: ruby/setup-ruby@v1
+
+    - name: Install OpenSSL
+      if: matrix.ruby != 'truffleruby'
+      uses: ./.github/actions/install-openssl
+      with:
+        version: ${{ matrix.openssl }}
+
+    - name: Manually set up Ruby
+      if: matrix.ruby != 'truffleruby'
+      uses: ./.github/actions/install-ruby
+      with:
+        version: ${{ matrix.ruby }}
+        openssl-version: ${{ matrix.openssl }}
+
+    - name: Set up Ruby
+      if: matrix.ruby == 'truffleruby'
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
+
     - run: bundle exec rspec
       env:
         RUBYOPT: ${{ startsWith(matrix.ruby, '3.4') && '--enable=frozen-string-literal' || '' }}
