@@ -30,7 +30,7 @@ RSpec.describe WebAuthn::AttestationStatement::AndroidSafetynet do
         OpenSSL::Digest::SHA256.digest(authenticator_data_bytes + client_data_hash)
       )
     end
-    let(:attestation_key) { create_rsa_key }
+    let(:attestation_key) { create_rsa_key(2048) }
 
     let(:leaf_certificate) do
       issue_certificate(root_certificate, root_key, attestation_key, name: "CN=attest.android.com")
