@@ -38,7 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "cbor", "~> 0.5.9"
   spec.add_dependency "cose", "~> 1.1"
   spec.add_dependency "openssl", ">= 2.2"
-  spec.add_dependency "safety_net_attestation", "~> 0.4.0"
+  spec.add_dependency "safety_net_attestation", "~> 0.5.0"
   spec.add_dependency "tpm-key_attestation", "~> 0.14.0"
 
   spec.add_development_dependency "bundler", ">= 1.17", "< 3.0"

@@ -1,5 +1,11 @@
 # Changelog
 
+## [v3.4.2] - 2025-09-22
+
+### Added
+
+- Updated `safety_net_attestation` dependency from `~> 0.4.0` to `~> 0.5.0`.
+
 ## [v3.4.1] - 2025-06-06
 
 - Avoid requiring `base64` as it's not a direct dependency. [#459](https://github.com/cedarcode/webauthn-ruby/pull/459)[@santiagorodriguez96]
@@ -421,6 +427,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v3.4.2]: https://github.com/cedarcode/webauthn-ruby/compare/v3.4.1...v3.4.2/
 [v3.4.1]: https://github.com/cedarcode/webauthn-ruby/compare/v3.4.0...v3.4.1/
 [v3.4.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.3.0...v3.4.0/
 [v3.3.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.2.2...v3.3.0/
