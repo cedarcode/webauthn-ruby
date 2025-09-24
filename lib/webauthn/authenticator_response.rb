@@ -91,7 +91,7 @@ module WebAuthn
     def valid_origin?(expected_origin)
       return false unless expected_origin
 
-      expected_origin.include?(client_data.origin)
+      Array(expected_origin).any? { |allowed_origin| allowed_origin === client_data.origin }
     end
 
     def valid_rp_id?(rp_id)
@@ -115,7 +115,9 @@ module WebAuthn
     end
 
     def rp_id_from_origin(expected_origin)
-      URI.parse(expected_origin.first).host if expected_origin.size == 1
+      return unless valid_origin?(expected_origin)
+
+      URI.parse(client_data.origin).host if expected_origin.size == 1
     end
 
     def type
