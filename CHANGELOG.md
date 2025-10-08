@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Remove unusable `WebAuthn::Configuration#origin`.
+
+### BREAKING CHANGES
+
+- Remove unusable `WebAuthn::Configuration#origin`.
+
 ## [v3.4.2] - 2025-09-22
 
 ### Added

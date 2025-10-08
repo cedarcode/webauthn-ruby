@@ -20,7 +20,6 @@ module WebAuthn
                    :algorithms=,
                    :encoding,
                    :encoding=,
-                   :origin,
                    :origin=,
                    :allowed_origins,
                    :allowed_origins=,
