@@ -136,7 +136,13 @@ RSpec.describe "RelyingParty" do
   end
 
   describe '#origin' do
-    subject { admin_rp.origin }
+    subject do
+      old_verbose, $VERBOSE = $VERBOSE, nil # Silence warnings to avoid deprecation warnings
+
+      rp.origin
+    ensure
+      $VERBOSE = old_verbose
+    end
 
     context 'when relying party has only one allowed origin' do
       let(:rp) do
