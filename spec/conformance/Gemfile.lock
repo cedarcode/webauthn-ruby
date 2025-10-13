@@ -1,13 +1,13 @@
 PATH
   remote: ../..
   specs:
-    webauthn (3.4.1)
+    webauthn (3.4.2)
       android_key_attestation (~> 0.3.0)
       bindata (~> 2.4)
       cbor (~> 0.5.9)
       cose (~> 1.1)
       openssl (>= 2.2)
-      safety_net_attestation (~> 0.4.0)
+      safety_net_attestation (~> 0.5.0)
       tpm-key_attestation (~> 0.14.0)
 
 GEM
@@ -50,8 +50,8 @@ GEM
       rack (>= 3)
     ruby2_keywords (0.0.5)
     rubyzip (3.1.0)
-    safety_net_attestation (0.4.0)
-      jwt (~> 2.0)
+    safety_net_attestation (0.5.0)
+      jwt (>= 2.0, < 4.0)
     sinatra (4.1.1)
       logger (>= 1.6.0)
       mustermann (~> 3.0)
