@@ -54,7 +54,7 @@ module WebAuthn
                   :acceptable_attestation_types,
                   :legacy_u2f_appid
 
-    attr_reader :attestation_root_certificates_finders, :origin
+    attr_reader :attestation_root_certificates_finders
 
     # This is the user-data encoder.
     # Used to decode user input and to encode data provided to the user.
@@ -119,6 +119,17 @@ module WebAuthn
       )
         block_given? ? [webauthn_credential, stored_credential] : webauthn_credential
       end
+    end
+
+    # DEPRECATED: This method will be removed in future.
+    def origin
+      warn(
+        "DEPRECATION WARNING: `WebAuthn.origin` is deprecated and will be removed in future. "\
+        "Please use `WebAuthn.allowed_origins` instead "\
+        "that also allows configuring multiple origins per Relying Party"
+      )
+
+      allowed_origins.first if allowed_origins&.size == 1
     end
 
     # DEPRECATED: This method will be removed in future.

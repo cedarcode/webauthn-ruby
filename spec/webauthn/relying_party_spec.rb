@@ -135,6 +135,42 @@ RSpec.describe "RelyingParty" do
     end
   end
 
+  describe '#origin' do
+    subject do
+      old_verbose, $VERBOSE = $VERBOSE, nil # Silence warnings to avoid deprecation warnings
+
+      rp.origin
+    ensure
+      $VERBOSE = old_verbose
+    end
+
+    context 'when relying party has only one allowed origin' do
+      let(:rp) do
+        WebAuthn::RelyingParty.new(allowed_origins: ["https://admin.example.test"])
+      end
+
+      it 'returns that allowed origin' do
+        is_expected.to eq("https://admin.example.test")
+      end
+    end
+
+    context 'when relying party has multiple allowed origins' do
+      let(:rp) do
+        WebAuthn::RelyingParty.new(allowed_origins: ["https://admin.example.test", "https://newadmin.example.test"])
+      end
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when relying party has not set its allowed origins' do
+      let(:rp) do
+        WebAuthn::RelyingParty.new(allowed_origins: nil)
+      end
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   context "without having any global configuration" do
     let(:consumer_rp) do
       WebAuthn::RelyingParty.new(

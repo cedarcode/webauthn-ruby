@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Update `RelyingParty#origin` and `WebAuthn.configuration.origin` to return the allowed origin if allowed origins has only one element.
+
 ## [v3.4.2] - 2025-09-22
 
 ### Added
