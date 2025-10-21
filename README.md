@@ -86,10 +86,33 @@ Or install it yourself as:
 
 ## Usage
 
-You can find a working example on how to use this gem in a pasword-less login in a __Rails__ app in [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app). If you want to see an example on how to use this gem as a second factor authenticator in a __Rails__ application instead, you can check it in [webauthn-2fa-rails-demo](https://github.com/cedarcode/webauthn-2fa-rails-demo).
+### Cedarcode Demo Apps
 
-If you are migrating an existing application from the legacy FIDO U2F JavaScript API to WebAuthn, also refer to
-[`docs/u2f_migration.md`](docs/u2f_migration.md).
+These demo apps are provided by Cedarcode
+
+* **Passwordless login for a _Rails_ app**: [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app)
+* **Second-factor authentication method in a _Rails_ app**: [webauthn-2fa-rails-demo](https://github.com/cedarcode/webauthn-2fa-rails-demo)
+
+### Devise Extension
+
+The Ruby passkeys organization has a Devise extension that can be used to provide passkey authentication using `webauthn-ruby`.
+
+_Note that this extension is currently in an Alpha, experimental state. [You can learn more about how to help out here!](https://github.com/ruby-passkeys/.github/issues/1)_
+
+* [`devise-passkeys` gem](https://github.com/ruby-passkeys/devise-passkeys)
+* [`devise-passkeys-template` template repo for a _Rails_ app](https://github.com/ruby-passkeys/devise-passkeys-template)
+
+### Warden Strategy
+
+The Ruby passkeys organization has a Warden strategy that can be used to streamline `webauthn-ruby` calls & setup.
+
+_Note that this extension is currently in an Alpha, experimental state. [You can learn more about how to help out here!](https://github.com/ruby-passkeys/.github/issues/1)_
+
+* [`warden-webauthn` gem](https://github.com/ruby-passkeys/warden-webauthn)
+
+### Migrating legacy FIDO U2F Javascript API to WebAuthn
+
+If you are migrating an existing application from the legacy FIDO U2F JavaScript API to WebAuthn, also refer to [`docs/u2f_migration.md`](docs/u2f_migration.md).
 
 ### Configuration
 
