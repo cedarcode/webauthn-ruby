@@ -19,6 +19,7 @@ module WebAuthn
       algorithms: DEFAULT_ALGORITHMS.dup,
       encoding: WebAuthn::Encoder::STANDARD_ENCODING,
       allowed_origins: nil,
+      allowed_top_origins: nil,
       origin: nil,
       id: nil,
       name: nil,
@@ -32,6 +33,7 @@ module WebAuthn
       @algorithms = algorithms
       @encoding = encoding
       @allowed_origins = allowed_origins
+      @allowed_top_origins = allowed_top_origins
       @id = id
       @name = name
       @verify_attestation_statement = verify_attestation_statement
@@ -46,6 +48,7 @@ module WebAuthn
     attr_accessor :algorithms,
                   :encoding,
                   :allowed_origins,
+                  :allowed_top_origins,
                   :id,
                   :name,
                   :verify_attestation_statement,

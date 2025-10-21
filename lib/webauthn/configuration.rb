@@ -24,6 +24,8 @@ module WebAuthn
                    :origin=,
                    :allowed_origins,
                    :allowed_origins=,
+                   :allowed_top_origins,
+                   :allowed_top_origins=,
                    :verify_attestation_statement,
                    :verify_attestation_statement=,
                    :credential_options_timeout,

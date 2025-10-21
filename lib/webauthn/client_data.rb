@@ -31,6 +31,17 @@ module WebAuthn
       data["tokenBinding"]
     end
 
+    def cross_origin
+      case data["crossOrigin"]
+      when "true" then true
+      when "false" then false
+      end
+    end
+
+    def top_origin
+      data["topOrigin"]
+    end
+
     def valid_token_binding_format?
       if token_binding
         token_binding.is_a?(Hash) && VALID_TOKEN_BINDING_STATUSES.include?(token_binding["status"])

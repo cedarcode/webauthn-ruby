@@ -63,6 +63,10 @@ def fake_origin
   "http://localhost"
 end
 
+def fake_top_origin
+  "http://localhost.org"
+end
+
 def fake_challenge
   SecureRandom.random_bytes(32)
 end
