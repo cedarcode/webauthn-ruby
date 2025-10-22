@@ -124,9 +124,9 @@ module WebAuthn
     # DEPRECATED: This method will be removed in future.
     def origin
       warn(
-        "DEPRECATION WARNING: `WebAuthn.origin` is deprecated and will be removed in future. "\
-        "Please use `WebAuthn.allowed_origins` instead "\
-        "that also allows configuring multiple origins per Relying Party"
+        "DEPRECATION WARNING: `WebAuthn.origin` is deprecated and returns `nil` " \
+        "when `WebAuthn.allowed_origins` contains more than one origin. " \
+        "It will be removed in future. Please use `WebAuthn.allowed_origins` instead."
       )
 
       allowed_origins.first if allowed_origins&.size == 1
