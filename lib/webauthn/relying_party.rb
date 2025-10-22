@@ -137,8 +137,8 @@ module WebAuthn
       return if new_origin.nil?
 
       warn(
-        "DEPRECATION WARNING: `WebAuthn.origin` is deprecated and will be removed in future. "\
-        "Please use `WebAuthn.allowed_origins` instead "\
+        "DEPRECATION WARNING: `WebAuthn.origin=` is deprecated and will be removed in future. "\
+        "Please use `WebAuthn.allowed_origins=` instead "\
         "that also allows configuring multiple origins per Relying Party"
       )
 
