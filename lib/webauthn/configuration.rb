@@ -28,6 +28,8 @@ module WebAuthn
                    :allowed_top_origins=,
                    :verify_attestation_statement,
                    :verify_attestation_statement=,
+                   :verify_top_origin,
+                   :verify_top_origin=,
                    :credential_options_timeout,
                    :credential_options_timeout=,
                    :silent_authentication,
