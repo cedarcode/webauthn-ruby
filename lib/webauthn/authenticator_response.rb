@@ -89,7 +89,7 @@ module WebAuthn
     def valid_top_origin?
       return false unless client_data.cross_origin
 
-      relying_party.allowed_top_origins.include?(client_data.top_origin)
+      relying_party.allowed_top_origins&.include?(client_data.top_origin)
     end
 
     def valid_challenge?(expected_challenge)

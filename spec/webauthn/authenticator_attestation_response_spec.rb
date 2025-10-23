@@ -648,16 +648,64 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:top_origin) { fake_top_origin }
 
     before do
-      WebAuthn.configuration.allowed_top_origins = [top_origin]
+      WebAuthn.configuration.allowed_top_origins = allowed_top_origins
       WebAuthn.configuration.allowed_origins = [origin]
     end
 
-    context "when cross_origin is true" do
-      let(:cross_origin) { true }
+    context "when allowed_top_origins is not set" do
+      let(:allowed_top_origins) { nil }
 
-      context "when top_origin is set" do
-        context "when top_origin matches client top_origin" do
+      context "when cross_origin is true" do
+        let(:cross_origin) { true }
+
+        context "when top_origin is set" do
           let(:client_top_origin) { top_origin }
+
+          it "is invalid" do
+            expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
+          end
+
+          it "doesn't verify" do
+            expect {
+              attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+            }.to raise_exception(WebAuthn::TopOriginVerificationError)
+          end
+        end
+
+        context "when top_origin is not set" do
+          let(:client_top_origin) { nil }
+
+          it "is invalid" do
+            expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
+          end
+
+          it "doesn't verify" do
+            expect {
+              attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+            }.to raise_exception(WebAuthn::TopOriginVerificationError)
+          end
+        end
+      end
+
+      context "when cross_origin is false" do
+        let(:cross_origin) { false }
+
+        context "when top_origin is set" do
+          let(:client_top_origin) { top_origin }
+
+          it "is invalid" do
+            expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
+          end
+
+          it "doesn't verify" do
+            expect {
+              attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+            }.to raise_exception(WebAuthn::TopOriginVerificationError)
+          end
+        end
+
+        context "when top_origin is not set" do
+          let(:client_top_origin) { nil }
 
           it "verifies" do
             expect(
@@ -671,57 +719,13 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
             ).to be_truthy
           end
         end
-
-        context "when top_origin does not match client top_origin" do
-          let(:client_top_origin) { "https://malicious.example.com" }
-
-          it "is invalid" do
-            expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
-          end
-
-          it "doesn't verify" do
-            expect {
-              attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-            }.to raise_exception(WebAuthn::TopOriginVerificationError)
-          end
-        end
       end
 
-      context "when top_origin is not set" do
-        let(:client_top_origin) { nil }
+      context "when cross_origin is not set" do
+        let(:cross_origin) { nil }
 
-        it "is invalid" do
-          expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
-        end
-
-        it "doesn't verify" do
-          expect {
-            attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-          }.to raise_exception(WebAuthn::TopOriginVerificationError)
-        end
-      end
-    end
-
-    context "when cross_origin is false" do
-      let(:cross_origin) { false }
-
-      context "when top_origin is set" do
-        context "when top_origin matches client top_origin" do
+        context "when top_origin is set" do
           let(:client_top_origin) { top_origin }
-
-          it "is invalid" do
-            expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
-          end
-
-          it "doesn't verify" do
-            expect {
-              attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-            }.to raise_exception(WebAuthn::TopOriginVerificationError)
-          end
-        end
-
-        context "when top_origin does not match client top_origin" do
-          let(:client_top_origin) { "https://malicious.example.com" }
 
           it "is invalid" do
             expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
@@ -752,51 +756,180 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       end
     end
 
-    context "when cross_origin is not set" do
-      let(:cross_origin) { nil }
+    context "when allowed_top_origins is set" do
+      let(:allowed_top_origins) { [top_origin] }
 
-      context "when top_origin is set" do
-        context "when top_origin matches client top_origin" do
-          let(:client_top_origin) { top_origin }
+      context "when cross_origin is true" do
+        let(:cross_origin) { true }
 
-          it "is invalid" do
-            expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
+        context "when top_origin is set" do
+          context "when top_origin matches client top_origin" do
+            let(:client_top_origin) { top_origin }
+
+            it "verifies" do
+              expect(
+                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+              ).to be_truthy
+            end
+
+            it "is valid" do
+              expect(
+                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
+              ).to be_truthy
+            end
           end
 
-          it "doesn't verify" do
-            expect {
-              attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-            }.to raise_exception(WebAuthn::TopOriginVerificationError)
-          end
-        end
+          context "when top_origin does not match client top_origin" do
+            let(:client_top_origin) { "https://malicious.example.com" }
 
-        context "when top_origin does not match client top_origin" do
-          let(:client_top_origin) { "https://malicious.example.com" }
+            it "is invalid" do
+              expect(
+                attestation_response.valid?(
+                  original_challenge,
+                  WebAuthn.configuration.allowed_origins
+                )
+              ).to be_falsy
+            end
 
-          it "is invalid" do
-            expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
-          end
-
-          it "doesn't verify" do
-            expect {
-              attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-            }.to raise_exception(WebAuthn::TopOriginVerificationError)
+            it "doesn't verify" do
+              expect {
+                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+              }.to raise_exception(WebAuthn::TopOriginVerificationError)
+            end
           end
         end
 
         context "when top_origin is not set" do
           let(:client_top_origin) { nil }
 
-          it "verifies" do
-            expect(
-              attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-            ).to be_truthy
+          it "is invalid" do
+            expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_falsy
           end
 
-          it "is valid" do
-            expect(
-              attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-            ).to be_truthy
+          it "doesn't verify" do
+            expect {
+              attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+            }.to raise_exception(WebAuthn::TopOriginVerificationError)
+          end
+        end
+      end
+
+      context "when cross_origin is false" do
+        let(:cross_origin) { false }
+
+        context "when top_origin is set" do
+          context "when top_origin matches client top_origin" do
+            let(:client_top_origin) { top_origin }
+
+            it "is invalid" do
+              expect(
+                attestation_response.valid?(
+                  original_challenge,
+                  WebAuthn.configuration.allowed_origins
+                )
+              ).to be_falsy
+            end
+
+            it "doesn't verify" do
+              expect {
+                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+              }.to raise_exception(WebAuthn::TopOriginVerificationError)
+            end
+          end
+
+          context "when top_origin does not match client top_origin" do
+            let(:client_top_origin) { "https://malicious.example.com" }
+
+            it "is invalid" do
+              expect(
+                attestation_response.valid?(
+                  original_challenge,
+                  WebAuthn.configuration.allowed_origins
+                )
+              ).to be_falsy
+            end
+
+            it "doesn't verify" do
+              expect {
+                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+              }.to raise_exception(WebAuthn::TopOriginVerificationError)
+            end
+          end
+
+          context "when top_origin is not set" do
+            let(:client_top_origin) { nil }
+
+            it "verifies" do
+              expect(
+                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+              ).to be_truthy
+            end
+
+            it "is valid" do
+              expect(
+                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
+              ).to be_truthy
+            end
+          end
+        end
+      end
+
+      context "when cross_origin is not set" do
+        let(:cross_origin) { nil }
+
+        context "when top_origin is set" do
+          context "when top_origin matches client top_origin" do
+            let(:client_top_origin) { top_origin }
+
+            it "is invalid" do
+              expect(
+                attestation_response.valid?(
+                  original_challenge,
+                  WebAuthn.configuration.allowed_origins
+                )
+              ).to be_falsy
+            end
+
+            it "doesn't verify" do
+              expect {
+                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+              }.to raise_exception(WebAuthn::TopOriginVerificationError)
+            end
+          end
+
+          context "when top_origin does not match client top_origin" do
+            let(:client_top_origin) { "https://malicious.example.com" }
+
+            it "is invalid" do
+              expect(
+                attestation_response.valid?(
+                  original_challenge,
+                  WebAuthn.configuration.allowed_origins
+                )
+              ).to be_falsy
+            end
+
+            it "doesn't verify" do
+              expect {
+                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+              }.to raise_exception(WebAuthn::TopOriginVerificationError)
+            end
+          end
+
+          context "when top_origin is not set" do
+            let(:client_top_origin) { nil }
+
+            it "verifies" do
+              expect(
+                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
+              ).to be_truthy
+            end
+
+            it "is valid" do
+              expect(
+                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
+              ).to be_truthy
+            end
           end
         end
       end
