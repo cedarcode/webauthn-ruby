@@ -24,7 +24,7 @@ module WebAuthn
       id: nil,
       name: nil,
       verify_attestation_statement: true,
-      verify_top_origin: false,
+      verify_cross_origin: false,
       credential_options_timeout: 120000,
       silent_authentication: false,
       acceptable_attestation_types: ['None', 'Self', 'Basic', 'AttCA', 'Basic_or_AttCA', 'AnonCA'],
@@ -38,7 +38,7 @@ module WebAuthn
       @id = id
       @name = name
       @verify_attestation_statement = verify_attestation_statement
-      @verify_top_origin = verify_top_origin
+      @verify_cross_origin = verify_cross_origin
       @credential_options_timeout = credential_options_timeout
       @silent_authentication = silent_authentication
       @acceptable_attestation_types = acceptable_attestation_types
@@ -54,7 +54,7 @@ module WebAuthn
                   :id,
                   :name,
                   :verify_attestation_statement,
-                  :verify_top_origin,
+                  :verify_cross_origin,
                   :credential_options_timeout,
                   :silent_authentication,
                   :acceptable_attestation_types,

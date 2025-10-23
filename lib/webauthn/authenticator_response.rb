@@ -131,7 +131,7 @@ module WebAuthn
     end
 
     def needs_top_origin_verification?
-      relying_party.verify_top_origin && (client_data.cross_origin || client_data.top_origin)
+      relying_party.verify_cross_origin && (client_data.cross_origin || client_data.top_origin)
     end
   end
 end

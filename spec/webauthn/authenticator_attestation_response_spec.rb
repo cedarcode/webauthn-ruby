@@ -648,13 +648,13 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     let(:top_origin) { fake_top_origin }
 
     before do
-      WebAuthn.configuration.verify_top_origin = verify_top_origin
+      WebAuthn.configuration.verify_cross_origin = verify_cross_origin
       WebAuthn.configuration.allowed_top_origins = allowed_top_origins
       WebAuthn.configuration.allowed_origins = [origin]
     end
 
-    context "when verify_top_origin is false" do
-      let(:verify_top_origin) { false }
+    context "when verify_cross_origin is false" do
+      let(:verify_cross_origin) { false }
 
       context "when allowed_top_origins is not set" do
         let(:allowed_top_origins) { nil }
@@ -935,8 +935,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       end
     end
 
-    context "when verify_top_origin is true" do
-      let(:verify_top_origin) { true }
+    context "when verify_cross_origin is true" do
+      let(:verify_cross_origin) { true }
 
       context "when allowed_top_origins is not set" do
         let(:allowed_top_origins) { nil }
