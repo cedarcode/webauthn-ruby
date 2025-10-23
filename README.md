@@ -107,13 +107,27 @@ WebAuthn.configure do |config|
   # When operating within iframes or embedded contexts, you may need to restrict
   # which top-level origins are permitted to host WebAuthn ceremonies.
   #
-  # To enable this check, set the following configuration (disabled by default):
-  # config.verify_cross_origin = false
+  # crossOrigin / topOrigin verification is DISABLED by default:
+  #   config.verify_cross_origin = false
   #
-  # Each entry in this list must match the `topOrigin` reported by the browser
-  # during registration and authentication.
+  # When `verify_cross_origin` is false, any `crossOrigin` / `topOrigin` values reported by the browser
+  #    are ignored. As a result, credentials created or used within a cross-origin iframe will be treated
+  #    as valid.
   #
-  # config.allowed_top_origins = ["https://app.example.com"]
+  # When `verify_cross_origin` is true, you can either:
+  #
+  # (A) Allow only specific top-level origins to embed your ceremony
+  #     (each entry must match the browser-reported `topOrigin` during registration/authentication):
+  #
+  #     config.allowed_top_origins = ["https://app.example.com"]
+  #
+  # (B) Forbid ANY cross-origin iframe usage altogether
+  #     (this rejects creation/authentication whenever `crossOrigin` is true):
+  #
+  #     config.allowed_top_origins = []
+  #
+  # Note: if `verify_cross_origin` is not enabled, any values set in `allowed_top_origins`
+  # will be ignored.
 
   # Relying Party name for display purposes
   config.rp_name = "Example Inc."
