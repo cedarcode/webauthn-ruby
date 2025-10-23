@@ -107,6 +107,9 @@ WebAuthn.configure do |config|
   # When operating within iframes or embedded contexts, you may need to restrict
   # which top-level origins are permitted to host WebAuthn ceremonies.
   #
+  # To enable this check, set the following configuration (disabled by default):
+  # config.verify_top_origin = false
+  #
   # Each entry in this list must match the `topOrigin` reported by the browser
   # during registration and authentication.
   #
