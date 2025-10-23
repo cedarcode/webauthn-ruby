@@ -24,14 +24,19 @@ module WebAuthn
     end
 
     def verify(expected_challenge, expected_origin = nil, user_presence: nil, user_verification: nil, rp_id: nil)
-      expected_origin ||= relying_party.origin || raise("Unspecified expected origin")
+      expected_origin ||= relying_party.allowed_origins || raise("Unspecified expected origin")
+
       rp_id ||= relying_party.id
 
       verify_item(:type)
       verify_item(:challenge, expected_challenge)
       verify_item(:origin, expected_origin)
       verify_item(:authenticator_data)
-      verify_item(:rp_id, rp_id || rp_id_from_origin(expected_origin))
+
+      verify_item(
+        :rp_id,
+        rp_id || rp_id_from_origin(expected_origin)
+      )
 
       # Fallback to RP configuration unless user_presence is passed in explicitely
       if user_presence.nil? && !relying_party.silent_authentication || user_presence
@@ -78,10 +83,14 @@ module WebAuthn
     end
 
     def valid_origin?(expected_origin)
-      expected_origin && (client_data.origin == expected_origin)
+      return false unless expected_origin
+
+      expected_origin.include?(client_data.origin)
     end
 
     def valid_rp_id?(rp_id)
+      return false unless rp_id
+
       OpenSSL::Digest::SHA256.digest(rp_id) == authenticator_data.rp_id_hash
     end
 
@@ -100,7 +109,7 @@ module WebAuthn
     end
 
     def rp_id_from_origin(expected_origin)
-      URI.parse(expected_origin).host
+      URI.parse(expected_origin.first).host if expected_origin.size == 1
     end
 
     def type

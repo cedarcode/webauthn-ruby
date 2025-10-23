@@ -27,7 +27,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   before do
-    WebAuthn.configuration.origin = origin
+    WebAuthn.configuration.allowed_origins = [origin]
   end
 
   context "when everything's in place" do
@@ -466,7 +466,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   end
 
   describe "migrated U2F credential" do
-    let(:origin) { "https://f69df4d9.ngrok.io" }
+    let(:origin) { "https://example.org" }
     let(:app_id) { "#{origin}/appid" }
     let(:migrated_credential) do
       WebAuthn::U2fMigrator.new(
@@ -482,12 +482,12 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     let(:assertion_data) { seeds[:u2f_migration][:assertion] }
     let(:assertion_response) do
       WebAuthn::AuthenticatorAssertionResponse.new(
-        client_data_json: Base64.strict_decode64(assertion_data[:response][:client_data_json]),
-        authenticator_data: Base64.strict_decode64(assertion_data[:response][:authenticator_data]),
-        signature: Base64.strict_decode64(assertion_data[:response][:signature])
+        client_data_json: WebAuthn::Encoders::Base64Encoder.decode(assertion_data[:response][:client_data_json]),
+        authenticator_data: WebAuthn::Encoders::Base64Encoder.decode(assertion_data[:response][:authenticator_data]),
+        signature: WebAuthn::Encoders::Base64Encoder.decode(assertion_data[:response][:signature])
       )
     end
-    let(:original_challenge) { Base64.strict_decode64(assertion_data[:challenge]) }
+    let(:original_challenge) { WebAuthn::Encoders::Base64Encoder.decode(assertion_data[:challenge]) }
 
     context "when correct FIDO AppID is given as rp_id" do
       it "verifies" do

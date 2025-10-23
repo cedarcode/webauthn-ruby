@@ -9,7 +9,7 @@ RSpec.describe "Credential" do
   let(:origin) { fake_origin }
 
   before do
-    WebAuthn.configuration.origin = origin
+    WebAuthn.configuration.allowed_origins = [origin]
   end
 
   describe ".from_create" do

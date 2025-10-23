@@ -8,13 +8,15 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
   FILENAME = "metadata.zip"
 
   def setup_authenticators
-    puts("#{FILENAME} not found, this will affect Metadata Service Test results.") unless File.exist?(FILENAME)
-
-    Zip::File.open(FILENAME).glob("metadataStatements/*.json") do |file|
-      json = JSON.parse(file.get_input_stream.read)
-      statement = FidoMetadata::Statement.from_json(json)
-      identifier = statement.aaguid || statement.attestation_certificate_key_identifiers.first
-      write("statement_#{identifier}", statement)
+    if File.exist?(FILENAME)
+      Zip::File.open(FILENAME).glob("metadataStatements/*.json") do |file|
+        json = JSON.parse(file.get_input_stream.read)
+        statement = FidoMetadata::Statement.from_json(json)
+        identifier = statement.aaguid || statement.attestation_certificate_key_identifiers.first
+        write("statement_#{identifier}", statement)
+      end
+    else
+      puts("#{FILENAME} not found, this will affect Metadata Service Test results.")
     end
   end
 
@@ -22,7 +24,7 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
     puts("Setting up metadata store TOC")
 
     response = Net::HTTP.post(
-      URI("https://mds.certinfra.fidoalliance.org/getEndpoints"),
+      URI("https://mds3.fido.tools/getEndpoints"),
       { endpoint: endpoint }.to_json,
       FidoMetadata::Client::DEFAULT_HEADERS
     )
@@ -30,12 +32,12 @@ class ConformanceCacheStore < FidoMetadata::TestCacheStore
     response.value
     possible_endpoints = JSON.parse(response.body)["result"]
 
-    client = FidoMetadata::Client.new(nil)
+    client = FidoMetadata::Client.new
 
     json =
       possible_endpoints.each_with_index do |uri, index|
         puts("Trying endpoint #{index}: #{uri}")
-        break client.download_toc(URI(uri), trusted_certs: conformance_certificates)
+        break client.download_toc(URI(uri), algorithms: ["ES256"], trusted_certs: conformance_certificates)
       rescue FidoMetadata::Client::DataIntegrityError, JWT::VerificationError, Net::HTTPFatalError
         nil
       end

@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Update `RelyingParty#origin` and `WebAuthn.configuration.origin` to return the allowed origin if allowed origins has only one element.
+
+## [v3.4.2] - 2025-09-22
+
+### Added
+
+- Updated `safety_net_attestation` dependency from `~> 0.4.0` to `~> 0.5.0`.
+
+## [v3.4.1] - 2025-06-06
+
+- Avoid requiring `base64` as it's not a direct dependency. [#459](https://github.com/cedarcode/webauthn-ruby/pull/459)[@santiagorodriguez96]
+
+## [v3.4.0] - 2025-02-17
+
+- Added support for Webauthn.config and RelayingParty to accept multiple allowed_origins. [#431](https://github.com/cedarcode/webauthn-ruby/pull/431)[@obroshnij]
+
+## [v3.3.0] - 2025-02-06
+
+### Added
+
+- Updated `tpm-key_attestation` dependency from `~> 0.12.0` to `~> 0.14.0`. [#449](https://github.com/cedarcode/webauthn-ruby/pull/449) [@brauliomartinezlm], [@nicolastemciuc]
+
 ## [v3.2.2] - 2024-11-14
 
 ### Fixed
@@ -407,6 +433,13 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v3.4.2]: https://github.com/cedarcode/webauthn-ruby/compare/v3.4.1...v3.4.2/
+[v3.4.1]: https://github.com/cedarcode/webauthn-ruby/compare/v3.4.0...v3.4.1/
+[v3.4.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.3.0...v3.4.0/
+[v3.3.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.2.2...v3.3.0/
+[v3.2.2]: https://github.com/cedarcode/webauthn-ruby/compare/v3.2.1...v3.2.2/
+[v3.2.1]: https://github.com/cedarcode/webauthn-ruby/compare/v3.2.0...v3.2.1/
+[v3.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.1.0...v3.2.0/
 [v3.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.0.0...v3.1.0/
 [v3.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0/
 [v3.0.0.alpha2]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha2/

@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
-require "ostruct"
 require "spec_helper"
 require "webauthn/fake_authenticator"
 require "webauthn/fake_client"
 require "webauthn/relying_party"
 
 RSpec.describe "RelyingParty" do
+  let(:credential_klass) { Struct.new(:webauthn_id, :public_key, :sign_count, keyword_init: true) }
+
   let(:authenticator) { WebAuthn::FakeAuthenticator.new }
 
   let(:admin_rp) do
     WebAuthn::RelyingParty.new(
-      origin: "https://admin.example.test",
+      allowed_origins: ["https://admin.example.test"],
       id: 'admin.example.test',
       name: 'Admin Application'
     )
@@ -21,7 +22,8 @@ RSpec.describe "RelyingParty" do
   end
 
   let(:user) do
-    OpenStruct.new(id: WebAuthn.generate_user_id, name: 'John Doe', credentials: [])
+    user_klass = Struct.new(:id, :name, :credentials, keyword_init: true)
+    user_klass.new(id: WebAuthn.generate_user_id, name: 'John Doe', credentials: [])
   end
 
   describe '#verify_registration' do
@@ -76,7 +78,7 @@ RSpec.describe "RelyingParty" do
     let(:admin_credential_public_key) { admin_credential[1] }
 
     before do
-      user.credentials << OpenStruct.new(
+      user.credentials << credential_klass.new(
         webauthn_id: admin_credential.first,
         public_key: admin_rp.encoder.encode(admin_credential[1]),
         sign_count: 0
@@ -133,10 +135,46 @@ RSpec.describe "RelyingParty" do
     end
   end
 
+  describe '#origin' do
+    subject do
+      old_verbose, $VERBOSE = $VERBOSE, nil # Silence warnings to avoid deprecation warnings
+
+      rp.origin
+    ensure
+      $VERBOSE = old_verbose
+    end
+
+    context 'when relying party has only one allowed origin' do
+      let(:rp) do
+        WebAuthn::RelyingParty.new(allowed_origins: ["https://admin.example.test"])
+      end
+
+      it 'returns that allowed origin' do
+        is_expected.to eq("https://admin.example.test")
+      end
+    end
+
+    context 'when relying party has multiple allowed origins' do
+      let(:rp) do
+        WebAuthn::RelyingParty.new(allowed_origins: ["https://admin.example.test", "https://newadmin.example.test"])
+      end
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when relying party has not set its allowed origins' do
+      let(:rp) do
+        WebAuthn::RelyingParty.new(allowed_origins: nil)
+      end
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   context "without having any global configuration" do
     let(:consumer_rp) do
       WebAuthn::RelyingParty.new(
-        origin: "https://www.example.test",
+        allowed_origins: ["https://www.example.test"],
         id: 'example.test',
         name: 'Consumer Application'
       )
@@ -194,12 +232,12 @@ RSpec.describe "RelyingParty" do
       end
 
       before do
-        user.credentials << OpenStruct.new(
+        user.credentials << credential_klass.new(
           webauthn_id: admin_credential.first,
           public_key: admin_rp.encoder.encode(admin_credential[1]),
           sign_count: 0
         )
-        user.credentials << OpenStruct.new(
+        user.credentials << credential_klass.new(
           webauthn_id: consumer_credential.first,
           public_key: consumer_rp.encoder.encode(consumer_credential[1]),
           sign_count: 0
@@ -273,12 +311,12 @@ RSpec.describe "RelyingParty" do
 
   context "with a global configuration and a different relying party co-existing" do
     let(:global_configuration_client) do
-      WebAuthn::FakeClient.new(WebAuthn.configuration.origin, authenticator: authenticator)
+      WebAuthn::FakeClient.new(WebAuthn.configuration.allowed_origins[0], authenticator: authenticator)
     end
 
     before do
       WebAuthn.configure do |config|
-        config.origin = "https://www.example.com"
+        config.allowed_origins = ["https://www.example.com"]
         config.rp_name = "Example Consumer page"
       end
     end
@@ -324,12 +362,12 @@ RSpec.describe "RelyingParty" do
       end
 
       before do
-        user.credentials << OpenStruct.new(
+        user.credentials << credential_klass.new(
           webauthn_id: admin_credential.first,
           public_key: admin_rp.encoder.encode(admin_credential[1]),
           sign_count: 0
         )
-        user.credentials << OpenStruct.new(
+        user.credentials << credential_klass.new(
           webauthn_id: default_configuration_credential.first,
           public_key: WebAuthn.configuration.encoder.encode(default_configuration_credential[1]),
           sign_count: 0
@@ -386,12 +424,12 @@ RSpec.describe "RelyingParty" do
 
   context "with only a global configuration" do
     let(:global_configuration_client) do
-      WebAuthn::FakeClient.new(WebAuthn.configuration.origin, authenticator: authenticator)
+      WebAuthn::FakeClient.new(WebAuthn.configuration.allowed_origins[0], authenticator: authenticator)
     end
 
     before do
       WebAuthn.configure do |config|
-        config.origin = "https://www.example.com"
+        config.allowed_origins = ["https://www.example.com"]
         config.rp_name = "Example Consumer page"
       end
     end
@@ -419,7 +457,7 @@ RSpec.describe "RelyingParty" do
       end
 
       before do
-        user.credentials << OpenStruct.new(
+        user.credentials << credential_klass.new(
           webauthn_id: default_configuration_credential.first,
           public_key: WebAuthn.configuration.encoder.encode(default_configuration_credential[1]),
           sign_count: 0

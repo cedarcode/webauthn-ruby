@@ -1,6 +1,3 @@
-__Note__: You are viewing the README for the development version of webauthn-ruby.
-For the current release version see https://github.com/cedarcode/webauthn-ruby/blob/2-stable/README.md.
-
 # webauthn-ruby
 
 ![banner](assets/webauthn-ruby.png)
@@ -104,7 +101,8 @@ For a Rails application this would go in `config/initializers/webauthn.rb`.
 WebAuthn.configure do |config|
   # This value needs to match `window.location.origin` evaluated by
   # the User Agent during registration and authentication ceremonies.
-  config.origin = "https://auth.example.com"
+  # Multiple origins can be used when needed. Using more than one will imply you MUST configure rp_id explicitely. If you need your credentials to be bound to a single origin but you have more than one tenant, please see [our Advanced Configuration section](https://github.com/cedarcode/webauthn-ruby/blob/master/docs/advanced_configuration.md) instead of adding multiple origins.
+  config.allowed_origins = ["https://auth.example.com"]
 
   # Relying Party name for display purposes
   config.rp_name = "Example Inc."

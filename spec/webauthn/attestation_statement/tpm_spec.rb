@@ -175,7 +175,11 @@ RSpec.describe "TPM attestation statement" do
           t_public.alg_type = ::TPM::ALG_ECC
           t_public.name_alg = name_alg
           t_public.parameters = pub_area_parameters
-          t_public.unique.buffer = credential_key.public_key.to_bn.to_s(2)[1..-1]
+
+          public_key_bytes = credential_key.public_key.to_bn.to_s(2)[1..-1]
+          coordinate_length = public_key_bytes.size / 2
+          t_public.unique.x.buffer = public_key_bytes[0..(coordinate_length - 1)]
+          t_public.unique.y.buffer = public_key_bytes[coordinate_length..-1]
 
           t_public.to_binary_s
         end
@@ -200,7 +204,11 @@ RSpec.describe "TPM attestation statement" do
               t_public.alg_type = ::TPM::ALG_ECC
               t_public.name_alg = name_alg
               t_public.parameters = pub_area_parameters
-              t_public.unique.buffer = create_ec_key.public_key.to_bn.to_s(2)[1..-1]
+
+              public_key_bytes = create_ec_key.public_key.to_bn.to_s(2)[1..-1]
+              coordinate_length = public_key_bytes.size / 2
+              t_public.unique.x.buffer = public_key_bytes[0..(coordinate_length - 1)]
+              t_public.unique.y.buffer = public_key_bytes[coordinate_length..-1]
 
               t_public.to_binary_s
             end
