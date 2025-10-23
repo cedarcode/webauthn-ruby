@@ -32,10 +32,7 @@ module WebAuthn
     end
 
     def cross_origin
-      case data["crossOrigin"]
-      when "true" then true
-      when "false" then false
-      end
+      data["crossOrigin"]
     end
 
     def top_origin

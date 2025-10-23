@@ -510,7 +510,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
 
     context "when cross_origin is true" do
-      let(:cross_origin) { "true" }
+      let(:cross_origin) { true }
 
       context "when top_origin is set" do
         context "when top_origin matches client top_origin" do
@@ -572,7 +572,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
 
     context "when cross_origin is false" do
-      let(:cross_origin) { "false" }
+      let(:cross_origin) { false }
 
       context "when top_origin is set" do
         context "when top_origin matches client top_origin" do
