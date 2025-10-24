@@ -10,7 +10,7 @@
 
 ### Fixed
 
-- Fix `RelyingParty#origin` and `WebAuthn.configuration.origin` always returning `nil`. [#484](https://github.com/cedarcode/webauthn-ruby/pull/484)[@santiagorodriguez96]
+- Fix `RelyingParty#origin` and `WebAuthn.configuration.origin` always returning `nil`. [#484](https://github.com/cedarcode/webauthn-ruby/pull/484) [@santiagorodriguez96]
     - Now they return the allowed origin if allowed origins has only one element.
 
 ## [v3.4.2](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.1...v3.4.2/) - 2025-09-22
@@ -21,11 +21,11 @@
 
 ## [v3.4.1](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.0...v3.4.1/) - 2025-06-06
 
-- Avoid requiring `base64` as it's not a direct dependency. [#459](https://github.com/cedarcode/webauthn-ruby/pull/459)[@santiagorodriguez96]
+- Avoid requiring `base64` as it's not a direct dependency. [#459](https://github.com/cedarcode/webauthn-ruby/pull/459) [@santiagorodriguez96]
 
 ## [v3.4.0](https://github.com/cedarcode/webauthn-ruby/compare/v3.3.0...v3.4.0/) - 2025-02-17
 
-- Added support for Webauthn.config and RelayingParty to accept multiple allowed_origins. [#431](https://github.com/cedarcode/webauthn-ruby/pull/431)[@obroshnij]
+- Added support for Webauthn.config and RelayingParty to accept multiple allowed_origins. [#431](https://github.com/cedarcode/webauthn-ruby/pull/431) [@obroshnij]
 
 ## [v3.3.0](https://github.com/cedarcode/webauthn-ruby/compare/v3.2.2...v3.3.0/) - 2025-02-06
 
@@ -43,7 +43,7 @@
 
 ### Fixed
 
-- Fix JSON Serializer generating json with attributes with a null value. [#442](https://github.com/cedarcode/webauthn-ruby/pull/442) @santiagorodriguez96
+- Fix JSON Serializer generating json with attributes with a null value. [#442](https://github.com/cedarcode/webauthn-ruby/pull/442) [@santiagorodriguez96]
 
 ## [v3.2.0](https://github.com/cedarcode/webauthn-ruby/compare/v3.1.0...v3.2.0/) - 2024-11-13
 
@@ -120,7 +120,7 @@
 
 ### Removed
 
-- Removed dependency [secure_compare dependency] (https://rubygems.org/gems/secure_compare/versions/0.0.1) and use OpenSSL#secure_compare instead [@bdewater]
+- Removed dependency [secure_compare dependency](https://rubygems.org/gems/secure_compare/versions/0.0.1) and use OpenSSL#secure_compare instead [@bdewater]
 
 ## [v2.5.0](https://github.com/cedarcode/webauthn-ruby/compare/v2.4.1...v2.5.0/) - 2021-03-14
 
