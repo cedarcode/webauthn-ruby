@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+## [v3.4.3] - 2025-10-23
+
+### Fixed
+
+- Fix `RelyingParty#origin` and `WebAuthn.configuration.origin` always returning `nil`. [#484](https://github.com/cedarcode/webauthn-ruby/pull/484)[@santiagorodriguez96]
+    - Now they return the allowed origin if allowed origins has only one element.
+
 ## [v3.4.2] - 2025-09-22
 
 ### Added

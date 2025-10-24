@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-ruby "~> 3.4.2"
+ruby file: '.ruby-version'
 
 gem "byebug"
 gem "fido_metadata", "~> 0.5.0"
