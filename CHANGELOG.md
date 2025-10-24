@@ -451,8 +451,12 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@lgarron]: https://github.com/lgarron
 [@MaximeNdutiye]: https://github.com/MaximeNdutiye
 [@nicolastemciuc]: https://github.com/nicolastemciuc
+[@obroshnij]: https://github.com/obroshnij
+[@olleolleolle]: https://github.com/olleolleolle
 [@padulafacundo]: https://github.com/padulafacundo
 [@petergoldstein]: https://github.com/petergoldstein
 [@santiagorodriguez96]: https://github.com/santiagorodriguez96
+[@soartec-lab]: https://github.com/soartec-lab
 [@sorah]: https://github.com/sorah
 [@ssuttner]: https://github.com/ssuttner
+[@8ma10s]: https://github.com/8ma10s
