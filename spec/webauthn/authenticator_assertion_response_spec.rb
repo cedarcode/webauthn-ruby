@@ -12,8 +12,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   let!(:credential) { create_credential(client: client) }
   let(:credential_public_key) { credential[1] }
 
-  let(:origin) { fake_origin }
-  let(:actual_origin) { origin }
+  let(:origin) { fake_wildcard_origin }
+  let(:actual_origin) { fake_origin }
   let(:original_challenge) { fake_challenge }
   let(:assertion) { client.get(challenge: original_challenge) }
   let(:authenticator_data) { assertion["response"]["authenticatorData"] }
@@ -429,7 +429,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             original_challenge,
             public_key: credential_public_key,
             sign_count: 0,
-            rp_id: URI.parse(origin).host
+            rp_id: URI.parse(actual_origin).host
           )
         ).to be_truthy
       end
@@ -440,7 +440,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             original_challenge,
             public_key: credential_public_key,
             sign_count: 0,
-            rp_id: URI.parse(origin).host
+            rp_id: URI.parse(actual_origin).host
           )
         ).to be_truthy
       end

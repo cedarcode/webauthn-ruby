@@ -63,6 +63,10 @@ def fake_origin
   "http://localhost"
 end
 
+def fake_wildcard_origin
+  /http:\/\/localhost.*/
+end
+
 def fake_challenge
   SecureRandom.random_bytes(32)
 end
