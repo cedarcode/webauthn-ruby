@@ -1,12 +1,12 @@
 # Changelog
 
-## Unreleased
+## [Unreleased](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.3...master/)
 
 ### Added
 
 - Add support for crossOrigin/topOrigin verification during credential registration and authentication. [#486](https://github.com/cedarcode/webauthn-ruby/pull/486) [@nicolastemciuc]
 
-## [v3.4.3] - 2025-10-23
+## [v3.4.3](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.2...v3.4.3/) - 2025-10-23
 
 ### Fixed
 
@@ -100,7 +100,7 @@
 
 - Bumped minimum required Ruby version to 2.5 ([@bdewater])
 
-## [v3.0.0.alpha1](https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0/)(https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v3.0.0.alpha1) - 2020-06-27
+## [v3.0.0.alpha1](https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v3.0.0.alpha1) - 2020-06-27
 
 ### Added
 
