@@ -440,19 +440,19 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
-[@brauliomartinezlm]: https://github.com/brauliomartinezlm
 [@bdewater]: https://github.com/bdewater
+[@brauliomartinezlm]: https://github.com/brauliomartinezlm
+[@ClearlyClaire]: https://github.com/ClearlyClaire
 [@jdongelmans]: https://github.com/jdongelmans
+[@jdongelmans]: https://github.com/jdongelmans
+[@juanarias93]: https://github.com/juanarias93
 [@kalebtesfay]: https://github.com/kalebtesfay
+[@kingjan1999]: https://github.com/@kingjan1999
+[@lgarron]: https://github.com/lgarron
 [@MaximeNdutiye]: https://github.com/MaximeNdutiye
+[@nicolastemciuc]: https://github.com/nicolastemciuc
+[@padulafacundo]: https://github.com/padulafacundo
+[@petergoldstein]: https://github.com/petergoldstein
+[@santiagorodriguez96]: https://github.com/santiagorodriguez96
 [@sorah]: https://github.com/sorah
 [@ssuttner]: https://github.com/ssuttner
-[@padulafacundo]: https://github.com/padulafacundo
-[@santiagorodriguez96]: https://github.com/santiagorodriguez96
-[@lgarron]: https://github.com/lgarron
-[@juanarias93]: https://github.com/juanarias93
-[@kingjan1999]: https://github.com/@kingjan1999
-[@jdongelmans]: https://github.com/jdongelmans
-[@petergoldstein]: https://github.com/petergoldstein
-[@ClearlyClaire]: https://github.com/ClearlyClaire
-[@nicolastemciuc]: https://github.com/nicolastemciuc
