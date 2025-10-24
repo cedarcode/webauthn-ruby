@@ -14,6 +14,7 @@ module WebAuthn
   class OriginVerificationError < VerificationError; end
   class RpIdVerificationError < VerificationError; end
   class TokenBindingVerificationError < VerificationError; end
+  class TopOriginVerificationError < VerificationError; end
   class TypeVerificationError < VerificationError; end
   class UserPresenceVerificationError < VerificationError; end
   class UserVerifiedVerificationError < VerificationError; end
@@ -33,6 +34,7 @@ module WebAuthn
       verify_item(:token_binding)
       verify_item(:challenge, expected_challenge)
       verify_item(:origin, expected_origin)
+      verify_item(:top_origin) if needs_top_origin_verification?
       verify_item(:authenticator_data)
 
       verify_item(
@@ -84,6 +86,12 @@ module WebAuthn
       client_data.valid_token_binding_format?
     end
 
+    def valid_top_origin?
+      return false unless client_data.cross_origin
+
+      relying_party.allowed_top_origins&.include?(client_data.top_origin)
+    end
+
     def valid_challenge?(expected_challenge)
       OpenSSL.secure_compare(client_data.challenge, expected_challenge)
     end
@@ -120,6 +128,10 @@ module WebAuthn
 
     def type
       raise NotImplementedError, "Please define #type method in subclass"
+    end
+
+    def needs_top_origin_verification?
+      relying_party.verify_cross_origin && (client_data.cross_origin || client_data.top_origin)
     end
   end
 end

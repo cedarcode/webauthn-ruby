@@ -104,6 +104,31 @@ WebAuthn.configure do |config|
   # Multiple origins can be used when needed. Using more than one will imply you MUST configure rp_id explicitely. If you need your credentials to be bound to a single origin but you have more than one tenant, please see [our Advanced Configuration section](https://github.com/cedarcode/webauthn-ruby/blob/master/docs/advanced_configuration.md) instead of adding multiple origins.
   config.allowed_origins = ["https://auth.example.com"]
 
+  # When operating within iframes or embedded contexts, you may need to restrict
+  # which top-level origins are permitted to host WebAuthn ceremonies.
+  #
+  # crossOrigin / topOrigin verification is DISABLED by default:
+  #   config.verify_cross_origin = false
+  #
+  # When `verify_cross_origin` is false, any `crossOrigin` / `topOrigin` values reported by the browser
+  #    are ignored. As a result, credentials created or used within a cross-origin iframe will be treated
+  #    as valid.
+  #
+  # When `verify_cross_origin` is true, you can either:
+  #
+  # (A) Allow only specific top-level origins to embed your ceremony
+  #     (each entry must match the browser-reported `topOrigin` during registration/authentication):
+  #
+  #     config.allowed_top_origins = ["https://app.example.com"]
+  #
+  # (B) Forbid ANY cross-origin iframe usage altogether
+  #     (this rejects creation/authentication whenever `crossOrigin` is true):
+  #
+  #     config.allowed_top_origins = []
+  #
+  # Note: if `verify_cross_origin` is not enabled, any values set in `allowed_top_origins`
+  # will be ignored.
+
   # Relying Party name for display purposes
   config.rp_name = "Example Inc."
 

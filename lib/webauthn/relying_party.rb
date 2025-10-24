@@ -19,10 +19,12 @@ module WebAuthn
       algorithms: DEFAULT_ALGORITHMS.dup,
       encoding: WebAuthn::Encoder::STANDARD_ENCODING,
       allowed_origins: nil,
+      allowed_top_origins: nil,
       origin: nil,
       id: nil,
       name: nil,
       verify_attestation_statement: true,
+      verify_cross_origin: false,
       credential_options_timeout: 120000,
       silent_authentication: false,
       acceptable_attestation_types: ['None', 'Self', 'Basic', 'AttCA', 'Basic_or_AttCA', 'AnonCA'],
@@ -32,9 +34,11 @@ module WebAuthn
       @algorithms = algorithms
       @encoding = encoding
       @allowed_origins = allowed_origins
+      @allowed_top_origins = allowed_top_origins
       @id = id
       @name = name
       @verify_attestation_statement = verify_attestation_statement
+      @verify_cross_origin = verify_cross_origin
       @credential_options_timeout = credential_options_timeout
       @silent_authentication = silent_authentication
       @acceptable_attestation_types = acceptable_attestation_types
@@ -46,9 +50,11 @@ module WebAuthn
     attr_accessor :algorithms,
                   :encoding,
                   :allowed_origins,
+                  :allowed_top_origins,
                   :id,
                   :name,
                   :verify_attestation_statement,
+                  :verify_cross_origin,
                   :credential_options_timeout,
                   :silent_authentication,
                   :acceptable_attestation_types,
