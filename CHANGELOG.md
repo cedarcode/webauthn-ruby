@@ -70,24 +70,24 @@
 
 ### Added
 
-- Add support for optional `authenticator_attachment` in `PublicKeyCredential`. #370 [@8ma10s]
+- Add support for optional `authenticator_attachment` in `PublicKeyCredential`. [#370](https://github.com/cedarcode/webauthn-ruby/pull/370) [@8ma10s]
 
 ### Fixed
 
-- Fix circular require warning between `webauthn/relying_party` and `webauthn/credential`. #389 [@bdewater]
-- Correctly verify attestation that contains just a batch certificate that is present in the attestation root certificates. #406 [@santiagorodriguez96]
+- Fix circular require warning between `webauthn/relying_party` and `webauthn/credential`. [#389](https://github.com/cedarcode/webauthn-ruby/pull/389) [@bdewater]
+- Correctly verify attestation that contains just a batch certificate that is present in the attestation root certificates. [#406](https://github.com/cedarcode/webauthn-ruby/pull/406) [@santiagorodriguez96]
 
 ### Changed
 
-- Inlined `base64` implementation. #402 [@olleolleolle]
-- Raise a more descriptive error if input `challenge` is `nil` when verifying the `PublicKeyCredential`. #413 [@soartec-lab]
+- Inlined `base64` implementation. [#402](https://github.com/cedarcode/webauthn-ruby/pull/402) [@olleolleolle]
+- Raise a more descriptive error if input `challenge` is `nil` when verifying the `PublicKeyCredential`. [#413](https://github.com/cedarcode/webauthn-ruby/pull/413) [@soartec-lab]
 
 ## [v3.0.0] - 2023-02-15
 
 ### Added
 
-- Add the capability of handling appid extension #319 [@santiagorodriguez96]
-- Add support for credential backup flags #378 [@santiagorodriguez96]
+- Add the capability of handling appid extension [#319](https://github.com/cedarcode/webauthn-ruby/pull/319) [@santiagorodriguez96]
+- Add support for credential backup flags [#378](https://github.com/cedarcode/webauthn-ruby/pull/378) [@santiagorodriguez96]
 - Update dependencies to make gem compatible with OpenSSL 3.1 ([@bdewater],[@santiagorodriguez96])
 
 ## [v3.0.0.alpha2](https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha2/) - 2022-09-12
