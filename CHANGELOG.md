@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add support for crossOrigin/topOrigin verification during credential registration and authentication. [#486](https://github.com/cedarcode/webauthn-ruby/pull/486) [@nicolastemciuc]
+
 ## [v3.4.3] - 2025-10-23
 
 ### Fixed
@@ -494,3 +498,4 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@jdongelmans]: https://github.com/jdongelmans
 [@petergoldstein]: https://github.com/petergoldstein
 [@ClearlyClaire]: https://github.com/ClearlyClaire
+[@nicolastemciuc]: https://github.com/nicolastemciuc
