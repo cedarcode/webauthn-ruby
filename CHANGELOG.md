@@ -1,51 +1,51 @@
 # Changelog
 
-## Unreleased
+## [Unreleased](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.3...master/)
 
 ### Added
 
 - Add support for crossOrigin/topOrigin verification during credential registration and authentication. [#486](https://github.com/cedarcode/webauthn-ruby/pull/486) [@nicolastemciuc]
 
-## [v3.4.3] - 2025-10-23
+## [v3.4.3](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.2...v3.4.3/) - 2025-10-23
 
 ### Fixed
 
-- Fix `RelyingParty#origin` and `WebAuthn.configuration.origin` always returning `nil`. [#484](https://github.com/cedarcode/webauthn-ruby/pull/484)[@santiagorodriguez96]
+- Fix `RelyingParty#origin` and `WebAuthn.configuration.origin` always returning `nil`. [#484](https://github.com/cedarcode/webauthn-ruby/pull/484) [@santiagorodriguez96]
     - Now they return the allowed origin if allowed origins has only one element.
 
-## [v3.4.2] - 2025-09-22
+## [v3.4.2](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.1...v3.4.2/) - 2025-09-22
 
 ### Added
 
 - Updated `safety_net_attestation` dependency from `~> 0.4.0` to `~> 0.5.0`.
 
-## [v3.4.1] - 2025-06-06
+## [v3.4.1](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.0...v3.4.1/) - 2025-06-06
 
-- Avoid requiring `base64` as it's not a direct dependency. [#459](https://github.com/cedarcode/webauthn-ruby/pull/459)[@santiagorodriguez96]
+- Avoid requiring `base64` as it's not a direct dependency. [#459](https://github.com/cedarcode/webauthn-ruby/pull/459) [@santiagorodriguez96]
 
-## [v3.4.0] - 2025-02-17
+## [v3.4.0](https://github.com/cedarcode/webauthn-ruby/compare/v3.3.0...v3.4.0/) - 2025-02-17
 
-- Added support for Webauthn.config and RelayingParty to accept multiple allowed_origins. [#431](https://github.com/cedarcode/webauthn-ruby/pull/431)[@obroshnij]
+- Added support for Webauthn.config and RelayingParty to accept multiple allowed_origins. [#431](https://github.com/cedarcode/webauthn-ruby/pull/431) [@obroshnij]
 
-## [v3.3.0] - 2025-02-06
+## [v3.3.0](https://github.com/cedarcode/webauthn-ruby/compare/v3.2.2...v3.3.0/) - 2025-02-06
 
 ### Added
 
 - Updated `tpm-key_attestation` dependency from `~> 0.12.0` to `~> 0.14.0`. [#449](https://github.com/cedarcode/webauthn-ruby/pull/449) [@brauliomartinezlm], [@nicolastemciuc]
 
-## [v3.2.2] - 2024-11-14
+## [v3.2.2](https://github.com/cedarcode/webauthn-ruby/compare/v3.2.1...v3.2.2/) - 2024-11-14
 
 ### Fixed
 
 - Fix `PublicKeyCredential::Options#.as_json` not camelCase'ing keys of attributes with hash or arrays as values. [#445](https://github.com/cedarcode/webauthn-ruby/pull/445) [@santiagorodriguez96]
 
-## [v3.2.1] - 2024-11-14
+## [v3.2.1](https://github.com/cedarcode/webauthn-ruby/compare/v3.2.0...v3.2.1/) - 2024-11-14
 
 ### Fixed
 
-- Fix JSON Serializer generating json with attributes with a null value. [#442](https://github.com/cedarcode/webauthn-ruby/pull/442) @santiagorodriguez96
+- Fix JSON Serializer generating json with attributes with a null value. [#442](https://github.com/cedarcode/webauthn-ruby/pull/442) [@santiagorodriguez96]
 
-## [v3.2.0] - 2024-11-13
+## [v3.2.0](https://github.com/cedarcode/webauthn-ruby/compare/v3.1.0...v3.2.0/) - 2024-11-13
 
 ### Added
 
@@ -66,31 +66,31 @@
 
 - Remove unused class `AttestationTrustworthinessVerificationError`. [#412](https://github.com/cedarcode/webauthn-ruby/pull/412) [@soartec-lab]
 
-## [v3.1.0] - 2023-12-26
+## [v3.1.0](https://github.com/cedarcode/webauthn-ruby/compare/v3.0.0...v3.1.0/) - 2023-12-26
 
 ### Added
 
-- Add support for optional `authenticator_attachment` in `PublicKeyCredential`. #370 [@8ma10s]
+- Add support for optional `authenticator_attachment` in `PublicKeyCredential`. [#370](https://github.com/cedarcode/webauthn-ruby/pull/370) [@8ma10s]
 
 ### Fixed
 
-- Fix circular require warning between `webauthn/relying_party` and `webauthn/credential`. #389 [@bdewater]
-- Correctly verify attestation that contains just a batch certificate that is present in the attestation root certificates. #406 [@santiagorodriguez96]
+- Fix circular require warning between `webauthn/relying_party` and `webauthn/credential`. [#389](https://github.com/cedarcode/webauthn-ruby/pull/389) [@bdewater]
+- Correctly verify attestation that contains just a batch certificate that is present in the attestation root certificates. [#406](https://github.com/cedarcode/webauthn-ruby/pull/406) [@santiagorodriguez96]
 
 ### Changed
 
-- Inlined `base64` implementation. #402 [@olleolleolle]
-- Raise a more descriptive error if input `challenge` is `nil` when verifying the `PublicKeyCredential`. #413 [@soartec-lab]
+- Inlined `base64` implementation. [#402](https://github.com/cedarcode/webauthn-ruby/pull/402) [@olleolleolle]
+- Raise a more descriptive error if input `challenge` is `nil` when verifying the `PublicKeyCredential`. [#413](https://github.com/cedarcode/webauthn-ruby/pull/413) [@soartec-lab]
 
 ## [v3.0.0] - 2023-02-15
 
 ### Added
 
-- Add the capability of handling appid extension #319 [@santiagorodriguez96]
-- Add support for credential backup flags #378 [@santiagorodriguez96]
+- Add the capability of handling appid extension [#319](https://github.com/cedarcode/webauthn-ruby/pull/319) [@santiagorodriguez96]
+- Add support for credential backup flags [#378](https://github.com/cedarcode/webauthn-ruby/pull/378) [@santiagorodriguez96]
 - Update dependencies to make gem compatible with OpenSSL 3.1 ([@bdewater],[@santiagorodriguez96])
 
-## [v3.0.0.alpha2] - 2022-09-12
+## [v3.0.0.alpha2](https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha2/) - 2022-09-12
 
 ### Added
 
@@ -100,19 +100,19 @@
 
 - Bumped minimum required Ruby version to 2.5 ([@bdewater])
 
-## [v3.0.0.alpha1] - 2020-06-27
+## [v3.0.0.alpha1](https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v3.0.0.alpha1) - 2020-06-27
 
 ### Added
 
 - Ability to define multiple relying parties with the introduction of the `WebAuthn::RelyingParty` class ([@padulafacundo], [@brauliomartinezlm])
 
-## [v2.5.2] - 2022-07-13
+## [v2.5.2](https://github.com/cedarcode/webauthn-ruby/compare/v2.5.1...v2.5.2/) - 2022-07-13
 
 ### Added
 
 - Updated dependencies to make the gem compatible with openssl-3 [@ClearlyClaire]
 
-## [v2.5.1] - 2022-03-20
+## [v2.5.1](https://github.com/cedarcode/webauthn-ruby/compare/v2.5.0...v2.5.1/) - 2022-03-20
 
 ### Added
 
@@ -120,9 +120,9 @@
 
 ### Removed
 
-- Removed dependency [secure_compare dependency] (https://rubygems.org/gems/secure_compare/versions/0.0.1) and use OpenSSL#secure_compare instead [@bdewater]
+- Removed dependency [secure_compare dependency](https://rubygems.org/gems/secure_compare/versions/0.0.1) and use OpenSSL#secure_compare instead [@bdewater]
 
-## [v2.5.0] - 2021-03-14
+## [v2.5.0](https://github.com/cedarcode/webauthn-ruby/compare/v2.4.1...v2.5.0/) - 2021-03-14
 
 ### Added
 
@@ -133,32 +133,32 @@
 
 - No longer accept "removed from the WebAuthn spec" options `rp: { icon: }` and `user: { icon: }` for `WebAuthn::Credential.options_for_create` method ([#326](https://github.com/cedarcode/webauthn-ruby/pull/326) / [@santiagorodriguez96])
 
-## [v2.4.1] - 2021-02-15
+## [v2.4.1](https://github.com/cedarcode/webauthn-ruby/compare/v2.4.0...v2.4.1/) - 2021-02-15
 
 ### Fixed
 
 - Fix verification of new credential if no attestation provided and 'None' type is not among configured `acceptable_attestation_types`. I.e. reject it instead of letting it go through.
 
-## [v2.4.0] - 2020-09-03
+## [v2.4.0](https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v2.4.0/) - 2020-09-03
 
 ### Added
 
 - Support for ES256K credentials
 - `FakeClient#get` accepts `user_handle:` keyword argument ([@lgarron])
 
-## [v2.3.0] - 2020-06-27
+## [v2.3.0](https://github.com/cedarcode/webauthn-ruby/compare/v2.2.1...v2.3.0/) - 2020-06-27
 
 ### Added
 
 - Ability to access extension outputs with `PublicKeyCredential#client_extension_outputs` and `PublicKeyCredential#authenticator_extension_outputs` ([@santiagorodriguez96])
 
-## [v2.2.1] - 2020-06-06
+## [v2.2.1](https://github.com/cedarcode/webauthn-ruby/compare/v2.2.0...v2.2.1/) - 2020-06-06
 
 ### Fixed
 
 - Fixed compatibility with OpenSSL-C (libssl) v1.0.2 ([@santiagorodriguez96])
 
-## [v2.2.0] - 2020-03-14
+## [v2.2.0](https://github.com/cedarcode/webauthn-ruby/compare/v2.1.0...v2.2.0/) - 2020-03-14
 
 ### Added
 
@@ -167,7 +167,7 @@
 
 Note: Expect possible breaking changes for "EXPERIMENTAL" features.
 
-## [v2.1.0] - 2019-12-30
+## [v2.1.0](https://github.com/cedarcode/webauthn-ruby/compare/v2.0.0...v2.1.0/) - 2019-12-30
 
 ### Added
 
@@ -179,7 +179,7 @@ Note: Expect possible breaking changes for "EXPERIMENTAL" features.
 
 Note: Expect possible breaking changes for "EXPERIMENTAL" features.
 
-## [v2.0.0] - 2019-10-03
+## [v2.0.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.18.0...v2.0.0/) - 2019-10-03
 
 ### Added
 
@@ -231,7 +231,7 @@ string keys instead of snake_case symbol keys in the returned hash.
 - `WebAuthn::FakeClient#create` and `WebAuthn::FakeClient#get` better fakes a real client by not padding the
 returned base64url-encoded `id` value.
 
-## [v1.18.0] - 2019-07-27
+## [v1.18.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.17.0...v1.18.0/) - 2019-07-27
 
 ### Added
 
@@ -246,14 +246,14 @@ returned base64url-encoded `id` value.
 - Properly verify SafetyNet certificates from input ([#233](https://github.com/cedarcode/webauthn-ruby/pull/233)) ([@bdewater])
 - FakeClient default origin URL ([#242](https://github.com/cedarcode/webauthn-ruby/pull/242)) ([@kalebtesfay])
 
-## [v1.17.0] - 2019-06-18
+## [v1.17.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.16.0...v1.17.0/) - 2019-06-18
 
 ### Added
 
 - Support ES384, ES512, PS384, PS512, RS384 and RS512 credentials. Off by default. Enable by adding any of them to `WebAuthn.configuration.algorithms` array ([@bdewater])
 - Support [Signature Counter](https://www.w3.org/TR/webauthn/#signature-counter) verification ([@bdewater])
 
-## [v1.16.0] - 2019-06-13
+## [v1.16.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.15.0...v1.16.0/) - 2019-06-13
 
 ### Added
 
@@ -261,20 +261,20 @@ returned base64url-encoded `id` value.
 - Support RS1 (RSA w/ SHA-1) credentials. Off by default. Enable by adding `"RS1"` to `WebAuthn.configuration.algorithms` array.
 - Support PS256 (RSA Probabilistic Signature Scheme w/ SHA-256) credentials. On by default ([@bdewater])
 
-## [v1.15.0] - 2019-05-16
+## [v1.15.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.14.0...v1.15.0/) - 2019-05-16
 
 ### Added
 
 - Ability to configure Origin, RP ID and RP Name via `WebAuthn.configure`
 
-## [v1.14.0] - 2019-04-25
+## [v1.14.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.13.0...v1.14.0/) - 2019-04-25
 
 ### Added
 
 - Support 'tpm' attestation statement
 - Support RS256 credential public key
 
-## [v1.13.0] - 2019-04-09
+## [v1.13.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.12.0...v1.13.0/) - 2019-04-09
 
 ### Added
 
@@ -287,7 +287,7 @@ returned base64url-encoded `id` value.
 - Verify collectedClientData.tokenBinding format.
 - `WebAuthn.credential_creation_options` now accept `rp_name`, `user_id`, `user_name` and `display_name` as keyword arguments ([@bdewater])
 
-## [v1.12.0] - 2019-04-03
+## [v1.12.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.11.0...v1.12.0/) - 2019-04-03
 
 ### Added
 
@@ -303,7 +303,7 @@ Note #1: A `Credential` instance is what is returned in `WebAuthn::Authenticator
 Note #2: You don't need to do any convesion before passing the public key in `AuthenticatorAssertionResponse#verify`'s
 `allowed_credentials` argument, `#verify` is backwards-compatible and will handle both public key formats properly.
 
-## [v1.11.0] - 2019-03-15
+## [v1.11.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.10.0...v1.11.0/) - 2019-03-15
 
 ### Added
 
@@ -313,19 +313,19 @@ Note #2: You don't need to do any convesion before passing the public key in `Au
 
 - Verify matching AAGUID if needed when verifying `packed` attestation statements ([@bdewater])
 
-## [v1.10.0] - 2019-03-05
+## [v1.10.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.9.0...v1.10.0/) - 2019-03-05
 
 ### Added
 
 - Parse and make AuthenticatorData's extensionData available
 
-## [v1.9.0] - 2019-02-22
+## [v1.9.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.8.0...v1.9.0/) - 2019-02-22
 
 ### Added
 
 - Added `#verify`, which can be used for getting a meaningful error raised in case of a verification error, as opposed to `#valid?` which returns `false`
 
-## [v1.8.0] - 2019-01-17
+## [v1.8.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.7.0...v1.8.0/) - 2019-01-17
 
 ### Added
 
@@ -336,40 +336,40 @@ Note #2: You don't need to do any convesion before passing the public key in `Au
 
 - Make current raised exception errors a bit more meaningful to aid debugging
 
-## [v1.7.0] - 2018-11-08
+## [v1.7.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.6.0...v1.7.0/) - 2018-11-08
 
 ### Added
 
 - _Registration_ ceremony
   - `WebAuthn::AuthenticatorAttestationResponse` exposes attestation type and trust path via `#attestation_type` and `#attestation_trust_path` methods ([@bdewater])
 
-## [v1.6.0] - 2018-11-01
+## [v1.6.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.5.0...v1.6.0/) - 2018-11-01
 
 ### Added
 
 - `FakeAuthenticator` object is now exposed to help you test your WebAuthn implementation
 
-## [v1.5.0] - 2018-10-23
+## [v1.5.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.4.0...v1.5.0/) - 2018-10-23
 
 ### Added
 
 - Works with ruby 2.3 ([@bdewater])
 
-## [v1.4.0] - 2018-10-11
+## [v1.4.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.3.0...v1.4.0/) - 2018-10-11
 
 ### Added
 
 - _Registration_ ceremony
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` supports `android-safetynet` attestation statements ([@bdewater])
 
-## [v1.3.0] - 2018-10-11
+## [v1.3.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.2.0...v1.3.0/) - 2018-10-11
 
 ### Added
 
 - _Registration_ ceremony
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` supports `packed` attestation statements ([@sorah])
 
-## [v1.2.0] - 2018-10-08
+## [v1.2.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.1.0...v1.2.0/) - 2018-10-08
 
 ### Added
 
@@ -380,7 +380,7 @@ Note #2: You don't need to do any convesion before passing the public key in `Au
 
 Note: Both additions should help making it compatible with Chrome for Android 70+/Android Fingerprint pair.
 
-## [v1.1.0] - 2018-10-04
+## [v1.1.0](https://github.com/cedarcode/webauthn-ruby/compare/v1.0.0...v1.1.0/) - 2018-10-04
 
 ### Added
 
@@ -389,7 +389,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 - _Authentication_ ceremony
   - `WebAuthn::AuthenticatorAssertionResponse.valid?` optionally accepts rp_id.
 
-## [v1.0.0] - 2018-09-07
+## [v1.0.0](https://github.com/cedarcode/webauthn-ruby/compare/v0.2.0...v1.0.0/) - 2018-09-07
 
 ### Added
 
@@ -403,7 +403,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 - _Authentication_ ceremony
   - Use 32-byte challenge instead of 16-byte
 
-## [v0.2.0] - 2018-06-08
+## [v0.2.0](https://github.com/cedarcode/webauthn-ruby/compare/v0.1.0...v0.2.0/) - 2018-06-08
 
 ### Added
 
@@ -431,7 +431,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 - _Registration_ ceremony
   - `WebAuthn::AuthenticatorAttestationResponse.credential_id` (superseded by `WebAuthn::AuthenticatorAttestationResponse.credential`)
 
-## [v0.1.0] - 2018-05-25
+## [v0.1.0](https://github.com/cedarcode/webauthn-ruby/compare/v0.0.0...v0.1.0/) - 2018-05-25
 
 ### Added
 
@@ -440,62 +440,23 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
-[v3.4.2]: https://github.com/cedarcode/webauthn-ruby/compare/v3.4.1...v3.4.2/
-[v3.4.1]: https://github.com/cedarcode/webauthn-ruby/compare/v3.4.0...v3.4.1/
-[v3.4.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.3.0...v3.4.0/
-[v3.3.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.2.2...v3.3.0/
-[v3.2.2]: https://github.com/cedarcode/webauthn-ruby/compare/v3.2.1...v3.2.2/
-[v3.2.1]: https://github.com/cedarcode/webauthn-ruby/compare/v3.2.0...v3.2.1/
-[v3.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.1.0...v3.2.0/
-[v3.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.0.0...v3.1.0/
-[v3.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0/
-[v3.0.0.alpha2]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha2/
-[v3.0.0.alpha1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v3.0.0.alpha1
-[v2.5.2]: https://github.com/cedarcode/webauthn-ruby/compare/v2.5.1...v2.5.2/
-[v2.5.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.5.0...v2.5.1/
-[v2.5.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.4.1...v2.5.0/
-[v2.4.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.4.0...v2.4.1/
-[v2.4.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.3.0...v2.4.0/
-[v2.3.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.2.1...v2.3.0/
-[v2.2.1]: https://github.com/cedarcode/webauthn-ruby/compare/v2.2.0...v2.2.1/
-[v2.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.1.0...v2.2.0/
-[v2.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v2.0.0...v2.1.0/
-[v2.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.18.0...v2.0.0/
-[v1.18.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.17.0...v1.18.0/
-[v1.17.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.16.0...v1.17.0/
-[v1.16.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.15.0...v1.16.0/
-[v1.15.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.14.0...v1.15.0/
-[v1.14.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.13.0...v1.14.0/
-[v1.13.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.12.0...v1.13.0/
-[v1.12.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.11.0...v1.12.0/
-[v1.11.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.10.0...v1.11.0/
-[v1.10.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.9.0...v1.10.0/
-[v1.9.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.8.0...v1.9.0/
-[v1.8.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.7.0...v1.8.0/
-[v1.7.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.6.0...v1.7.0/
-[v1.6.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.5.0...v1.6.0/
-[v1.5.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.4.0...v1.5.0/
-[v1.4.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.3.0...v1.4.0/
-[v1.3.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.2.0...v1.3.0/
-[v1.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.1.0...v1.2.0/
-[v1.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v1.0.0...v1.1.0/
-[v1.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.2.0...v1.0.0/
-[v0.2.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.1.0...v0.2.0/
-[v0.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v0.0.0...v0.1.0/
-
-[@brauliomartinezlm]: https://github.com/brauliomartinezlm
 [@bdewater]: https://github.com/bdewater
+[@brauliomartinezlm]: https://github.com/brauliomartinezlm
+[@ClearlyClaire]: https://github.com/ClearlyClaire
 [@jdongelmans]: https://github.com/jdongelmans
+[@jdongelmans]: https://github.com/jdongelmans
+[@juanarias93]: https://github.com/juanarias93
 [@kalebtesfay]: https://github.com/kalebtesfay
+[@kingjan1999]: https://github.com/@kingjan1999
+[@lgarron]: https://github.com/lgarron
 [@MaximeNdutiye]: https://github.com/MaximeNdutiye
+[@nicolastemciuc]: https://github.com/nicolastemciuc
+[@obroshnij]: https://github.com/obroshnij
+[@olleolleolle]: https://github.com/olleolleolle
+[@padulafacundo]: https://github.com/padulafacundo
+[@petergoldstein]: https://github.com/petergoldstein
+[@santiagorodriguez96]: https://github.com/santiagorodriguez96
+[@soartec-lab]: https://github.com/soartec-lab
 [@sorah]: https://github.com/sorah
 [@ssuttner]: https://github.com/ssuttner
-[@padulafacundo]: https://github.com/padulafacundo
-[@santiagorodriguez96]: https://github.com/santiagorodriguez96
-[@lgarron]: https://github.com/lgarron
-[@juanarias93]: https://github.com/juanarias93
-[@kingjan1999]: https://github.com/@kingjan1999
-[@jdongelmans]: https://github.com/jdongelmans
-[@petergoldstein]: https://github.com/petergoldstein
-[@ClearlyClaire]: https://github.com/ClearlyClaire
-[@nicolastemciuc]: https://github.com/nicolastemciuc
+[@8ma10s]: https://github.com/8ma10s
