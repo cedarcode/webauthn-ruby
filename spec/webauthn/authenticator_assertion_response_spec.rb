@@ -26,22 +26,47 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     )
   end
 
+  let(:challenge) { original_challenge }
+  let(:public_key) { credential_public_key }
+  let(:sign_count) { 0 }
+  let(:user_presence) { nil }
+  let(:user_verification) { nil }
+  let(:rp_id) { nil }
+
   before do
     WebAuthn.configuration.allowed_origins = [origin]
   end
 
-  context "when everything's in place" do
+  shared_examples "a valid assertion response" do
     it "verifies" do
-      expect(
-        assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-      ).to be_truthy
+      expect {
+        assertion_response.verify(
+          challenge,
+          public_key: public_key,
+          sign_count: sign_count,
+          user_presence: user_presence,
+          user_verification: user_verification,
+          rp_id: rp_id
+        )
+      }.not_to raise_error
     end
 
     it "is valid" do
       expect(
-        assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-      ).to be_truthy
+        assertion_response.valid?(
+          challenge,
+          public_key: public_key,
+          sign_count: sign_count,
+          user_presence: user_presence,
+          user_verification: user_verification,
+          rp_id: rp_id
+        )
+      ).to be(true)
     end
+  end
+
+  context "when everything's in place" do
+    it_behaves_like "a valid assertion response"
   end
 
   # Gem version v1.11.0 and lower, used to behave so that Credential#public_key
@@ -55,14 +80,13 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
   # user and later be passed as the public_key argument in the
   # AuthenticatorAssertionResponse.verify call, we then need to support the two formats.
   context "when everything's in place with the old public key format" do
-    it "verifies" do
-      old_format_key =
-        WebAuthn::AttestationStatement::FidoU2f::PublicKey
+    let(:public_key) {
+      WebAuthn::AttestationStatement::FidoU2f::PublicKey
         .new(credential_public_key)
         .to_uncompressed_point
+    }
 
-      expect(assertion_response.verify(original_challenge, public_key: old_format_key, sign_count: 0)).to be_truthy
-    end
+    it_behaves_like "a valid assertion response"
   end
 
   context "if signature was signed with a different key" do
@@ -122,27 +146,9 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         end
 
         context 'when user presence is not required' do
-          it "verifies if user presence is not required" do
-            expect(
-              assertion_response.verify(
-                original_challenge,
-                public_key: credential_public_key,
-                sign_count: 0,
-                user_presence: false
-              )
-            ).to be_truthy
-          end
+          let(:user_presence) { false }
 
-          it "is valid" do
-            expect(
-              assertion_response.valid?(
-                original_challenge,
-                public_key: credential_public_key,
-                sign_count: 0,
-                user_presence: false
-              )
-            ).to be_truthy
-          end
+          it_behaves_like "a valid assertion response"
         end
 
         context 'when user presence is required' do
@@ -195,27 +201,9 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         end
 
         context 'when user presence is not required' do
-          it "verifies if user presence is not required" do
-            expect(
-              assertion_response.verify(
-                original_challenge,
-                public_key: credential_public_key,
-                sign_count: 0,
-                user_presence: false
-              )
-            ).to be_truthy
-          end
+          let(:user_presence) { false }
 
-          it "is valid" do
-            expect(
-              assertion_response.valid?(
-                original_challenge,
-                public_key: credential_public_key,
-                sign_count: 0,
-                user_presence: false
-              )
-            ).to be_truthy
-          end
+          it_behaves_like "a valid assertion response"
         end
 
         context 'when user presence is required' do
@@ -254,41 +242,13 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         end
 
         context 'when user presence is not set' do
-          it "verifies if user presence is not required" do
-            expect(
-              assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-            ).to be_truthy
-          end
-
-          it "is valid" do
-            expect(
-              assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-            ).to be_truthy
-          end
+          it_behaves_like "a valid assertion response"
         end
 
         context 'when user presence is not required' do
-          it "verifies if user presence is not required" do
-            expect(
-              assertion_response.verify(
-                original_challenge,
-                public_key: credential_public_key,
-                sign_count: 0,
-                user_presence: false
-              )
-            ).to be_truthy
-          end
+          let(:user_presence) { false }
 
-          it "is valid" do
-            expect(
-              assertion_response.valid?(
-                original_challenge,
-                public_key: credential_public_key,
-                sign_count: 0,
-                user_presence: false
-              )
-            ).to be_truthy
-          end
+          it_behaves_like "a valid assertion response"
         end
 
         context 'when user presence is required' do
@@ -373,17 +333,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     context "it has stuff" do
       let(:token_binding) { { status: "supported" } }
 
-      it "verifies" do
-        expect(
-          assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-        ).to be_truthy
-      end
-
-      it "is valid" do
-        expect(
-          assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-        ).to be_truthy
-      end
+      it_behaves_like "a valid assertion response"
     end
 
     context "has an invalid format" do
@@ -423,27 +373,9 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
 
     context "when correct rp_id is explicitly given" do
-      it "verifies" do
-        expect(
-          assertion_response.verify(
-            original_challenge,
-            public_key: credential_public_key,
-            sign_count: 0,
-            rp_id: URI.parse(origin).host
-          )
-        ).to be_truthy
-      end
+      let(:rp_id) { URI.parse(origin).host }
 
-      it "is valid" do
-        expect(
-          assertion_response.valid?(
-            original_challenge,
-            public_key: credential_public_key,
-            sign_count: 0,
-            rp_id: URI.parse(origin).host
-          )
-        ).to be_truthy
-      end
+      it_behaves_like "a valid assertion response"
     end
   end
 
@@ -451,22 +383,15 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     context "if authenticator does not support counter" do
       let(:assertion) { client.get(challenge: original_challenge, sign_count: 0) }
 
-      it "verifies" do
-        expect(
-          assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-        ).to be_truthy
-      end
+      it_behaves_like "a valid assertion response"
     end
 
     context "when the authenticator supports counter" do
       context "and it's greater than the stored counter" do
         let(:assertion) { client.get(challenge: original_challenge, sign_count: 6) }
+        let(:sign_count) { 5 }
 
-        it "verifies" do
-          expect(
-            assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 5)
-          ).to be_truthy
-        end
+        it_behaves_like "a valid assertion response"
       end
 
       context "and it's equal to the stored counter" do
@@ -522,33 +447,13 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           context "when top_origin is set" do
             let(:client_top_origin) { top_origin }
 
-            it "verifies" do
-              expect(
-                assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid assertion response"
           end
 
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid assertion response"
           end
         end
 
@@ -558,33 +463,13 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           context "when top_origin is set" do
             let(:client_top_origin) { top_origin }
 
-            it "verifies" do
-              expect(
-                assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid assertion response"
           end
 
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid assertion response"
           end
         end
 
@@ -594,33 +479,13 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           context "when top_origin is set" do
             let(:client_top_origin) { top_origin }
 
-            it "verifies" do
-              expect(
-                assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid assertion response"
           end
 
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid assertion response"
           end
         end
       end
@@ -635,50 +500,20 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             context "when top_origin matches client top_origin" do
               let(:client_top_origin) { top_origin }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
 
             context "when top_origin does not match client top_origin" do
               let(:client_top_origin) { "https://malicious.example.com" }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
           end
 
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid assertion response"
           end
         end
 
@@ -689,49 +524,19 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             context "when top_origin matches client top_origin" do
               let(:client_top_origin) { top_origin }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
 
             context "when top_origin does not match client top_origin" do
               let(:client_top_origin) { "https://malicious.example.com" }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
 
             context "when top_origin is not set" do
               let(:client_top_origin) { nil }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
           end
         end
@@ -743,49 +548,19 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             context "when top_origin matches client top_origin" do
               let(:client_top_origin) { top_origin }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
 
             context "when top_origin does not match client top_origin" do
               let(:client_top_origin) { "https://malicious.example.com" }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
 
             context "when top_origin is not set" do
               let(:client_top_origin) { nil }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
           end
         end
@@ -868,17 +643,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid assertion response"
           end
         end
 
@@ -908,17 +673,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid assertion response"
           end
         end
       end
@@ -933,17 +688,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             context "when top_origin matches client top_origin" do
               let(:client_top_origin) { top_origin }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
 
             context "when top_origin does not match client top_origin" do
@@ -1035,17 +780,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             context "when top_origin is not set" do
               let(:client_top_origin) { nil }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
           end
         end
@@ -1097,17 +832,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
             context "when top_origin is not set" do
               let(:client_top_origin) { nil }
 
-              it "verifies" do
-                expect(
-                  assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid assertion response"
             end
           end
         end
@@ -1140,17 +865,9 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     let(:original_challenge) { WebAuthn::Encoders::Base64Encoder.decode(assertion_data[:challenge]) }
 
     context "when correct FIDO AppID is given as rp_id" do
-      it "verifies" do
-        expect(
-          assertion_response.verify(original_challenge, public_key: credential_public_key, sign_count: 0, rp_id: app_id)
-        ).to be_truthy
-      end
+      let(:rp_id) { app_id }
 
-      it "is valid" do
-        expect(
-          assertion_response.valid?(original_challenge, public_key: credential_public_key, sign_count: 0, rp_id: app_id)
-        ).to be_truthy
-      end
+      it_behaves_like "a valid assertion response"
     end
   end
 
