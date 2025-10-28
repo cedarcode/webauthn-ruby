@@ -23,13 +23,35 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   let(:public_key_credential) { client.create(challenge: original_challenge) }
 
+  let(:challenge) { original_challenge }
+  let(:expected_origin) { nil }
+  let(:user_presence) { nil }
+  let(:user_verification) { nil }
+  let(:rp_id) { nil }
+
   shared_examples "a valid attestation response" do
     it "verifies" do
-      expect(attestation_response.verify(original_challenge)).to be_truthy
+      expect {
+        attestation_response.verify(
+          challenge,
+          expected_origin,
+          user_presence: user_presence,
+          user_verification: user_verification,
+          rp_id: rp_id
+        )
+      }.not_to raise_error
     end
 
     it "is valid" do
-      expect(attestation_response.valid?(original_challenge)).to be_truthy
+      expect(
+        attestation_response.valid?(
+          challenge,
+          expected_origin,
+          user_presence: user_presence,
+          user_verification: user_verification,
+          rp_id: rp_id
+        )
+      ).to be(true)
     end
   end
 
@@ -305,13 +327,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       # end
     end
 
-    it "verifies" do
-      expect(attestation_response.verify(challenge, WebAuthn.configuration.allowed_origins)).to be_truthy
-    end
-
-    it "is valid" do
-      expect(attestation_response.valid?(challenge, WebAuthn.configuration.allowed_origins)).to eq(true)
-    end
+    it_behaves_like "a valid attestation response"
 
     it "returns attestation info" do
       attestation_response.valid?(challenge, WebAuthn.configuration.allowed_origins)
@@ -619,13 +635,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     context "it has stuff" do
       let(:token_binding) { { status: "supported" } }
 
-      it "verifies" do
-        expect(attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)).to be_truthy
-      end
-
-      it "is valid" do
-        expect(attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)).to be_truthy
-      end
+      it_behaves_like "a valid attestation response"
     end
 
     context "has an invalid format" do
@@ -665,33 +675,13 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           context "when top_origin is set" do
             let(:client_top_origin) { top_origin }
 
-            it "verifies" do
-              expect(
-                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid attestation response"
           end
 
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid attestation response"
           end
         end
 
@@ -701,33 +691,13 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           context "when top_origin is set" do
             let(:client_top_origin) { top_origin }
 
-            it "verifies" do
-              expect(
-                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid attestation response"
           end
 
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid attestation response"
           end
         end
 
@@ -737,33 +707,13 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           context "when top_origin is set" do
             let(:client_top_origin) { top_origin }
 
-            it "verifies" do
-              expect(
-                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid attestation response"
           end
 
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid attestation response"
           end
         end
       end
@@ -778,50 +728,20 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
             context "when top_origin matches client top_origin" do
               let(:client_top_origin) { top_origin }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
 
             context "when top_origin does not match client top_origin" do
               let(:client_top_origin) { "https://malicious.example.com" }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
           end
 
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid attestation response"
           end
         end
 
@@ -832,49 +752,19 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
             context "when top_origin matches client top_origin" do
               let(:client_top_origin) { top_origin }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
 
             context "when top_origin does not match client top_origin" do
               let(:client_top_origin) { "https://malicious.example.com" }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
 
             context "when top_origin is not set" do
               let(:client_top_origin) { nil }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
           end
         end
@@ -886,49 +776,19 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
             context "when top_origin matches client top_origin" do
               let(:client_top_origin) { top_origin }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
 
             context "when top_origin does not match client top_origin" do
               let(:client_top_origin) { "https://malicious.example.com" }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
 
             context "when top_origin is not set" do
               let(:client_top_origin) { nil }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
           end
         end
@@ -1008,17 +868,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid attestation response"
           end
         end
 
@@ -1047,17 +897,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           context "when top_origin is not set" do
             let(:client_top_origin) { nil }
 
-            it "verifies" do
-              expect(
-                attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
-
-            it "is valid" do
-              expect(
-                attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-              ).to be_truthy
-            end
+            it_behaves_like "a valid attestation response"
           end
         end
       end
@@ -1072,17 +912,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
             context "when top_origin matches client top_origin" do
               let(:client_top_origin) { top_origin }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
 
             context "when top_origin does not match client top_origin" do
@@ -1170,17 +1000,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
             context "when top_origin is not set" do
               let(:client_top_origin) { nil }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
           end
         end
@@ -1230,17 +1050,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
             context "when top_origin is not set" do
               let(:client_top_origin) { nil }
 
-              it "verifies" do
-                expect(
-                  attestation_response.verify(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
-
-              it "is valid" do
-                expect(
-                  attestation_response.valid?(original_challenge, WebAuthn.configuration.allowed_origins)
-                ).to be_truthy
-              end
+              it_behaves_like "a valid attestation response"
             end
           end
         end
@@ -1249,6 +1059,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
   end
 
   describe "user presence" do
+    let(:expected_origin) { [origin] }
+
     context "when UP is not set" do
       let(:public_key_credential) { client.create(challenge: original_challenge, user_present: false) }
 
@@ -1259,8 +1071,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           }.to raise_exception(WebAuthn::UserPresenceVerificationError)
         end
 
-        it "verifies if user presence is not required" do
-          expect(attestation_response.verify(original_challenge, [origin], user_presence: false)).to be_truthy
+        context "when user presence is not required" do
+          let(:user_presence) { false }
+
+          it_behaves_like "a valid attestation response"
         end
 
         it "doesn't verify if user presence is required" do
@@ -1286,8 +1100,10 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           }.to raise_exception(WebAuthn::UserPresenceVerificationError)
         end
 
-        it "verifies if user presence is not required" do
-          expect(attestation_response.verify(original_challenge, [origin], user_presence: false)).to be_truthy
+        context "when user presence is not required" do
+          let(:user_presence) { false }
+
+          it_behaves_like "a valid attestation response"
         end
 
         it "doesn't verify if user presence is required" do
@@ -1307,12 +1123,14 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           WebAuthn.configuration.silent_authentication = old_value
         end
 
-        it "verifies if user presence is not set" do
-          expect(attestation_response.verify(original_challenge, [origin])).to be_truthy
+        context "when user presence is not set" do
+          it_behaves_like "a valid attestation response"
         end
 
-        it "verifies if user presence is not required" do
-          expect(attestation_response.verify(original_challenge, [origin], user_presence: false)).to be_truthy
+        context "when user presence is not required" do
+          let(:user_presence) { false }
+
+          it_behaves_like "a valid attestation response"
         end
 
         it "doesn't verify if user presence is required" do
@@ -1409,9 +1227,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         WebAuthn.configuration.verify_attestation_statement = false
       end
 
-      it "does not verify the attestation statement" do
-        expect(attestation_response.verify(original_challenge)).to be_truthy
-      end
+      it_behaves_like "a valid attestation response"
     end
   end
 end
