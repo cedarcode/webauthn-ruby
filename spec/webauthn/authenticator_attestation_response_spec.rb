@@ -702,8 +702,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      context "when allowed_top_origins is set" do
-        let(:allowed_top_origins) { [top_origin] }
+      context "when allowed_top_origins is a collection of origins" do
+        let(:allowed_top_origins) { [top_origin, "https://another.example.com"] }
 
         context "when cross_origin is true" do
           let(:cross_origin) { true }
@@ -774,6 +774,58 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
               it_behaves_like "a valid attestation response"
             end
+          end
+        end
+      end
+
+      context "when allowed_top_origins is :allow_all" do
+        let(:allowed_top_origins) { :allow_all }
+
+        context "when cross_origin is true" do
+          let(:cross_origin) { true }
+
+          context "when top_origin is set" do
+            let(:client_top_origin) { top_origin }
+
+            it_behaves_like "a valid attestation response"
+          end
+
+          context "when top_origin is not set" do
+            let(:client_top_origin) { nil }
+
+            it_behaves_like "a valid attestation response"
+          end
+        end
+
+        context "when cross_origin is false" do
+          let(:cross_origin) { false }
+
+          context "when top_origin is set" do
+            let(:client_top_origin) { top_origin }
+
+            it_behaves_like "a valid attestation response"
+          end
+
+          context "when top_origin is not set" do
+            let(:client_top_origin) { nil }
+
+            it_behaves_like "a valid attestation response"
+          end
+        end
+
+        context "when cross_origin is not set" do
+          let(:cross_origin) { nil }
+
+          context "when top_origin is set" do
+            let(:client_top_origin) { top_origin }
+
+            it_behaves_like "a valid attestation response"
+          end
+
+          context "when top_origin is not set" do
+            let(:client_top_origin) { nil }
+
+            it_behaves_like "a valid attestation response"
           end
         end
       end
@@ -834,8 +886,8 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
         end
       end
 
-      context "when allowed_top_origins is set" do
-        let(:allowed_top_origins) { [top_origin] }
+      context "when allowed_top_origins is a collection of origins" do
+        let(:allowed_top_origins) { [top_origin, "https://another.example.com"] }
 
         context "when cross_origin is true" do
           let(:cross_origin) { true }
@@ -906,6 +958,58 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
               it_behaves_like "a valid attestation response"
             end
+          end
+        end
+      end
+
+      context "when allowed_top_origins is :allow_all" do
+        let(:allowed_top_origins) { :allow_all }
+
+        context "when cross_origin is true" do
+          let(:cross_origin) { true }
+
+          context "when top_origin is set" do
+            let(:client_top_origin) { top_origin }
+
+            it_behaves_like "a valid attestation response"
+          end
+
+          context "when top_origin is not set" do
+            let(:client_top_origin) { nil }
+
+            it_behaves_like "an invalid attestation response that raises", WebAuthn::TopOriginVerificationError
+          end
+        end
+
+        context "when cross_origin is false" do
+          let(:cross_origin) { false }
+
+          context "when top_origin is set" do
+            let(:client_top_origin) { top_origin }
+
+            it_behaves_like "an invalid attestation response that raises", WebAuthn::TopOriginVerificationError
+          end
+
+          context "when top_origin is not set" do
+            let(:client_top_origin) { nil }
+
+            it_behaves_like "a valid attestation response"
+          end
+        end
+
+        context "when cross_origin is not set" do
+          let(:cross_origin) { nil }
+
+          context "when top_origin is set" do
+            let(:client_top_origin) { top_origin }
+
+            it_behaves_like "an invalid attestation response that raises", WebAuthn::TopOriginVerificationError
+          end
+
+          context "when top_origin is not set" do
+            let(:client_top_origin) { nil }
+
+            it_behaves_like "a valid attestation response"
           end
         end
       end

@@ -126,6 +126,10 @@ WebAuthn.configure do |config|
   #
   #     config.allowed_top_origins = []
   #
+  # (C) Allow all top-level origins:
+  #
+  #     config.allowed_top_origins = :allow_all
+  #
   # Note: if `verify_cross_origin` is not enabled, any values set in `allowed_top_origins`
   # will be ignored.
 
