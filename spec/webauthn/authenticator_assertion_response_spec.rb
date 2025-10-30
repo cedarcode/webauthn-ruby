@@ -39,7 +39,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
 
   shared_examples "a valid assertion response" do
     it "verifies" do
-      expect {
+      expect(
         assertion_response.verify(
           challenge,
           public_key: public_key,
@@ -48,7 +48,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           user_verification: user_verification,
           rp_id: rp_id
         )
-      }.not_to raise_error
+      ).to be_truthy
     end
 
     it "is valid" do
@@ -61,7 +61,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           user_verification: user_verification,
           rp_id: rp_id
         )
-      ).to be(true)
+      ).to be_truthy
     end
   end
 
@@ -89,7 +89,7 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
           user_verification: user_verification,
           rp_id: rp_id
         )
-      ).to be(false)
+      ).to be_falsy
     end
   end
 

@@ -31,7 +31,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
 
   shared_examples "a valid attestation response" do
     it "verifies" do
-      expect {
+      expect(
         attestation_response.verify(
           challenge,
           expected_origin,
@@ -39,7 +39,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           user_verification: user_verification,
           rp_id: rp_id
         )
-      }.not_to raise_error
+      ).to be_truthy
     end
 
     it "is valid" do
@@ -51,7 +51,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           user_verification: user_verification,
           rp_id: rp_id
         )
-      ).to be(true)
+      ).to be_truthy
     end
   end
 
@@ -77,7 +77,7 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
           user_verification: user_verification,
           rp_id: nil
         )
-      ).to be(false)
+      ).to be_falsy
     end
   end
 
