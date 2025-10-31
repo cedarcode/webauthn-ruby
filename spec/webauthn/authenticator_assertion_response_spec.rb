@@ -449,8 +449,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         end
       end
 
-      context "when allowed_top_origins is :allow_all" do
-        let(:allowed_top_origins) { :allow_all }
+      context "when allowed_top_origins is :all" do
+        let(:allowed_top_origins) { :all }
 
         context "when cross_origin is true" do
           let(:cross_origin) { true }
@@ -633,8 +633,8 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
         end
       end
 
-      context "when allowed_top_origins is :allow_all" do
-        let(:allowed_top_origins) { :allow_all }
+      context "when allowed_top_origins is :all" do
+        let(:allowed_top_origins) { :all }
 
         context "when cross_origin is true" do
           let(:cross_origin) { true }
