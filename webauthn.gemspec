@@ -41,7 +41,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "safety_net_attestation", "~> 0.5.0"
   spec.add_dependency "tpm-key_attestation", "~> 0.14.0"
 
-  spec.add_development_dependency "bundler", ">= 1.17", "< 3.0"
+  spec.add_development_dependency "bundler", ">= 1.17", "< 5.0"
   spec.add_development_dependency "byebug", "~> 11.0"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.8"
