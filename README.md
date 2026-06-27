@@ -176,7 +176,11 @@ end
 
 options = WebAuthn::Credential.options_for_create(
   user: { id: user.webauthn_id, name: user.name },
-  exclude: user.credentials.map { |c| c.webauthn_id }
+  exclude: user.credentials.map { |c| c.webauthn_id },
+  authenticator_selection: {
+    resident_key: "required",
+    user_verification: "required"
+  }
 )
 
 # Store the newly generated challenge somewhere so you can have it
@@ -204,7 +208,7 @@ session[:creation_challenge] = options.challenge
 webauthn_credential = WebAuthn::Credential.from_create(params[:publicKeyCredential])
 
 begin
-  webauthn_credential.verify(session[:creation_challenge])
+  webauthn_credential.verify(session[:creation_challenge], user_verification: true)
 
   # Store Credential ID, Credential Public Key and Sign Count for future authentications
   user.credentials.create!(
@@ -290,7 +294,11 @@ Extensions can be requested in the initiation phase in both Credential Registrat
 creation_options = WebAuthn::Credential.options_for_create(
   user: { id: user.webauthn_id, name: user.name },
   exclude: user.credentials.map { |c| c.webauthn_id },
-  extensions: { appidExclude: domain.to_s }
+  extensions: { appidExclude: domain.to_s },
+  authenticator_selection: {
+    resident_key: "required",
+    user_verification: "required"
+  }
 )
 
 # OR
@@ -342,8 +350,12 @@ to be used in the client-side code to call `navigator.credentials.create({ "publ
 
 ```ruby
 creation_options = WebAuthn::Credential.options_for_create(
-  user: { id: user.webauthn_id, name: user.name }
-  exclude: user.credentials.map { |c| c.webauthn_id }
+  user: { id: user.webauthn_id, name: user.name },
+  exclude: user.credentials.map { |c| c.webauthn_id },
+  authenticator_selection: {
+    resident_key: "required",
+    user_verification: "required"
+  }
 )
 
 # Store the newly generated challenge somewhere so you can have it
