@@ -13,4 +13,6 @@ module WebAuthn
   def self.generate_user_id
     configuration.encoder.encode(SecureRandom.random_bytes(64))
   end
+
+  singleton_class.send(:alias_method, :generate_user_handle, :generate_user_id)
 end

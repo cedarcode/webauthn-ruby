@@ -171,7 +171,7 @@ end
 ```ruby
 # Generate and store the WebAuthn User ID the first time the user registers a credential
 if !user.webauthn_id
-  user.update!(webauthn_id: WebAuthn.generate_user_id)
+  user.update!(webauthn_id: WebAuthn.generate_user_handle)
 end
 
 options = WebAuthn::Credential.options_for_create(
@@ -327,13 +327,15 @@ A list of all currently defined extensions:
 
 ## API
 
-#### `WebAuthn.generate_user_id`
+#### `WebAuthn.generate_user_handle`
 
 Generates a [WebAuthn User Handle](https://www.w3.org/TR/webauthn-2/#user-handle) that follows the WebAuthn spec recommendations.
 
 ```ruby
-WebAuthn.generate_user_id # "lWoMZTGf_ml2RoY5qPwbwrkxrvTqWjGOxEoYBgxft3zG-LlrICvE-y8bxFi06zMyIOyNsJoWx4Fa2TOqoRmnxA"
+WebAuthn.generate_user_handle # "lWoMZTGf_ml2RoY5qPwbwrkxrvTqWjGOxEoYBgxft3zG-LlrICvE-y8bxFi06zMyIOyNsJoWx4Fa2TOqoRmnxA"
 ```
+
+> `WebAuthn.generate_user_id` is also available as an alias.
 
 #### `WebAuthn::Credential.options_for_create(options)`
 
