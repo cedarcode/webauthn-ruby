@@ -228,7 +228,10 @@ end
 #### Initiation phase
 
 ```ruby
-options = WebAuthn::Credential.options_for_get(allow: user.credentials.map { |c| c.webauthn_id })
+options = WebAuthn::Credential.options_for_get(
+  allow: user.credentials.map { |c| c.webauthn_id },
+  user_verification: "required"
+)
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
@@ -264,7 +267,8 @@ begin
   webauthn_credential.verify(
     session[:authentication_challenge],
     public_key: stored_credential.public_key,
-    sign_count: stored_credential.sign_count
+    sign_count: stored_credential.sign_count,
+    user_verification: true
   )
 
   # Update the stored credential sign count with the value from `webauthn_credential.sign_count`
@@ -351,11 +355,7 @@ to be used in the client-side code to call `navigator.credentials.create({ "publ
 ```ruby
 creation_options = WebAuthn::Credential.options_for_create(
   user: { id: user.webauthn_id, name: user.name },
-  exclude: user.credentials.map { |c| c.webauthn_id },
-  authenticator_selection: {
-    resident_key: "required",
-    user_verification: "required"
-  }
+  exclude: user.credentials.map { |c| c.webauthn_id }
 )
 
 # Store the newly generated challenge somewhere so you can have it
