@@ -191,9 +191,9 @@ session[:creation_challenge] = options.challenge
 # If inside a Rails controller, `render json: options` will just work.
 # I.e. it will encode and convert the options to JSON automatically.
 
-# For your frontend code, you might find the built-in browser methods useful.
-# Especially the built-in `PublicKeyCredential.parseCreationOptionsFromJSON(options)` for decoding the options, and
-# the built-in `credential.toJSON()` for sending the `PublicKeyCredential` object back to the server.
+# For your frontend code, you might find the [built-in browser methods](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential) useful.
+# The built-in `PublicKeyCredential.parseCreationOptionsFromJSON(options)` allows you to decode the options,
+# and the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back to the server.
 ```
 
 #### Verification phase
@@ -239,8 +239,8 @@ session[:authentication_challenge] = options.challenge
 # I.e. it will encode and convert the options to JSON automatically.
 
 # For your frontend code, you might find the [built-in browser methods](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential) useful.
-# Especially the built-in `PublicKeyCredential.parseRequestOptionsFromJSON(options)` for decoding the options, and
-# the built-in `credential.toJSON()` for sending the `PublicKeyCredential` object back to the server.
+# The built-in `PublicKeyCredential.parseRequestOptionsFromJSON(options)` allows you to decode the options,
+# and the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back to the server.
 ```
 
 #### Verification phase
