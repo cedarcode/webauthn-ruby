@@ -191,15 +191,15 @@ session[:creation_challenge] = options.challenge
 # If inside a Rails controller, `render json: options` will just work.
 # I.e. it will encode and convert the options to JSON automatically.
 
-# For your frontend code, you might find @github/webauthn-json npm package useful.
-# Especially for handling the necessary decoding of the options, and sending the
-# `PublicKeyCredential` object back to the server.
+# For your frontend code, you might find the [built-in browser methods](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential) useful.
+# The built-in `PublicKeyCredential.parseCreationOptionsFromJSON(options)` allows you to decode the options,
+# and the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back to the server.
 ```
 
 #### Verification phase
 
 ```ruby
-# Assuming you're using @github/webauthn-json package to send the `PublicKeyCredential` object back
+# Assuming you're using the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back
 # in params[:publicKeyCredential]:
 webauthn_credential = WebAuthn::Credential.from_create(params[:publicKeyCredential])
 
@@ -238,9 +238,9 @@ session[:authentication_challenge] = options.challenge
 # If inside a Rails controller, `render json: options` will just work.
 # I.e. it will encode and convert the options to JSON automatically.
 
-# For your frontend code, you might find @github/webauthn-json npm package useful.
-# Especially for handling the necessary decoding of the options, and sending the
-# `PublicKeyCredential` object back to the server.
+# For your frontend code, you might find the [built-in browser methods](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential) useful.
+# The built-in `PublicKeyCredential.parseRequestOptionsFromJSON(options)` allows you to decode the options,
+# and the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back to the server.
 ```
 
 #### Verification phase
@@ -250,7 +250,7 @@ interface returned by the browser to the stored `credential_id`. The correspondi
 attributes must be passed as keyword arguments to the `verify` method call.
 
 ```ruby
-# Assuming you're using @github/webauthn-json package to send the `PublicKeyCredential` object back
+# Assuming you're using the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back
 # in params[:publicKeyCredential]:
 webauthn_credential = WebAuthn::Credential.from_get(params[:publicKeyCredential])
 
