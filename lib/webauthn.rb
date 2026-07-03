@@ -10,9 +10,10 @@ require "webauthn/version"
 module WebAuthn
   TYPE_PUBLIC_KEY = "public-key"
 
-  def self.generate_user_id
-    configuration.encoder.encode(SecureRandom.random_bytes(64))
+  class << self
+    def generate_user_id
+      configuration.encoder.encode(SecureRandom.random_bytes(64))
+    end
+    alias_method :generate_user_handle, :generate_user_id
   end
-
-  singleton_class.send(:alias_method, :generate_user_handle, :generate_user_id)
 end
