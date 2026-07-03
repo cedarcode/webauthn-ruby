@@ -176,7 +176,7 @@ end
 
 options = WebAuthn::Credential.options_for_create(
   user: { id: user.webauthn_user_handle, name: user.name },
-  exclude: user.webauthn_credentials.map { |c| c.credential_id }
+  exclude: user.webauthn_credentials.map { |c| c.webauthn_id }
 )
 
 # Store the newly generated challenge somewhere so you can have it
@@ -208,7 +208,7 @@ begin
 
   # Store Credential ID, Credential Public Key and Sign Count for future authentications
   user.webauthn_credentials.create!(
-    credential_id: webauthn_credential.id,
+    webauthn_id: webauthn_credential.id,
     public_key: webauthn_credential.public_key,
     sign_count: webauthn_credential.sign_count
   )
@@ -224,7 +224,7 @@ end
 #### Initiation phase
 
 ```ruby
-options = WebAuthn::Credential.options_for_get(allow: user.webauthn_credentials.map { |c| c.credential_id })
+options = WebAuthn::Credential.options_for_get(allow: user.webauthn_credentials.map { |c| c.webauthn_id })
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
@@ -254,7 +254,7 @@ attributes must be passed as keyword arguments to the `verify` method call.
 # in params[:publicKeyCredential]:
 webauthn_credential = WebAuthn::Credential.from_get(params[:publicKeyCredential])
 
-stored_credential = user.webauthn_credentials.find_by(credential_id: webauthn_credential.id)
+stored_credential = user.webauthn_credentials.find_by(webauthn_id: webauthn_credential.id)
 
 begin
   webauthn_credential.verify(
@@ -289,7 +289,7 @@ Extensions can be requested in the initiation phase in both Credential Registrat
 # Credential Registration
 creation_options = WebAuthn::Credential.options_for_create(
   user: { id: user.webauthn_user_handle, name: user.name },
-  exclude: user.webauthn_credentials.map { |c| c.credential_id },
+  exclude: user.webauthn_credentials.map { |c| c.webauthn_id },
   extensions: { appidExclude: domain.to_s }
 )
 
@@ -297,7 +297,7 @@ creation_options = WebAuthn::Credential.options_for_create(
 
 # Credential Authentication
 options = WebAuthn::Credential.options_for_get(
-  allow: user.webauthn_credentials.map { |c| c.credential_id },
+  allow: user.webauthn_credentials.map { |c| c.webauthn_id },
   extensions: { appid: domain.to_s }
 )
 ```
@@ -343,7 +343,7 @@ to be used in the client-side code to call `navigator.credentials.create({ "publ
 ```ruby
 creation_options = WebAuthn::Credential.options_for_create(
   user: { id: user.webauthn_user_handle, name: user.name }
-  exclude: user.webauthn_credentials.map { |c| c.credential_id }
+  exclude: user.webauthn_credentials.map { |c| c.webauthn_id }
 )
 
 # Store the newly generated challenge somewhere so you can have it
@@ -365,7 +365,7 @@ Helper method to build the necessary [PublicKeyCredentialRequestOptions](https:/
 to be used in the client-side code to call `navigator.credentials.get({ "publicKey": publicKeyCredentialRequestOptions })`.
 
 ```ruby
-request_options = WebAuthn::Credential.options_for_get(allow: user.webauthn_credentials.map { |c| c.credential_id })
+request_options = WebAuthn::Credential.options_for_get(allow: user.webauthn_credentials.map { |c| c.webauthn_id })
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
