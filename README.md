@@ -86,7 +86,7 @@ Or install it yourself as:
 
 ## Usage
 
-You can find a working example on how to use this gem in a passwordless login (e.g. a passkey-based passwordless and usernameless login) in a __Rails__ app in [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app). If you want to see an example on how to use this gem as a second factor authenticator in a __Rails__ application instead, you can check it in [webauthn-2fa-rails-demo](https://github.com/cedarcode/webauthn-2fa-rails-demo).
+You can find a working example on how to use this gem in a passwordless login in a __Rails__ app in [webauthn-rails-demo-app](https://github.com/cedarcode/webauthn-rails-demo-app). If you want to see an example on how to use this gem as a second factor authenticator in a __Rails__ application instead, you can check it in [webauthn-2fa-rails-demo](https://github.com/cedarcode/webauthn-2fa-rails-demo).
 
 If you are migrating an existing application from the legacy FIDO U2F JavaScript API to WebAuthn, also refer to
 [`docs/u2f_migration.md`](docs/u2f_migration.md).
@@ -171,7 +171,7 @@ end
 ```ruby
 # Generate and store the WebAuthn User ID the first time the user registers a credential
 if !user.webauthn_user_handle
-  user.update!(webauthn_user_handle: WebAuthn.generate_user_id)
+  user.update!(webauthn_user_handle: WebAuthn.generate_user_handle)
 end
 
 options = WebAuthn::Credential.options_for_create(
@@ -191,15 +191,15 @@ session[:creation_challenge] = options.challenge
 # If inside a Rails controller, `render json: options` will just work.
 # I.e. it will encode and convert the options to JSON automatically.
 
-# For your frontend code, you might find @github/webauthn-json npm package useful.
-# Especially for handling the necessary decoding of the options, and sending the
-# `PublicKeyCredential` object back to the server.
+# For your frontend code, you might find the [built-in browser methods](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential) useful.
+# The built-in `PublicKeyCredential.parseCreationOptionsFromJSON(options)` allows you to decode the options,
+# and the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back to the server.
 ```
 
 #### Verification phase
 
 ```ruby
-# Assuming you're using @github/webauthn-json package to send the `PublicKeyCredential` object back
+# Assuming you're using the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back
 # in params[:publicKeyCredential]:
 webauthn_credential = WebAuthn::Credential.from_create(params[:publicKeyCredential])
 
@@ -238,9 +238,9 @@ session[:authentication_challenge] = options.challenge
 # If inside a Rails controller, `render json: options` will just work.
 # I.e. it will encode and convert the options to JSON automatically.
 
-# For your frontend code, you might find @github/webauthn-json npm package useful.
-# Especially for handling the necessary decoding of the options, and sending the
-# `PublicKeyCredential` object back to the server.
+# For your frontend code, you might find the [built-in browser methods](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential) useful.
+# The built-in `PublicKeyCredential.parseRequestOptionsFromJSON(options)` allows you to decode the options,
+# and the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back to the server.
 ```
 
 #### Verification phase
@@ -250,7 +250,7 @@ interface returned by the browser to the stored `credential_id`. The correspondi
 attributes must be passed as keyword arguments to the `verify` method call.
 
 ```ruby
-# Assuming you're using @github/webauthn-json package to send the `PublicKeyCredential` object back
+# Assuming you're using the built-in `credential.toJSON()` to send the `PublicKeyCredential` object back
 # in params[:publicKeyCredential]:
 webauthn_credential = WebAuthn::Credential.from_get(params[:publicKeyCredential])
 
@@ -327,13 +327,15 @@ A list of all currently defined extensions:
 
 ## API
 
-#### `WebAuthn.generate_user_id`
+#### `WebAuthn.generate_user_handle`
 
 Generates a [WebAuthn User Handle](https://www.w3.org/TR/webauthn-2/#user-handle) that follows the WebAuthn spec recommendations.
 
 ```ruby
-WebAuthn.generate_user_id # "lWoMZTGf_ml2RoY5qPwbwrkxrvTqWjGOxEoYBgxft3zG-LlrICvE-y8bxFi06zMyIOyNsJoWx4Fa2TOqoRmnxA"
+WebAuthn.generate_user_handle # "lWoMZTGf_ml2RoY5qPwbwrkxrvTqWjGOxEoYBgxft3zG-LlrICvE-y8bxFi06zMyIOyNsJoWx4Fa2TOqoRmnxA"
 ```
+
+> `WebAuthn.generate_user_id` is also available as an alias.
 
 #### `WebAuthn::Credential.options_for_create(options)`
 
