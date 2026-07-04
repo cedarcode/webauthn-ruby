@@ -169,7 +169,7 @@ end
 #### Initiation phase
 
 ```ruby
-# Generate and store the WebAuthn User ID the first time the user registers a credential
+# Generate and store the WebAuthn User Handle the first time the user registers a credential
 if !user.webauthn_user_handle
   user.update!(webauthn_user_handle: WebAuthn.generate_user_handle)
 end
