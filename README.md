@@ -271,7 +271,7 @@ begin
     session[:authentication_challenge],
     public_key: stored_credential.public_key,
     sign_count: stored_credential.sign_count,
-    user_verification: true
+    user_verification: true # For a passwordless or passkey-based (passwordless and usernameless) login. Omit for 2FA.
   )
 
   # Update the stored credential sign count with the value from `webauthn_credential.sign_count`
