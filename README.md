@@ -208,6 +208,7 @@ session[:creation_challenge] = options.challenge
 webauthn_credential = WebAuthn::Credential.from_create(params[:publicKeyCredential])
 
 begin
+  # Enforce user verification (pairs with the "required" request above). Omit for 2FA.
   webauthn_credential.verify(session[:creation_challenge], user_verification: true)
 
   # Store Credential ID, Credential Public Key and Sign Count for future authentications
