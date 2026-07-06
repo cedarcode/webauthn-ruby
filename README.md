@@ -230,8 +230,10 @@ end
 
 ```ruby
 options = WebAuthn::Credential.options_for_get(
+  # Pass `allow` when the user is already known (passwordless/2FA/reauth).
+  # For a passkey-based (usernameless and passwordless) login, omit it and resolve the user from `user_handle` after `from_get`.
   allow: user.credentials.map { |c| c.webauthn_id },
-  user_verification: "required"
+  user_verification: "required" # For a passwordless or passkey-based (passwordless and usernameless) login. Use "discouraged" for 2FA.
 )
 
 # Store the newly generated challenge somewhere so you can have it
