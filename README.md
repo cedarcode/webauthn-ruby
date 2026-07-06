@@ -178,8 +178,8 @@ options = WebAuthn::Credential.options_for_create(
   user: { id: user.webauthn_id, name: user.name },
   exclude: user.credentials.map { |c| c.webauthn_id },
   authenticator_selection: {
-    resident_key: "required",
-    user_verification: "required"
+    resident_key: "discouraged",  # For a passwordless login or 2FA. Use "required" for a passkey-based (passwordless and usernameless) login.
+    user_verification: "required" # For a passwordless or passkey-based (passwordless and usernameless) login. Use "discouraged" for 2FA.
   }
 )
 
