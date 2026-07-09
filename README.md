@@ -176,7 +176,11 @@ end
 
 options = WebAuthn::Credential.options_for_create(
   user: { id: user.webauthn_id, name: user.name },
-  exclude: user.credentials.map { |c| c.webauthn_id }
+  exclude: user.credentials.map { |c| c.webauthn_id },
+  authenticator_selection: {
+    resident_key: "discouraged",  # For a passwordless login or 2FA. Use "required" for a passkey-based (passwordless and usernameless) login.
+    user_verification: "required" # For a passwordless or passkey-based (passwordless and usernameless) login. Use "discouraged" for 2FA.
+  }
 )
 
 # Store the newly generated challenge somewhere so you can have it
@@ -204,7 +208,8 @@ session[:creation_challenge] = options.challenge
 webauthn_credential = WebAuthn::Credential.from_create(params[:publicKeyCredential])
 
 begin
-  webauthn_credential.verify(session[:creation_challenge])
+  # Enforce user verification (pairs with the "required" request above). Omit for 2FA.
+  webauthn_credential.verify(session[:creation_challenge], user_verification: true)
 
   # Store Credential ID, Credential Public Key and Sign Count for future authentications
   user.credentials.create!(
@@ -224,7 +229,12 @@ end
 #### Initiation phase
 
 ```ruby
-options = WebAuthn::Credential.options_for_get(allow: user.credentials.map { |c| c.webauthn_id })
+options = WebAuthn::Credential.options_for_get(
+  # Pass `allow` when the user is already known (passwordless/2FA/reauth).
+  # For a passkey-based (usernameless and passwordless) login, omit it and resolve the user from `user_handle` after `from_get`.
+  allow: user.credentials.map { |c| c.webauthn_id },
+  user_verification: "required" # For a passwordless or passkey-based (passwordless and usernameless) login. Use "discouraged" for 2FA.
+)
 
 # Store the newly generated challenge somewhere so you can have it
 # for the verification phase.
@@ -260,7 +270,8 @@ begin
   webauthn_credential.verify(
     session[:authentication_challenge],
     public_key: stored_credential.public_key,
-    sign_count: stored_credential.sign_count
+    sign_count: stored_credential.sign_count,
+    user_verification: true # For a passwordless or passkey-based (passwordless and usernameless) login. Omit for 2FA.
   )
 
   # Update the stored credential sign count with the value from `webauthn_credential.sign_count`
@@ -290,7 +301,11 @@ Extensions can be requested in the initiation phase in both Credential Registrat
 creation_options = WebAuthn::Credential.options_for_create(
   user: { id: user.webauthn_id, name: user.name },
   exclude: user.credentials.map { |c| c.webauthn_id },
-  extensions: { appidExclude: domain.to_s }
+  extensions: { appidExclude: domain.to_s },
+  authenticator_selection: {
+    resident_key: "discouraged",  # For a passwordless login or 2FA. Use "required" for a passkey-based (passwordless and usernameless) login.
+    user_verification: "required" # For a passwordless or passkey-based (passwordless and usernameless) login. Use "discouraged" for 2FA.
+  }
 )
 
 # OR
@@ -344,7 +359,7 @@ to be used in the client-side code to call `navigator.credentials.create({ "publ
 
 ```ruby
 creation_options = WebAuthn::Credential.options_for_create(
-  user: { id: user.webauthn_id, name: user.name }
+  user: { id: user.webauthn_id, name: user.name },
   exclude: user.credentials.map { |c| c.webauthn_id }
 )
 
