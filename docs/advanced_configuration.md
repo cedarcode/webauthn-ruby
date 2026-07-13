@@ -58,8 +58,6 @@ Instead of the [Global Configuration](../README.md#configuration) you place in `
 
 ## Instance Based API
 
-**DISCLAIMER: This API was released on version 3.0.0.alpha1 and is still under evaluation. Although it has been thoroughly tested and it is fully functional it might be changed until the final release of version 3.0.0.**
-
 The explanation for each ceremony can be found in depth in [Credential Registration](../README.md#credential-registration) and [Credential Authentication](../README.md#credential-authentication) but if you choose this instance based approach to define your WebAuthn configurations and assuming `relying_party` is the result of an instance you get through `WebAuthn::RelyingParty.new(...)` the code in those explanations needs to be updated to:
 
 ### Credential Registration
