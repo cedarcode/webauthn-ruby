@@ -27,6 +27,7 @@ jobs:
           - '3.2'
           - '3.1'
         openssl:
+          - '4.0.0'
           - '3.6.0'
           - '3.5.4'
           - '3.4.3'
@@ -35,6 +36,15 @@ jobs:
           - '3.1.8'
           - '3.0.18'
           - '1.1.1w'
+        exclude:
+          # Ruby 3.1-3.3 bundle an `openssl` gem too old for OpenSSL 4.0.
+          # Re-enable once upstream ships patch releases that bump it.
+          - ruby: '3.3'
+            openssl: '4.0.0'
+          - ruby: '3.2'
+            openssl: '4.0.0'
+          - ruby: '3.1'
+            openssl: '4.0.0'
         include:
           - ruby: truffleruby
           - ruby: '3.0'
