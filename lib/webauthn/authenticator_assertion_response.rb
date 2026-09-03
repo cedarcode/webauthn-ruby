@@ -11,6 +11,7 @@ module WebAuthn
 
   class AuthenticatorAssertionResponse < AuthenticatorResponse
     def self.from_client(response, relying_party: WebAuthn.configuration.relying_party)
+      validate_client_response!(response, %w[authenticatorData clientDataJSON signature])
       encoder = relying_party.encoder
 
       user_handle =
