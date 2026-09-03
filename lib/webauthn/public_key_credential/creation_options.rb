@@ -39,6 +39,7 @@ module WebAuthn
 
         @rp =
           if rp.is_a?(Hash)
+            rp = rp.dup
             rp[:name] ||= relying_party.name
             rp[:id] ||= relying_party.id
 
