@@ -48,7 +48,6 @@ module WebAuthn
     end
 
     attr_accessor :algorithms,
-                  :encoding,
                   :allowed_origins,
                   :allowed_top_origins,
                   :id,
@@ -60,12 +59,19 @@ module WebAuthn
                   :acceptable_attestation_types,
                   :legacy_u2f_appid
 
-    attr_reader :attestation_root_certificates_finders
+    attr_reader :encoding, :attestation_root_certificates_finders
 
     # This is the user-data encoder.
     # Used to decode user input and to encode data provided to the user.
     def encoder
       @encoder ||= WebAuthn::Encoder.new(encoding)
+    end
+
+    attr_writer :encoder
+
+    def encoding=(encoding)
+      @encoding = encoding
+      @encoder = nil
     end
 
     def attestation_root_certificates_finders=(finders)
