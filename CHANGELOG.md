@@ -5,6 +5,11 @@
 ### Added
 
 - Add support for crossOrigin/topOrigin verification during credential registration and authentication. [#486](https://github.com/cedarcode/webauthn-ruby/pull/486) [@nicolastemciuc]
+- Reject authenticator data where the BS (backup state) flag is set but the BE (backup eligibility) flag is not, during credential registration and authentication. Raises `WebAuthn::BackupFlagsVerificationError`. [#516](https://github.com/cedarcode/webauthn-ruby/pull/516) [@santiagorodriguez96]
+
+### Changed
+
+- `WebAuthn::FakeClient#get` now defaults `backup_state` to `false`. The previous default (`backup_eligibility: false`, `backup_state: true`) produced authenticator data that now fails verification. [@santiagorodriguez96]
 
 ## [v3.4.3](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.2...v3.4.3/) - 2025-10-23
 
