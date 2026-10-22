@@ -13,9 +13,12 @@ require "webauthn/encoder"
 module WebAuthn
   class AttestationStatementVerificationError < VerificationError; end
   class AttestedCredentialVerificationError < VerificationError; end
+  class CredentialIdLengthVerificationError < VerificationError; end
 
   class AuthenticatorAttestationResponse < AuthenticatorResponse
     extend Forwardable
+
+    MAX_CREDENTIAL_ID_LENGTH = 1023
 
     def self.from_client(response, relying_party: WebAuthn.configuration.relying_party)
       encoder = relying_party.encoder
@@ -45,6 +48,7 @@ module WebAuthn
       if relying_party.verify_attestation_statement
         verify_item(:attestation_statement)
       end
+      verify_item(:credential_id_length)
 
       true
     end
@@ -79,6 +83,10 @@ module WebAuthn
 
     def valid_attestation_statement?
       @attestation_type, @attestation_trust_path = attestation_object.valid_attestation_statement?(client_data.hash)
+    end
+
+    def valid_credential_id_length?
+      authenticator_data.credential.id.bytesize <= MAX_CREDENTIAL_ID_LENGTH
     end
   end
 end
