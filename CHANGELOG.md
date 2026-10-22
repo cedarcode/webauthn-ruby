@@ -9,11 +9,13 @@
 - Add support for the `hints` option in `WebAuthn::Credential.options_for_create` and `WebAuthn::Credential.options_for_get`. [#513](https://github.com/cedarcode/webauthn-ruby/pull/513) [@santiagorodriguez96]
 - Reject authenticator data where the BS (backup state) flag is set but the BE (backup eligibility) flag is not, during credential registration and authentication. Raises `WebAuthn::BackupFlagsVerificationError`. [#516](https://github.com/cedarcode/webauthn-ruby/pull/516) [@santiagorodriguez96]
 - Reject credential IDs longer than 1023 bytes during credential registration. Raises `WebAuthn::CredentialIdLengthVerificationError`. [#517](https://github.com/cedarcode/webauthn-ruby/pull/517) [@santiagorodriguez96]
+- Add `WebAuthn.generate_user_handle` as an alias for `generate_user_id`. [#503](https://github.com/cedarcode/webauthn-ruby/pull/503) [@ttanimichi]
 
 ### Changed
 
 - Bump the default `credential_options_timeout` from `120_000` to `300_000` milliseconds (5 minutes). [#515](https://github.com/cedarcode/webauthn-ruby/pull/515) [@santiagorodriguez96]
 - `WebAuthn::FakeClient#get` now defaults `backup_state` to `false`. The previous default (`backup_eligibility: false`, `backup_state: true`) produced authenticator data that now fails verification. [#516](https://github.com/cedarcode/webauthn-ruby/pull/516) [@santiagorodriguez96]
+- Avoid mutating caller relying-party options. [#509](https://github.com/cedarcode/webauthn-ruby/pull/509) [@OskarEichler]
 
 ### Removed
 
@@ -469,10 +471,12 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@nicolastemciuc]: https://github.com/nicolastemciuc
 [@obroshnij]: https://github.com/obroshnij
 [@olleolleolle]: https://github.com/olleolleolle
+[@OskarEichler]: https://github.com/OskarEichler
 [@padulafacundo]: https://github.com/padulafacundo
 [@petergoldstein]: https://github.com/petergoldstein
 [@santiagorodriguez96]: https://github.com/santiagorodriguez96
 [@soartec-lab]: https://github.com/soartec-lab
 [@sorah]: https://github.com/sorah
 [@ssuttner]: https://github.com/ssuttner
+[@ttanimichi]: https://github.com/ttanimichi
 [@8ma10s]: https://github.com/8ma10s
