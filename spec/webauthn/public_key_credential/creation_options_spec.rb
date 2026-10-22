@@ -110,6 +110,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
         user_verification: "required"
       },
       attestation: "direct",
+      attestation_formats: ["packed", "tpm"],
       hints: ["security-key", "hybrid"],
       extensions: { whatever: "whatever" },
     )
@@ -127,6 +128,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
       authenticatorAttachment: "cross-platform", residentKey: "required", userVerification: "required"
     )
     expect(hash[:attestation]).to eq("direct")
+    expect(hash[:attestationFormats]).to eq(["packed", "tpm"])
     expect(hash[:hints]).to eq(["security-key", "hybrid"])
     expect(hash[:extensions]).to eq(whatever: "whatever")
     expect(hash[:challenge]).to be_truthy
@@ -155,6 +157,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
     expect(hash).not_to have_key(:excludeCredentials)
     expect(hash).not_to have_key(:authenticatorSelection)
     expect(hash).not_to have_key(:attestation)
+    expect(hash).not_to have_key(:attestationFormats)
     expect(hash).not_to have_key(:hints)
   end
 
