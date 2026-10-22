@@ -76,7 +76,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
 
   context "client timeout" do
     it "has a default client timeout" do
-      expect(creation_options.timeout).to(eq(120000))
+      expect(creation_options.timeout).to(eq(300000))
     end
 
     context "when client timeout is configured" do
@@ -147,7 +147,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::CreationOptions do
     expect(hash[:pubKeyCredParams]).to eq(
       [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -37 }, { type: "public-key", alg: -257 }]
     )
-    expect(hash[:timeout]).to eq(120_000)
+    expect(hash[:timeout]).to eq(300_000)
     expect(hash[:challenge]).to be_truthy
     expect(hash[:extensions]).to eq({})
     expect(hash).not_to have_key(:excludeCredentials)
