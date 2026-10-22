@@ -1046,6 +1046,40 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
+  describe "credential ID length verification" do
+    let(:attestation_response) do
+      client_data_json = public_key_credential["response"]["clientDataJSON"]
+
+      attestation_object = WebAuthn::FakeAuthenticator::AttestationObject.new(
+        client_data_hash: OpenSSL::Digest::SHA256.digest(client_data_json),
+        rp_id_hash: OpenSSL::Digest::SHA256.digest(URI.parse(origin).host),
+        credential_id: SecureRandom.random_bytes(credential_id_length),
+        credential_key: OpenSSL::PKey::EC.generate("prime256v1")
+      ).serialize
+
+      WebAuthn::AuthenticatorAttestationResponse.new(
+        attestation_object: attestation_object,
+        client_data_json: client_data_json
+      )
+    end
+
+    before do
+      WebAuthn.configuration.allowed_origins = [origin]
+    end
+
+    context "when the credential ID is 1023 bytes long" do
+      let(:credential_id_length) { 1023 }
+
+      it_behaves_like "a valid attestation response"
+    end
+
+    context "when the credential ID is longer than 1023 bytes" do
+      let(:credential_id_length) { 1024 }
+
+      it_behaves_like "an invalid attestation response that raises", WebAuthn::CredentialIdLengthVerificationError
+    end
+  end
+
   describe "attestation statement verification" do
     let(:original_challenge) do
       WebAuthn::Encoders::Base64Encoder.decode(seeds[:security_key_direct][:credential_creation_options][:challenge])
