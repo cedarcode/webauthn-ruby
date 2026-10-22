@@ -18,7 +18,7 @@ RSpec.describe WebAuthn::CredentialRequestOptions do
 
   context "client timeout" do
     it "has a default client timeout" do
-      expect(request_options.timeout).to(eq(120000))
+      expect(request_options.timeout).to(eq(300000))
     end
 
     context "when client timeout is configured" do

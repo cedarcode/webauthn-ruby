@@ -6,6 +6,18 @@
 
 - Add support for crossOrigin/topOrigin verification during credential registration and authentication. [#486](https://github.com/cedarcode/webauthn-ruby/pull/486) [@nicolastemciuc]
 - Add support for the `attestation_formats` option in `WebAuthn::Credential.options_for_create`. [#514](https://github.com/cedarcode/webauthn-ruby/pull/514) [@santiagorodriguez96]
+- Add support for the `hints` option in `WebAuthn::Credential.options_for_create` and `WebAuthn::Credential.options_for_get`. [#513](https://github.com/cedarcode/webauthn-ruby/pull/513) [@santiagorodriguez96]
+
+### Changed
+
+- Bump the default `credential_options_timeout` from `120_000` to `300_000` milliseconds (5 minutes). [#515](https://github.com/cedarcode/webauthn-ruby/pull/515) [@santiagorodriguez96]
+
+### Removed
+
+- Remove `TokenBinding` verification during credential registration and authentication. [#450](https://github.com/cedarcode/webauthn-ruby/pull/450) [@nicolastemciuc]
+  - BREAKING CHANGE: `WebAuthn::TokenBindingVerificationError` no longer exists. Remove it from any `rescue` clauses.
+  - BREAKING CHANGE: `WebAuthn::FakeClient.new` no longer accepts `token_binding:`.
+  - BREAKING CHANGE: `WebAuthn::ClientData` no longer exposes `#token_binding` or `#valid_token_binding_format?`.
 
 ## [v3.4.3](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.2...v3.4.3/) - 2025-10-23
 
