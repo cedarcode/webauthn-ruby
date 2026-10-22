@@ -223,6 +223,40 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
   end
 
+  describe "backup flags validation" do
+    let(:assertion) do
+      client.get(challenge: original_challenge, backup_eligibility: backup_eligibility, backup_state: backup_state)
+    end
+
+    context "when the credential is backup eligible and backed up" do
+      let(:backup_eligibility) { true }
+      let(:backup_state) { true }
+
+      it_behaves_like "a valid assertion response"
+    end
+
+    context "when the credential is backup eligible and not backed up" do
+      let(:backup_eligibility) { true }
+      let(:backup_state) { false }
+
+      it_behaves_like "a valid assertion response"
+    end
+
+    context "when the credential is not backup eligible and not backed up" do
+      let(:backup_eligibility) { false }
+      let(:backup_state) { false }
+
+      it_behaves_like "a valid assertion response"
+    end
+
+    context "when the credential is not backup eligible but backed up" do
+      let(:backup_eligibility) { false }
+      let(:backup_state) { true }
+
+      it_behaves_like "an invalid assertion response that raises", WebAuthn::BackupFlagsVerificationError
+    end
+  end
+
   describe "challenge validation" do
     context "if challenge doesn't match" do
       let(:challenge) { fake_challenge }

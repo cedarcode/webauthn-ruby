@@ -10,6 +10,7 @@ module WebAuthn
   class VerificationError < Error; end
 
   class AuthenticatorDataVerificationError < VerificationError; end
+  class BackupFlagsVerificationError < VerificationError; end
   class ChallengeVerificationError < VerificationError; end
   class OriginVerificationError < VerificationError; end
   class RpIdVerificationError < VerificationError; end
@@ -50,6 +51,8 @@ module WebAuthn
       if user_verification
         verify_item(:user_verified)
       end
+
+      verify_item(:backup_flags)
 
       true
     end
@@ -120,6 +123,10 @@ module WebAuthn
 
     def valid_user_verified?
       authenticator_data.user_verified?
+    end
+
+    def valid_backup_flags?
+      authenticator_data.credential_backup_eligible? || !authenticator_data.credential_backed_up?
     end
 
     def rp_id_from_origin(expected_origin)
