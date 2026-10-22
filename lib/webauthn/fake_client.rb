@@ -83,7 +83,7 @@ module WebAuthn
             user_present: true,
             user_verified: false,
             backup_eligibility: false,
-            backup_state: true,
+            backup_state: false,
             sign_count: nil,
             extensions: nil,
             user_handle: nil,
