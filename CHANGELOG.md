@@ -8,7 +8,7 @@
 
 ### Changed
 
-- Bump the default `credential_options_timeout` from `120_000` to `300_000` milliseconds (5 minutes). [@santiagorodriguez96]
+- Bump the default `credential_options_timeout` from `120_000` to `300_000` milliseconds (5 minutes). [#515](https://github.com/cedarcode/webauthn-ruby/pull/515) [@santiagorodriguez96]
 
 ### Removed
 
