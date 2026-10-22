@@ -6,6 +6,10 @@
 
 - Add support for crossOrigin/topOrigin verification during credential registration and authentication. [#486](https://github.com/cedarcode/webauthn-ruby/pull/486) [@nicolastemciuc]
 
+### Changed
+
+- Bump the default `credential_options_timeout` from `120_000` to `300_000` milliseconds (5 minutes). [@santiagorodriguez96]
+
 ## [v3.4.3](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.2...v3.4.3/) - 2025-10-23
 
 ### Fixed
