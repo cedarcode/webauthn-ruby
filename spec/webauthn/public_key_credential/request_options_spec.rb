@@ -54,6 +54,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::RequestOptions do
       timeout: 10_000,
       allow_credentials: [{ type: "public-key", id: "credential-id", transports: ["usb", "nfc"] }],
       user_verification: "required",
+      hints: ["client-device"],
       extensions: { whatever: "whatever" },
     )
 
@@ -63,6 +64,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::RequestOptions do
     expect(hash[:timeout]).to eq(10_000)
     expect(hash[:allowCredentials]).to eq([{ type: "public-key", id: "credential-id", transports: ["usb", "nfc"] }])
     expect(hash[:userVerification]).to eq("required")
+    expect(hash[:hints]).to eq(["client-device"])
     expect(hash[:extensions]).to eq(whatever: "whatever")
     expect(hash[:challenge]).to be_truthy
   end
@@ -78,6 +80,7 @@ RSpec.describe WebAuthn::PublicKeyCredential::RequestOptions do
     expect(hash[:challenge]).to be_truthy
     expect(hash).not_to have_key(:userVerification)
     expect(hash).not_to have_key(:rpId)
+    expect(hash).not_to have_key(:hints)
   end
 
   it "accepts shorthand for allow_credentials" do
