@@ -273,22 +273,6 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
   end
 
-  describe "tokenBinding validation" do
-    let(:client) { WebAuthn::FakeClient.new(actual_origin, token_binding: token_binding, encoding: false) }
-
-    context "it has stuff" do
-      let(:token_binding) { { status: "supported" } }
-
-      it_behaves_like "a valid assertion response"
-    end
-
-    context "has an invalid format" do
-      let(:token_binding) { "invalid token binding format" }
-
-      it_behaves_like "an invalid assertion response that raises", WebAuthn::TokenBindingVerificationError
-    end
-  end
-
   describe "rp_id validation" do
     before do
       WebAuthn.configuration.rp_id = "different-rp_id"

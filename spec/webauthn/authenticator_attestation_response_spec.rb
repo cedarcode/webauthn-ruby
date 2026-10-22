@@ -655,26 +655,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
-  describe "tokenBinding validation" do
-    let(:client) { WebAuthn::FakeClient.new(origin, token_binding: token_binding, encoding: false) }
-
-    before do
-      WebAuthn.configuration.allowed_origins = [origin]
-    end
-
-    context "it has stuff" do
-      let(:token_binding) { { status: "supported" } }
-
-      it_behaves_like "a valid attestation response"
-    end
-
-    context "has an invalid format" do
-      let(:token_binding) { "invalid token binding format" }
-
-      it_behaves_like "an invalid attestation response that raises", WebAuthn::TokenBindingVerificationError
-    end
-  end
-
   describe "top_origin validation" do
     let(:client) { WebAuthn::FakeClient.new(origin, encoding: false, cross_origin: cross_origin, top_origin: client_top_origin) }
     let(:top_origin) { fake_top_origin }

@@ -137,7 +137,7 @@ WebAuthn.configure do |config|
   # interaction with the user.
   # This hint may be overridden by the browser.
   # https://www.w3.org/TR/webauthn/#dom-publickeycredentialcreationoptions-timeout
-  # config.credential_options_timeout = 120_000
+  # config.credential_options_timeout = 300_000
 
   # You can optionally specify a different Relying Party ID
   # (https://www.w3.org/TR/webauthn/#relying-party-identifier)
