@@ -9,12 +9,13 @@ module WebAuthn
 
       CHALLENGE_LENGTH = 32
 
-      attr_reader :timeout, :extensions, :relying_party
+      attr_reader :timeout, :extensions, :hints, :relying_party
 
-      def initialize(timeout: nil, extensions: nil, relying_party: WebAuthn.configuration.relying_party)
+      def initialize(timeout: nil, extensions: nil, hints: nil, relying_party: WebAuthn.configuration.relying_party)
         @relying_party = relying_party
         @timeout = timeout || default_timeout
         @extensions = default_extensions.merge(extensions || {})
+        @hints = hints
       end
 
       def challenge
@@ -24,7 +25,7 @@ module WebAuthn
       private
 
       def attributes
-        [:challenge, :timeout, :extensions]
+        [:challenge, :timeout, :extensions, :hints]
       end
 
       def encoder
