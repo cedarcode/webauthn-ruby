@@ -6,6 +6,13 @@
 
 - Add support for crossOrigin/topOrigin verification during credential registration and authentication. [#486](https://github.com/cedarcode/webauthn-ruby/pull/486) [@nicolastemciuc]
 
+### Removed
+
+- Remove `TokenBinding` verification during credential registration and authentication. [#450](https://github.com/cedarcode/webauthn-ruby/pull/450) [@nicolastemciuc]
+  - BREAKING CHANGE: `WebAuthn::TokenBindingVerificationError` no longer exists. Remove it from any `rescue` clauses.
+  - BREAKING CHANGE: `WebAuthn::FakeClient.new` no longer accepts `token_binding:`.
+  - BREAKING CHANGE: `WebAuthn::ClientData` no longer exposes `#token_binding` or `#valid_token_binding_format?`.
+
 ## [v3.4.3](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.2...v3.4.3/) - 2025-10-23
 
 ### Fixed
