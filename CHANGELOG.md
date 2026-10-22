@@ -5,6 +5,7 @@
 ### Added
 
 - Add support for crossOrigin/topOrigin verification during credential registration and authentication. [#486](https://github.com/cedarcode/webauthn-ruby/pull/486) [@nicolastemciuc]
+- Reject credential IDs longer than 1023 bytes during credential registration. Raises `WebAuthn::CredentialIdLengthVerificationError`. [@santiagorodriguez96]
 
 ## [v3.4.3](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.2...v3.4.3/) - 2025-10-23
 
