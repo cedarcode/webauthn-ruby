@@ -8,7 +8,7 @@
 - Add support for the `attestation_formats` option in `WebAuthn::Credential.options_for_create`. [#514](https://github.com/cedarcode/webauthn-ruby/pull/514) [@santiagorodriguez96]
 - Add support for the `hints` option in `WebAuthn::Credential.options_for_create` and `WebAuthn::Credential.options_for_get`. [#513](https://github.com/cedarcode/webauthn-ruby/pull/513) [@santiagorodriguez96]
 - Reject authenticator data where the BS (backup state) flag is set but the BE (backup eligibility) flag is not, during credential registration and authentication. Raises `WebAuthn::BackupFlagsVerificationError`. [#516](https://github.com/cedarcode/webauthn-ruby/pull/516) [@santiagorodriguez96]
-- Reject credential IDs longer than 1023 bytes during credential registration. Raises `WebAuthn::CredentialIdLengthVerificationError`. [@santiagorodriguez96]
+- Reject credential IDs longer than 1023 bytes during credential registration. Raises `WebAuthn::CredentialIdLengthVerificationError`. [#517](https://github.com/cedarcode/webauthn-ruby/pull/517) [@santiagorodriguez96]
 
 ### Changed
 
