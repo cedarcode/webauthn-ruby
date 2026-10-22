@@ -10,6 +10,7 @@ module WebAuthn
     class CreationOptions < Options
       attr_accessor(
         :attestation,
+        :attestation_formats,
         :authenticator_selection,
         :exclude,
         :algs,
@@ -19,6 +20,7 @@ module WebAuthn
 
       def initialize(
         attestation: nil,
+        attestation_formats: nil,
         authenticator_selection: nil,
         exclude_credentials: nil,
         exclude: nil,
@@ -31,6 +33,7 @@ module WebAuthn
         super(**keyword_arguments)
 
         @attestation = attestation
+        @attestation_formats = attestation_formats
         @authenticator_selection = authenticator_selection
         @exclude_credentials = exclude_credentials
         @exclude = exclude
@@ -67,7 +70,10 @@ module WebAuthn
       private
 
       def attributes
-        super.concat([:rp, :user, :pub_key_cred_params, :attestation, :authenticator_selection, :exclude_credentials])
+        super.concat(
+          [:rp, :user, :pub_key_cred_params, :attestation, :attestation_formats, :authenticator_selection,
+           :exclude_credentials]
+        )
       end
 
       def exclude_credentials_from_exclude

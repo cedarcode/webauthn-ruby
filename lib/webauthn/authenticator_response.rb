@@ -10,10 +10,10 @@ module WebAuthn
   class VerificationError < Error; end
 
   class AuthenticatorDataVerificationError < VerificationError; end
+  class BackupFlagsVerificationError < VerificationError; end
   class ChallengeVerificationError < VerificationError; end
   class OriginVerificationError < VerificationError; end
   class RpIdVerificationError < VerificationError; end
-  class TokenBindingVerificationError < VerificationError; end
   class TopOriginVerificationError < VerificationError; end
   class TypeVerificationError < VerificationError; end
   class UserPresenceVerificationError < VerificationError; end
@@ -31,7 +31,6 @@ module WebAuthn
       rp_id ||= relying_party.id
 
       verify_item(:type)
-      verify_item(:token_binding)
       verify_item(:challenge, expected_challenge)
       verify_item(:origin, expected_origin)
       verify_item(:top_origin) if needs_top_origin_verification?
@@ -50,6 +49,8 @@ module WebAuthn
       if user_verification
         verify_item(:user_verified)
       end
+
+      verify_item(:backup_flags)
 
       true
     end
@@ -80,10 +81,6 @@ module WebAuthn
 
     def valid_type?
       client_data.type == type
-    end
-
-    def valid_token_binding?
-      client_data.valid_token_binding_format?
     end
 
     def valid_top_origin?
@@ -120,6 +117,10 @@ module WebAuthn
 
     def valid_user_verified?
       authenticator_data.user_verified?
+    end
+
+    def valid_backup_flags?
+      authenticator_data.credential_backup_eligible? || !authenticator_data.credential_backed_up?
     end
 
     def rp_id_from_origin(expected_origin)

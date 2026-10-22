@@ -577,6 +577,44 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
     end
   end
 
+  describe "backup flags validation" do
+    let(:public_key_credential) do
+      client.create(challenge: original_challenge, backup_eligibility: backup_eligibility, backup_state: backup_state)
+    end
+
+    before do
+      WebAuthn.configuration.allowed_origins = [origin]
+    end
+
+    context "when the credential is backup eligible and backed up" do
+      let(:backup_eligibility) { true }
+      let(:backup_state) { true }
+
+      it_behaves_like "a valid attestation response"
+    end
+
+    context "when the credential is backup eligible and not backed up" do
+      let(:backup_eligibility) { true }
+      let(:backup_state) { false }
+
+      it_behaves_like "a valid attestation response"
+    end
+
+    context "when the credential is not backup eligible and not backed up" do
+      let(:backup_eligibility) { false }
+      let(:backup_state) { false }
+
+      it_behaves_like "a valid attestation response"
+    end
+
+    context "when the credential is not backup eligible but backed up" do
+      let(:backup_eligibility) { false }
+      let(:backup_state) { true }
+
+      it_behaves_like "an invalid attestation response that raises", WebAuthn::BackupFlagsVerificationError
+    end
+  end
+
   describe "rp_id validation" do
     let(:original_challenge) { fake_challenge }
 
@@ -614,26 +652,6 @@ RSpec.describe WebAuthn::AuthenticatorAttestationResponse do
       end
 
       it_behaves_like "a valid attestation response"
-    end
-  end
-
-  describe "tokenBinding validation" do
-    let(:client) { WebAuthn::FakeClient.new(origin, token_binding: token_binding, encoding: false) }
-
-    before do
-      WebAuthn.configuration.allowed_origins = [origin]
-    end
-
-    context "it has stuff" do
-      let(:token_binding) { { status: "supported" } }
-
-      it_behaves_like "a valid attestation response"
-    end
-
-    context "has an invalid format" do
-      let(:token_binding) { "invalid token binding format" }
-
-      it_behaves_like "an invalid attestation response that raises", WebAuthn::TokenBindingVerificationError
     end
   end
 

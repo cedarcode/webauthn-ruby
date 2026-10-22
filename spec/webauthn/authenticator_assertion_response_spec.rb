@@ -223,6 +223,40 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
     end
   end
 
+  describe "backup flags validation" do
+    let(:assertion) do
+      client.get(challenge: original_challenge, backup_eligibility: backup_eligibility, backup_state: backup_state)
+    end
+
+    context "when the credential is backup eligible and backed up" do
+      let(:backup_eligibility) { true }
+      let(:backup_state) { true }
+
+      it_behaves_like "a valid assertion response"
+    end
+
+    context "when the credential is backup eligible and not backed up" do
+      let(:backup_eligibility) { true }
+      let(:backup_state) { false }
+
+      it_behaves_like "a valid assertion response"
+    end
+
+    context "when the credential is not backup eligible and not backed up" do
+      let(:backup_eligibility) { false }
+      let(:backup_state) { false }
+
+      it_behaves_like "a valid assertion response"
+    end
+
+    context "when the credential is not backup eligible but backed up" do
+      let(:backup_eligibility) { false }
+      let(:backup_state) { true }
+
+      it_behaves_like "an invalid assertion response that raises", WebAuthn::BackupFlagsVerificationError
+    end
+  end
+
   describe "challenge validation" do
     context "if challenge doesn't match" do
       let(:challenge) { fake_challenge }
@@ -236,22 +270,6 @@ RSpec.describe WebAuthn::AuthenticatorAssertionResponse do
       let(:actual_origin) { "http://different-origin" }
 
       it_behaves_like "an invalid assertion response that raises", WebAuthn::OriginVerificationError
-    end
-  end
-
-  describe "tokenBinding validation" do
-    let(:client) { WebAuthn::FakeClient.new(actual_origin, token_binding: token_binding, encoding: false) }
-
-    context "it has stuff" do
-      let(:token_binding) { { status: "supported" } }
-
-      it_behaves_like "a valid assertion response"
-    end
-
-    context "has an invalid format" do
-      let(:token_binding) { "invalid token binding format" }
-
-      it_behaves_like "an invalid assertion response that raises", WebAuthn::TokenBindingVerificationError
     end
   end
 

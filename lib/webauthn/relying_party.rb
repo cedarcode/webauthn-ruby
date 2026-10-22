@@ -25,7 +25,7 @@ module WebAuthn
       name: nil,
       verify_attestation_statement: true,
       verify_cross_origin: false,
-      credential_options_timeout: 120000,
+      credential_options_timeout: 300_000,
       silent_authentication: false,
       acceptable_attestation_types: ['None', 'Self', 'Basic', 'AttCA', 'Basic_or_AttCA', 'AnonCA'],
       attestation_root_certificates_finders: [],

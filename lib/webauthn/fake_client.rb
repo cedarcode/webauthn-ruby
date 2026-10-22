@@ -10,20 +10,18 @@ module WebAuthn
   class FakeClient
     TYPES = { create: "webauthn.create", get: "webauthn.get" }.freeze
 
-    attr_reader :origin, :cross_origin, :top_origin, :token_binding, :encoding
+    attr_reader :origin, :cross_origin, :top_origin, :encoding
 
     def initialize(
       origin = fake_origin,
       cross_origin: nil,
       top_origin: nil,
-      token_binding: nil,
       authenticator: WebAuthn::FakeAuthenticator.new,
       encoding: WebAuthn.configuration.encoding
     )
       @origin = origin
       @cross_origin = cross_origin
       @top_origin = top_origin
-      @token_binding = token_binding
       @authenticator = authenticator
       @encoding = encoding
     end
@@ -85,7 +83,7 @@ module WebAuthn
             user_present: true,
             user_verified: false,
             backup_eligibility: false,
-            backup_state: true,
+            backup_state: false,
             sign_count: nil,
             extensions: nil,
             user_handle: nil,
@@ -136,10 +134,6 @@ module WebAuthn
         challenge: internal_encoder.encode(challenge),
         origin: origin
       }
-
-      if token_binding
-        data[:tokenBinding] = token_binding
-      end
 
       if cross_origin
         data[:crossOrigin] = cross_origin
