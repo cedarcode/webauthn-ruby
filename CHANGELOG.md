@@ -5,6 +5,7 @@
 ### Added
 
 - Add support for crossOrigin/topOrigin verification during credential registration and authentication. [#486](https://github.com/cedarcode/webauthn-ruby/pull/486) [@nicolastemciuc]
+- Add support for the `attestation_formats` option in `WebAuthn::Credential.options_for_create`. [#514](https://github.com/cedarcode/webauthn-ruby/pull/514) [@santiagorodriguez96]
 
 ## [v3.4.3](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.2...v3.4.3/) - 2025-10-23
 
