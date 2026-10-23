@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "webauthn/encoder"
+require "webauthn/error"
 
 module WebAuthn
   class PublicKeyCredential
@@ -9,6 +10,11 @@ module WebAuthn
     attr_reader :type, :id, :raw_id, :client_extension_outputs, :authenticator_attachment, :response
 
     def self.from_client(credential, relying_party: WebAuthn.configuration.relying_party)
+      unless credential.is_a?(Hash) && %w[type id rawId].all? { |field| credential[field].respond_to?(:to_str) } &&
+             credential["response"].is_a?(Hash)
+        raise CredentialFormatError, "Credential must contain string-like type, id, rawId and an object response"
+      end
+
       new(
         type: credential["type"],
         id: credential["id"],

@@ -20,6 +20,12 @@ module WebAuthn
   class UserVerifiedVerificationError < VerificationError; end
 
   class AuthenticatorResponse
+    def self.validate_client_response!(response, required_fields)
+      unless response.is_a?(Hash) && required_fields.all? { |field| response[field].respond_to?(:to_str) }
+        raise CredentialFormatError, "Credential response must contain string-like #{required_fields.join(', ')} fields"
+      end
+    end
+
     def initialize(client_data_json:, relying_party: WebAuthn.configuration.relying_party)
       @client_data_json = client_data_json
       @relying_party = relying_party
