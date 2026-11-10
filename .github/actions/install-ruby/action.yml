@@ -42,8 +42,11 @@ runs:
       shell: bash
       run: |
         case ${{ inputs.version }} in
-        2.7* | 3.*)
+        3.*)
           echo "Skipping Bundler installation for Ruby ${{ inputs.version }}"
+          ;;
+        2.7*)
+          gem install bundler -v '~> 2.4.0'
           ;;
         2.5* | 2.6*)
           gem install bundler -v '~> 2.3.0'
