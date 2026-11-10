@@ -26,5 +26,8 @@ jobs:
           # This release line requires Bundler < 3, and Ruby 4.0 ships with Bundler 4.
           ruby-version: "3.4"
 
+      - name: Install openssl
+        run: gem install openssl --no-document --version 4.0.2
+
       - name: Publish to RubyGems
         uses: rubygems/release-gem@v1
