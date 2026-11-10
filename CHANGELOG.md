@@ -1,6 +1,12 @@
 # Changelog
 
-## [Unreleased](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.3...master/)
+## [Unreleased](https://github.com/cedarcode/webauthn-ruby/compare/v3.5.1...master/)
+
+## [v3.5.1](https://github.com/cedarcode/webauthn-ruby/compare/v3.5.0...v3.5.1/) - 2026-11-10
+
+### Changed
+
+- Update `cbor` dependency from `~> 0.5.9` to `~> 0.6.2.2` and `cose` dependency from `~> 1.1` to `~> 1.4`. [#523](https://github.com/cedarcode/webauthn-ruby/pull/523) [@stanhu]
 
 ## [v3.5.0](https://github.com/cedarcode/webauthn-ruby/compare/v3.4.3...v3.5.0/)
 
@@ -480,5 +486,6 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@soartec-lab]: https://github.com/soartec-lab
 [@sorah]: https://github.com/sorah
 [@ssuttner]: https://github.com/ssuttner
+[@stanhu]: https://github.com/stanhu
 [@ttanimichi]: https://github.com/ttanimichi
 [@8ma10s]: https://github.com/8ma10s
