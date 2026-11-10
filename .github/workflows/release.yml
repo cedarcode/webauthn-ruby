@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Publish to Rubygems
+
+    runs-on: ubuntu-latest
+
+    environment: release
+
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          # This release line requires Bundler < 3, and Ruby 4.0 ships with Bundler 4.
+          ruby-version: "3.4"
+
+      - name: Publish to RubyGems
+        uses: rubygems/release-gem@v1
