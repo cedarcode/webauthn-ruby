@@ -23,8 +23,18 @@ Gem::Specification.new do |spec|
   }
 
   spec.files =
-    `git ls-files -z`.split("\x0").reject do |f|
-      f.match(%r{^(test|spec|features|assets)/})
+    Dir.chdir(__dir__) do
+      Dir[
+        "{.github,bin,docs,lib}/**/*",
+        ".gitignore",
+        ".rspec",
+        ".rubocop.yml",
+        "*.md",
+        "Gemfile",
+        "LICENSE.txt",
+        "Rakefile",
+        "webauthn.gemspec"
+      ].select { |path| File.file?(path) }.sort
     end
 
   spec.bindir        = "exe"
