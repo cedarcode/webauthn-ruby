@@ -1,5 +1,11 @@
 # Changelog
 
+## [v3.3.1] - 2026-11-20
+
+### Changed
+
+- Update `cbor` dependency from `~> 0.5.9` to `~> 0.6.2.2` and `cose` dependency from `~> 1.1` to `~> 1.4`. [#523](https://github.com/cedarcode/webauthn-ruby/pull/523) [@stanhu]
+
 ## [v3.3.0] - 2025-02-06
 
 ### Added
@@ -413,6 +419,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
   - `WebAuthn::AuthenticatorAttestationResponse.valid?` can be used to validate fido-u2f attestations returned by the browser
 - Works with ruby 2.5
 
+[v3.3.1]: https://github.com/cedarcode/webauthn-ruby/compare/v3.3.0...v3.3.1/
 [v3.1.0]: https://github.com/cedarcode/webauthn-ruby/compare/v3.0.0...v3.1.0/
 [v3.0.0]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0/
 [v3.0.0.alpha2]: https://github.com/cedarcode/webauthn-ruby/compare/2-stable...v3.0.0.alpha2/
@@ -456,6 +463,7 @@ Note: Both additions should help making it compatible with Chrome for Android 70
 [@MaximeNdutiye]: https://github.com/MaximeNdutiye
 [@sorah]: https://github.com/sorah
 [@ssuttner]: https://github.com/ssuttner
+[@stanhu]: https://github.com/stanhu
 [@padulafacundo]: https://github.com/padulafacundo
 [@santiagorodriguez96]: https://github.com/santiagorodriguez96
 [@lgarron]: https://github.com/lgarron
