@@ -21,6 +21,7 @@ module WebAuthn
     MAX_CREDENTIAL_ID_LENGTH = 1023
 
     def self.from_client(response, relying_party: WebAuthn.configuration.relying_party)
+      validate_client_response!(response, %w[attestationObject clientDataJSON])
       encoder = relying_party.encoder
 
       new(
