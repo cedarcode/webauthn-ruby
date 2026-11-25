@@ -4,14 +4,14 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.5.z    | :white_check_mark: |
-| 2.4.z    | :white_check_mark: |
-| 2.3.z    | :white_check_mark: |
-| 2.2.z    | :x: |
-| 2.1.z    | :x: |
-| 2.0.z    | :x: |
-| 1.18.z   | :white_check_mark: |
-| < 1.18   | :x:                |
+| 3.5.z   | :white_check_mark: |
+| 3.4.z   | :white_check_mark: |
+| 3.3.z   | :white_check_mark: |
+| 3.2.z   | :x:                |
+| 3.1.z   | :x:                |
+| 3.0.z   | :x:                |
+| 2.5.z   | :white_check_mark: |
+| < 2.5   | :x:                |
 
 ## Reporting a Vulnerability
 
